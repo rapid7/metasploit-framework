@@ -12,6 +12,15 @@ The module was validated against:
 - Elasticsearch 8.19.2: vulnerable
 - Elasticsearch 8.19.3: patched
 
+Known affected Elasticsearch version ranges are:
+
+- 8.18.0 through 8.18.5
+- 8.19.0 through 8.19.2
+- 9.0.0 through 9.0.5
+- 9.1.0 through 9.1.2
+
+The corresponding fixed releases are 8.18.6, 8.19.3, 9.0.6, and 9.1.3.
+
 The target must have the attachment ingest processor available. The
 authenticated user must be permitted to create, simulate, and delete ingest
 pipelines.
@@ -48,7 +57,7 @@ Examples:
 
 ### FILEPATH
 
-The absolute path of the local file to retrieve.
+The absolute POSIX path of the local file to retrieve.
 
 The default value is:
 
@@ -62,6 +71,9 @@ processor.
 The default value is:
 
        1048576
+
+This default limits extraction to 1,048,576 characters to avoid unexpectedly
+large extraction results. The value is not Elasticsearch-specific.
 
 A value of `-1` requests unlimited extraction.
 

