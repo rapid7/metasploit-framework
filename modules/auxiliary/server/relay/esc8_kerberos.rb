@@ -35,7 +35,16 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [[ 'Relay', { 'Description' => 'Run SMB ESC8 Kerberos relay server' } ]],
       # The relayed connection is already authenticated by the AP-REQ, so
       # follow-up enrollment requests must not attempt to re-authenticate.
-      'DefaultOptions' => { 'HTTP::Auth' => Msf::Exploit::Remote::AuthOption::NONE },
+      #
+      # SRVHOST defaults to :: (dual-stack) rather than the framework-wide
+      # 0.0.0.0 default. The documented coercion is an IPv6 DNS takeover
+      # (CVE-2026-20929) that steers the victim to the attacker over IPv6, so a
+      # 0.0.0.0 listener is IPv4-only and never receives the connection. On
+      # Linux and macOS :: also accepts IPv4, so A-record coercion still works,
+      # and the paired coercion module already defaults SRVHOST to :: for the
+      # same reason. (A Windows relay host binds :: IPv6-only; there set SRVHOST
+      # to the attacker IPv6 the coercion hands out.)
+      'DefaultOptions' => { 'HTTP::Auth' => Msf::Exploit::Remote::AuthOption::NONE, 'SRVHOST' => '::' },
       'PassiveActions' => [ 'Relay' ],
       'DefaultAction' => 'Relay',
       'Notes' => {
