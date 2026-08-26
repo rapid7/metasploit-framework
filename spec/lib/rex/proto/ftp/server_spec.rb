@@ -6,17 +6,6 @@ require 'rex/proto/ftp/server'
 RSpec.describe Rex::Proto::Ftp::Server do
   subject(:server) { described_class.new(0, '127.0.0.1') }
 
-  # Prevent ThreadFactory from delegating to a framework ThreadManager,
-  # which would spawn a "Thread Monitor" thread that outlives this spec.
-  before(:all) do
-    @original_thread_factory_provider = Rex::ThreadFactory.class_variable_get(:@@provider)
-    Rex::ThreadFactory.provider = nil
-  end
-
-  after(:all) do
-    Rex::ThreadFactory.provider = @original_thread_factory_provider
-  end
-
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
