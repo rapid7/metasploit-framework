@@ -33,7 +33,8 @@ RSpec.describe Msf::Modules::Metadata::Obj do
   end
 
   before do
-    allow(module_instance.class).to receive(:refname).and_return('windows/test')
+    module_class = double('ModuleClass', refname: 'windows/test')
+    allow(module_instance).to receive(:class).and_return(module_class)
     allow(::File).to receive(:mtime).and_return(Time.now)
   end
 
@@ -83,7 +84,8 @@ RSpec.describe Msf::Modules::Metadata::Obj do
       end
 
       before do
-        allow(module_instance_dynamic.class).to receive(:refname).and_return('windows/dynamic')
+        module_class = double('ModuleClass', refname: 'windows/dynamic')
+        allow(module_instance_dynamic).to receive(:class).and_return(module_class)
         allow(module_instance_dynamic).to receive(:shortname).and_return('dynamic')
         allow(module_instance_dynamic).to receive(:module_info).and_return({})
         

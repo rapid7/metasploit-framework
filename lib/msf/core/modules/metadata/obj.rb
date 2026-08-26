@@ -263,7 +263,6 @@ class Obj
         'payload_type'       => @payload_type,
         'adapter_refname'    => @adapter_refname,
         'adapted_refname'    => @adapted_refname,
-        'adapted'            => @adapted,
         'staged'             => @staged,
         'stage_refname'      => @stage_refname,
         'stager_refname'     => @stager_refname,
@@ -273,6 +272,10 @@ class Obj
     end
 
     data.to_json(*args)
+  end
+
+  def as_json(*args)
+    JSON.parse(to_json(*args))
   end
 
   #
