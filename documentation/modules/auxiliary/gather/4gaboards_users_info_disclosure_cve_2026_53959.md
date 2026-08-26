@@ -25,6 +25,7 @@ cd 4gaBoards-3.3.8
 openssl rand -hex 64
 ```
 3. **Modify docker compose file**
+
 Open docker-compose.yml file and make the following changes:
 - Replace `SECRET_KEY` with the one generated in the above step
 - Change `image: ghcr.io/rargames/4gaboards:latest` to `image: ghcr.io/rargames/4gaboards:3.3.8`
