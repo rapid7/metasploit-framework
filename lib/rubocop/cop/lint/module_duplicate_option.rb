@@ -3,9 +3,8 @@
 module RuboCop
   module Cop
     module Lint
-      # Detects module options that are registered again after a mixin has
-      # already registered them. A module that only needs a different default
-      # should use the DefaultOptions metadata instead.
+      # Detects Opt helper calls that supply only a new default for an option
+      # already registered by a mixin. Use the DefaultOptions metadata instead.
       #
       # @example
       #   # bad
@@ -21,10 +20,22 @@ module RuboCop
       #   }
       class ModuleDuplicateOption < Base
         MIXIN_OPTIONS = {
-          'Msf::Auxiliary::Scanner' => %w[RHOSTS THREADS],
-          'Msf::Exploit::Remote::HttpClient' => %w[RHOST RPORT VHOST SSL Proxies],
-          'Msf::Exploit::Remote::Tcp' => %w[RHOST RPORT],
-          'Msf::Exploit::Remote::Udp' => %w[RHOST RPORT]
+          'Msf::Auxiliary::Scanner' => {
+            'RHOSTS' => nil
+          },
+          'Msf::Exploit::Remote::HttpClient' => {
+            'RHOST' => nil,
+            'RPORT' => 80,
+            'Proxies' => nil
+          },
+          'Msf::Exploit::Remote::Tcp' => {
+            'RHOST' => nil,
+            'RPORT' => nil
+          },
+          'Msf::Exploit::Remote::Udp' => {
+            'RHOST' => nil,
+            'RPORT' => nil
+          }
         }.freeze
 
         MSG = 'Do not register the pre-existing %<option>s option again; set its value in DefaultOptions instead.'
@@ -40,7 +51,8 @@ module RuboCop
 
           option_nodes(node).each do |option_node|
             option_name = option_name(option_node)
-            next unless inherited_options.include?(option_name)
+            next unless inherited_options.key?(option_name)
+            next unless only_default_changed?(option_node, inherited_options[option_name])
             next if deregistered_before?(class_node, node, option_name)
 
             add_offense(option_node, message: format(MSG, option: option_name))
@@ -56,7 +68,7 @@ module RuboCop
             send_node.first_argument&.const_name
           end
 
-          MIXIN_OPTIONS.slice(*included_mixins).values.flatten
+          MIXIN_OPTIONS.slice(*included_mixins).values.reduce({}, &:merge)
         end
 
         def option_nodes(register_node)
@@ -74,6 +86,13 @@ module RuboCop
           elsif node.method?(:new) && node.first_argument&.str_type?
             node.first_argument.value
           end
+        end
+
+        def only_default_changed?(node, inherited_default)
+          return false unless node.receiver&.const_name == 'Opt' && node.arguments.one?
+
+          argument = node.first_argument
+          !argument.respond_to?(:value) || argument.value != inherited_default
         end
 
         def deregistered_before?(class_node, register_node, option_name)
