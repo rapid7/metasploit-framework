@@ -134,18 +134,20 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
     RUBY
   end
 
-  it 'flags an inherited option when its type changes but its description does not' do
+  it 'flags an inherited option when its type and description change without autocorrecting it' do
     expect_offense(<<~RUBY)
       class MetasploitModule < Msf::Auxiliary
         include Msf::Exploit::Remote::Tcp
 
         def initialize(info = {})
           super
-          register_options([OptString.new('RPORT', [true, 'The target port', '4840'])])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+          register_options([OptString.new('RPORT', [true, 'The application port', '4840'])])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change the type of the pre-existing RPORT option from OptPort to OptString.
         end
       end
     RUBY
+
+    expect_no_corrections
   end
 
   it 'flags an identical inherited option' do

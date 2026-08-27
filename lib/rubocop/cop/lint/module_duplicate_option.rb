@@ -25,27 +25,28 @@ module RuboCop
 
         MIXIN_OPTIONS = {
           'Msf::Auxiliary::Scanner' => {
-            'RHOSTS' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html' },
-            'THREADS' => { default: 1, description: 'The number of concurrent threads (max one per host)' }
+            'RHOSTS' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
+            'THREADS' => { default: 1, description: 'The number of concurrent threads (max one per host)', type: 'OptInt' }
           },
           'Msf::Exploit::Remote::HttpClient' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html' },
-            'RPORT' => { default: 80, description: 'The target port' },
-            'VHOST' => { default: nil, description: 'HTTP server virtual host' },
-            'SSL' => { default: false, description: 'Negotiate SSL/TLS for outgoing connections' },
-            'Proxies' => { default: nil, description: nil }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
+            'RPORT' => { default: 80, description: 'The target port', type: 'OptPort' },
+            'VHOST' => { default: nil, description: 'HTTP server virtual host', type: 'OptString' },
+            'SSL' => { default: false, description: 'Negotiate SSL/TLS for outgoing connections', type: 'OptBool' },
+            'Proxies' => { default: nil, description: nil, type: 'OptProxies' }
           },
           'Msf::Exploit::Remote::Tcp' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html' },
-            'RPORT' => { default: nil, description: 'The target port' }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
+            'RPORT' => { default: nil, description: 'The target port', type: 'OptPort' }
           },
           'Msf::Exploit::Remote::Udp' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html' },
-            'RPORT' => { default: nil, description: 'The target port' }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
+            'RPORT' => { default: nil, description: 'The target port', type: 'OptPort' }
           }
         }.freeze
 
         MSG = 'Do not register the pre-existing %<option>s option again; set its value in DefaultOptions instead.'
+        TYPE_MSG = 'Do not change the type of the pre-existing %<option>s option from %<expected>s to %<actual>s.'
 
         def on_class(class_node)
           return unless class_node.identifier&.const_name == 'MetasploitModule'
@@ -57,16 +58,20 @@ module RuboCop
             option_nodes(register_node).filter_map do |option_node|
               option_name = option_name(option_node)
               next unless inherited_options.key?(option_name)
-              next unless description_unchanged?(option_node, inherited_options[option_name][:description])
+
+              type_changed = type_changed?(option_node, inherited_options[option_name][:type])
+              next unless type_changed || description_unchanged?(option_node, inherited_options[option_name][:description])
               next if deregistered_before?(class_node, register_node, option_name)
 
-              [option_node, option_name, inherited_options[option_name]]
+              [option_node, option_name, inherited_options[option_name], type_changed]
             end
           end
 
-          offenses.each_with_index do |(option_node, option_name, _option), index|
-            add_offense(option_node, message: format(MSG, option: option_name)) do |corrector|
-              autocorrect(corrector, class_node, offenses) if index.zero?
+          correctable_offenses = offenses.reject(&:last)
+          offenses.each do |option_node, option_name, option, type_changed|
+            message = type_changed ? format(TYPE_MSG, option: option_name, expected: option[:type], actual: option_type(option_node)) : format(MSG, option: option_name)
+            add_offense(option_node, message: message) do |corrector|
+              autocorrect(corrector, class_node, correctable_offenses) if !type_changed && option_node == correctable_offenses.first&.first
             end
           end
         end
@@ -108,6 +113,14 @@ module RuboCop
                         end
 
           description.nil? || description.nil_type? || (description.str_type? && description.value == inherited_description)
+        end
+
+        def option_type(node)
+          node.receiver&.const_name if node.method?(:new)
+        end
+
+        def type_changed?(node, inherited_type)
+          option_type(node) && option_type(node) != inherited_type
         end
 
         def autocorrect(corrector, class_node, offenses)
