@@ -503,12 +503,19 @@ class Payload < Msf::Module
     # XXX: This approach is subpar, and payloads should really be ranked!
     preferred_payloads = [
       # These payloads are generally reliable and common enough in practice
-      'windows/meterpreter/reverse_tcp',  # all 64-bit versions of Windows will also support x86 but the same isn't true
-      'x64/meterpreter/reverse_tcp',      # for Linux so if a 32-bit Windows Meterpreter isn't an option, select any x64
-      'x86/meterpreter/reverse_tcp',      # Meterpreter
+      'windows/meterpreter/reverse_tcp',  # Native Windows Meterpreter (no fetch wrapper)
+      # Prefer HTTP fetch over FTP fetch for CMD payloads (more reliable, less likely to be blocked)
+      '/http/x64/meterpreter/reverse_tcp',
+      '/https/x64/meterpreter/reverse_tcp',
+      '/http/x86/meterpreter/reverse_tcp',
+      '/https/x86/meterpreter/reverse_tcp',
+      'x64/meterpreter/reverse_tcp',      # Generic x64 meterpreter (will match any fetch method)
+      'x86/meterpreter/reverse_tcp',      # Generic x86 meterpreter (will match any fetch method)
       '/meterpreter/reverse_tcp',
       '/shell/reverse_tcp',
-      'java/jsp_shell_reverse_tcp',
+      'java/meterpreter/reverse_tcp',     # Java Meterpreter (staged)
+      'java/meterpreter_reverse_tcp',     # Java Meterpreter (stageless)
+      'java/jsp_shell_reverse_tcp',       # Java JSP shell (for JSP delivery)
       'java/shell_reverse_tcp',
       'cmd/unix/reverse_bash',
       'cmd/unix/reverse_netcat',
