@@ -484,20 +484,12 @@ class Payload < Msf::Module
     lhost = mod.datastore['LHOST'] || Rex::Socket.source_address(mod.datastore['RHOST'] || '50.50.50.50')
 
     configure_payload = lambda do |payload|
-      if mod.datastore.is_a?(Msf::DataStore)
-        payload_defaults = { 'PAYLOAD' => payload }
+      # Directly set the payload value to override any existing user-defined value
+      mod.datastore['PAYLOAD'] = payload
 
-        # Set LHOST if this is a reverse payload
-        if payload.index('reverse')
-          payload_defaults['LHOST'] = lhost
-        end
-        mod.datastore.import_defaults_from_hash(payload_defaults, imported_by: 'choose_payload')
-      else
-        mod.datastore['PAYLOAD'] = payload
-        # Set LHOST if this is a reverse payload
-        if payload.index('reverse')
-          mod.datastore['LHOST'] = lhost
-        end
+      # Set LHOST if this is a reverse payload
+      if payload.index('reverse')
+        mod.datastore['LHOST'] = lhost
       end
 
       payload
@@ -516,6 +508,8 @@ class Payload < Msf::Module
       'x86/meterpreter/reverse_tcp',      # Meterpreter
       '/meterpreter/reverse_tcp',
       '/shell/reverse_tcp',
+      'java/jsp_shell_reverse_tcp',
+      'java/shell_reverse_tcp',
       'cmd/unix/reverse_bash',
       'cmd/unix/reverse_netcat',
       'cmd/windows/powershell_reverse_tcp',

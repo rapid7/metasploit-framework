@@ -2244,15 +2244,15 @@ class Core
     if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
       active_module.import_target_defaults
 
-      # If the currently configured payload is not compatible with the new
-      # target's platform/arch, try to auto-select a compatible one. mirrors
-      # the default payload selection performed when the module is first used.
+      # When switching targets, always try to select the best payload for the new target.
+      # This ensures we upgrade from generic payloads to target-specific ones, and switch
+      # from incompatible payloads to compatible ones.
       current_payload = active_module.datastore['PAYLOAD']
-      unless current_payload && active_module.compatible_payloads.any? { |payload_name, _| payload_name == current_payload }
+      if current_payload
         chosen_payload = Msf::Payload.choose_payload(active_module)
         new_payload = active_module.datastore['PAYLOAD']
         if chosen_payload && new_payload == chosen_payload && new_payload != current_payload
-          print_status("Payload not compatible with target, defaulting to #{chosen_payload}")
+          print_status("Switching from #{current_payload} to #{chosen_payload}")
         end
       end
     end
