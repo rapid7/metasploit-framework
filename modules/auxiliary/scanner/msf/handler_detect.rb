@@ -86,6 +86,13 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     ports = validate_ports
 
+    # Per-host sink for detected handlers, rendered as one Rex::Text::Table when
+    # the port sweep finishes (instead of long single-line hits). Scanner runs
+    # run_host on a replicant per host, so this is host-local; the lock guards
+    # the concurrent per-port worker threads below.
+    @host_results = []
+    @host_results_lock = ::Mutex.new
+
     # Hard per-port deadline (seconds) so one wedged port - e.g. a black-hole TLS
     # handshake - can never stall its whole concurrency batch. It sums the
     # worst-case blocking waits a single port can incur back-to-back:
@@ -119,6 +126,8 @@ class MetasploitModule < Msf::Auxiliary
         # Bounded join as a backstop in case Timeout cannot interrupt a blocked call.
         threads.each { |t| t.join(port_deadline + 5) }
       rescue ::Timeout::Error
+        # Swallowed: the per-port rescue above already reported the skip, and the
+        # ensure still needs to run so a wedged batch cannot leak live threads.
       ensure
         threads.each do |x|
           x.kill
@@ -127,6 +136,8 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
+
+    print_host_results(ip)
   end
 
   def check_port(ip, port, timeout)
@@ -207,8 +218,8 @@ class MetasploitModule < Msf::Auxiliary
       fp = fingerprint(drain_stage(s))
       next unless fp[:match]
 
-      suffix = ssl ? ' over SSL/TLS (ReverseTcpDouble - paired connections)' : ' (ReverseTcpDouble - paired connections)'
-      return { payload: "#{fp[:payload]}#{suffix}", framing: fp[:framing], confidence: fp[:confidence], bytes: fp[:bytes] }
+      detail = ['ReverseTcpDouble paired connections', ('over SSL/TLS' if ssl), fp[:detail]].compact.join('; ')
+      return { payload: fp[:payload], detail: detail, framing: fp[:framing], confidence: fp[:confidence], bytes: fp[:bytes] }
     end
     nil
   rescue ::StandardError
@@ -249,7 +260,8 @@ class MetasploitModule < Msf::Auxiliary
     return nil unless (data.nil? || data.empty?) && elapsed < 1.0
 
     {
-      payload: 'likely pingback handler (pingback_reverse_tcp family)',
+      payload: 'likely pingback handler',
+      detail: 'pingback_reverse_tcp family',
       framing: "handler closed the connection #{elapsed.round(2)}s after a 16-byte write, returning no data (reads a 16-byte UUID then closes)",
       confidence: 'low'
     }
@@ -279,6 +291,8 @@ class MetasploitModule < Msf::Auxiliary
       result = fingerprint(buf)
       handle_match(ip, port, 'udp', result, nil) if result[:match]
     rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
+      # Swallowed: a refused/filtered/closed UDP port is a non-finding while
+      # sweeping, so there is nothing to report and no port worth alarming on.
     rescue ::Interrupt
       raise $ERROR_INFO
     rescue ::StandardError => e
@@ -295,7 +309,7 @@ class MetasploitModule < Msf::Auxiliary
   # Report a detected handler and, for command-shell echo probes, optionally
   # echo the token back to verify the shell and capture follow-up commands.
   def handle_match(ip, port, proto, result, sock)
-    report_handler(ip, port, proto, result)
+    row = report_handler(ip, port, proto, result)
 
     return unless result[:echo_token] && datastore['ECHO_BACK'] && sock
 
@@ -313,15 +327,46 @@ class MetasploitModule < Msf::Auxiliary
       )
       print_good("#{Rex::Socket.to_authority(ip, port)} - Saved captured commands to loot: #{loot_path}")
       report_note(host: ip, port: port, type: 'msf.handler.followup', data: { 'commands' => followup.split("\n").reject(&:empty?), 'loot' => loot_path }, update: :unique_data)
+      @host_results_lock.synchronize { row[:notes] = 'AutoRunScript/operator commands captured to loot' }
     else
       vprint_status("#{Rex::Socket.to_authority(ip, port)} - No follow-up commands after echo-back (no AutoRunScript configured)")
     end
   end
 
+  # Record a detection in the per-host results sink (printed as a table by
+  # print_host_results when the host sweep finishes) and report the service.
+  # Returns the row so callers (handle_match) can annotate it afterwards.
   def report_handler(ip, port, proto, result)
-    bytes = result[:bytes] ? ", #{result[:bytes]} bytes" : ''
-    print_good("#{Rex::Socket.to_authority(ip, port)} - Metasploit handler detected (#{proto}): #{result[:payload]} (#{result[:confidence]} confidence#{bytes}) [#{result[:framing]}]")
-    report_service(host: ip, port: port, proto: proto, name: 'metasploit-handler', info: "#{result[:payload]} | #{result[:framing]} (#{result[:confidence]} confidence)")
+    vprint_status("#{Rex::Socket.to_authority(ip, port)} - Metasploit handler detected (#{proto}): #{result[:payload]}")
+    row = {
+      port: port,
+      proto: proto,
+      payload: result[:payload],
+      detail: result[:detail].to_s,
+      confidence: result[:confidence],
+      bytes: result[:bytes],
+      framing: result[:framing],
+      notes: ''
+    }
+    @host_results_lock.synchronize { @host_results << row }
+    svc_detail = row[:detail].empty? ? '' : " (#{row[:detail]})"
+    report_service(host: ip, port: port, proto: proto, name: 'metasploit-handler', info: "#{result[:payload]}#{svc_detail} | #{result[:framing]} (#{result[:confidence]} confidence)")
+    row
+  end
+
+  # Render everything report_handler collected for this host as a single table.
+  def print_host_results(ip)
+    return if @host_results.empty?
+
+    tbl = Rex::Text::Table.new(
+      'Header' => "Metasploit payload handlers detected on #{ip} (#{@host_results.length} found)",
+      'Indent' => 1,
+      'Columns' => ['Port', 'Proto', 'Payload', 'Detail', 'Confidence', 'Bytes', 'Framing', 'Notes']
+    )
+    @host_results.sort_by { |r| [r[:port], r[:proto]] }.each do |r|
+      tbl << [r[:port], r[:proto], r[:payload], r[:detail], r[:confidence], r[:bytes], r[:framing], r[:notes]]
+    end
+    print_good(tbl.to_s)
   end
 
   # Echo the verification token back, then keep reading to capture whatever the
@@ -439,7 +484,7 @@ class MetasploitModule < Msf::Auxiliary
         if hc
           hc
         elsif raw && !raw.empty? && (fp = fingerprint(raw))[:match]
-          { payload: "#{fp[:payload]} over SSL/TLS", framing: fp[:framing], confidence: fp[:confidence], bytes: fp[:bytes], echo_token: fp[:echo_token] }
+          { payload: fp[:payload], detail: "over SSL/TLS; #{fp[:detail]}", framing: fp[:framing], confidence: fp[:confidence], bytes: fp[:bytes], echo_token: fp[:echo_token] }
         end
       end
     rescue ::StandardError => e
@@ -505,7 +550,8 @@ class MetasploitModule < Msf::Auxiliary
     # "It works!" body to ANY unknown URI (real servers would 404).
     if code == 200 && body.include?('It works!')
       return {
-        payload: "Metasploit reverse_#{scheme} Meterpreter handler (HTTP transport)",
+        payload: "reverse_#{scheme} Meterpreter handler",
+        detail: "#{scheme.upcase} transport",
         framing: %(200 OK + default "It works!" body on an unknown URI; Server: #{server_str}),
         confidence: 'high'
       }
@@ -515,7 +561,8 @@ class MetasploitModule < Msf::Auxiliary
     # returns a distinctive 404 page on unknown URIs.
     if body.include?('was not found on this server') && body.include?('<h1>Not found</h1>')
       return {
-        payload: 'Metasploit Rex HTTP server (web_delivery / fetch handler / exploit module server)',
+        payload: 'Metasploit Rex HTTP server',
+        detail: 'web_delivery / fetch handler / exploit module server',
         framing: "Rex 404 page on unknown URI; Server: #{server_str}",
         confidence: 'high'
       }
@@ -549,7 +596,8 @@ class MetasploitModule < Msf::Auxiliary
     if (md = buf.match(/\Aecho ([A-Za-z0-9]{8,24});?\s*\z/))
       return {
         match: true,
-        payload: 'Metasploit command shell handler (reverse shell - "echo" verification probe)',
+        payload: 'command shell handler',
+        # detail: 'reverse shell - "echo" verification probe',
         framing: 'unsolicited "echo <token>" shell-verification command',
         confidence: 'high',
         bytes: bytes,
@@ -562,7 +610,8 @@ class MetasploitModule < Msf::Auxiliary
       confidence = (l_be == body.length) ? 'high' : 'medium'
       return {
         match: true,
-        payload: 'python/meterpreter/reverse_tcp (base64/zlib staged)',
+        payload: 'python/meterpreter/reverse_tcp',
+        detail: 'base64/zlib staged',
         framing: "4-byte big-endian length prefix (declared #{l_be}); base64/zlib stage",
         confidence: confidence,
         bytes: bytes
@@ -573,7 +622,7 @@ class MetasploitModule < Msf::Auxiliary
     if plausible_stage_len?(l_le) && body.length >= l_le
       return {
         match: true,
-        payload: windows_payload_guess(l_le),
+        **windows_payload_guess(l_le),
         framing: "4-byte little-endian length prefix (declared #{l_le}, #{bytes} bytes received)",
         confidence: 'high',
         bytes: bytes
@@ -584,7 +633,7 @@ class MetasploitModule < Msf::Auxiliary
     if plausible_stage_len?(l_be) && body.length >= l_be
       return {
         match: true,
-        payload: big_endian_payload_guess(body),
+        **big_endian_payload_guess(body),
         framing: "4-byte big-endian length prefix (declared #{l_be}, #{bytes} bytes received)",
         confidence: 'medium',
         bytes: bytes
@@ -598,7 +647,8 @@ class MetasploitModule < Msf::Auxiliary
     if bytes < 4096 && (buf.include?('/bin/sh') || buf.include?('//sh'))
       return {
         match: true,
-        payload: 'native staged unix shell (execve /bin/sh shellcode, e.g. linux/*/shell/reverse_tcp)',
+        payload: 'native staged unix shell',
+        detail: 'execve /bin/sh shellcode, e.g. linux/*/shell/reverse_tcp',
         framing: "raw execve shellcode stage, no length prefix (#{bytes} bytes)",
         confidence: 'medium',
         bytes: bytes
@@ -614,7 +664,8 @@ class MetasploitModule < Msf::Auxiliary
     if bytes >= 48 && buf.b.start_with?("\xFC".b) && printable_ratio(buf) < 0.9
       return {
         match: true,
-        payload: 'Windows staged payload - raw stager shellcode (e.g. reverse_nonx_tcp/reverse_ord_tcp/shell)',
+        payload: 'Windows staged payload - raw stager shellcode',
+        detail: 'e.g. reverse_nonx_tcp/reverse_ord_tcp/shell',
         framing: "raw x86 stager shellcode, no length prefix (#{bytes} bytes, 0xFC prelude)",
         confidence: 'medium',
         bytes: bytes
@@ -629,7 +680,8 @@ class MetasploitModule < Msf::Auxiliary
     if bytes >= 128 && printable_ratio(buf) < 0.75
       return {
         match: true,
-        payload: 'native staged meterpreter (linux/osx) or encrypted/stageless handler',
+        payload: 'native staged meterpreter or encrypted/stageless handler',
+        detail: 'linux/osx native stage',
         framing: "no length prefix; #{bytes} bytes of unsolicited binary data",
         confidence: 'low',
         bytes: bytes
@@ -640,15 +692,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Refine a big-endian length-prefixed stage into its source family by content.
+  # Returns the payload/detail fields for the result hash.
   def big_endian_payload_guess(body)
     sample = body[0, 65_536].to_s
     if sample.include?('<?php') || sample.include?('eval(')
-      'php/meterpreter/reverse_tcp (php staged)'
+      { payload: 'php/meterpreter/reverse_tcp', detail: 'php staged' }
     elsif sample.include?("PK\x03\x04") || sample.include?('META-INF')
       # Java and Android (Dalvik) both stage a jar/dex with a BE length prefix.
-      'java or android meterpreter (JVM/Dalvik jar staged)'
+      { payload: 'java or android meterpreter', detail: 'JVM/Dalvik jar staged' }
     else
-      'staged payload with big-endian length prefix (python/php/java family)'
+      { payload: 'staged payload with big-endian length prefix', detail: 'python/php/java family' }
     end
   end
 
@@ -665,13 +718,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Best-effort arch/payload guess for windows native stages based on stage size.
+  # Returns the payload/detail fields for the result hash.
   def windows_payload_guess(stage_len)
     if stage_len < 8192
-      'windows staged shell/exec (small native stage, e.g. windows/shell/reverse_tcp)'
+      { payload: 'windows staged shell/exec', detail: 'small native stage, e.g. windows/shell/reverse_tcp' }
     elsif stage_len > 200_000
-      'windows/x64/meterpreter/reverse_tcp (native staged)'
+      { payload: 'windows/x64/meterpreter/reverse_tcp', detail: 'x64 native staged' }
     else
-      'windows/meterpreter/reverse_tcp (x86 native staged)'
+      { payload: 'windows/meterpreter/reverse_tcp', detail: 'x86 native staged' }
     end
   end
 

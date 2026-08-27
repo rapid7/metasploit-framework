@@ -251,6 +251,83 @@ set lport 4448
 run -j
 ```
 
+or use this `msfconsole.rc`:
+
+```
+setg ExitOnSession false
+setg LHOST 127.0.0.1
+setg PayloadUUIDTracking false
+use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LPORT 4001
+run -j -z
+set payload python/meterpreter/reverse_tcp
+set LPORT 4002
+run -j -z
+set payload linux/x64/shell_reverse_tcp
+set LPORT 4003
+run -j -z
+set payload windows/meterpreter/reverse_http
+set LPORT 4004
+run -j -z
+set payload windows/meterpreter/reverse_https
+set LPORT 4005
+run -j -z
+set payload python/meterpreter/reverse_tcp_ssl
+set LPORT 4006
+run -j -z
+set payload python/shell_reverse_udp
+set LPORT 4007
+run -j -z
+set payload windows/meterpreter/reverse_nonx_tcp
+set LPORT 4008
+run -j -z
+set payload cmd/unix/reverse
+set LPORT 4009
+run -j -z
+set payload windows/x64/pingback_reverse_tcp
+set LPORT 4010
+run -j -z
+# 4011: a reverse shell with an operator AutoRunScript - the scanner answers its
+# echo probe, the AutoRunScript fires, and the commands it runs are captured + looted.
+set payload linux/x64/shell_reverse_tcp
+set LPORT 4011
+set AutoRunScript post/test/autorun_demo
+run -j -z
+```
+
+Use this `~/.msf4/modules/post/test/autorun_demo.rb`:
+
+```
+class MetasploitModule < Msf::Post
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'AutoRunScript capture demo',
+        'Description' => %q{
+          Writes a short sequence of recon commands to a freshly opened shell. Used to
+          demonstrate auxiliary/scanner/msf/handler_detect ECHO_BACK follow-up capture:
+          when the scanner answers the shell's "echo" verification probe, the session is
+          treated as live, this AutoRunScript fires, and the scanner captures the commands
+          it sends - i.e. the operator's AutoRunScript content.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['h00die'],
+        'Platform' => %w[win linux unix osx bsd],
+        'SessionTypes' => %w[shell]
+      )
+    )
+  end
+
+  def run
+    %W[whoami id hostname uname\ -a].each do |cmd|
+      session.shell_write("#{cmd}\n")
+    end
+  end
+end
+```
+
 ## Verification Steps
 
 1. Start one or more staged `reverse_tcp` handlers as shown above.
@@ -340,10 +417,71 @@ quietest possible scan.
 
 ## Scenarios
 
-### Example run against a host running several staged handlers
+### Example run against a host running the `msfconsole.rc` mentioned above
 
 ```
-msf6 auxiliary(scanner/msf/handler_detect) > run
+msf > use auxiliary/scanner/msf/handler_detect
+msf auxiliary(scanner/msf/handler_detect) > set RHOSTS 127.0.0.1
+RHOSTS => 127.0.0.1
+msf auxiliary(scanner/msf/handler_detect) > set PORTS 4001-4011
+PORTS => 4001-4011
+msf auxiliary(scanner/msf/handler_detect) > set SCAN_UDP true
+SCAN_UDP => true
+msf auxiliary(scanner/msf/handler_detect) > set verbose true
+verbose => true
+msf auxiliary(scanner/msf/handler_detect) > run
+[*] 127.0.0.1             - 127.0.0.1:4007 - Connection refused
+[*] 127.0.0.1             - 127.0.0.1:4008 - Metasploit handler detected (tcp): Windows staged payload - raw stager shellcode
+[*] 127.0.0.1             - 127.0.0.1:4002 - Metasploit handler detected (tcp): staged payload with big-endian length prefix
+[*] 127.0.0.1             - 127.0.0.1:4001 - Metasploit handler detected (tcp): windows/x64/meterpreter/reverse_tcp
+[-] 127.0.0.1             - 127.0.0.1:4010 - SSL probe failed: Errno::ECONNRESET Connection reset by peer - SSL_connect
+[*] 127.0.0.1             - 127.0.0.1:4003 - Metasploit handler detected (tcp): command shell handler
+[*] 127.0.0.1             - 127.0.0.1:4007 - Metasploit handler detected (udp): command shell handler
+[*] 127.0.0.1             - 127.0.0.1:4005 - Metasploit handler detected (tcp): reverse_https Meterpreter handler
+[*] 127.0.0.1             - 127.0.0.1:4006 - Metasploit handler detected (tcp): python/meterpreter/reverse_tcp
+[*] 127.0.0.1             - 127.0.0.1:4004 - Metasploit handler detected (tcp): reverse_http Meterpreter handler
+[*] 127.0.0.1             - 127.0.0.1:4010 - Metasploit handler detected (tcp): likely pingback handler
+[-] 127.0.0.1             - 127.0.0.1:4009 - SSL probe failed: OpenSSL::SSL::SSLError SSL_connect returned=1 errno=0 peeraddr=127.0.0.1:4009 state=SSLv3/TLS write client hello: wrong version number
+[*] 127.0.0.1             - 127.0.0.1:4009 - Metasploit handler detected (tcp): command shell handler
+[*] 127.0.0.1             - 127.0.0.1:4003 - No follow-up commands after echo-back (no AutoRunScript configured)
+[*] 127.0.0.1             - 127.0.0.1:4011 - Metasploit handler detected (tcp): command shell handler
+[+] 127.0.0.1             - 127.0.0.1:4011 - Captured follow-up after shell verification (likely AutoRunScript / operator commands):
+      whoami
+      id
+      hostname
+      uname -a
+[+] 127.0.0.1             - 127.0.0.1:4011 - Saved captured commands to loot: /home/h00die/.msf4/loot/20260827120034_default_127.0.0.1_metasploit.handl_002043.txt
+[+] 127.0.0.1             - Metasploit payload handlers detected on 127.0.0.1 (11 found)
+============================================================
+
+ Port  Proto  Payload                      Detail                       Confidence  Bytes   Framing                                         Notes
+ ----  -----  -------                      ------                       ----------  -----   -------                                         -----
+ 4001  tcp    windows/x64/meterpreter/rev  x64 native staged            high        249293  4-byte little-endian length prefix (declared 2
+              erse_tcp                                                                      48902, 249293 bytes received)
+ 4002  tcp    staged payload with big-end  python/php/java family       medium      23795   4-byte big-endian length prefix (declared 2340
+              ian length prefix                                                             4, 23795 bytes received)
+ 4003  tcp    command shell handler                                     high        20      unsolicited "echo <token>" shell-verification
+                                                                                            command
+ 4004  tcp    reverse_http Meterpreter ha  HTTP transport               high                200 OK + default "It works!" body on an unknow
+              ndler                                                                         n URI; Server: Apache
+ 4005  tcp    reverse_https Meterpreter h  HTTPS transport              high                200 OK + default "It works!" body on an unknow
+              andler                                                                        n URI; Server: Apache
+ 4006  tcp    python/meterpreter/reverse_  over SSL/TLS; base64/zlib s  high        23408   4-byte big-endian length prefix (declared 2340
+              tcp                          taged                                            4); base64/zlib stage
+ 4007  udp    command shell handler                                     high        27      unsolicited "echo <token>" shell-verification
+                                                                                            command
+ 4008  tcp    Windows staged payload - ra  e.g. reverse_nonx_tcp/rever  medium      216     raw x86 stager shellcode, no length prefix (21
+              w stager shellcode           se_ord_tcp/shell                                 6 bytes, 0xFC prelude)
+ 4009  tcp    command shell handler        ReverseTcpDouble paired con  high        23      unsolicited "echo <token>" shell-verification
+                                           nections                                         command
+ 4010  tcp    likely pingback handler      pingback_reverse_tcp family  low                 handler closed the connection 0.34s after a 16
+                                                                                            -byte write, returning no data (reads a 16-byt
+                                                                                            e UUID then closes)
+ 4011  tcp    command shell handler                                     high        22      unsolicited "echo <token>" shell-verification   AutoRunScript/operator commands captured to loo
+                                                                                            command                                         t
+
+[*] 127.0.0.1             - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
 ```
 
 ## Full payload matrix
