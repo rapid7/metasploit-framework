@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
               check_port_udp(ip, port, timeout) if datastore['SCAN_UDP']
             end
           rescue ::Timeout::Error
-            vprint_warning("#{Rex::Socket.to_authority(ip, port)} - per-port timeout (#{port_deadline.round}s), skipping")
+            vprint_warning("per-port timeout (#{port_deadline.round}s), skipping")
           end
         end
         # Bounded join as a backstop in case Timeout cannot interrupt a blocked call.
@@ -169,19 +169,19 @@ class MetasploitModule < Msf::Auxiliary
           sock = nil
           report_handler(ip, port, 'tcp', deep)
         else
-          vprint_status("#{Rex::Socket.to_authority(ip, port)} - Open, no unsolicited data and no Metasploit HTTP fingerprint (stageless reverse shell/meterpreter, or unrelated service)")
+          vprint_status('Open, no unsolicited data and no Metasploit HTTP fingerprint (stageless reverse shell/meterpreter, or unrelated service)')
         end
       else
-        vprint_status("#{Rex::Socket.to_authority(ip, port)} - Talks first but does not look like a stage (banner: #{buf[0, 32].inspect})")
+        vprint_status("Talks first but does not look like a stage (banner: #{buf[0, 32].inspect})")
       end
     rescue ::Rex::ConnectionRefused
-      vprint_status("#{Rex::Socket.to_authority(ip, port)} - Connection refused")
+      vprint_status('Connection refused')
     rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error => e
-      vprint_status("#{Rex::Socket.to_authority(ip, port)} - Connection error (#{e.class})")
+      vprint_status("Connection error (#{e.class})")
     rescue ::Interrupt
       raise $ERROR_INFO
     rescue ::StandardError => e
-      vprint_error("#{Rex::Socket.to_authority(ip, port)} - #{e.class} #{e}")
+      vprint_error("#{e.class} #{e}")
     ensure
       begin
         disconnect(sock)
@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Interrupt
       raise $ERROR_INFO
     rescue ::StandardError => e
-      vprint_error("#{Rex::Socket.to_authority(ip, port)} (udp) - #{e.class} #{e}")
+      vprint_error("(udp) - #{e.class} #{e}")
     ensure
       begin
         udp.close
@@ -315,7 +315,7 @@ class MetasploitModule < Msf::Auxiliary
 
     followup = echo_back_capture(sock, result[:echo_token])
     if followup && !followup.empty?
-      print_good("#{Rex::Socket.to_authority(ip, port)} - Captured follow-up after shell verification (likely AutoRunScript / operator commands):")
+      print_good('Captured follow-up after shell verification (likely AutoRunScript / operator commands):')
       followup.each_line { |line| print_line("      #{line.chomp}") }
       loot_path = store_loot(
         'metasploit.handler.autorunscript',
@@ -325,11 +325,11 @@ class MetasploitModule < Msf::Auxiliary
         "handler_followup_#{port}.txt",
         "Commands an operator's AutoRunScript/InitialAutoRunScript ran against the connecting shell on #{ip}:#{port}"
       )
-      print_good("#{Rex::Socket.to_authority(ip, port)} - Saved captured commands to loot: #{loot_path}")
+      print_good("Saved captured commands to loot: #{loot_path}")
       report_note(host: ip, port: port, type: 'msf.handler.followup', data: { 'commands' => followup.split("\n").reject(&:empty?), 'loot' => loot_path }, update: :unique_data)
       @host_results_lock.synchronize { row[:notes] = 'AutoRunScript/operator commands captured to loot' }
     else
-      vprint_status("#{Rex::Socket.to_authority(ip, port)} - No follow-up commands after echo-back (no AutoRunScript configured)")
+      vprint_status('No follow-up commands after echo-back (no AutoRunScript configured)')
     end
   end
 
@@ -337,7 +337,7 @@ class MetasploitModule < Msf::Auxiliary
   # print_host_results when the host sweep finishes) and report the service.
   # Returns the row so callers (handle_match) can annotate it afterwards.
   def report_handler(ip, port, proto, result)
-    vprint_status("#{Rex::Socket.to_authority(ip, port)} - Metasploit handler detected (#{proto}): #{result[:payload]}")
+    vprint_status("Metasploit handler detected (#{proto}): #{result[:payload]}")
     row = {
       port: port,
       proto: proto,
@@ -488,7 +488,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue ::StandardError => e
-      vprint_error("#{Rex::Socket.to_authority(ip, port)} - SSL probe failed: #{e.class} #{e}")
+      vprint_error("SSL probe failed: #{e.class} #{e}")
       nil
     ensure
       begin
