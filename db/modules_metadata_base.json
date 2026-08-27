@@ -59679,7 +59679,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-22 11:52:36 +0000",
+    "mod_time": "2026-08-24 10:03:02 +0000",
     "path": "/modules/auxiliary/scanner/ssh/ssh_version.rb",
     "is_install_path": true,
     "ref_name": "scanner/ssh/ssh_version",
