@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Evasion
         'Arch' => [ARCH_X64],
         'Targets' => [['Linux x64', {}]],
         'DefaultTarget' => 0,
-        'DefaultOptions' => { 'PayloadLinuxMinKernel' => '3.7' }
+        'DefaultOptions' => { 'PayloadLinuxMinKernel' => '3.17' }
       )
     )
 

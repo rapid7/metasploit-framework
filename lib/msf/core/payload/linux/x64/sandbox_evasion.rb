@@ -64,6 +64,16 @@ clean_docker:
 
     asm = %Q^
 _start:
+    ; Save callee-saved registers per x64 convention
+    push rbx
+    push rbp
+    push rdi
+    push rsi
+    push r12
+    push r13
+    push r14
+    push r15
+
     xor eax, eax
     mov al, 128
     sub rsp, rax
@@ -139,12 +149,19 @@ pass:
     mov al, 128
     add rsp, rax
     xor rax, rax
-    xor rbx, rbx
     xor rcx, rcx
     xor rdx, rdx
-    xor rdi, rdi
-    xor rsi, rsi
     xor r8, r8
+
+    ; Restore callee-saved registers (reverse order)
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rsi
+    pop rdi
+    pop rbp
+    pop rbx
 ^
     Metasm::Shellcode.assemble(Metasm::X86_64.new, asm).encode_string
   end
