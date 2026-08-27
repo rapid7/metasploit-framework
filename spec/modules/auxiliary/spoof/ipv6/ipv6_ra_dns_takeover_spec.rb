@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'packetfu'
 
 RSpec.describe 'auxiliary/spoof/ipv6/ipv6_ra_dns_takeover' do
   include_context 'Msf::Simple::Framework#modules loading'
