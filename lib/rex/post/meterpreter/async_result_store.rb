@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'rex/thread_factory'
 
@@ -20,6 +21,7 @@ class AsyncResultStore
   STATUS_RUNNING   = :running
   STATUS_COMPLETE  = :complete
   STATUS_ERROR     = :error
+  STATUS_CANCELLED = :cancelled
 
   def initialize
     @results = {}
@@ -42,9 +44,13 @@ class AsyncResultStore
   # @return [void]
   #
   def enqueue_work(rid, label, &executor)
-    queue(rid, label)
-    ensure_worker_started
-    @work_queue.push([rid, label, executor])
+    @worker_mutex.synchronize do
+      raise 'Async worker is stopping' if @stopping
+
+      queue(rid, label)
+      ensure_worker_started_locked
+      @work_queue.push([rid, label, executor])
+    end
   end
 
   #
@@ -54,45 +60,55 @@ class AsyncResultStore
   #
   def ensure_worker_started
     @worker_mutex.synchronize do
-      return if @worker && @worker.alive?
-
-      @worker = Rex::ThreadFactory.spawn('AsyncCommandWorker', false) do
-        loop do
-          item = @work_queue.pop
-          break if item == :stop
-
-          rid, label, executor = item
-          short = rid[0..7]
-          started = ::Time.now
-          begin
-            dlog("async worker: picked up #{short} (#{label.inspect})", 'meterpreter/async')
-            mark_running(rid)
-            executor.call(rid)
-            elapsed = (::Time.now - started).round(1)
-            dlog("async worker: completed #{short} in #{elapsed}s", 'meterpreter/async')
-          rescue ::Exception => e
-            elapsed = (::Time.now - started).round(1)
-            elog("async worker: #{short} raised #{e.class} after #{elapsed}s: #{e.message}", 'meterpreter/async', error: e)
-            error(rid, "#{e.class}: #{e.message}")
-          end
-        end
-      end
+      ensure_worker_started_locked
     end
   end
 
   #
-  # Signal the worker to stop after draining its current item.
+  # Cancel pending work and stop the worker.
   # Safe to call even if the worker was never started.
   #
   # @return [void]
   #
   def stop_worker
+    worker = nil
     @worker_mutex.synchronize do
-      return unless @worker && @worker.alive?
+      return unless @worker
+
+      unless @worker.alive?
+        @worker = nil
+        return
+      end
+
+      @stopping = true
+      worker = @worker
+
+      begin
+        loop do
+          item = @work_queue.pop(true)
+          cancel(item[0], 'Cancelled before execution') unless item == :stop
+        end
+      rescue ::ThreadError
+        nil
+      end
 
       @work_queue.push(:stop)
-      @worker.join(5)
+    end
+
+    cancel_running('Cancelled while running')
+
+    unless worker.equal?(::Thread.current)
+      worker.join(5)
+      if worker.alive?
+        worker[:msf_async_forced_stop] = true
+        worker.kill
+        worker.join
+      end
+    end
+
+    @worker_mutex.synchronize do
       @worker = nil
+      @stopping = false
     end
   end
 
@@ -143,6 +159,7 @@ class AsyncResultStore
   def complete(rid, response, output = nil)
     @mutex.synchronize do
       return unless @results.key?(rid)
+      return if @results[rid][:status] == STATUS_CANCELLED
 
       @results[rid][:status] = STATUS_COMPLETE
       @results[rid][:completed_at] = ::Time.now
@@ -161,10 +178,21 @@ class AsyncResultStore
   def error(rid, error_message)
     @mutex.synchronize do
       return unless @results.key?(rid)
+      return if @results[rid][:status] == STATUS_CANCELLED
 
       @results[rid][:status] = STATUS_ERROR
       @results[rid][:completed_at] = ::Time.now
       @results[rid][:output] = error_message
+    end
+  end
+
+  def cancel(rid, message = 'Cancelled')
+    @mutex.synchronize do
+      return unless @results.key?(rid)
+
+      @results[rid][:status] = STATUS_CANCELLED
+      @results[rid][:completed_at] = ::Time.now
+      @results[rid][:output] = message
     end
   end
 
@@ -233,7 +261,8 @@ class AsyncResultStore
   def clear_completed
     @mutex.synchronize do
       before = @results.size
-      @results.reject! { |_rid, entry| entry[:status] != STATUS_PENDING }
+      terminal = [STATUS_COMPLETE, STATUS_ERROR, STATUS_CANCELLED]
+      @results.reject! { |_rid, entry| terminal.include?(entry[:status]) }
       before - @results.size
     end
   end
@@ -247,6 +276,51 @@ class AsyncResultStore
     @mutex.synchronize do
       @results.size
     end
+  end
+
+  private
+
+  def ensure_worker_started_locked
+    return if @worker && @worker.alive?
+
+    @worker = Rex::ThreadFactory.spawn('AsyncCommandWorker', false) do
+      loop do
+        item = @work_queue.pop
+        break if item == :stop
+
+        rid, label, executor = item
+        execute = @worker_mutex.synchronize do
+          if @stopping
+            cancel(rid, 'Cancelled before execution')
+            false
+          else
+            mark_running(rid)
+            true
+          end
+        end
+        next unless execute
+
+        short = rid[0..7]
+        started = ::Time.now
+        begin
+          dlog("async worker: picked up #{short} (#{label.inspect})", 'meterpreter/async')
+          executor.call(rid)
+          elapsed = (::Time.now - started).round(1)
+          dlog("async worker: completed #{short} in #{elapsed}s", 'meterpreter/async')
+        rescue ::StandardError => e
+          elapsed = (::Time.now - started).round(1)
+          elog("async worker: #{short} raised #{e.class} after #{elapsed}s: #{e.message}", 'meterpreter/async', error: e)
+          error(rid, "#{e.class}: #{e.message}")
+        end
+      end
+    end
+  end
+
+  def cancel_running(message)
+    running_ids = @mutex.synchronize do
+      @results.select { |_rid, entry| entry[:status] == STATUS_RUNNING }.keys
+    end
+    running_ids.each { |rid| cancel(rid, message) }
   end
 
 end

@@ -40,15 +40,10 @@ module Msf
       # for its platform, capabilities, etc.
       check_for_session_readiness if session.type == "meterpreter"
 
-      # Block post modules from running against sessions in async mode.
-      # Async mode uses long polling intervals making multi-step post modules
-      # impractical or broken (each send_request blocks for a full poll cycle).
-      # Exception: when dispatched from an async worker thread (via 'async run
-      # run post/...'), the module is allowed to execute since it's already
-      # off the interactive shell and smart-sync makes multi-request chains
-      # feasible.
+      # Route Post modules through the private async worker so they run under
+      # an explicit rapid-poll lease without touching the interactive console.
       if session.type == 'meterpreter' && session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled? && !::Thread.current[:msf_async_bypass_post]
-        raise Msf::ValidationError, "Session #{session.sid} is in async mode. Post modules cannot run against async sessions. Use 'async_mode off' in the session first, or dispatch via 'async run run post/...'."
+        raise Msf::ValidationError, "Session #{session.sid} is in async mode. Dispatch the Post module via 'async run run post/...' or disable async mode first."
       end
 
       incompatibility_reasons = session_incompatibility_reasons(session)
