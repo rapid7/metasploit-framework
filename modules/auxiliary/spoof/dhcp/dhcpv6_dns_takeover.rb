@@ -56,6 +56,10 @@ class MetasploitModule < Msf::Auxiliary
     # DNS::NamePoisoner mixin.
     register_options(
       [
+        # Bind the DNS server dual-stack by default. The victim is handed SPOOF_IP6 (an
+        # IPv6 address) as its resolver, so a listener on 0.0.0.0 (IPv4 wildcard) would
+        # never receive its queries. This matches the sibling ipv6_ra_dns_takeover module.
+        OptAddressLocal.new('SRVHOST', [ true, 'The local host or network interface to listen on. Defaults to :: to receive the IPv6 DNS queries the victim is steered to send.', '::' ]),
         OptString.new('LEASE_IP6', [ false, 'IPv6 address to lease to clients making stateful (IA_NA) requests.' ]),
         OptString.new('DHCPV6_INTERFACE', [ false, 'Network interface to bind the DHCPv6 server and join the multicast group on.' ])
       ]
