@@ -29,8 +29,8 @@ module Rex::Proto::OpcUa::SecureChannel
   # The security header of an OPN message, carrying the policy the channel is
   # being opened under and the certificates that policy needs.
   #
-  # See OPC-UA Specification Part 6, section 6.7.2, which names the three fields
-  # of the AsymmetricAlgorithmSecurityHeader in this order. It is not a
+  # See Table 58 in OPC-UA Specification Part 6, section 6.7.2.3, which names
+  # the three fields in this order, each as a length prefixed pair. It is not a
   # StructuredType in reference/opcua/Opc.Ua.Types.bsd, which describes the
   # service structures rather than the channel framing that carries them.
   #
@@ -48,9 +48,12 @@ module Rex::Proto::OpcUa::SecureChannel
   # The security header of every message sent on an open channel, naming the
   # token the message is secured with. This is the whole of it: a single UInt32.
   #
-  # See OPC-UA Specification Part 6, section 6.7.2, for the
-  # SymmetricAlgorithmSecurityHeader. Like the asymmetric header above it is
-  # channel framing rather than a StructuredType in the schema.
+  # Defined in OPC-UA Specification Part 6, section 6.7.2.3, the same section as
+  # the asymmetric header above; the two are alternatives chosen by the type of
+  # security applied to the message. Its table follows Table 58 there and is the
+  # one uncaptioned table in the section, so it is cited by section rather than
+  # by number. Like the asymmetric header, this is channel framing rather than a
+  # StructuredType in the schema.
   #
   # A MSG chunk carries the SecureChannelId, then this, then a SequenceHeader
   # ahead of its slice of the payload, which is the 16 bytes that
@@ -64,7 +67,7 @@ module Rex::Proto::OpcUa::SecureChannel
   # Follows the security header of every message. The RequestId is what pairs a
   # response with the request that asked for it.
   #
-  # See OPC-UA Specification Part 6, section 6.7.2, for the SequenceHeader.
+  # See Table 60 in OPC-UA Specification Part 6, section 6.7.2.4.
   class SequenceHeader < BinData::Record
     endian :little
 
@@ -78,8 +81,11 @@ module Rex::Proto::OpcUa::SecureChannel
   # answer to the lifetime the client asked for rather than the client's request
   # granted.
   #
-  # See OPC-UA Specification Part 4, section 7.6, and the ChannelSecurityToken
-  # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
+  # ChannelSecurityToken has no section of its own in OPC-UA Specification
+  # Part 4: it is defined inline among the OpenSecureChannel response parameters
+  # in section 5.6.2.2. See also the ChannelSecurityToken StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd, which gives the four fields in this
+  # order.
   class ChannelSecurityToken < BinData::Record
     endian :little
 
@@ -91,7 +97,7 @@ module Rex::Proto::OpcUa::SecureChannel
 
   # OpenSecureChannelRequest.
   #
-  # See OPC-UA Specification Part 4, section 5.5.2, and the
+  # See OPC-UA Specification Part 4, section 5.6.2, and the
   # OpenSecureChannelRequest StructuredType in
   # reference/opcua/Opc.Ua.Types.bsd.
   #
@@ -118,7 +124,7 @@ module Rex::Proto::OpcUa::SecureChannel
 
   # OpenSecureChannelResponse.
   #
-  # See OPC-UA Specification Part 4, section 5.5.2, and the
+  # See OPC-UA Specification Part 4, section 5.6.2, and the
   # OpenSecureChannelResponse StructuredType in
   # reference/opcua/Opc.Ua.Types.bsd.
   #
@@ -137,7 +143,7 @@ module Rex::Proto::OpcUa::SecureChannel
   # CloseSecureChannelRequest. The channel being closed is the one the message
   # is sent on, so the request carries nothing beyond its header.
   #
-  # See OPC-UA Specification Part 4, section 5.5.3, and the
+  # See OPC-UA Specification Part 4, section 5.6.3, and the
   # CloseSecureChannelRequest StructuredType in
   # reference/opcua/Opc.Ua.Types.bsd, which is a RequestHeader and nothing else.
   class CloseSecureChannelRequest < BinData::Record

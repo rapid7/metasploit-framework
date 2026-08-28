@@ -44,11 +44,19 @@ module Rex::Proto::OpcUa::Tcp
   MAX_MESSAGE_SIZE = 4 * 1024 * 1024
   MAX_CHUNKS = 64
 
-  # MessageType values, each three ASCII bytes, from OPC-UA Specification
-  # Part 6, section 7.1.2, which defines the messages named below in its
-  # subsections 7.1.2.2 to 7.1.2.5. These are the types this transport exchanges; every
-  # one of them appears in the captures under spec/file_fixtures/opc_ua or is
-  # sent to produce them.
+  # MessageType values, each three ASCII bytes. These come from two layers, and
+  # the specification keeps them in two places:
+  #
+  #   HEL, ACK and ERR belong to the Connection Protocol and are listed in
+  #   Table 73 of OPC-UA Specification Part 6, section 7.1.2.2, alongside the
+  #   RHE this library does not use.
+  #
+  #   MSG, OPN and CLO belong to the Secure Conversation layer and are listed in
+  #   Table 57 of section 6.7.2.2. Table 73 accounts for them only as the
+  #   additional values the Connection Protocol layer shall accept.
+  #
+  # Every one of the six appears in the captures under spec/file_fixtures/opc_ua
+  # or is sent to produce them.
   module MessageType
     HELLO = 'HEL'
     ACKNOWLEDGE = 'ACK'
@@ -58,8 +66,13 @@ module Rex::Proto::OpcUa::Tcp
     MESSAGE = 'MSG'
   end
 
-  # ChunkType values, one ASCII byte, from OPC-UA Specification Part 6,
-  # section 6.7.2. A message that fits in one chunk is sent as a single F.
+  # ChunkType values, one ASCII byte. This is the IsFinal field of Table 57 in
+  # OPC-UA Specification Part 6, section 6.7.2.2, which notes that it is only
+  # meaningful for a MessageType of MSG and is always F for the others. Part 6
+  # calls the same byte Reserved at the Connection Protocol layer, in Table 73
+  # of section 7.1.2.2, where it is likewise always F.
+  #
+  # A message that fits in one chunk is sent as a single F.
   module ChunkType
     # More chunks follow this one.
     INTERMEDIATE = 'C'
@@ -255,7 +268,7 @@ module Rex::Proto::OpcUa::Tcp
         unless msg.message_type == MessageType::MESSAGE
           raise Error::FramingError, "unexpected message type #{msg.message_type.inspect}"
         end
-        raise Error::AbortError, 'server aborted the response' if msg.abort?
+        raise abort_error(msg.body) if msg.abort?
         raise Error::FramingError, "unknown chunk type #{msg.chunk_type.inspect}" unless msg.final? || msg.intermediate?
 
         if msg.body.bytesize < SECURE_MSG_PREFIX_LEN
@@ -274,18 +287,42 @@ module Rex::Proto::OpcUa::Tcp
 
     # Build the exception for an ERR message.
     #
-    # An ERR arrives only once the server has decided the connection is
-    # unusable, so a body that will not decode is still reported as the failure
-    # it is rather than being replaced by a complaint about the decode; the
-    # StatusCode is simply left unknown.
-    #
     # @param body [String] the ERR message body.
     # @return [Rex::Proto::OpcUa::Error::ServerError]
     def server_error(body)
+      Error::ServerError.new(**status_and_reason(body))
+    end
+
+    # Build the exception for an aborted response.
+    #
+    # An abort chunk is a MSG chunk, so its body opens with the secure
+    # conversation prefix and the Table 63 fields follow it. A chunk too short
+    # to hold even that prefix still aborts the response, so the slice is taken
+    # defensively rather than guarded by the length check that the ordinary
+    # chunk path applies further down.
+    #
+    # @param body [String] the abort chunk body, prefix included.
+    # @return [Rex::Proto::OpcUa::Error::AbortError]
+    def abort_error(body)
+      Error::AbortError.new(**status_and_reason(body.byteslice(SECURE_MSG_PREFIX_LEN..-1).to_s))
+    end
+
+    # Decode the StatusCode and Reason that an ERR body and an abort body both
+    # carry, in the same two fields in the same order.
+    #
+    # Either arrives only once the server has decided it cannot answer, so a
+    # body that will not decode is still reported as the failure it is rather
+    # than being replaced by a complaint about the decode; the StatusCode is
+    # simply left unknown.
+    #
+    # @param body [String] the bytes of the two fields.
+    # @return [Hash] keyword arguments for the exception, empty when the body
+    #   could not be decoded.
+    def status_and_reason(body)
       err = ErrorMessage.read(body)
-      Error::ServerError.new(status_code: err.status_code.snapshot, reason: err.reason.snapshot)
+      { status_code: err.status_code.snapshot, reason: err.reason.snapshot }
     rescue ::IOError, ::BinData::Error
-      Error::ServerError.new
+      {}
     end
   end
 end

@@ -68,10 +68,22 @@ RSpec.describe 'Rex::Proto::OpcUa TCP transport' do
   end
 
   # An ERR message: StatusCode then a Reason string, null when reason is nil.
+  # These two fields are Table 76 of Part 6 section 7.1.2.5.
   def err_frame(status_code, reason = nil)
+    frame('ERR', 'F', status_and_reason(status_code, reason))
+  end
+
+  # The same two fields, which Table 63 of section 6.7.3 gives as the body of an
+  # abort chunk. An abort is a MSG chunk, so they follow the secure conversation
+  # prefix.
+  def abort_chunk(status_code, reason = nil)
+    msg_chunk('A', status_and_reason(status_code, reason))
+  end
+
+  def status_and_reason(status_code, reason)
     body = [status_code].pack('V')
     body << (reason.nil? ? [-1].pack('l<') : [reason.bytesize].pack('l<') + reason.b)
-    frame('ERR', 'F', body)
+    body
   end
 
   describe 'ceilings' do
@@ -315,17 +327,67 @@ RSpec.describe 'Rex::Proto::OpcUa TCP transport' do
       end
 
       it 'raises when the server aborts part way through' do
-        data = msg_chunk('C', 'one-') + msg_chunk('A', 'discard me')
+        data = msg_chunk('C', 'one-') + abort_chunk(0x80840000)
 
         expect { stream_over(data).recv_service_response }
           .to raise_error(Rex::Proto::OpcUa::Error::AbortError, /aborted/)
+      end
+
+      # An abort chunk says why it aborted, in the same two fields an ERR
+      # carries. Discarding them would throw away the only account of what went
+      # wrong that the server is going to give.
+      it 'carries the StatusCode and Reason from the abort chunk' do
+        data = msg_chunk('C', 'one-') + abort_chunk(0x80840000, 'client took too long')
+
+        expect { stream_over(data).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::AbortError) { |e|
+            expect(e.status_code).to eq 0x80840000
+            expect(e.reason).to eq 'client took too long'
+            expect(e.message).to include 'Bad_RequestInterrupted'
+          }
+      end
+
+      it 'carries a null Reason from the abort chunk as nil' do
+        expect { stream_over(abort_chunk(0x80850000)).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::AbortError) { |e|
+            expect(e.reason).to be_nil
+          }
+      end
+
+      # The abort still stands even when its own body is unusable: the response
+      # is not coming either way, and a complaint about the abort body would
+      # replace the more useful fact.
+      it 'still aborts when the abort chunk is too short to hold its own body' do
+        short = frame('MSG', 'A', 'x' * (Rex::Proto::OpcUa::Tcp::SECURE_MSG_PREFIX_LEN - 1))
+
+        expect { stream_over(short).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::AbortError) { |e|
+            expect(e.status_code).to be_nil
+          }
+      end
+
+      it 'still aborts when the abort body will not decode' do
+        expect { stream_over(msg_chunk('A', "\x01\x02".b)).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::AbortError) { |e|
+            expect(e.status_code).to be_nil
+          }
       end
 
       it 'raises when the server answers with ERR part way through' do
         data = msg_chunk('C', 'one-') + err_frame(0x80820000, 'internal error')
 
         expect { stream_over(data).recv_service_response }
-          .to raise_error(Rex::Proto::OpcUa::Error::ServerError, /Bad_TcpInternalError - internal error/)
+          .to raise_error(Rex::Proto::OpcUa::Error::ServerError,
+                          /server returned ERR: Bad_TcpInternalError - internal error/)
+      end
+
+      # ERR and abort share a base class and a message format, so the two have
+      # to stay distinguishable by what they say as well as by their class.
+      it 'distinguishes an ERR from an abort in the message' do
+        expect { stream_over(err_frame(0x80820000)).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::ServerError, /\Aserver returned ERR:/)
+        expect { stream_over(abort_chunk(0x80820000)).recv_service_response }
+          .to raise_error(Rex::Proto::OpcUa::Error::AbortError, /\Aserver aborted the response:/)
       end
 
       it 'carries the StatusCode from an ERR on the exception' do

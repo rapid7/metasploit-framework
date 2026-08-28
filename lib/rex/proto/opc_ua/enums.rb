@@ -41,8 +41,8 @@ module Rex::Proto::OpcUa::Enums
     GET_ENDPOINTS_RESPONSE = 431
   end
 
-  # MessageSecurityMode (Part 4, section 7.15), matching the enumeration of the
-  # same name in reference/opcua/Opc.Ua.Types.bsd.
+  # MessageSecurityMode (Part 4, section 7.20, Table 139), matching the
+  # enumeration of the same name in reference/opcua/Opc.Ua.Types.bsd.
   SECURITY_MODES = {
     0 => 'Invalid',
     1 => 'None',
@@ -50,8 +50,8 @@ module Rex::Proto::OpcUa::Enums
     3 => 'SignAndEncrypt'
   }.freeze
 
-  # UserTokenType (Part 4, section 7.36), matching the enumeration of the same
-  # name in reference/opcua/Opc.Ua.Types.bsd.
+  # UserTokenType (Part 4, section 7.42, Table 193), matching the enumeration
+  # of the same name in reference/opcua/Opc.Ua.Types.bsd.
   TOKEN_TYPES = {
     0 => 'Anonymous',
     1 => 'UserName',
@@ -62,7 +62,10 @@ module Rex::Proto::OpcUa::Enums
   # StatusCodes that may appear in an ERR response from the UA TCP transport,
   # or as the ServiceResult of a service that failed at the security layer.
   STATUS_CODES = {
-    # Transport specific errors (Part 6, section 7.1.2)
+    # The Connection Protocol error codes of Table 79 in OPC-UA Specification
+    # Part 6, section 7.1.5. That table names the codes; their numeric values
+    # are in Part 6 Annex A.2, and every one below was checked against
+    # reference/opcua/StatusCode.csv.
     0x807D0000 => 'Bad_TcpServerTooBusy',
     0x807E0000 => 'Bad_TcpMessageTypeInvalid',
     0x807F0000 => 'Bad_TcpSecureChannelUnknown',
@@ -70,7 +73,10 @@ module Rex::Proto::OpcUa::Enums
     0x80810000 => 'Bad_TcpNotEnoughResources',
     0x80820000 => 'Bad_TcpInternalError',
     0x80830000 => 'Bad_TcpEndpointUrlInvalid',
-    # Connection and security errors also seen at the transport layer
+    # Not in Table 79, but seen at this layer all the same.
+    # Bad_ProtocolVersionUnsupported is named in the Hello Message text of
+    # section 7.1.2.3; the rest arrive as the ServiceResult of a service that
+    # failed at the security layer.
     0x80BE0000 => 'Bad_ProtocolVersionUnsupported',
     0x80130000 => 'Bad_SecurityChecksFailed',
     0x80120000 => 'Bad_CertificateInvalid',

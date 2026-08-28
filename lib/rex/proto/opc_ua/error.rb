@@ -34,31 +34,28 @@ module Rex::Proto::OpcUa::Error
   # ceiling. See OPC-UA Specification Part 6, section 7.1.
   class FramingError < OpcUaError; end
 
-  # Raised when the server abandons a response part way through by sending a
-  # chunk of type A, per OPC-UA Specification Part 6, section 6.7.2. The
-  # response cannot be completed, but the connection itself is intact and the
-  # server is behaving to specification.
-  class AbortError < OpcUaError; end
-
-  # Raised when the server answers with an ERR message, per OPC-UA
-  # Specification Part 6, section 7.1.2.5. This is a report from the server
-  # rather than a fault in reading it, and the StatusCode it carries is the
-  # useful part, so it is kept as a field rather than only interpolated into the
-  # message.
-  class ServerError < OpcUaError
-    # @return [Integer, nil] the StatusCode from the ERR message, or nil when
-    #   the body could not be decoded.
+  # Base of the two errors that carry a StatusCode and a Reason the server put
+  # on the wire. Both bodies have the same two fields in the same order: an ERR
+  # message body is Table 76 of OPC-UA Specification Part 6, section 7.1.2.5,
+  # and an abort chunk body is Table 63 of section 6.7.3.
+  #
+  # These are reports from the server rather than faults in reading it, and the
+  # StatusCode is the useful part, so it is kept as a field rather than only
+  # interpolated into the message.
+  class StatusReportError < OpcUaError
+    # @return [Integer, nil] the StatusCode the server sent, or nil when the
+    #   body could not be decoded.
     attr_reader :status_code
 
-    # @return [String, nil] the Reason from the ERR message. Servers routinely
-    #   leave this null.
+    # @return [String, nil] the Reason the server sent. Servers routinely leave
+    #   this null.
     attr_reader :reason
 
-    # @param status_code [Integer, nil] the StatusCode from the ERR message.
-    # @param reason [String, nil] the Reason from the ERR message. An empty
-    #   reason is stored as nil, since the two say the same thing.
+    # @param status_code [Integer, nil] the StatusCode from the body.
+    # @param reason [String, nil] the Reason from the body. An empty reason is
+    #   stored as nil, since the two say the same thing.
     # @param msg [String, nil] overrides the generated message.
-    # @return [ServerError]
+    # @return [StatusReportError]
     def initialize(status_code: nil, reason: nil, msg: nil)
       @status_code = status_code
       @reason = reason.to_s.empty? ? nil : reason.to_s
@@ -68,11 +65,45 @@ module Rex::Proto::OpcUa::Error
 
     private
 
-    # @return [String] the StatusCode by name where it is one the enumeration
-    #   carries, with the Reason appended when the server supplied one.
+    # @return [String] what happened, then the StatusCode by name where it is
+    #   one the enumeration carries, with the Reason appended when the server
+    #   supplied one.
     def generate_message
       name = status_code.nil? ? 'an undecodable status' : Rex::Proto::OpcUa::Enums.status_code_name(status_code)
-      reason.nil? ? "server returned ERR: #{name}" : "server returned ERR: #{name} - #{reason}"
+      reason.nil? ? "#{summary}: #{name}" : "#{summary}: #{name} - #{reason}"
+    end
+
+    # @return [String] the leading clause of the generated message.
+    def summary
+      raise ::NotImplementedError, "#{self.class} must supply a summary"
+    end
+  end
+
+  # Raised when the server abandons a response part way through by sending a
+  # chunk of type A, per OPC-UA Specification Part 6, section 6.7.3. The
+  # response cannot be completed, but the connection itself is intact and the
+  # server is behaving to specification.
+  #
+  # The chunk carries the same StatusCode and Reason an ERR message would;
+  # Table 63 in that section gives the body as an Error UInt32 followed by a
+  # Reason String. No capture under spec/file_fixtures/opc_ua contains an abort,
+  # so that decode is specified rather than observed, and a body that will not
+  # decode leaves both fields nil rather than failing the abort report.
+  class AbortError < StatusReportError
+    private
+
+    def summary
+      'server aborted the response'
+    end
+  end
+
+  # Raised when the server answers with an ERR message, per OPC-UA
+  # Specification Part 6, section 7.1.2.5.
+  class ServerError < StatusReportError
+    private
+
+    def summary
+      'server returned ERR'
     end
   end
 end

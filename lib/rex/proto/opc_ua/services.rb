@@ -21,9 +21,9 @@ require 'rex/proto/opc_ua/types'
 module Rex::Proto::OpcUa::Services
   # The header every service request opens with.
   #
-  # See OPC-UA Specification Part 4, section 7.28, and the RequestHeader
-  # StructuredType in reference/opcua/Opc.Ua.Types.bsd, which gives the seven
-  # fields below in this order.
+  # See OPC-UA Specification Part 4, section 7.32, Table 171, and the
+  # RequestHeader StructuredType in reference/opcua/Opc.Ua.Types.bsd, which
+  # gives the seven fields below in this order.
   #
   # ReturnDiagnostics is sent as zero throughout this library, which is what
   # entitles Rex::Proto::OpcUa::Types::OpcUaDiagnosticInfo to model only the
@@ -45,8 +45,9 @@ module Rex::Proto::OpcUa::Services
 
   # The header every service response opens with.
   #
-  # See OPC-UA Specification Part 4, section 7.29, and the ResponseHeader
-  # StructuredType in reference/opcua/Opc.Ua.Types.bsd. The schema splits the
+  # See OPC-UA Specification Part 4, section 7.33, Table 172, and the
+  # ResponseHeader StructuredType in reference/opcua/Opc.Ua.Types.bsd. The
+  # schema splits the
   # StringTable into a NoOfStringTable Int32 and the elements it counts, which
   # is the ordinary OPC-UA array encoding that
   # Rex::Proto::OpcUa::Types::OpcUaArray implements.
@@ -83,8 +84,8 @@ module Rex::Proto::OpcUa::Services
   MAX_DISCOVERY_URLS = 64
 
   # ApplicationDescription, the server's description of itself. See OPC-UA
-  # Specification Part 4, section 7.2, and the ApplicationDescription
-  # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
+  # Specification Part 4, section 7.2, Table 109, and the
+  # ApplicationDescription StructuredType in reference/opcua/Opc.Ua.Types.bsd.
   #
   # ApplicationUri and ProductUri are the fingerprint worth reporting: they name
   # the product and installation rather than the host that answered.
@@ -94,8 +95,9 @@ module Rex::Proto::OpcUa::Services
     opc_ua_string         :application_uri
     opc_ua_string         :product_uri
     opc_ua_localized_text :application_name
-    # ApplicationType: Server 0, Client 1, ClientAndServer 2, DiscoveryServer 3,
-    # from the enumeration of that name in reference/opcua/Opc.Ua.Types.bsd.
+    # ApplicationType: Server 0, Client 1, ClientAndServer 2, DiscoveryServer 3.
+    # See OPC-UA Specification Part 4, section 7.4, Table 111, and the
+    # enumeration of that name in reference/opcua/Opc.Ua.Types.bsd.
     uint32                :application_type
     opc_ua_string         :gateway_server_uri
     opc_ua_string         :discovery_profile_uri
@@ -103,8 +105,8 @@ module Rex::Proto::OpcUa::Services
   end
 
   # UserTokenPolicy, one way of proving identity that an endpoint will accept.
-  # See OPC-UA Specification Part 4, section 7.37, and the UserTokenPolicy
-  # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
+  # See OPC-UA Specification Part 4, section 7.41, Table 192, and the
+  # UserTokenPolicy StructuredType in reference/opcua/Opc.Ua.Types.bsd.
   #
   # TokenType is a UserTokenType; see Rex::Proto::OpcUa::Enums::TOKEN_TYPES. A
   # policy of type Anonymous is the one that makes an endpoint reachable without
@@ -123,7 +125,7 @@ module Rex::Proto::OpcUa::Services
   end
 
   # EndpointDescription, one way of connecting to a server. See OPC-UA
-  # Specification Part 4, section 7.10, and the EndpointDescription
+  # Specification Part 4, section 7.14, Table 135, and the EndpointDescription
   # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
   #
   # SecurityMode is a MessageSecurityMode; see
@@ -144,9 +146,9 @@ module Rex::Proto::OpcUa::Services
     uint8                   :security_level
   end
 
-  # GetEndpointsRequest. See the GetEndpointsRequest StructuredType in
-  # reference/opcua/Opc.Ua.Types.bsd, and the GetEndpoints service in OPC-UA
-  # Specification Part 4.
+  # GetEndpointsRequest. See the GetEndpoints service in OPC-UA Specification
+  # Part 4, section 5.5.4, and the GetEndpointsRequest StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd.
   #
   # The specification requires this service to be available without
   # authentication, so that a client can discover how it is expected to connect
@@ -165,7 +167,8 @@ module Rex::Proto::OpcUa::Services
     opc_ua_array   :profile_uris, type: :opc_ua_string, null_default: true
   end
 
-  # GetEndpointsResponse. See the GetEndpointsResponse StructuredType in
+  # GetEndpointsResponse. See OPC-UA Specification Part 4, section 5.5.4, and
+  # the GetEndpointsResponse StructuredType in
   # reference/opcua/Opc.Ua.Types.bsd.
   #
   # The endpoint array carries an explicit ceiling rather than the OpcUaArray
