@@ -142,7 +142,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
         def initialize(info = {})
           super
           register_options([OptString.new('RPORT', [true, 'The application port', '4840'])])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change the type of the pre-existing RPORT option from OptPort to OptString.
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change the type of the pre-existing RPORT option from OptPort to OptString.
         end
       end
     RUBY
