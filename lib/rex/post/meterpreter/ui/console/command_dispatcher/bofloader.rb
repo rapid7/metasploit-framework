@@ -14,6 +14,7 @@ module Rex
         class Console::CommandDispatcher::Bofloader
 
           Klass = Console::CommandDispatcher::Bofloader
+          CNA_SUBCOMMANDS = %w[info list load reload run unload].freeze
 
           include Console::CommandDispatcher
 
@@ -35,7 +36,7 @@ module Rex
 
           DEFAULT_ENTRY = 'go'.freeze
 
-          @@execute_bof_opts = Rex::Parser::Arguments.new(
+          EXECUTE_BOF_OPTIONS = Rex::Parser::Arguments.new(
             ['-h', '--help'] => [ false, 'Help Banner' ],
             ['-c', '--compile'] => [ false, 'Compile the input file (requires mingw).' ],
             ['-e', '--entry'] => [ true, "The entry point (default: #{DEFAULT_ENTRY})." ],
@@ -47,13 +48,67 @@ module Rex
           #
           def commands
             {
+              'bof' => 'Load and run BOFs declared by CNA scripts',
               'execute_bof' => 'Execute an arbitrary BOF file'
             }
           end
 
+          # Handles CNA-backed BOF catalog commands.
+          #
+          # @param args [Array<String>] Subcommand and arguments.
+          # @return [Boolean] Whether the subcommand completed.
+          def cmd_bof(*args)
+            case args.shift
+            when 'load'
+              load_cna(args)
+            when 'reload'
+              reload_cna(args)
+            when 'unload'
+              unload_cna(args)
+            when 'list'
+              list_cna_bofs(args)
+            when 'info'
+              show_cna_bof(args)
+            when 'run'
+              run_cna_bof(args)
+            else
+              cmd_bof_help
+              false
+            end
+          end
+
+          # Displays CNA-backed BOF command help.
+          #
+          # @return [void]
+          def cmd_bof_help
+            print_line(<<~HELP)
+              Usage:
+                bof load </path/to/script.cna>
+                bof reload
+                bof unload
+                bof list
+                bof info <name>
+                bof run <name> [arguments]
+
+              CNA is parsed locally. Compatible aliases pass their COFF and packed
+              arguments to the existing native Bofloader extension.
+            HELP
+          end
+
+          # Completes CNA subcommands, aliases, and local CNA filenames.
+          #
+          # @param str [String] Current token.
+          # @param words [Array<String>] Command tokens.
+          # @return [Array<String>, nil] Completion candidates.
+          def cmd_bof_tabs(str, words)
+            return CNA_SUBCOMMANDS.grep(/^#{Regexp.escape(str)}/) if words.length == 1
+            return tab_complete_filenames(str, words) if words.length == 2 && words.first == 'load'
+            return client.bofloader.cna_catalog['bofs'].keys.grep(/^#{Regexp.escape(str)}/) if words.length == 2 && %w[info run].include?(words.first)
+          end
+
           def cmd_execute_bof_help
             print_line('Usage:   execute_bof </path/to/bof_file> [bof_nonliteral_arguments] [--format-string] [-- bof_literal_arguments]')
-            print_line(@@execute_bof_opts.usage)
+            print_line(EXECUTE_BOF_OPTIONS.usage)
             print_line(
               <<~HELP
                 Examples:
@@ -112,7 +167,7 @@ module Rex
             end
             bof_filename = args.shift
 
-            @@execute_bof_opts.parse(args) do |opt, _idx, val|
+            EXECUTE_BOF_OPTIONS.parse(args) do |opt, _idx, val|
               case opt
               when '-c', '--compile'
                 compile = true
@@ -192,44 +247,138 @@ module Rex
               bof_data = ::File.binread(bof_filename)
             end
 
-            # loading all data will hang on invalid files like DLLs, so only parse the 20-byte header at first
-            parsed = Metasm::COFF.decode_header(bof_data[0...20])
-            bof_arch = { # map of metasm to metasploit architectures
-              'AMD64' => ARCH_X64,
-              'I386' => ARCH_X86
-            }.fetch(parsed.header.machine, nil)
+            execute_bof_data(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
+          end
 
+          private
+
+          def load_cna(args)
+            unless args.length == 1
+              print_error('CNA load requires exactly one script path.')
+              return false
+            end
+
+            print_loaded_cna(client.bofloader.load_cna(args.first))
+          rescue Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser::Error => e
+            print_error(e.message)
+            false
+          end
+
+          def reload_cna(args)
+            unless args.empty?
+              print_error('CNA reload does not accept arguments.')
+              return false
+            end
+
+            print_loaded_cna(client.bofloader.reload_cna)
+          rescue Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser::Error => e
+            print_error(e.message)
+            false
+          end
+
+          def unload_cna(args)
+            unless args.empty?
+              print_error('CNA unload does not accept arguments.')
+              return false
+            end
+
+            client.bofloader.unload_cna
+            print_good('Unloaded the CNA catalog.')
+            true
+          end
+
+          def list_cna_bofs(args)
+            unless args.empty?
+              print_error('CNA list does not accept arguments.')
+              return false
+            end
+
+            if client.bofloader.cna_catalog['bofs'].empty?
+              print_status('No CNA script is loaded.')
+              return true
+            end
+
+            client.bofloader.cna_catalog['bofs'].each do |name, definition|
+              print_line(format('%<name>-24s %<description>s', name: name, description: definition['description']))
+            end
+            true
+          end
+
+          def show_cna_bof(args)
+            unless args.length == 1
+              print_error('CNA info requires exactly one BOF name.')
+              return false
+            end
+
+            definition = cna_bof(args.first)
+            return false unless definition
+
+            print_line("Name: #{args.first}")
+            print_line("Description: #{definition['description']}")
+            print_line("Usage: #{definition['usage']}")
+            print_line("Entry point: #{definition['entry']}")
+            print_line("Architectures: #{definition['files'].keys.sort.join(', ')}")
+            true
+          end
+
+          def run_cna_bof(args)
+            if args.empty?
+              print_error('CNA run requires a BOF name.')
+              return false
+            end
+
+            invocation = client.bofloader.cna_invocation(args.shift, arguments: args)
+            execute_bof_data(invocation['data'], args_format: invocation['format'], args: invocation['values'], entry: invocation['entry'])
+          rescue Rex::Post::Meterpreter::Extensions::Bofloader::CnaArgumentParser::Error, Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser::Error => e
+            print_error(e.message)
+            false
+          end
+
+          def cna_bof(name)
+            definition = client.bofloader.cna_bof(name)
+            print_error("Unknown CNA BOF: #{name}") unless definition
+            definition
+          end
+
+          def print_loaded_cna(catalog)
+            print_good("Loaded #{catalog['bofs'].length} BOFs from #{catalog['path']}")
+            catalog['warnings'].first(5).each { |warning| print_warning(warning) }
+            remaining = catalog['warnings'].length - 5
+            print_warning("#{remaining} additional CNA aliases were skipped") if remaining.positive?
+            true
+          end
+
+          def execute_bof_data(bof_data, args_format:, args:, entry:)
+            unless bof_data.length >= 20
+              print_error('Unable to determine the file architecture.')
+              return false
+            end
+
+            parsed = Metasm::COFF.decode_header(bof_data[0...20])
+            bof_arch = { 'AMD64' => ARCH_X64, 'I386' => ARCH_X86 }.fetch(parsed.header.machine, nil)
             unless bof_arch
               print_error('Unable to determine the file architecture.')
-              return
+              return false
             end
             unless bof_arch == client.arch
               print_error("The file architecture is incompatible with the current session (file: #{bof_arch} session: #{client.arch})")
-              return
+              return false
             end
 
             parsed = Metasm::COFF.decode(bof_data)
             unless (executable_symbols = get_executable_symbols(parsed)).include?(entry)
               print_error("The specified entry point was not found: #{entry}")
               print_error("Available symbols: #{executable_symbols.join(', ')}")
-              return
+              return false
             end
 
-            begin
-              output = client.bofloader.execute(bof_data, args_format: bof_args_format, args: bof_args, entry: entry)
-            rescue Rex::Post::Meterpreter::Extensions::Bofloader::BofPackingError => e
-              print_error("Error processing the specified arguments: #{e.message}")
-              return
-            end
-
-            if output.nil?
-              print_status('No output returned from bof')
-            else
-              print_line(output)
-            end
+            output = client.bofloader.execute(bof_data, args_format: args_format, args: args, entry: entry)
+            output.nil? ? print_status('No output returned from bof') : print_line(output)
+            true
+          rescue Rex::Post::Meterpreter::Extensions::Bofloader::BofPackingError => e
+            print_error("Error processing the specified arguments: #{e.message}")
+            false
           end
-
-          private
 
           def compile_c(source)
             if client.arch == ARCH_X86
@@ -249,13 +398,12 @@ module Rex
             ::Tempfile.create([::File.basename(source, '.c'), '.o']) do |destination|
               destination = destination.path
               output, status = Open3.capture2e(mingw.mingw_bin, '-c', source, '-I', Metasploit::Framework::Compiler::Mingw::INCLUDE_DIR, '-o', destination)
-              unless status.exitstatus == 0
+              if status.exitstatus != 0
                 print_error("Compilation exited with error code: #{status.exitstatus}")
                 print_line(output) unless output.blank?
-                return
+              else
+                ::File.binread(destination)
               end
-
-              return ::File.binread(destination)
             end
           end
 

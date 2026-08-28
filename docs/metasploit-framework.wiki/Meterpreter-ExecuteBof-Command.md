@@ -2,7 +2,8 @@ This guide outlines how to use the Meterpreter `execute_bof` command as provided
 a Meterpreter session to execute "Beacon Object Files" or BOF files for short. A BOF is a
 [Common Object File Format][1] (COFF) executable file with an API of standard functions defined in [beacon.h][2].
 
-The `bofloader` extension is only available for the Windows native Meterpreter, i.e. it is unavailable in the Java
+The `bofloader` extension provides direct BOF execution and local CNA import. It is only available for the Windows
+native Meterpreter, i.e. it is unavailable in the Java
 Meterpreter even when running on the Windows platform.
 
 # Execution Environment
@@ -29,7 +30,75 @@ Currently, there is only one output stream. All output data processed by `Beacon
 into that stream. BOFs should not use this for outputting binary data.
 
 # Usage
-The `bofloader` extension provides exactly one command, through which all of the provided functionality is accessed.
+
+## CNA Import
+
+Use `bof load` to import conventional `beacon_inline_execute` aliases from an Aggressor script into the current
+Meterpreter session:
+
+```msf
+meterpreter > bof load /absolute/path/to/commands.cna
+meterpreter > bof list
+meterpreter > bof info hello
+meterpreter > bof run hello message
+meterpreter > bof reload
+meterpreter > bof unload
+```
+
+The script and referenced BOFs are read by Metasploit. The native Bofloader extension receives only the selected COFF,
+entry point, format string, and packed arguments. Loading is atomic: a parse failure leaves the previous catalog active.
+
+### Supported CNA Example
+
+```text
+sub readbof {
+  $barch = barch($1);
+  return readb(openf(script_resource("$2 $+ / $+ $2 $+ . $+ $barch $+ .o")), -1);
+}
+
+beacon_command_register("hello", "Display a greeting", "hello <message>");
+alias hello {
+  $message = $2;
+  $args = bof_pack($1, "zi", $message, 1234);
+  beacon_inline_execute($1, readbof($1, "hello"), "go", $args);
+}
+```
+
+This imports `hello` with `hello/hello.x64.o` and `hello/hello.x86.o`, a literal `go` entry point, one positional string,
+and a fixed integer. The importer supports:
+
+* One direct `beacon_inline_execute` call in an alias.
+* Literal entry points and `script_resource` paths, including `$barch` or `$arch` substitutions.
+* Conventional helper functions such as `readbof($1, "hello")` when their resource path is static.
+* Omitted or `$null` arguments, or one `bof_pack` call with a literal `b`, `i`, `s`, `z`, or `Z` format.
+* Direct positional arguments (`$2`, `$3`, and so on), fixed strings or integers, simple single assignments, and
+  `iff(-istrue $N, $N, default)` optional arguments.
+* Binary arguments loaded from a local file through `readb(openf(...))`.
+
+### Unsupported CNA Example
+
+```text
+alias windowlist {
+  %params = ops(@_);
+  $mode = %modes[%params["mode"]];
+  beacon_inline_execute($1, readbof($1, "windowlist"), "go", bof_pack($1, "i", $mode));
+}
+```
+
+This alias is skipped because its packed value depends on custom argument parsing and a dynamic map lookup. The current
+importer statically translates launcher aliases; it does not execute Sleep/Aggressor code. It also skips:
+
+* Aliases that delegate `beacon_inline_execute` to another function or issue multiple execution calls.
+* Dynamic BOF paths, entry points, or `bof_pack` format strings.
+* Packed values built with arbitrary functions, arithmetic, joins, maps, loops, or multi-branch conditionals.
+* Aggressor callbacks, event handlers, UI/menu definitions, logging, task messages, and commands other than
+  `beacon_inline_execute`.
+
+Unsupported aliases are reported individually and do not prevent compatible aliases in the same file from loading.
+
+## Direct BOF Execution
+
+Use `execute_bof` when the BOF path and packed arguments are known directly:
 
 `execute_bof </path/to/bof_file> [Options] -- [BOF Arguments]`
 
