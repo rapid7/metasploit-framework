@@ -21,6 +21,9 @@ module Payload::Windows::ReverseHttp_x64
   #
   def initialize(*args)
     super
+    register_options([
+      OptPath.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile'])
+    ])
     register_advanced_options(
       [ OptInt.new('StagerURILength', 'The URI length for the stager (at least 5 bytes)') ] +
       Msf::Opt::stager_retry_options +

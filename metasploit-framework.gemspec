@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 3.1'
+  spec.required_ruby_version = '>= 3.2'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -74,9 +74,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.245'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.247'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.46'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.48'
   # Needed by msfgui and other rpc components
   # Locked until build env can handle newer version. See: https://github.com/msgpack/msgpack-ruby/issues/334
   spec.add_runtime_dependency 'msgpack', '~> 1.6.0'
@@ -124,9 +124,7 @@ Gem::Specification.new do |spec|
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap
-  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
-    spec.add_runtime_dependency 'xmlrpc'
-  end
+  spec.add_runtime_dependency 'xmlrpc'
   # Gem for handling Cookies
   spec.add_runtime_dependency 'http-cookie'
   # Needed for some modules (polkit_auth_bypass.rb)

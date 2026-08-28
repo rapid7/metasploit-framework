@@ -148,7 +148,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   end
 
-  def load_embedded_extensions
+  def load_embedded_extensions(datastore)
     # Rex::Post::Meterpreter::ExtensionMapper.get_extension_klasses
 
     # First of all, let's see if we have stdapi.
@@ -156,6 +156,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.run_single("load stdapi") if commands.length > 0
 
     return if self.platform != 'windows'
+    return if datastore['EXTENSIONS'].nil? || datastore['EXTENSIONS'].empty?
 
     exts = Set.new
     exts.merge(binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
@@ -216,7 +217,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     original = console.disable_output
     console.disable_output = true
 
-    load_embedded_extensions
+    load_embedded_extensions(datastore)
 
     extensions = datastore['AutoLoadExtensions']
     if extensions.is_a?(String)
@@ -381,18 +382,18 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Initializes the console's I/O handles.
   #
   def init_ui(input, output)
-    self.user_input = input
-    self.user_output = output
+    super
+
     console.init_ui(input, output)
     console.set_log_source(log_source)
-
-    super
   end
 
   ##
   # :category: Msf::Session::Interactive implementors
   #
   # Resets the console's I/O handles.
+  # Does not call super - the session preserves its own user_input/user_output
+  # while only resetting the console's I/O.
   #
   def reset_ui
     console.unset_log_source

