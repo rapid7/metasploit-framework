@@ -1,3 +1,6 @@
+require 'metasm'
+require 'rex/text'
+
 #
 # Linux Preprends shared logic.
 #
@@ -9,6 +12,7 @@ module Msf::Payload::Linux::Prepends
 
   def register_prepend_options
     all_options = {
+      'PrependExecOnce' => [false, 'Prepend a stub that runs the payload once per boot using a /dev/shm marker', 'false'],
       'PrependFork' => [false, 'Prepend a stub that starts the payload in its own process via fork', 'false'],
       'PrependSetresuid' => [false, 'Prepend a stub that executes the setresuid(0, 0, 0) system call', 'false'],
       'PrependSetreuid' => [false, 'Prepend a stub that executes the setreuid(0, 0) system call', 'false'],
@@ -45,5 +49,11 @@ module Msf::Payload::Linux::Prepends
     pre.force_encoding('ASCII-8BIT') +
       buf.force_encoding('ASCII-8BIT') +
       app.force_encoding('ASCII-8BIT')
+  end
+
+  private
+
+  def prepend_exec_once_path
+    @prepend_exec_once_path ||= "/dev/shm/.msf-#{Rex::Text.rand_text_alpha_lower(12)}"
   end
 end
