@@ -1,10 +1,13 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'bindata'
 # BinData resolves field types when a record's class body is evaluated, so the
-# library types have to be registered before the records below are defined.
-# Under Zeitwerk they would otherwise not load until first referenced.
+# library types and the shared service headers have to be registered before the
+# records below are defined. Under Zeitwerk they would otherwise not load until
+# first referenced.
 require 'rex/proto/opc_ua/types'
+require 'rex/proto/opc_ua/services'
 
 # The SecureChannel layer: the headers that wrap every message on a channel, and
 # the services that open and close one.
@@ -17,11 +20,23 @@ require 'rex/proto/opc_ua/types'
 # The service records hold the service structures alone. The TypeId NodeId that
 # precedes one in a message is part of the message encoding rather than part of
 # the service, and is read and written separately.
+#
+# Field order throughout is taken from reference/opcua/Opc.Ua.Types.bsd rather
+# than inferred from a capture. Each record names the StructuredType it was
+# checked against, and every one of them was also walked byte for byte through
+# spec/file_fixtures/opc_ua/open_secure_channel_response_node_opcua.bin.
 module Rex::Proto::OpcUa::SecureChannel
-  # The security header of an OPN message. Under SecurityPolicy None both
-  # certificate fields are null, which is what makes an OPN exchange readable on
-  # the wire and lets a client open a channel with no key material of its own.
-  # See OPC-UA Specification Part 6.
+  # The security header of an OPN message, carrying the policy the channel is
+  # being opened under and the certificates that policy needs.
+  #
+  # See OPC-UA Specification Part 6, section 6.7.2, which names the three fields
+  # of the AsymmetricAlgorithmSecurityHeader in this order. It is not a
+  # StructuredType in reference/opcua/Opc.Ua.Types.bsd, which describes the
+  # service structures rather than the channel framing that carries them.
+  #
+  # Under SecurityPolicy None both certificate fields are null, which is what
+  # makes an OPN exchange readable on the wire and lets a client open a channel
+  # with no key material of its own.
   class AsymmetricSecurityHeader < BinData::Record
     endian :little
 
@@ -32,6 +47,10 @@ module Rex::Proto::OpcUa::SecureChannel
 
   # The security header of every message sent on an open channel, naming the
   # token the message is secured with. This is the whole of it: a single UInt32.
+  #
+  # See OPC-UA Specification Part 6, section 6.7.2, for the
+  # SymmetricAlgorithmSecurityHeader. Like the asymmetric header above it is
+  # channel framing rather than a StructuredType in the schema.
   #
   # A MSG chunk carries the SecureChannelId, then this, then a SequenceHeader
   # ahead of its slice of the payload, which is the 16 bytes that
@@ -44,6 +63,8 @@ module Rex::Proto::OpcUa::SecureChannel
 
   # Follows the security header of every message. The RequestId is what pairs a
   # response with the request that asked for it.
+  #
+  # See OPC-UA Specification Part 6, section 6.7.2, for the SequenceHeader.
   class SequenceHeader < BinData::Record
     endian :little
 
@@ -55,7 +76,10 @@ module Rex::Proto::OpcUa::SecureChannel
   # what subsequent messages quote; CreatedAt and RevisedLifetime say when the
   # server will stop honouring them, the revised lifetime being the server's
   # answer to the lifetime the client asked for rather than the client's request
-  # granted. See OPC-UA Specification Part 4, section 7.6.
+  # granted.
+  #
+  # See OPC-UA Specification Part 4, section 7.6, and the ChannelSecurityToken
+  # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
   class ChannelSecurityToken < BinData::Record
     endian :little
 
@@ -65,55 +89,22 @@ module Rex::Proto::OpcUa::SecureChannel
     uint32           :revised_lifetime
   end
 
-  # The header every service request opens with. See OPC-UA Specification
-  # Part 4, section 7.28.
+  # OpenSecureChannelRequest.
   #
-  # ReturnDiagnostics is sent as zero throughout this library, which is what
-  # entitles Rex::Proto::OpcUa::Types::OpcUaDiagnosticInfo to model only the
-  # empty form of the diagnostics a response carries back.
-  class RequestHeader < BinData::Record
-    endian :little
-
-    # The AuthenticationToken of a request sent without a session, which is the
-    # null NodeId. It is also the default, so a RequestHeader built here is
-    # already sessionless.
-    opc_ua_node_id          :authentication_token
-    opc_ua_date_time        :timestamp
-    uint32                  :request_handle
-    uint32                  :return_diagnostics
-    opc_ua_string           :audit_entry_id
-    uint32                  :timeout_hint
-    opc_ua_extension_object :additional_header
-  end
-
-  # The header every service response opens with. See OPC-UA Specification
-  # Part 4, section 7.29.
+  # See OPC-UA Specification Part 4, section 5.5.2, and the
+  # OpenSecureChannelRequest StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd.
   #
-  # ServiceResult is the StatusCode for the service call itself, and is the
-  # field that says whether the response body means anything: a service can fail
-  # while the message carrying the failure is perfectly well formed.
-  class ResponseHeader < BinData::Record
-    endian :little
-
-    opc_ua_date_time        :timestamp
-    uint32                  :request_handle
-    uint32                  :service_result
-    opc_ua_diagnostic_info  :service_diagnostics
-    opc_ua_array            :string_table, type: :opc_ua_string
-    opc_ua_extension_object :additional_header
-  end
-
-  # OpenSecureChannelRequest. See OPC-UA Specification Part 4, section 5.5.2.
-  #
-  # RequestType selects between issuing a new token and renewing an existing
-  # one; SecurityMode is a MessageSecurityMode, for which see
+  # RequestType is a SecurityTokenRequestType and SecurityMode a
+  # MessageSecurityMode; for the latter see
   # Rex::Proto::OpcUa::Enums::SECURITY_MODES. Under the None policy the
   # ClientNonce is null rather than empty, since there is no key material to
   # derive.
   class OpenSecureChannelRequest < BinData::Record
     endian :little
 
-    # SecurityTokenRequestType (Part 4, section 7.35).
+    # SecurityTokenRequestType, from the enumeration of the same name in
+    # reference/opcua/Opc.Ua.Types.bsd.
     ISSUE = 0
     RENEW = 1
 
@@ -125,7 +116,11 @@ module Rex::Proto::OpcUa::SecureChannel
     uint32             :requested_lifetime
   end
 
-  # OpenSecureChannelResponse. See OPC-UA Specification Part 4, section 5.5.2.
+  # OpenSecureChannelResponse.
+  #
+  # See OPC-UA Specification Part 4, section 5.5.2, and the
+  # OpenSecureChannelResponse StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd.
   #
   # The ServerNonce pairs with the ClientNonce and is null under the None
   # policy. Reading it is what makes the record account for the whole response
@@ -139,9 +134,12 @@ module Rex::Proto::OpcUa::SecureChannel
     opc_ua_byte_string     :server_nonce
   end
 
-  # CloseSecureChannelRequest. See OPC-UA Specification Part 4, section 5.5.3.
-  # The channel being closed is the one the message is sent on, so the request
-  # carries nothing beyond its header.
+  # CloseSecureChannelRequest. The channel being closed is the one the message
+  # is sent on, so the request carries nothing beyond its header.
+  #
+  # See OPC-UA Specification Part 4, section 5.5.3, and the
+  # CloseSecureChannelRequest StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd, which is a RequestHeader and nothing else.
   class CloseSecureChannelRequest < BinData::Record
     endian :little
 

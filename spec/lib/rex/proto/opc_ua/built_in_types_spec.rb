@@ -22,6 +22,15 @@ RSpec.describe 'Rex::Proto::OpcUa structured built-in types' do
   # The ServiceDiagnostics of the ResponseHeader.
   let(:service_diagnostics_offset) { 0x63 }
 
+  # The GetEndpoints response is the only capture carrying a LocalizedText. Its
+  # first endpoint's ApplicationName begins 151 bytes in; the offset was
+  # established by walking the response field by field, a walk that consumes the
+  # message exactly and which services_spec.rb asserts.
+  let(:get_endpoints_response) do
+    File.binread(File.join(FILE_FIXTURES_PATH, 'opc_ua', 'get_endpoints_response_node_opcua.bin'))
+  end
+  let(:application_name_offset) { 151 }
+
   describe Rex::Proto::OpcUa::Types::OpcUaNodeId do
     describe 'the FourByte form, against the captured response TypeId' do
       subject(:node_id) { described_class.read(response[type_id_offset..]) }
@@ -158,6 +167,25 @@ RSpec.describe 'Rex::Proto::OpcUa structured built-in types' do
       expect { described_class.read("\x06\x00\x00".b).num_bytes }
         .to raise_error(BinData::ValidityError, /encoding_byte/)
     end
+
+    # The form field is six bits wide, not four. Masking with 0x0F would drop
+    # bits 4 and 5 rather than object to them, so an encoding byte of 0x11 would
+    # read as the FourByte form and go on to decode three bytes that mean
+    # nothing. Both masks agree on every byte a conforming server can send, so
+    # this reserved case is the only thing that distinguishes them.
+    it 'masks the identifier form with six bits rather than four' do
+      expect(described_class::FORM_MASK).to eq 0x3F
+    end
+
+    it 'rejects an encoding byte with a reserved bit set above the form' do
+      expect { described_class.read("\x11\x00\xC1\x01".b).num_bytes }
+        .to raise_error(BinData::ValidityError, /encoding_byte/)
+    end
+
+    it 'rejects a reserved bit even alongside a form it does know' do
+      expect { described_class.read("\x21\x00\xC1\x01".b).num_bytes }
+        .to raise_error(BinData::ValidityError, /encoding_byte/)
+    end
   end
 
   describe Rex::Proto::OpcUa::Types::OpcUaExtensionObject do
@@ -205,6 +233,74 @@ RSpec.describe 'Rex::Proto::OpcUa structured built-in types' do
     it 'rejects a body encoding it does not know' do
       expect { described_class.read("\x00\x00\x03".b).num_bytes }
         .to raise_error(BinData::ValidityError, /encoding/)
+    end
+  end
+
+  describe Rex::Proto::OpcUa::Types::OpcUaLocalizedText do
+    describe 'against the captured ApplicationName' do
+      subject(:localized_text) { described_class.read(get_endpoints_response[application_name_offset..]) }
+
+      it 'decodes the Text' do
+        expect(localized_text.to_s).to eq 'NodeOPCUA'
+      end
+
+      it 'decodes the Locale' do
+        expect(localized_text.locale.snapshot).to eq 'en-US'
+      end
+
+      it 'decodes the mask as carrying both fields' do
+        expect(localized_text.encoding_mask.snapshot).to eq 0x03
+      end
+
+      # Locale is encoded ahead of Text. A reader with them the wrong way round
+      # consumes the same number of bytes and returns both values swapped, which
+      # is why the two are asserted separately rather than only by length.
+      it 'accounts for the mask and both strings' do
+        expect(localized_text.num_bytes).to eq 23
+      end
+
+      it 're-encodes to the captured bytes' do
+        expect(localized_text.to_binary_s).to eq get_endpoints_response.byteslice(application_name_offset, 23)
+      end
+    end
+
+    # Every LocalizedText in the captures has mask 0x03. The sparser masks are
+    # hand-built from the LocalizedText StructuredType in
+    # reference/opcua/Opc.Ua.Types.bsd, and are recorded under Coverage limits
+    # in spec/file_fixtures/opc_ua/README.md.
+    describe 'the masks with no capture coverage' do
+      it 'decodes an empty LocalizedText as the mask alone' do
+        localized_text = described_class.read("\x00".b)
+
+        expect(localized_text.num_bytes).to eq 1
+        expect(localized_text.to_s).to eq ''
+        expect(localized_text).not_to be_text
+      end
+
+      it 'decodes a Locale with no Text' do
+        localized_text = described_class.read("\x01".b + [2].pack('l<') + 'en')
+
+        expect(localized_text.locale.snapshot).to eq 'en'
+        expect(localized_text).not_to be_text
+        expect(localized_text.num_bytes).to eq 7
+      end
+
+      # The common sparse case: a server that gives the text without saying what
+      # language it is in. The Text has to be read from the byte after the mask,
+      # not from where it would sit if a Locale had been present.
+      it 'decodes a Text with no Locale' do
+        localized_text = described_class.read("\x02".b + [3].pack('l<') + 'abc')
+
+        expect(localized_text.to_s).to eq 'abc'
+        expect(localized_text).not_to be_locale
+        expect(localized_text.num_bytes).to eq 8
+      end
+
+      it 'round trips each mask' do
+        %W[\x00 \x01#{[2].pack('l<')}en \x02#{[3].pack('l<')}abc].each do |raw|
+          expect(described_class.read(raw.b).to_binary_s).to eq raw.b
+        end
+      end
     end
   end
 

@@ -120,45 +120,6 @@ RSpec.describe 'Rex::Proto::OpcUa::SecureChannel' do
     end
   end
 
-  describe Rex::Proto::OpcUa::SecureChannel::ResponseHeader do
-    subject(:response_header) { described_class.read(response[response_body_offset..]) }
-
-    it 'decodes the Timestamp' do
-      expect(response_header.timestamp.to_time).to eq ::Time.utc(2026, 8, 27, 0, 34, 59) + Rational(704, 1000)
-    end
-
-    it 'decodes the RequestHandle' do
-      expect(response_header.request_handle.snapshot).to eq 1
-    end
-
-    # Zero is Good. A service can fail while the message carrying the failure is
-    # perfectly well formed, so this is the field that says whether the rest of
-    # the response means anything.
-    it 'decodes the ServiceResult' do
-      expect(response_header.service_result.snapshot).to eq 0
-    end
-
-    it 'decodes the ServiceDiagnostics as empty' do
-      expect(response_header.service_diagnostics.snapshot)
-        .to eq Rex::Proto::OpcUa::Types::OpcUaDiagnosticInfo::EMPTY
-    end
-
-    it 'decodes the StringTable as empty' do
-      expect(response_header.string_table).to be_empty
-    end
-
-    # The server sent a count of zero, not the -1 that would mean null, and the
-    # two re-encode differently.
-    it 'decodes the StringTable as empty rather than null' do
-      expect(response_header.string_table).not_to be_null
-    end
-
-    it 'decodes the AdditionalHeader as an empty ExtensionObject' do
-      expect(response_header.additional_header.encoding.snapshot)
-        .to eq Rex::Proto::OpcUa::Types::OpcUaExtensionObject::NO_BODY
-    end
-  end
-
   describe Rex::Proto::OpcUa::SecureChannel::OpenSecureChannelResponse do
     subject(:open_response) { described_class.read(response[response_body_offset..]) }
 
@@ -308,7 +269,7 @@ RSpec.describe 'Rex::Proto::OpcUa::SecureChannel' do
 
     it 'encodes to a RequestHeader alone' do
       expect(request.to_binary_s)
-        .to eq Rex::Proto::OpcUa::SecureChannel::RequestHeader
+        .to eq Rex::Proto::OpcUa::Services::RequestHeader
         .new(timestamp: 0, request_handle: 3, timeout_hint: 10_000).to_binary_s
     end
 

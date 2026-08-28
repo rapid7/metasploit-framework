@@ -1,25 +1,11 @@
 # -*- coding: binary -*-
 
 require 'spec_helper'
-# BinData resolves field types when a record's class body is evaluated, so the
-# library types have to be registered before SpecUserTokenPolicy below is
-# defined. Under Zeitwerk they would otherwise not load until first referenced.
-require 'rex/proto/opc_ua/types'
-
-# A minimal stand-in for UserTokenPolicy (Part 4, section 7.37), defined here so
-# that the array can be exercised against real elements from a capture before
-# services.rb exists. Named so it cannot collide with the library type that will
-# eventually replace it: BinData registers types by their unqualified class
-# name, so a bare UserTokenPolicy here would claim the name globally.
-class SpecUserTokenPolicy < BinData::Record
-  endian :little
-
-  opc_ua_string :policy_id
-  uint32        :token_type
-  opc_ua_string :issued_token_type
-  opc_ua_string :issuer_endpoint_url
-  opc_ua_string :security_policy_uri
-end
+# BinData resolves field types when a record's class body is evaluated, so both
+# the library types and the UserTokenPolicy the examples below read have to be
+# registered first. Under Zeitwerk they would otherwise not load until first
+# referenced.
+require 'rex/proto/opc_ua/services'
 
 RSpec.describe Rex::Proto::OpcUa::Types::OpcUaArray do
   let(:null_binary) { [-1].pack('l<') }
@@ -167,7 +153,7 @@ RSpec.describe Rex::Proto::OpcUa::Types::OpcUaArray do
 
     context 'the first endpoint, which advertises five token policies' do
       subject(:policies) do
-        described_class.read(response[five_token_offset..], type: :spec_user_token_policy)
+        described_class.read(response[five_token_offset..], type: :user_token_policy)
       end
 
       it 'decodes five elements' do
@@ -202,7 +188,7 @@ RSpec.describe Rex::Proto::OpcUa::Types::OpcUaArray do
 
     context 'the second endpoint, which advertises three token policies' do
       subject(:policies) do
-        described_class.read(response[three_token_offset..], type: :spec_user_token_policy)
+        described_class.read(response[three_token_offset..], type: :user_token_policy)
       end
 
       it 'decodes three elements' do

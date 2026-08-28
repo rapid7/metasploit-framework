@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'bindata'
 # BinData resolves field types when a record's class body is evaluated, so the
@@ -6,10 +7,20 @@ require 'bindata'
 # Under Zeitwerk they would otherwise not load until first referenced.
 require 'rex/proto/opc_ua/types'
 
-# The OPC-UA TCP transport that carries opc.tcp:// (OPC-UA Specification Part 6,
-# section 7). This is the framing layer only: it says what a message looks like
-# and how a service response is put back together from chunks, and knows nothing
-# about the services carried inside one.
+# The OPC-UA TCP transport that carries opc.tcp://. This is the framing layer
+# only: it says what a message looks like and how a service response is put back
+# together from chunks, and knows nothing about the services carried inside one.
+#
+# See OPC-UA Specification Part 6, section 7.1, the UA Connection Protocol,
+# which defines the message header and the Hello, Acknowledge and Error messages
+# below, and section 6.7 for the chunking MessageStream reassembles.
+#
+# Unlike the service structures elsewhere in this library, none of this framing
+# appears in reference/opcua/Opc.Ua.Types.bsd: the schema describes the types
+# services exchange, not the transport that carries them. The records here were
+# therefore checked against the captures under spec/file_fixtures/opc_ua and
+# against the reader in the module this library replaces, not against the
+# schema.
 module Rex::Proto::OpcUa::Tcp
   # Shorthand for the sibling error namespace. The compact module definition
   # above puts only this module in lexical scope, so without it every raise site
@@ -22,7 +33,9 @@ module Rex::Proto::OpcUa::Tcp
   HEADER_LEN = 8
 
   # Each MSG chunk repeats SecureChannelId, TokenId, SequenceNumber and
-  # RequestId ahead of its slice of the service payload.
+  # RequestId ahead of its slice of the service payload. See
+  # Rex::Proto::OpcUa::SecureChannel::SymmetricSecurityHeader, whose spec
+  # asserts that those structures add up to this.
   SECURE_MSG_PREFIX_LEN = 16
 
   # Defensive ceilings. A malformed or hostile response must fail quickly rather
@@ -31,30 +44,33 @@ module Rex::Proto::OpcUa::Tcp
   MAX_MESSAGE_SIZE = 4 * 1024 * 1024
   MAX_CHUNKS = 64
 
-  # MessageType values, each three ASCII bytes. These are the types this
-  # transport exchanges; every one of them appears in the captures under
-  # spec/file_fixtures/opc_ua or is sent to produce them.
+  # MessageType values, each three ASCII bytes, from OPC-UA Specification
+  # Part 6, section 7.1.2, which defines the messages named below in its
+  # subsections 7.1.2.2 to 7.1.2.5. These are the types this transport exchanges; every
+  # one of them appears in the captures under spec/file_fixtures/opc_ua or is
+  # sent to produce them.
   module MessageType
-    HELLO = 'HEL'.freeze
-    ACKNOWLEDGE = 'ACK'.freeze
-    ERROR = 'ERR'.freeze
-    OPEN_SECURE_CHANNEL = 'OPN'.freeze
-    CLOSE_SECURE_CHANNEL = 'CLO'.freeze
-    MESSAGE = 'MSG'.freeze
+    HELLO = 'HEL'
+    ACKNOWLEDGE = 'ACK'
+    ERROR = 'ERR'
+    OPEN_SECURE_CHANNEL = 'OPN'
+    CLOSE_SECURE_CHANNEL = 'CLO'
+    MESSAGE = 'MSG'
   end
 
-  # ChunkType values, one ASCII byte. A message that fits in one chunk is sent
-  # as a single F.
+  # ChunkType values, one ASCII byte, from OPC-UA Specification Part 6,
+  # section 6.7.2. A message that fits in one chunk is sent as a single F.
   module ChunkType
     # More chunks follow this one.
-    INTERMEDIATE = 'C'.freeze
+    INTERMEDIATE = 'C'
     # The last chunk of the message.
-    FINAL = 'F'.freeze
+    FINAL = 'F'
     # The server has abandoned the message; nothing further will follow.
-    ABORT = 'A'.freeze
+    ABORT = 'A'
   end
 
-  # The 8 byte header every message opens with.
+  # The 8 byte header every message opens with. See OPC-UA Specification
+  # Part 6, section 7.1.2.2.
   class MessageHeader < BinData::Record
     endian :little
 
@@ -63,8 +79,10 @@ module Rex::Proto::OpcUa::Tcp
     uint32 :message_size
   end
 
-  # The Hello a client opens the connection with (Part 6, section 7.1.2). The
-  # buffer sizes are what the client is willing to receive; a zero
+  # The Hello a client opens the connection with. See OPC-UA Specification
+  # Part 6, section 7.1.2.3.
+  #
+  # The buffer sizes are what the client is willing to receive; a zero
   # MaxMessageSize or MaxChunkCount means the client sets no limit of its own,
   # which is not the same as accepting anything, since MessageStream applies its
   # own ceilings regardless.
@@ -79,9 +97,9 @@ module Rex::Proto::OpcUa::Tcp
     opc_ua_string :endpoint_url
   end
 
-  # The server's answer to a Hello (Part 6, section 7.1.2), carrying the same
-  # five fields from the server's side. The buffer sizes it returns are the ones
-  # that then govern the connection.
+  # The server's answer to a Hello, carrying the same five fields from the
+  # server's side. See OPC-UA Specification Part 6, section 7.1.2.4. The buffer
+  # sizes it returns are the ones that then govern the connection.
   class AcknowledgeMessage < BinData::Record
     endian :little
 
@@ -92,8 +110,10 @@ module Rex::Proto::OpcUa::Tcp
     uint32 :max_chunk_count
   end
 
-  # The body of an ERR message (Part 6, section 7.1.2): a StatusCode and a
-  # Reason string, which servers routinely leave null.
+  # The body of an ERR message: a StatusCode and a Reason string, which servers
+  # routinely leave null. See OPC-UA Specification Part 6, section 7.1.2.5; the
+  # StatusCode itself is section 5.2.2.11, and the values are named in
+  # Rex::Proto::OpcUa::Enums::STATUS_CODES.
   class ErrorMessage < BinData::Record
     endian :little
 
@@ -103,18 +123,23 @@ module Rex::Proto::OpcUa::Tcp
 
   # One framed message as it came off the wire. The body excludes the header.
   Message = Struct.new(:message_type, :chunk_type, :body) do
+    # @return [Boolean] whether this is an ERR message, which a server sends in
+    #   place of the response that was asked for.
     def error?
       message_type == MessageType::ERROR
     end
 
+    # @return [Boolean] whether this chunk abandons the message it belongs to.
     def abort?
       chunk_type == ChunkType::ABORT
     end
 
+    # @return [Boolean] whether this is the last chunk of its message.
     def final?
       chunk_type == ChunkType::FINAL
     end
 
+    # @return [Boolean] whether another chunk follows this one.
     def intermediate?
       chunk_type == ChunkType::INTERMEDIATE
     end
@@ -134,8 +159,10 @@ module Rex::Proto::OpcUa::Tcp
     #   header and the body of a message are each read under a fresh deadline.
     attr_reader :timeout
 
-    # @param sock [#get_once] the socket to read from.
+    # @param sock [#get_once] the socket to read from. Only
+    #   get_once(length, timeout) is called on it.
     # @param timeout [Integer, Float] seconds allowed per read.
+    # @return [MessageStream]
     def initialize(sock, timeout: DEFAULT_TIMEOUT)
       @sock = sock
       @timeout = timeout
@@ -147,11 +174,15 @@ module Rex::Proto::OpcUa::Tcp
     #
     # The deadline is monotonic rather than wall clock, so that a clock step
     # part way through a read cannot either cut it short or extend it
-    # indefinitely.
+    # indefinitely. Rex::Stopwatch.elapsed_time measures a completed block
+    # rather than exposing a remaining budget, so it does not fit a loop that
+    # has to shorten each successive read.
     #
-    # @param len [Integer] the number of bytes to read.
-    # @return [String] exactly len bytes.
-    # @raise [Error::TimeoutError] if the bytes did not arrive in time.
+    # @param len [Integer] the number of bytes to read. Zero or fewer reads
+    #   nothing.
+    # @return [String] exactly len bytes, binary encoded.
+    # @raise [Rex::Proto::OpcUa::Error::TimeoutError] if the bytes did not
+    #   arrive in time.
     def read_exact(len)
       return ''.b unless len.positive?
 
@@ -181,8 +212,10 @@ module Rex::Proto::OpcUa::Tcp
     # Read one framed message.
     #
     # @return [Message] the message type, chunk type and body.
-    # @raise [Error::TimeoutError] if the message did not arrive in time.
-    # @raise [Error::FramingError] if the declared size is unusable.
+    # @raise [Rex::Proto::OpcUa::Error::TimeoutError] if the message did not
+    #   arrive in time.
+    # @raise [Rex::Proto::OpcUa::Error::FramingError] if the declared size is
+    #   unusable.
     def recv_message
       header = MessageHeader.read(read_exact(HEADER_LEN))
       size = header.message_size.snapshot
@@ -203,12 +236,15 @@ module Rex::Proto::OpcUa::Tcp
     # stripped before concatenation. The returned buffer therefore starts at the
     # response TypeId, not at the SecureChannelId.
     #
-    # @return [String] the reassembled service payload.
-    # @raise [Error::ServerError] if the server answered with ERR.
-    # @raise [Error::AbortError] if the server abandoned the response.
-    # @raise [Error::FramingError] if the framing is unusable or the response
-    #   ran past the chunk ceiling.
-    # @raise [Error::TimeoutError] if a chunk did not arrive in time.
+    # @return [String] the reassembled service payload, binary encoded.
+    # @raise [Rex::Proto::OpcUa::Error::ServerError] if the server answered with
+    #   ERR.
+    # @raise [Rex::Proto::OpcUa::Error::AbortError] if the server abandoned the
+    #   response.
+    # @raise [Rex::Proto::OpcUa::Error::FramingError] if the framing is unusable
+    #   or the response ran past the chunk ceiling.
+    # @raise [Rex::Proto::OpcUa::Error::TimeoutError] if a chunk did not arrive
+    #   in time.
     def recv_service_response
       payload = ''.b
 
@@ -244,7 +280,7 @@ module Rex::Proto::OpcUa::Tcp
     # StatusCode is simply left unknown.
     #
     # @param body [String] the ERR message body.
-    # @return [Error::ServerError]
+    # @return [Rex::Proto::OpcUa::Error::ServerError]
     def server_error(body)
       err = ErrorMessage.read(body)
       Error::ServerError.new(status_code: err.status_code.snapshot, reason: err.reason.snapshot)

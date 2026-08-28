@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 # Enumerated values and identifiers from the OPC-UA specification.
 #
@@ -6,8 +7,14 @@
 # machine-readable definitions rather than from prose, and can be re-verified
 # against them:
 #
-#   StatusCodes  https://github.com/OPCFoundation/UA-Nodeset/blob/latest/Schema/StatusCode.csv
-#   NodeIds      https://github.com/OPCFoundation/UA-Nodeset/blob/latest/Schema/NodeIds.csv
+#   StatusCodes  reference/opcua/StatusCode.csv
+#   NodeIds      reference/opcua/NodeIds.csv
+#
+# Both are also published at
+# https://github.com/OPCFoundation/UA-Nodeset/blob/latest/Schema/. Every value
+# in this file has been checked against the local copies; note that
+# StatusCode.csv spells the names without the underscore used here and in the
+# specification prose, so Bad_TcpServerTooBusy is BadTcpServerTooBusy there.
 module Rex::Proto::OpcUa::Enums
   # SecurityPolicy URI for the None policy. An endpoint offering this applies
   # no signing or encryption, so a channel opened under it is readable on the
@@ -21,8 +28,10 @@ module Rex::Proto::OpcUa::Enums
   # over this transport. All are in namespace 0. A request and its response
   # differ by three, the intervening identifier being the XML encoding.
   #
-  # The OpenSecureChannel and GetEndpoints response identifiers were also read
-  # back off the wire from the captures in spec/file_fixtures/opc_ua.
+  # All six were checked against reference/opcua/NodeIds.csv, where each appears
+  # as <ServiceName>_Encoding_DefaultBinary. The OpenSecureChannel and
+  # GetEndpoints response identifiers were also read back off the wire from the
+  # captures in spec/file_fixtures/opc_ua.
   module NodeIds
     OPEN_SECURE_CHANNEL_REQUEST = 446
     OPEN_SECURE_CHANNEL_RESPONSE = 449
@@ -32,7 +41,8 @@ module Rex::Proto::OpcUa::Enums
     GET_ENDPOINTS_RESPONSE = 431
   end
 
-  # MessageSecurityMode (Part 4, section 7.15).
+  # MessageSecurityMode (Part 4, section 7.15), matching the enumeration of the
+  # same name in reference/opcua/Opc.Ua.Types.bsd.
   SECURITY_MODES = {
     0 => 'Invalid',
     1 => 'None',
@@ -40,7 +50,8 @@ module Rex::Proto::OpcUa::Enums
     3 => 'SignAndEncrypt'
   }.freeze
 
-  # UserTokenType (Part 4, section 7.36).
+  # UserTokenType (Part 4, section 7.36), matching the enumeration of the same
+  # name in reference/opcua/Opc.Ua.Types.bsd.
   TOKEN_TYPES = {
     0 => 'Anonymous',
     1 => 'UserName',

@@ -1,12 +1,21 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'bindata'
 
+# The OPC-UA built-in types, from OPC-UA Specification Part 6, section 5.2.2.
+#
+# The structured built-ins below were checked against
+# reference/opcua/Opc.Ua.Types.bsd, the OPC Foundation's own machine-readable
+# type definitions, which each one names. The length prefixed built-ins are
+# described in Part 6 prose rather than in the schema, so they carry a section
+# reference alone.
 module Rex::Proto::OpcUa::Types
   # OPC-UA encodes String and ByteString identically on the wire: a signed
   # Int32 length prefix followed by that many bytes. A length of -1 denotes a
   # null value, which the specification treats as distinct from a length of 0
-  # denoting an empty value. See OPC-UA Specification Part 6, section 5.2.2.
+  # denoting an empty value. See OPC-UA Specification Part 6, sections 5.2.2.4
+  # (String) and 5.2.2.7 (ByteString).
   #
   # BinData has no native type for a length prefix that doubles as a null
   # sentinel, so the read and write paths are implemented directly against
@@ -28,6 +37,9 @@ module Rex::Proto::OpcUa::Types
     # BinData::Base#initialize skips #assign when constructed with nil, so
     # .new(nil) already yields a null; this makes the explicit assignment and
     # field setter paths agree with it.
+    #
+    # @param val [String, nil] the value, where nil is the null value.
+    # @return [String, nil] the assigned value.
     def assign(val)
       return @value = nil if val.nil?
 
@@ -58,7 +70,8 @@ module Rex::Proto::OpcUa::Types
     end
   end
 
-  # A String has the ByteString wire format with UTF-8 content.
+  # A String has the ByteString wire format with UTF-8 content. See OPC-UA
+  # Specification Part 6, section 5.2.2.4.
   #
   # The bytes arrive from an unauthenticated server, so invalid sequences are
   # scrubbed rather than raised on. Note that scrubbing is not the same as
@@ -83,7 +96,10 @@ module Rex::Proto::OpcUa::Types
   # An array is an Int32 element count followed by that many elements. As with
   # String and ByteString a negative count denotes null, which the
   # specification treats as distinct from a count of zero denoting an empty
-  # array. See OPC-UA Specification Part 6, section 5.2.5.
+  # array. See OPC-UA Specification Part 6, section 5.2.5. The schema spells the
+  # same encoding out as a NoOf<name> Int32 field followed by the elements it
+  # counts; see for instance the ResponseHeader StructuredType in
+  # reference/opcua/Opc.Ua.Types.bsd.
   #
   # The element type is supplied as the ordinary BinData :type parameter at the
   # declaration site, and :max_length caps how many elements will be read:
@@ -109,6 +125,14 @@ module Rex::Proto::OpcUa::Types
 
     default_parameter max_length: DEFAULT_MAX_LENGTH
 
+    # Whether a freshly built array is null rather than empty. The two encode
+    # differently, so a request field that is required to be null needs to say
+    # so at its declaration site: building the record and leaving the field
+    # alone would otherwise send a count of 0 where the server was to be sent
+    # -1. BinData drops nil values when a record is built from a hash, so
+    # passing null in at construction is not an alternative.
+    default_parameter null_default: false
+
     # BinData::Array selects its read strategy in #initialize_shared_instance
     # and installs it with #extend, which places it ahead of this class in the
     # singleton ancestry. Overriding #do_read as an ordinary instance method is
@@ -117,14 +141,18 @@ module Rex::Proto::OpcUa::Types
     # nor :read_until was given, so InitialLengthPlugin is always installed,
     # and every read would return an empty array with nothing raised.
     # Extending after super is what puts the count prefix ahead of it.
+    #
+    # @return [void]
     def initialize_shared_instance
       super
       extend CountPrefixPlugin
     end
 
+    # @return [void]
+    # @return [void]
     def initialize_instance
       super
-      @null = false
+      @null = eval_parameter(:null_default)
     end
 
     # @return [Boolean] whether this array was read as, or assigned, null.
@@ -134,6 +162,9 @@ module Rex::Proto::OpcUa::Types
 
     # BinData::Array#assign rejects nil, so null has to be taken here and
     # stored as an empty element list flagged as null.
+    #
+    # @param array [Array, nil] the elements, where nil is the null array.
+    # @return [Array] the assigned elements.
     def assign(array)
       @null = array.nil?
       super(@null ? [] : array)
@@ -142,6 +173,10 @@ module Rex::Proto::OpcUa::Types
     # The count prefix. This has to be a module extended onto the instance
     # rather than methods on the class; see #initialize_shared_instance.
     module CountPrefixPlugin
+      # @param io [BinData::IO::Read] the stream to read the count and elements
+      #   from.
+      # @return [void]
+      # @raise [BinData::ValidityError] if the count exceeds :max_length.
       def do_read(io)
         count = io.readbytes(4).unpack1('l<')
         @element_list = []
@@ -161,11 +196,15 @@ module Rex::Proto::OpcUa::Types
         count.times { append_new_element.do_read(io) }
       end
 
+      # @param io [BinData::IO::Write] the stream to write the count and
+      #   elements to.
+      # @return [void]
       def do_write(io)
         io.writebytes([@null ? NULL_LENGTH : length].pack('l<'))
         super unless @null
       end
 
+      # @return [Integer] the encoded length, the count prefix included.
       def do_num_bytes
         @null ? 4 : 4 + super
       end
@@ -216,18 +255,29 @@ module Rex::Proto::OpcUa::Types
 
   # NodeId, which names a node in a server's address space and is also how every
   # service names its own encoding. See OPC-UA Specification Part 6,
-  # section 5.2.2.9.
+  # section 5.2.2.9, whose Table 17 lists the six identifier forms as 0x00 to
+  # 0x05 and calls out NamespaceUri 0x80 and ServerIndex 0x40 separately, and
+  # section 5.2.2.10 for the ExpandedNodeId those two flags belong to.
   #
-  # The leading byte selects the identifier form in its low nibble. Bits 0x80
-  # and 0x40 add a trailing NamespaceUri and ServerIndex; those belong to the
-  # ExpandedNodeId form, and are accepted here because the two forms are not
-  # distinguishable from the bytes alone, so a reader that rejected them would
-  # fail against a server that sends one where this expects a NodeId.
+  # reference/opcua/Opc.Ua.Types.bsd agrees and adds the widths:
+  #
+  #   NodeIdType is LengthInBits="6", and NodeId follows it with Reserved1 of
+  #   Length="2". ExpandedNodeId replaces those two reserved bits with
+  #   ServerIndexSpecified and then NamespaceURISpecified, which is bit 0x40 and
+  #   bit 0x80 respectively, and appends NamespaceURI before ServerIndex.
+  #
+  # The six identifier forms are the TwoByteNodeId, FourByteNodeId,
+  # NumericNodeId, StringNodeId, GuidNodeId and ByteStringNodeId
+  # StructuredTypes, whose field types and order are reproduced in the choice
+  # below.
+  #
+  # The ExpandedNodeId flags are accepted on a NodeId because the two forms are
+  # not distinguishable from the bytes alone, so a reader that rejected them
+  # would fail against a server that sends one where this expects a NodeId.
   #
   # Only the TwoByte and FourByte forms appear in the captures under
-  # spec/file_fixtures/opc_ua. The other four, and both flags, are carried over
-  # unchanged from the reader in the module this library replaces; their specs
-  # are hand-built and are marked as such.
+  # spec/file_fixtures/opc_ua; the other four and both flags have hand-built
+  # specs, marked as such.
   class OpcUaNodeId < BinData::Record
     endian :little
 
@@ -239,8 +289,12 @@ module Rex::Proto::OpcUa::Types
     GUID = 0x04
     BYTE_STRING = 0x05
 
-    # Selects the identifier form.
-    FORM_MASK = 0x0F
+    # Selects the identifier form. Six bits wide, not four: the schema declares
+    # NodeIdType with LengthInBits="6" and gives a plain NodeId two reserved
+    # bits above it, which ExpandedNodeId replaces with the two flags below.
+    # Masking with 0x0F would silently read an encoding byte of 0x11 as the
+    # FourByte form instead of rejecting it.
+    FORM_MASK = 0x3F
     # Set when a NamespaceUri String follows the identifier.
     NAMESPACE_URI_FLAG = 0x80
     # Set when a ServerIndex UInt32 follows.
@@ -316,6 +370,20 @@ module Rex::Proto::OpcUa::Types
   # and the body itself where there is one. See OPC-UA Specification Part 6,
   # section 5.2.2.15.
   #
+  # Table 25 in that section gives the fields as TypeId (NodeId), Encoding
+  # (Byte), Length (Int32) and Body, and states that a null ExtensionObject is a
+  # TypeId of i=0 with an Encoding of 0. That is exactly the three bytes 00 00
+  # 00 that the captured OpenSecureChannelResponse carries as its
+  # AdditionalHeader, and the message accounts for its declared 135 bytes on
+  # that reading and on no other.
+  #
+  # The ExtensionObject StructuredType in reference/opcua/Opc.Ua.Types.bsd
+  # describes the same structure abstractly rather than as a byte layout,
+  # rendering the Encoding byte as a TypeIdSpecified, BinaryBody and XmlBody bit
+  # field and naming the body length separately. It is not a second, conflicting
+  # encoding; where the two are read differently, Table 25 is the one that
+  # describes the bytes.
+  #
   # Every ExtensionObject in the captures is the empty form, a null TypeId with
   # encoding 0x00, which is how an absent AdditionalHeader is sent.
   class OpcUaExtensionObject < BinData::Record
@@ -343,14 +411,60 @@ module Rex::Proto::OpcUa::Types
     end
   end
 
+  # LocalizedText: a mask byte saying which of Locale and Text follow, then those
+  # that do. See OPC-UA Specification Part 6, section 5.2.2.14, and the
+  # LocalizedText StructuredType in reference/opcua/Opc.Ua.Types.bsd, which
+  # gives LocaleSpecified and TextSpecified as the low two bits followed by six
+  # reserved ones, and encodes Locale ahead of Text.
+  #
+  # Every LocalizedText in the captures under spec/file_fixtures/opc_ua has mask
+  # 0x03, both fields present. The three sparser masks have hand-built specs.
+  #
+  # A field left out by the mask reads as nil, which is the same as a String
+  # that was present but null, so the two are not distinguished here. The
+  # distinction does not survive into anything a scanner reports, and #text is
+  # what callers actually want.
+  class OpcUaLocalizedText < BinData::Record
+    endian :little
+
+    # Set when a Locale String follows the mask.
+    LOCALE_FLAG = 0x01
+    # Set when a Text String follows.
+    TEXT_FLAG = 0x02
+
+    uint8         :encoding_mask
+    opc_ua_string :locale, onlyif: -> { (encoding_mask & LOCALE_FLAG) != 0 }
+    opc_ua_string :text, onlyif: -> { (encoding_mask & TEXT_FLAG) != 0 }
+
+    # @return [String, nil] the Text, or nil when the mask omitted it. This is
+    #   the human readable half and the only one a scan report wants.
+    def to_s
+      text? ? text.snapshot.to_s : ''
+    end
+
+    # @return [Boolean] whether the mask says a Locale is present.
+    def locale?
+      (encoding_mask.snapshot & LOCALE_FLAG) != 0
+    end
+
+    # @return [Boolean] whether the mask says a Text is present.
+    def text?
+      (encoding_mask.snapshot & TEXT_FLAG) != 0
+    end
+  end
+
   # DiagnosticInfo, in the only form this library will read: empty. See OPC-UA
-  # Specification Part 6, section 5.2.2.12.
+  # Specification Part 6, section 5.2.2.12, and the DiagnosticInfo
+  # StructuredType in reference/opcua/Opc.Ua.Types.bsd.
   #
   # Every request sent from here sets ReturnDiagnostics to zero, so a server
   # that returns a populated DiagnosticInfo has answered a question it was not
-  # asked. The seven optional fields it would then carry, one of them a nested
-  # DiagnosticInfo, cannot be exercised against any capture, so reading one
-  # raises rather than being decoded against a structure taken on trust.
+  # asked. The schema gives it seven presence bits and a reserved eighth,
+  # followed by the fields they select, the last of which is a nested
+  # DiagnosticInfo; note also that the schema orders the Locale field ahead of
+  # LocalizedText while their presence bits run the other way round. None of
+  # that can be exercised against any capture, so reading a populated one raises
+  # rather than being decoded against a structure with no coverage.
   class OpcUaDiagnosticInfo < BinData::BasePrimitive
     # The encoding mask of an empty DiagnosticInfo: no optional field present.
     EMPTY = 0x00

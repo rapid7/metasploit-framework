@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 # Errors raised by the OPC-UA library.
 #
@@ -7,6 +8,11 @@
 # caller that wants to report why can rescue the individual classes. This
 # follows Rex::Proto::Thrift::Error and Rex::Proto::Amqp::Error, which solve the
 # same problem for their transports.
+#
+# OpcUaError descends from Rex::RuntimeError, which means every error here is
+# both a StandardError and a Rex::Exception without any of them saying so
+# individually: Rex::RuntimeError includes the Rex::Exception marker module, so
+# `rescue Rex::Exception` catches these alongside Rex's own.
 #
 # The distinction the classes draw is between a fault in our reading of the
 # connection and a fault the server reported, because a scanner reports those
@@ -17,26 +23,28 @@ module Rex::Proto::OpcUa::Error
   class OpcUaError < Rex::RuntimeError; end
 
   # Raised when a read does not complete before its deadline, either because
-  # nothing arrived or because only part of a message did. Rex sockets report
-  # a closed connection by raising EOFError rather than by timing out, and that
-  # is left to propagate as itself.
+  # nothing arrived or because only part of a message did. Rex sockets report a
+  # closed connection by raising EOFError rather than by timing out, and that is
+  # left to propagate as itself.
   class TimeoutError < OpcUaError; end
 
   # Raised when the UA TCP framing is unusable: a message size outside the
   # permitted range, a chunk too short to hold its own headers, a message or
   # chunk type that has no meaning here, or a response that ran past the chunk
-  # ceiling.
+  # ceiling. See OPC-UA Specification Part 6, section 7.1.
   class FramingError < OpcUaError; end
 
   # Raised when the server abandons a response part way through by sending a
-  # chunk of type A. The response cannot be completed, but the connection
-  # itself is intact and the server is behaving to specification.
+  # chunk of type A, per OPC-UA Specification Part 6, section 6.7.2. The
+  # response cannot be completed, but the connection itself is intact and the
+  # server is behaving to specification.
   class AbortError < OpcUaError; end
 
-  # Raised when the server answers with an ERR message. This is a report from
-  # the server rather than a fault in reading it, and the StatusCode it carries
-  # is the useful part, so it is kept as a field rather than only interpolated
-  # into the message.
+  # Raised when the server answers with an ERR message, per OPC-UA
+  # Specification Part 6, section 7.1.2.5. This is a report from the server
+  # rather than a fault in reading it, and the StatusCode it carries is the
+  # useful part, so it is kept as a field rather than only interpolated into the
+  # message.
   class ServerError < OpcUaError
     # @return [Integer, nil] the StatusCode from the ERR message, or nil when
     #   the body could not be decoded.
@@ -47,8 +55,10 @@ module Rex::Proto::OpcUa::Error
     attr_reader :reason
 
     # @param status_code [Integer, nil] the StatusCode from the ERR message.
-    # @param reason [String, nil] the Reason from the ERR message.
+    # @param reason [String, nil] the Reason from the ERR message. An empty
+    #   reason is stored as nil, since the two say the same thing.
     # @param msg [String, nil] overrides the generated message.
+    # @return [ServerError]
     def initialize(status_code: nil, reason: nil, msg: nil)
       @status_code = status_code
       @reason = reason.to_s.empty? ? nil : reason.to_s
