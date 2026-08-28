@@ -86,6 +86,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     ports = validate_ports
 
+    if datastore['THREADS'].to_i > 1 && datastore['CONCURRENCY'].to_i > 1
+      vprint_warning("THREADS (hosts) and CONCURRENCY (ports) multiply: total worker threads can reach ~#{datastore['THREADS'].to_i * datastore['CONCURRENCY'].to_i}")
+    end
     # Per-host sink for detected handlers, rendered as one Rex::Text::Table when
     # the port sweep finishes (instead of long single-line hits). Scanner runs
     # run_host on a replicant per host, so this is host-local; the lock guards
@@ -323,7 +326,7 @@ class MetasploitModule < Msf::Auxiliary
         ip,
         followup,
         "handler_followup_#{port}.txt",
-        "Commands an operator's AutoRunScript/InitialAutoRunScript ran against the connecting shell on #{ip}:#{port}"
+        "Commands an operator's AutoRunScript/InitialAutoRunScript ran against the connecting shell on #{Rex::Socket.to_authority(ip, port)}"
       )
       print_good("Saved captured commands to loot: #{loot_path}")
       report_note(host: ip, port: port, type: 'msf.handler.followup', data: { 'commands' => followup.split("\n").reject(&:empty?), 'loot' => loot_path }, update: :unique_data)

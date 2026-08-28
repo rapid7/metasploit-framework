@@ -68,19 +68,19 @@ flowchart TD
 
     %% ---- fingerprint() ordered checks ----
     FP --> F1{"starts with<br/>'echo TOKEN'?"}
-    F1 -->|yes| RShell["Command shell handler<br/>(echo probe) — high"]
+    F1 -->|yes| RShell["Command shell handler<br/>(echo probe) - high"]
     F1 -->|no| F2{"base64 + 4-byte<br/>big-endian length?"}
     F2 -->|yes| RPy["python meterpreter<br/>(base64/zlib staged)"]
     F2 -->|no| F3{"4-byte little-endian<br/>length delivered?"}
-    F3 -->|yes| RWin["Windows native staged<br/>(metsrv/shell) — high"]
+    F3 -->|yes| RWin["Windows native staged<br/>(metsrv/shell) - high"]
     F3 -->|no| F4{"4-byte big-endian<br/>length delivered?"}
-    F4 -->|yes| RBE["php / java / android<br/>staged — medium"]
+    F4 -->|yes| RBE["php / java / android<br/>staged - medium"]
     F4 -->|no| F5{"small buf<br/>with /bin/sh?"}
     F5 -->|yes| RExec["unix execve staged shell"]
     F5 -->|no| F6{"starts with 0xFC?"}
-    F6 -->|yes| RStager["Windows raw stager shellcode<br/>(reverse_nonx/ord) — medium"]
+    F6 -->|yes| RStager["Windows raw stager shellcode<br/>(reverse_nonx/ord) - medium"]
     F6 -->|no| F7{">=128 bytes,<br/>mostly non-text?"}
-    F7 -->|yes| RNative["linux/osx native stage<br/>or RC4/encrypted — low"]
+    F7 -->|yes| RNative["linux/osx native stage<br/>or RC4/encrypted - low"]
     F7 -->|no| RBanner["Talks first, not a stage<br/>(unrelated service)"]
 
     RShell --> EB{"ECHO_BACK?"}
@@ -106,7 +106,7 @@ flowchart TD
     D2c -->|yes| RDoubleSsl["double-SSL handler"]
     D2c -->|no| D3["send 16-byte UUID"]
     D3 --> D3c{"fast reply-less<br/>close?"}
-    D3c -->|yes| RPing["pingback — low"]
+    D3c -->|yes| RPing["pingback - low"]
     D3c -->|no| SOpen
 
     %% ---- UDP (independent, if SCAN_UDP) ----
