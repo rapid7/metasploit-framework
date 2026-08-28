@@ -207738,6 +207738,57 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_windows/persistence/boot_verification_program": {
+    "name": "Boot Verification Program Persistence",
+    "fullname": "exploit/windows/persistence/boot_verification_program",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2020-01-23",
+    "type": "exploit",
+    "author": [
+      "Emanuele Cervelli"
+    ],
+    "description": "This module establishes persistence by configuring the BootVerificationProgram\n          registry key. It uploads a payload executable and modifies the 'ImagePath'\n          value under HKLM\\SYSTEM\\CurrentControlSet\\Control\\BootVerificationProgram.\n\n          The payload is executed by the Service Control Manager early in the boot cycle,\n          running with SYSTEM privileges before user logon.\n\n          Administrator or SYSTEM privileges are required to execute this persistence technique.",
+    "references": [
+      "ATT&CK-T1547",
+      "ATT&CK-T1546",
+      "URL-https://www.cyberark.com/resources/ransomware-protection/persistence-techniques-that-persist"
+    ],
+    "platform": "Windows",
+    "arch": "x64, x86",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-08-27 16:15:40 +0000",
+    "path": "/modules/exploits/windows/persistence/boot_verification_program.rb",
+    "is_install_path": true,
+    "ref_name": "windows/persistence/boot_verification_program",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "event-dependent",
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
   "exploit_windows/persistence/image_exec_options": {
     "name": "Windows Silent Process Exit Persistence",
     "fullname": "exploit/windows/persistence/image_exec_options",
@@ -208526,6 +208577,56 @@
         "crash-safe"
       ],
       "SideEffects": [
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
+  "exploit_windows/persistence/time_provider": {
+    "name": "Windows Time Provider Persistence",
+    "fullname": "exploit/windows/persistence/time_provider",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2020-01-24",
+    "type": "exploit",
+    "author": [
+      "Emanuele Cervelli"
+    ],
+    "description": "This module establishes persistence by registering a malicious Time Provider DLL\n          under HKLM\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\TimeProviders\\.\n          When the W32Time service starts or restarts, the configured payload DLL is executed.",
+    "references": [
+      "ATT&CK-T1209",
+      "URL-https://hadess.io/the-art-of-windows-persistence/"
+    ],
+    "platform": "Windows",
+    "arch": "x64, x86",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-08-27 18:17:48 +0000",
+    "path": "/modules/exploits/windows/persistence/time_provider.rb",
+    "is_install_path": true,
+    "ref_name": "windows/persistence/time_provider",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "event-dependent",
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
         "config-changes",
         "ioc-in-logs"
       ]
