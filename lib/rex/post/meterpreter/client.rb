@@ -2,10 +2,12 @@
 
 require 'socket'
 require 'openssl'
+require 'rex/thread_factory'
 
 require 'rex/post/channel'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client_core'
+require 'rex/post/meterpreter/async_window'
 require 'rex/post/meterpreter/channel'
 require 'rex/post/meterpreter/dependencies'
 require 'rex/post/meterpreter/object_aliases'
@@ -34,6 +36,9 @@ end
 #
 ###
 class Client
+
+  ASYNC_LEASE_POLL_INTERVAL = 1
+  ASYNC_SCHEDULE_SAFETY_MARGIN = 2 * 3600
 
   include Rex::Post::Channel::Container
   include Rex::Post::Meterpreter::PacketDispatcher
@@ -542,11 +547,146 @@ class Client
 
   # Locally stored async config values (applied when async mode is enabled)
   def async_config
-    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F, smart_sync: 0 }
+    @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F, lease_ttl: 300, job_timeout: 86400 }
   end
 
   def async_mode_enabled?
     !!self.async_mode_enabled
+  end
+
+  # Target-side wall-clock sample, populated at session bootstrap and refreshed
+  # opportunistically from async check-in responses. Shape:
+  #   { target_unix_ts:, target_local_ts:, utc_offset:, sampled_at: }
+  # Nil when the payload doesn't support {ClientCore#get_target_time} or when
+  # the sample hasn't been taken yet.
+  attr_accessor :target_time_sample
+
+  # Whether the target has acknowledged an active async job lease.
+  attr_reader :async_lease_enabled
+
+  def async_lease_enabled?
+    return false unless @async_lease_enabled
+    return true unless @async_lease_deadline
+
+    active = Process.clock_gettime(Process::CLOCK_MONOTONIC) < @async_lease_deadline
+    self.async_lease_enabled = false unless active
+    active
+  end
+
+  def async_lease_renewed(ttl)
+    self.async_lease_enabled = true
+    @async_lease_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + ttl
+  end
+
+  def async_lease_enabled=(enabled)
+    @async_lease_enabled = enabled
+    @async_lease_deadline = nil unless enabled
+  end
+
+  # Estimated target-local wall clock right now, as a UTC-flavored Time whose
+  # #hour and #wday read in the target's local frame.
+  def target_time_now
+    s = @target_time_sample
+    return nil unless s && s[:target_local_ts] && s[:sampled_at]
+
+    elapsed = ::Time.now - s[:sampled_at]
+    ::Time.at(s[:target_local_ts] + elapsed).utc
+  end
+
+  # Target UTC offset in seconds (east positive), or 0 when unknown.
+  def target_utc_offset
+    @target_time_sample&.dig(:utc_offset) || 0
+  end
+
+  def target_time_sample_age
+    sampled_at = @target_time_sample&.dig(:sampled_at)
+    sampled_at ? ::Time.now - sampled_at : nil
+  end
+
+  # Seconds until the target's next allowed poll window opens, given the
+  # current async work_start/work_end/work_days config. See
+  # {Rex::Post::Meterpreter::AsyncWindow.seconds_until_next_window}.
+  def async_seconds_until_next_window(now = target_time_now)
+    return nil unless now
+
+    cfg = async_config
+    AsyncWindow.seconds_until_next_window(now, cfg[:work_start], cfg[:work_end], cfg[:work_days])
+  end
+
+  # Clamp a Meterpreter request timeout when async mode is enabled. Job-lease
+  # requests only need to cover rapid polling. Scheduled requests must safely
+  # survive the longest valid work-window gap, including clock/DST drift.
+  def async_response_timeout(timeout)
+    return timeout unless async_mode_enabled? && timeout
+
+    minimum = if async_lease_enabled?
+                ASYNC_LEASE_POLL_INTERVAL * 3 + 10
+              else
+                cfg = async_config
+                poll = cfg[:poll_interval].to_i
+                worst_case = poll + (poll * cfg[:jitter].to_i / 100)
+                AsyncWindow::MAXIMUM_GAP + ASYNC_SCHEDULE_SAFETY_MARGIN + worst_case * 3 + 10
+              end
+    [timeout.to_i, minimum].max
+  end
+
+  # Run a block while maintaining an explicit target-side rapid-poll lease.
+  # The target drops the lease automatically when renewals stop.
+  def with_async_lease
+    ttl = async_config[:lease_ttl].to_i
+    enabled = core.async_lease(enabled: true, ttl: ttl)
+    raise Rex::Post::Meterpreter::RequestError.new(COMMAND_ID_CORE_ASYNC_LEASE, 'The target refused the async job lease') unless enabled
+
+    start_async_lease_renewer(ttl)
+    yield
+  ensure
+    stop_async_lease_renewer
+    unless ::Thread.current[:msf_async_forced_stop]
+      begin
+        core.async_lease(enabled: false, ttl: ttl, wait: false)
+      rescue ::StandardError => e
+        dlog("Unable to release async job lease: #{e.message}", 'meterpreter/async')
+      end
+    end
+    self.async_lease_enabled = false
+  end
+
+  def start_async_lease_renewer(ttl)
+    @async_lease_mutex ||= ::Mutex.new
+    @async_lease_condition ||= ::ConditionVariable.new
+    @async_lease_mutex.synchronize { @async_lease_stopping = false }
+    renew_interval = [ttl / 3, 10].max
+
+    @async_lease_thread = Rex::ThreadFactory.spawn('AsyncLeaseRenewer', false) do
+      loop do
+        stopping = @async_lease_mutex.synchronize do
+          @async_lease_condition.wait(@async_lease_mutex, renew_interval)
+          @async_lease_stopping
+        end
+        break if stopping
+
+        begin
+          core.async_lease(enabled: true, ttl: ttl, timeout: ttl)
+        rescue ::StandardError => e
+          dlog("Async job lease renewal failed: #{e.message}", 'meterpreter/async')
+        end
+      end
+    end
+  end
+
+  def stop_async_lease_renewer
+    return unless @async_lease_thread
+
+    @async_lease_mutex.synchronize do
+      @async_lease_stopping = true
+      @async_lease_condition.broadcast
+    end
+    @async_lease_thread.join(5)
+    if @async_lease_thread.alive?
+      @async_lease_thread.kill
+      @async_lease_thread.join
+    end
+    @async_lease_thread = nil
   end
 
   #
@@ -586,7 +726,7 @@ class Client
       pipe.define_singleton_method(:prompting?) { false }
       pipe.create_subscriber('async')
       shell.init_ui(pipe, pipe)
-      shell.instance_variable_set(:@async_bypass, true)
+      shell.instance_variable_set(:@async_worker, true)
       shell.instance_variable_set(:@async_pipe, pipe)
 
       # Re-load each extension on the async shell using the same code path as

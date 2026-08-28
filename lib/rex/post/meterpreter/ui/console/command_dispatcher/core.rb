@@ -756,16 +756,15 @@ class Console::CommandDispatcher::Core
         -i <seconds>   Poll interval in seconds (default: 60)
         -j <percent>   Jitter percentage 0-99 (default: 0)
         -s <hour>      Work hours start 0-23 (default: 0)
-        -e <hour>      Work hours end 0-23 (default: 24)
+        -e <hour>      Work hours end 0-24 (default: 24)
         -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)
-        -y <seconds>   Smart-sync burst window: seconds to keep polling rapidly
-                       after any request/response activity, then fall back to the
-                       normal interval. 0 disables (default: 0)
+        -l <seconds>   Async job lease TTL, renewed while a job runs (default: 300)
+        -x <seconds>   Maximum runtime for one async job (default: 86400)
 
       Examples:
         async mode on
         async config -i 300 -j 20 -s 8 -e 17 -d mon-fri
-        async config -i 600 -y 30
+        async config -i 600 -l 300 -x 7200
         async run ls
         async run execute -f cmd.exe -a "/c whoami" -H
         async queue
@@ -802,6 +801,7 @@ class Console::CommandDispatcher::Core
   # Format a work days bitmask into a human-readable string.
   #
   def format_work_days(mask)
+    return 'all' if mask == 0
     return 'all' if mask == 0x7F
     return 'mon-fri' if mask == 0x3E
 
@@ -868,17 +868,22 @@ class Console::CommandDispatcher::Core
         return
       end
       cfg = client.async_config
+      validation_error = async_config_validation_error(cfg)
+      if validation_error
+        print_error(validation_error)
+        return
+      end
       print_status("Enabling async mode (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%)...")
       client.core.async_mode(enabled: true, **cfg)
       print_good('Async mode enabled. Use "async run <cmd>" to enqueue commands.')
-      print_warning('Channels, port forwards, interactive shell, and post modules are unavailable in async mode.')
+      print_warning('Use "async run <command>" for extension commands and Post modules; transport lifecycle and persistent interactive commands are unavailable.')
       if cfg[:work_start] != 0 || cfg[:work_end] != 24
         print_warning("Business hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00 use the TARGET's local time.")
       end
     when 'off'
       print_status('Disabling async mode...')
-      client.core.async_mode(enabled: false)
       client.async_store.stop_worker
+      client.core.async_mode(enabled: false)
       print_good('Async mode disabled. Session is now interactive.')
     else
       print_error("Unknown mode: #{subcmd}. Use 'on' or 'off'.")
@@ -900,7 +905,8 @@ class Console::CommandDispatcher::Core
           Jitter        : #{cfg[:jitter]}%
           Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00
           Work days     : #{format_work_days(cfg[:work_days])}
-          Smart-sync    : #{cfg[:smart_sync].to_i > 0 ? "#{cfg[:smart_sync]}s burst window" : 'disabled'}
+          Lease TTL     : #{cfg[:lease_ttl]}s
+          Job timeout   : #{cfg[:job_timeout]}s
           Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}
 
       CONFIG
@@ -912,29 +918,39 @@ class Console::CommandDispatcher::Core
       '-i' => [true, 'Poll interval (seconds)'],
       '-j' => [true, 'Jitter percent (0-99)'],
       '-s' => [true, 'Work start hour (0-23)'],
-      '-e' => [true, 'Work end hour (0-23)'],
+      '-e' => [true, 'Work end hour (0-24)'],
       '-d' => [true, 'Work days'],
-      '-y' => [true, 'Smart-sync burst window (seconds, 0 disables)']
+      '-l' => [true, 'Async job lease TTL (seconds)'],
+      '-x' => [true, 'Maximum async job runtime (seconds)']
     )
+    updated = cfg.dup
     opts.parse(args) do |opt, _idx, val|
       case opt
       when '-i'
-        cfg[:poll_interval] = val.to_i
+        updated[:poll_interval] = val.to_i
       when '-j'
-        cfg[:jitter] = val.to_i
+        updated[:jitter] = val.to_i
       when '-s'
-        cfg[:work_start] = val.to_i
+        updated[:work_start] = val.to_i
       when '-e'
-        cfg[:work_end] = val.to_i
+        updated[:work_end] = val.to_i
       when '-d'
-        cfg[:work_days] = parse_work_days(val)
-      when '-y'
-        cfg[:smart_sync] = val.to_i
+        updated[:work_days] = parse_work_days(val)
+      when '-l'
+        updated[:lease_ttl] = val.to_i
+      when '-x'
+        updated[:job_timeout] = val.to_i
       end
     end
 
-    smart_sync_note = cfg[:smart_sync].to_i > 0 ? ", smart-sync #{cfg[:smart_sync]}s" : ''
-    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00#{smart_sync_note}).")
+    validation_error = async_config_validation_error(updated)
+    if validation_error
+      print_error(validation_error)
+      return
+    end
+
+    cfg.replace(updated)
+    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00, lease #{cfg[:lease_ttl]}s).")
     if client.async_mode_enabled?
       print_status('Async mode is active. Sending updated config to target...')
       client.core.async_mode(enabled: true, **cfg)
@@ -947,10 +963,6 @@ class Console::CommandDispatcher::Core
   # Commands that cannot be executed via 'async run' because they require
   # an interactive channel or persistent socket that the async poll model
   # cannot service.
-  ASYNC_RUN_BLOCKED_COMMANDS = %w[
-    shell interact channel portfwd rportfwd
-  ].freeze
-
   #
   # async run <command line>
   #
@@ -960,9 +972,14 @@ class Console::CommandDispatcher::Core
       return
     end
 
-    blocked = ASYNC_RUN_BLOCKED_COMMANDS.include?(args.first)
+    unless client.async_mode_enabled?
+      print_error('Enable async mode before queuing async commands.')
+      return
+    end
+
+    blocked = Console::ASYNC_WORKER_BLOCKED_COMMANDS.include?(args.first)
     if blocked
-      print_error("Command '#{args.first}' cannot be run in async mode; it requires an interactive channel.")
+      print_error("Command '#{args.first}' cannot run as an async job because it changes session lifecycle or requires persistent interaction.")
       return
     end
 
@@ -1012,7 +1029,11 @@ class Console::CommandDispatcher::Core
       # this worker thread are allowed to run against the async session.
       ::Thread.current[:msf_async_bypass_post] = true
       begin
-        async_shell.run_single(cmd_line)
+        client.with_async_lease do
+          ::Timeout.timeout(client.async_config[:job_timeout]) do
+            async_shell.run_single(cmd_line, propagate_errors: true)
+          end
+        end
         captured = async_pipe ? async_pipe.read_subscriber('async') : ''
         client.async_store.complete(work_rid, nil, captured.empty? ? '(no output)' : captured)
       ensure
@@ -1040,6 +1061,33 @@ class Console::CommandDispatcher::Core
     end
 
     print_status("Queued: #{cmd_line} (rid: #{rid[0..7]})")
+
+    gap = client.async_seconds_until_next_window
+    sample_age = client.target_time_sample_age
+    if sample_age.nil? || sample_age > 3600
+      print_warning('Target clock sample is unavailable or stale; delivery waits for the next configured target-local window.')
+    elsif gap && gap > 0
+      human = if gap < 3600
+                "#{(gap / 60).round}m"
+              elsif gap < 86400
+                "#{(gap / 3600.0).round(1)}h"
+              else
+                "#{(gap / 86400.0).round(1)}d"
+              end
+      print_warning("Target outside work window; delivery resumes in approximately #{human} based on the last target-clock sample.")
+    end
+  end
+
+  def async_config_validation_error(cfg)
+    return 'Poll interval must be between 10 and 86400 seconds.' unless cfg[:poll_interval].between?(10, 86400)
+    return 'Jitter must be between 0 and 99 percent.' unless cfg[:jitter].between?(0, 99)
+    return 'Work start must be between 0 and 23.' unless cfg[:work_start].between?(0, 23)
+    return 'Work end must be between 0 and 24.' unless cfg[:work_end].between?(0, 24)
+    return 'Work days must select at least one day.' unless cfg[:work_days].between?(1, 0x7F)
+    return 'Lease TTL must be between 30 and 3600 seconds.' unless cfg[:lease_ttl].between?(30, 3600)
+    return 'Job timeout must be at least the lease TTL.' unless cfg[:job_timeout] >= cfg[:lease_ttl]
+
+    nil
   end
 
   #
@@ -1757,7 +1805,8 @@ class Console::CommandDispatcher::Core
       # First try it as a Post module if we have access to the Metasploit
       # Framework instance.  If we don't, or if no such module exists,
       # fall back to using the scripting interface.
-      if msf_loaded? && mod = client.framework.modules.create(script_name)
+      mod = client.framework.modules.create(script_name) if msf_loaded?
+      if mod
         original_mod = mod
         reloaded_mod = client.framework.modules.reload_module(original_mod)
 
@@ -1783,6 +1832,8 @@ class Console::CommandDispatcher::Core
         })
 
         print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
+      elsif shell.async_worker?
+        print_error('Meterpreter scripts cannot run inside an async job; use a Post module instead.')
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)

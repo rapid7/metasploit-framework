@@ -97,15 +97,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   def exit
     begin
-      # If async mode is active, warn the operator that shutdown will
-      # block until the implant next polls (up to poll_interval + jitter),
-      # and stop the async worker so no queued work is left dangling.
+      # Stop the async worker so no queued work is left dangling, then wait
+      # for shutdown delivery at the next configured target check-in.
       if respond_to?(:async_mode_enabled?) && async_mode_enabled?
-        cfg = async_config
-        poll = cfg[:poll_interval].to_i
-        jitter_pct = cfg[:jitter].to_i
-        worst_case = poll + (poll * jitter_pct / 100)
-        print_status("Async mode is on - waiting up to #{worst_case + 10}s for the implant's next check-in to deliver shutdown...")
+        print_status("Async mode is on - waiting for the implant's next configured check-in to deliver shutdown...")
         async_store.stop_worker if respond_to?(:async_store)
       end
       self.core.shutdown
@@ -521,6 +516,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     begin
       ::Timeout.timeout(60) do
         update_session_info
+        begin
+          sample = core.get_target_time
+          self.target_time_sample = sample if sample
+        rescue ::Rex::Post::Meterpreter::RequestError => e
+          dlog("Payload does not support get_target_time: #{e.message}")
+        rescue ::StandardError => e
+          dlog("get_target_time sampling failed: #{e.message}")
+        end
 
         hobj = nil
 
