@@ -140,6 +140,33 @@ module Rex::Proto::OpcUa::SecureChannel
     opc_ua_byte_string     :server_nonce
   end
 
+  # Decode the body of an OPN message, which is everything the transport hands
+  # back after the 8 byte message header.
+  #
+  # An OPN body is framed as a plaintext SecureChannelId, an
+  # AsymmetricSecurityHeader, a SequenceHeader and the TypeId naming the
+  # service, and only then the service structure. The lengths of the first three
+  # depend on their contents, so they have to be walked rather than skipped.
+  #
+  # The envelope is identical for a request and a response, and what follows the
+  # TypeId is decided by that TypeId, so this reads the response form the caller
+  # asked for rather than dispatching on it.
+  #
+  # @param body [String] the OPN message body.
+  # @return [OpenSecureChannelResponse]
+  # @raise [BinData::ValidityError] if a record along the way will not decode.
+  # @raise [IOError] if the body is shorter than the framing it declares.
+  def self.parse_open_response(body)
+    raw = body.to_s.b
+    offset = 4 # SecureChannelId
+
+    [AsymmetricSecurityHeader, SequenceHeader, Rex::Proto::OpcUa::Types::OpcUaNodeId].each do |record|
+      offset += record.read(raw.byteslice(offset..-1).to_s).num_bytes
+    end
+
+    OpenSecureChannelResponse.read(raw.byteslice(offset..-1).to_s)
+  end
+
   # CloseSecureChannelRequest. The channel being closed is the one the message
   # is sent on, so the request carries nothing beyond its header.
   #

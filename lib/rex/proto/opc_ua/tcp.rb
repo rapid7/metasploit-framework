@@ -132,6 +132,28 @@ module Rex::Proto::OpcUa::Tcp
 
     uint32        :status_code
     opc_ua_string :reason
+
+    # Decode a body that arrives only once the server has decided it cannot
+    # answer, so it is read as leniently as it can be: the two fields are taken
+    # one at a time, and a Reason that will not decode still leaves the
+    # StatusCode reportable. An ERR is the server's only account of why it gave
+    # up, and half of one is worth more than none.
+    #
+    # @param body [String] the two fields, without any framing.
+    # @return [Array(Integer, String), Array(Integer, nil), Array(nil, nil)] the
+    #   StatusCode and Reason, either of which is nil when it could not be read.
+    def self.decode(body)
+      raw = body.to_s.b
+      return [nil, nil] if raw.bytesize < 4
+
+      reason = begin
+        Rex::Proto::OpcUa::Types::OpcUaString.read(raw.byteslice(4..-1).to_s).snapshot
+      rescue ::IOError, ::BinData::ValidityError
+        nil
+      end
+
+      [raw.byteslice(0, 4).unpack1('V'), reason]
+    end
   end
 
   # One framed message as it came off the wire. The body excludes the header.
@@ -160,10 +182,12 @@ module Rex::Proto::OpcUa::Tcp
 
   # Frames and reassembles OPC-UA TCP messages over a socket.
   #
-  # The only thing required of the socket is get_once(length, timeout), which is
-  # what makes this testable without a network: Msf::Exploit::Remote::Tcp#sock
-  # satisfies it and so does a test double. Writing is deliberately not part of
-  # this class, since building a request is the business of the layer above.
+  # The only thing required of the socket is get_once(length, timeout) and put,
+  # which is what makes this testable without a network:
+  # Msf::Exploit::Remote::Tcp#sock satisfies it and so does a test double.
+  #
+  # Building the body of a request belongs to the layer above; what belongs here
+  # is the header that wraps it, so that a caller cannot get MessageSize wrong.
   class MessageStream
     # Seconds allowed per read when the caller gives no timeout of its own.
     DEFAULT_TIMEOUT = 5
@@ -179,6 +203,22 @@ module Rex::Proto::OpcUa::Tcp
     def initialize(sock, timeout: DEFAULT_TIMEOUT)
       @sock = sock
       @timeout = timeout
+    end
+
+    # Frame a message and write it. MessageSize counts the header, so it is
+    # computed here rather than trusted from the caller.
+    #
+    # Nothing this library sends needs more than one chunk: a Hello, an
+    # OpenSecureChannel and a GetEndpoints request are all small, and the
+    # SendBufferSize a server may impose is at least 8192 bytes.
+    #
+    # @param message_type [String] a MessageType value.
+    # @param body [String] everything that follows the 8 byte header.
+    # @param chunk_type [String] a ChunkType value.
+    # @return [Integer] the number of bytes written.
+    def send_message(message_type, body, chunk_type: ChunkType::FINAL)
+      raw = body.to_s.b
+      @sock.put((message_type + chunk_type).b + [HEADER_LEN + raw.bytesize].pack('V') + raw)
     end
 
     # Read exactly len bytes, accumulating across reads. A single read is not
@@ -307,22 +347,15 @@ module Rex::Proto::OpcUa::Tcp
       Error::AbortError.new(**status_and_reason(body.byteslice(SECURE_MSG_PREFIX_LEN..-1).to_s))
     end
 
-    # Decode the StatusCode and Reason that an ERR body and an abort body both
-    # carry, in the same two fields in the same order.
-    #
-    # Either arrives only once the server has decided it cannot answer, so a
-    # body that will not decode is still reported as the failure it is rather
-    # than being replaced by a complaint about the decode; the StatusCode is
-    # simply left unknown.
+    # The StatusCode and Reason that an ERR body and an abort body both carry, in
+    # the same two fields in the same order.
     #
     # @param body [String] the bytes of the two fields.
-    # @return [Hash] keyword arguments for the exception, empty when the body
-    #   could not be decoded.
+    # @return [Hash] keyword arguments for the exception.
     def status_and_reason(body)
-      err = ErrorMessage.read(body)
-      { status_code: err.status_code.snapshot, reason: err.reason.snapshot }
-    rescue ::IOError, ::BinData::Error
-      {}
+      status_code, reason = ErrorMessage.decode(body)
+
+      { status_code: status_code, reason: reason }
     end
   end
 end

@@ -451,3 +451,96 @@ RSpec.describe 'Rex::Proto::OpcUa TCP transport' do
     end
   end
 end
+
+# The write side, kept in its own group both because it is a separate concern
+# from framing what comes back and because the transport group above is already
+# at the block length the project's RuboCop configuration allows.
+RSpec.describe 'Rex::Proto::OpcUa::Tcp::MessageStream#send_message' do
+  let(:written) { [] }
+
+  let(:socket) do
+    sink = written
+    Class.new do
+      define_method(:put) { |data| sink << data.dup.b }
+      define_method(:get_once) { |_length, _timeout| nil }
+    end.new
+  end
+
+  subject(:stream) { Rex::Proto::OpcUa::Tcp::MessageStream.new(socket, timeout: 0.5) }
+
+  it 'writes the message type, a final chunk type and the body' do
+    stream.send_message('HEL', 'body')
+
+    expect(written.first.byteslice(0, 4)).to eq 'HELF'
+    expect(written.first.byteslice(8..)).to eq 'body'
+  end
+
+  # MessageSize counts the header, so a caller that computed it would have to
+  # know that. Getting it wrong desynchronises the server for every request that
+  # follows, which is why it is not the caller's to get wrong.
+  it 'declares a MessageSize that includes the header' do
+    stream.send_message('HEL', 'body')
+
+    expect(written.first.byteslice(4, 4).unpack1('V')).to eq written.first.bytesize
+    expect(written.first.bytesize).to eq Rex::Proto::OpcUa::Tcp::HEADER_LEN + 4
+  end
+
+  it 'frames an empty body' do
+    stream.send_message('CLO', '')
+
+    expect(written.first).to eq "CLOF\x08\x00\x00\x00".b
+  end
+
+  it 'takes a chunk type when one is given' do
+    stream.send_message('MSG', '', chunk_type: 'C')
+
+    expect(written.first.byteslice(0, 4)).to eq 'MSGC'
+  end
+
+  it 'writes binary regardless of the encoding it was handed' do
+    stream.send_message('HEL', "caf\xC3\xA9")
+
+    expect(written.first.encoding).to eq ::Encoding::BINARY
+  end
+end
+
+# The lenient decode both an ERR message and an abort chunk go through. Kept out
+# of the transport group above so that group stays within the block length the
+# project's RuboCop configuration allows.
+RSpec.describe Rex::Proto::OpcUa::Tcp::ErrorMessage do
+  def body(status_code, reason = nil)
+    raw = [status_code].pack('V')
+    raw << (reason.nil? ? [-1].pack('l<') : [reason.bytesize].pack('l<') + reason.b)
+    raw
+  end
+
+  describe '.decode' do
+    it 'returns the StatusCode and Reason' do
+      expect(described_class.decode(body(0x807D0000, 'busy'))).to eq [0x807D0000, 'busy']
+    end
+
+    it 'returns a null Reason as nil' do
+      expect(described_class.decode(body(0x807D0000))).to eq [0x807D0000, nil]
+    end
+
+    it 'returns nothing at all when there is not even a StatusCode' do
+      expect(described_class.decode("\x01\x02".b)).to eq [nil, nil]
+      expect(described_class.decode('')).to eq [nil, nil]
+    end
+
+    # Half an ERR is worth more than none: the StatusCode is the part that says
+    # why the server gave up, and it is readable even when the Reason is not.
+    it 'keeps the StatusCode when the Reason will not decode' do
+      truncated = [0x807D0000].pack('V') + [64].pack('l<') + 'short'
+
+      expect(described_class.decode(truncated)).to eq [0x807D0000, nil]
+    end
+
+    it 'reads the fields the record reads' do
+      raw = body(0x80820000, 'internal')
+      record = described_class.read(raw)
+
+      expect(described_class.decode(raw)).to eq [record.status_code.snapshot, record.reason.snapshot]
+    end
+  end
+end

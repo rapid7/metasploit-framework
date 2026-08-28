@@ -10,198 +10,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  # Every OPC-UA TCP message begins with an 8 byte header:
-  #   MessageType (3 bytes ASCII) + ChunkType (1 byte ASCII) + MessageSize (UInt32 LE)
-  # MessageSize is the total length including the header itself.
-  HEADER_LEN = 8
+  # The OPC-UA transport, its records, its enumerations and its errors. Every
+  # byte level concern lives there: framing, chunk reassembly, the built-in type
+  # encodings and the service structures, all of them checked against
+  # reference/opcua and the captures under spec/file_fixtures/opc_ua. What is
+  # left here is the scan itself.
+  #
+  # The ceilings that bound a hostile response live there too, and are the only
+  # thing standing between this module and unbounded allocation:
+  #
+  #   Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE    one message, 4 MiB
+  #   Rex::Proto::OpcUa::Tcp::MAX_CHUNKS          chunks per response, 64
+  #   Rex::Proto::OpcUa::Services::MAX_ENDPOINTS  endpoints per response, 64
+  #   Rex::Proto::OpcUa::Types::OpcUaArray::DEFAULT_MAX_LENGTH   any other
+  #                                               array, 512
+  OpcUa = Rex::Proto::OpcUa
 
-  # Each MSG chunk repeats SecureChannelId + TokenId + SequenceNumber + RequestId
-  # ahead of its slice of the service payload.
-  SECURE_MSG_PREFIX_LEN = 16
+  # ProtocolVersion 0 is the only version this standard defines. The buffer
+  # sizes are what this client is willing to receive; zero for MaxMessageSize
+  # and MaxChunkCount says the client imposes no limit of its own, which is not
+  # the same as accepting anything, since the ceilings above apply regardless.
+  # See OPC-UA Specification Part 6, section 7.1.2.3.
+  HELLO_BUFFER_SIZE = 65_535
 
-  NONE_POLICY_URI = 'http://opcfoundation.org/UA/SecurityPolicy#None'
+  # TimeoutHint on every request, in milliseconds.
+  REQUEST_TIMEOUT_MS = 10_000
 
-  # NodeIds for the services used here, in FourByte encoding:
-  #   0x01 (FourByte) + NamespaceIndex (Byte) + Identifier (UInt16 LE)
-  # Numeric identifiers are from OPC-UA Specification Part 6, Annex A.
-  OPN_REQUEST_NODEID = [0x01, 0x00, 446].pack('CCv').freeze
-  GET_ENDPOINTS_NODEID = [0x01, 0x00, 428].pack('CCv').freeze
-  CLOSE_CHANNEL_NODEID = [0x01, 0x00, 452].pack('CCv').freeze
+  # RequestedLifetime for the secure channel, in milliseconds. The server
+  # answers with a revised lifetime it is prepared to honour.
+  CHANNEL_LIFETIME_MS = 3_600_000
 
-  # MessageSecurityMode enumeration (Part 4, section 7.15).
-  SECURITY_MODES = {
-    0 => 'Invalid',
-    1 => 'None',
-    2 => 'Sign',
-    3 => 'SignAndEncrypt'
-  }.freeze
+  # MessageSecurityMode None (Part 4, section 7.20, Table 139). The channel is
+  # opened unprotected because GetEndpoints is reachable that way by
+  # specification and the module reads nothing else.
+  SECURITY_MODE_NONE = 1
 
-  # UserTokenType enumeration (Part 4, section 7.36).
-  TOKEN_TYPES = {
-    0 => 'Anonymous',
-    1 => 'UserName',
-    2 => 'Certificate',
-    3 => 'IssuedToken'
-  }.freeze
-
-  # OPC-UA StatusCodes that may appear in an ERR response from the UA TCP
-  # transport. Values per the OPC Foundation StatusCodes definitions
-  # (Opc.Ua.StatusCodes) and OPC-UA Specification Part 6.
-  STATUS_CODES = {
-    # UA TCP transport-specific errors (Part 6, 7.1.2)
-    0x807D0000 => 'Bad_TcpServerTooBusy',
-    0x807E0000 => 'Bad_TcpMessageTypeInvalid',
-    0x807F0000 => 'Bad_TcpSecureChannelUnknown',
-    0x80800000 => 'Bad_TcpMessageTooLarge',
-    0x80810000 => 'Bad_TcpNotEnoughResources',
-    0x80820000 => 'Bad_TcpInternalError',
-    0x80830000 => 'Bad_TcpEndpointUrlInvalid',
-    # Connection/security errors also seen at the transport layer
-    0x80BE0000 => 'Bad_ProtocolVersionUnsupported',
-    0x80130000 => 'Bad_SecurityChecksFailed',
-    0x80120000 => 'Bad_CertificateInvalid',
-    0x80840000 => 'Bad_RequestInterrupted',
-    0x80850000 => 'Bad_RequestTimeout',
-    0x80860000 => 'Bad_SecureChannelClosed',
-    0x80870000 => 'Bad_SecureChannelTokenUnknown',
-    0x80AC0000 => 'Bad_ConnectionRejected',
-    0x80AE0000 => 'Bad_ConnectionClosed'
-  }.freeze
-
-  # Defensive ceilings. A malformed or hostile response must fail quickly rather
-  # than allocate without bound or spin on an absurd array length.
-  MAX_MESSAGE_SIZE = 4 * 1024 * 1024
-  MAX_CHUNKS = 64
-  MAX_ENDPOINTS = 64
-  MAX_ARRAY_LENGTH = 512
-
-  # Raised whenever a decode would read past the end of a response buffer or
-  # encounter an encoding this module does not handle. Always caught locally.
-  class UaParseError < StandardError; end
-
-  # Position tracking reader over an OPC-UA binary message body.
-  # Encoding rules follow OPC-UA Specification Part 6, section 5.2. All
-  # multi-byte integers are little-endian. Every reader advances the cursor and
-  # bounds-checks first, so a truncated response raises instead of silently
-  # desynchronising the walk through the nested structures.
-  class Cursor
-    def initialize(data)
-      @data = data.to_s.dup.force_encoding('BINARY')
-      @pos = 0
-    end
-
-    def remaining
-      @data.bytesize - @pos
-    end
-
-    def take(len)
-      raise UaParseError, "read of #{len} bytes past end of buffer" if len.negative? || len > remaining
-
-      out = @data.byteslice(@pos, len)
-      @pos += len
-      out
-    end
-
-    def u8
-      take(1).unpack1('C')
-    end
-
-    def u16
-      take(2).unpack1('v')
-    end
-
-    def u32
-      take(4).unpack1('V')
-    end
-
-    def i32
-      take(4).unpack1('l<')
-    end
-
-    def i64
-      take(8).unpack1('q<')
-    end
-
-    def skip(len)
-      take(len)
-      nil
-    end
-
-    # String and ByteString share a wire format: an Int32 length prefix followed
-    # by that many bytes. A negative length denotes null; zero denotes empty.
-    def bytestring
-      len = i32
-      return nil if len.negative?
-
-      take(len)
-    end
-
-    def string
-      raw = bytestring
-      return nil if raw.nil?
-
-      raw.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
-    end
-
-    def skip_string
-      bytestring
-      nil
-    end
-
-    # Array length prefix. A negative value denotes a null array. Anything above
-    # the ceiling is treated as a malformed response.
-    def array_length(max = MAX_ARRAY_LENGTH)
-      len = i32
-      return 0 if len.negative?
-      raise UaParseError, "array length #{len} exceeds ceiling #{max}" if len > max
-
-      len
-    end
-
-    # LocalizedText: one encoding mask byte, then Locale and/or Text depending
-    # on mask bits 0x01 and 0x02. Returns the Text field only.
-    def localized_text
-      mask = u8
-      skip_string if (mask & 0x01).positive?
-      (mask & 0x02).positive? ? string : nil
-    end
-
-    # NodeId. The low nibble of the leading byte selects the identifier form;
-    # bits 0x40 and 0x80 add trailing NamespaceUri and ServerIndex fields.
-    def skip_node_id
-      encoding = u8
-      case encoding & 0x0F
-      when 0x00 then skip(1)         # TwoByte: Identifier only
-      when 0x01 then skip(3)         # FourByte: ns (Byte) + id (UInt16)
-      when 0x02 then skip(6)         # Numeric: ns (UInt16) + id (UInt32)
-      when 0x03                      # String: ns (UInt16) + String
-        skip(2)
-        skip_string
-      when 0x04 then skip(2 + 16)    # GUID: ns (UInt16) + 16 bytes
-      when 0x05                      # ByteString: ns (UInt16) + ByteString
-        skip(2)
-        skip_string
-      else
-        raise UaParseError, format('unknown NodeId encoding 0x%02X', encoding)
-      end
-      skip_string if (encoding & 0x80).positive?    # NamespaceUri (String), per Part 6 5.2.2.9
-      skip(4) if (encoding & 0x40).positive?        # ServerIndex (UInt32), per Part 6 5.2.2.9
-      nil
-    end
-
-    # ExtensionObject: TypeId NodeId, an encoding byte, then an optional body.
-    def skip_extension_object
-      skip_node_id
-      encoding = u8
-      case encoding
-      when 0x00 then nil                  # no body
-      when 0x01, 0x02 then skip_string    # ByteString or XmlElement body
-      else
-        raise UaParseError, format('unknown ExtensionObject encoding 0x%02X', encoding)
-      end
-      nil
-    end
-  end
+  # UserTokenType Anonymous (Part 4, section 7.42, Table 193).
+  TOKEN_TYPE_ANONYMOUS = 0
 
   def initialize(info = {})
     super(
@@ -257,282 +102,188 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # ---------------------------------------------------------------------------
-  # Encoding helpers
+  # Requests
   # ---------------------------------------------------------------------------
 
-  # Encode a String or ByteString: Int32 length prefix then the raw bytes.
-  # A nil value is encoded as null (length -1).
-  def encode_string(str)
-    return [-1].pack('l<') if str.nil?
-
-    raw = str.to_s.dup.force_encoding('BINARY')
-    [raw.bytesize].pack('l<') + raw
-  end
-
-  def frame(msg_type, body, chunk = 'F')
-    size = HEADER_LEN + body.bytesize
-    (msg_type + chunk).b + [size].pack('V') + body
-  end
-
-  # RequestHeader (Part 4, section 7.28). The authentication token is a null
-  # NodeId because GetEndpoints is called without a session.
-  def build_request_header(request_handle)
-    hdr = [0x00, 0x00].pack('CC')           # AuthenticationToken: null NodeId
-    hdr << [ua_timestamp].pack('q<')        # Timestamp
-    hdr << [request_handle].pack('V')       # RequestHandle
-    hdr << [0].pack('V')                    # ReturnDiagnostics: none
-    hdr << encode_string(nil)               # AuditEntryId: null
-    hdr << [10_000].pack('V')               # TimeoutHint in milliseconds
-    hdr << [0x00, 0x00, 0x00].pack('CCC')   # AdditionalHeader: null ExtensionObject
-    hdr
-  end
-
-  # OPC-UA DateTime: 100 nanosecond ticks since 1601-01-01 UTC.
-  def ua_timestamp
-    ((::Time.now.to_f + 11_644_473_600) * 10_000_000).to_i
-  end
-
-  def build_hello(endpoint_url)
-    body = [
-      0,       # ProtocolVersion
-      65_535,  # ReceiveBufferSize
-      65_535,  # SendBufferSize
-      0,       # MaxMessageSize (0 = no limit)
-      0        # MaxChunkCount  (0 = no limit)
-    ].pack('V*')
-    body << encode_string(endpoint_url)
-    frame('HEL', body)
-  end
-
-  # OpenSecureChannel for SecurityPolicy=None. The asymmetric security header
-  # carries the None policy URI with null certificate fields, so no cryptography
-  # is applied to this or any subsequent message on the channel.
-  def build_open_secure_channel
-    req = OPN_REQUEST_NODEID.dup
-    req << build_request_header(1)
-    req << [0].pack('V')          # ClientProtocolVersion
-    req << [0].pack('V')          # SecurityTokenRequestType: Issue
-    req << [1].pack('V')          # MessageSecurityMode: None
-    req << encode_string(nil)     # ClientNonce: null under the None policy
-    req << [3_600_000].pack('V')  # RequestedLifetime in milliseconds
-
-    asym = encode_string(NONE_POLICY_URI)  # SecurityPolicyUri
-    asym << encode_string(nil)             # SenderCertificate
-    asym << encode_string(nil)             # ReceiverCertificateThumbprint
-
-    seq = [1, 1].pack('VV')                # SequenceNumber, RequestId
-
-    frame('OPN', [0].pack('V') + asym + seq + req)
-  end
-
-  def build_get_endpoints(channel_id, token_id, endpoint_url)
-    req = GET_ENDPOINTS_NODEID.dup
-    req << build_request_header(2)
-    req << encode_string(endpoint_url)  # EndpointUrl
-    req << [-1].pack('l<')              # LocaleIds: null array
-    req << [-1].pack('l<')              # ProfileUris: null array
-
-    frame('MSG', [channel_id, token_id, 2, 2].pack('VVVV') + req)
-  end
-
-  def build_close_secure_channel(channel_id, token_id)
-    req = CLOSE_CHANNEL_NODEID.dup
-    req << build_request_header(3)
-
-    frame('CLO', [channel_id, token_id, 3, 3].pack('VVVV') + req)
-  end
-
-  # ---------------------------------------------------------------------------
-  # Transport
-  # ---------------------------------------------------------------------------
-
-  # Read exactly len bytes, accumulating across reads. A single read is not
-  # guaranteed to return the full amount and a GetEndpoints response carrying
-  # server certificates routinely spans several segments.
-  def read_exact(len)
-    buf = ''.b
-    deadline = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) + read_timeout
-    while buf.bytesize < len
-      left = deadline - ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
-      return nil unless left.positive?
-
-      chunk = sock.get_once(len - buf.bytesize, left)
-      return nil if chunk.nil? || chunk.empty?
-
-      buf << chunk.b
-    end
-    buf
-  end
-
-  # Read one framed message. Returns [message_type, chunk_type, body] or nil.
-  def recv_message
-    header = read_exact(HEADER_LEN)
-    return nil if header.nil?
-
-    size = header.byteslice(4, 4).unpack1('V')
-    return nil if size < HEADER_LEN || size > MAX_MESSAGE_SIZE
-
-    body_len = size - HEADER_LEN
-    body = body_len.positive? ? read_exact(body_len) : ''.b
-    return nil if body.nil?
-
-    [header.byteslice(0, 3), header.byteslice(3, 1), body]
-  end
-
-  # Read a complete service response, reassembling chunks where the server has
-  # split it. Continuation chunks repeat the SecureChannelId, TokenId and
-  # SequenceHeader ahead of their payload slice, so those bytes are stripped
-  # before concatenation. The returned buffer therefore starts at the response
-  # TypeId, not at the SecureChannelId.
-  # Returns [payload, nil] on success or [nil, reason] on failure.
-  def recv_service_response
-    payload = ''.b
-    MAX_CHUNKS.times do
-      msg = recv_message
-      return [nil, 'no response'] if msg.nil?
-
-      msg_type, chunk_type, body = msg
-
-      if msg_type == 'ERR'
-        status, reason = decode_error(body)
-        detail = reason.to_s.empty? ? status : "#{status} - #{reason}"
-        return [nil, "server returned ERR: #{detail}"]
-      end
-      return [nil, "unexpected message type #{msg_type.inspect}"] unless msg_type == 'MSG'
-      return [nil, 'server aborted the response'] if chunk_type == 'A'
-      return [nil, 'chunk shorter than its own headers'] if body.bytesize < SECURE_MSG_PREFIX_LEN
-
-      payload << body.byteslice(SECURE_MSG_PREFIX_LEN..-1).to_s
-      return [payload, nil] if chunk_type == 'F'
-    end
-    [nil, "response exceeded #{MAX_CHUNKS} chunks"]
-  end
-
-  # Decode an ERR body: UInt32 StatusCode followed by a String reason.
-  def decode_error(body)
-    return ['unknown', ''] if body.bytesize < 4
-
-    code = body.byteslice(0, 4).unpack1('V')
-    status = STATUS_CODES[code] || format('0x%08X', code)
-
-    reason = ''
-    if body.bytesize >= 8
-      reason_len = body.byteslice(4, 4).unpack1('V')
-      if reason_len != 0xFFFFFFFF && reason_len.positive? && body.bytesize >= 8 + reason_len
-        reason = body.byteslice(8, reason_len).to_s
-      end
-    end
-
-    [status, reason]
-  end
-
-  # ---------------------------------------------------------------------------
-  # Response parsing
-  # ---------------------------------------------------------------------------
-
-  # ResponseHeader (Part 4, section 7.29). Returns the ServiceResult.
-  def parse_response_header(cur)
-    cur.skip(8)                       # Timestamp
-    cur.skip(4)                       # RequestHandle
-    service_result = cur.u32
-    diagnostics_mask = cur.u8         # ServiceDiagnostics encoding mask
-    raise UaParseError, 'diagnostic info present but not requested' unless diagnostics_mask.zero?
-
-    cur.array_length.times { cur.skip_string }  # StringTable
-    cur.skip_extension_object                   # AdditionalHeader
-    service_result
-  end
-
-  # The OPN response mirrors the request framing: a plaintext SecureChannelId,
-  # the asymmetric security header, the sequence header, then the service body.
-  def parse_open_response(body)
-    cur = Cursor.new(body)
-    cur.u32                # SecureChannelId
-    cur.skip_string        # SecurityPolicyUri
-    cur.skip_string        # SenderCertificate
-    cur.skip_string        # ReceiverCertificateThumbprint
-    cur.u32                # SequenceNumber
-    cur.u32                # RequestId
-    cur.skip_node_id       # TypeId
-    service_result = parse_response_header(cur)
-    cur.u32                # ServerProtocolVersion
-
+  # Fields common to every request header. The AuthenticationToken and
+  # AuditEntryId are left to their defaults, which are the null NodeId of a
+  # sessionless request and a null String.
+  #
+  # @param handle [Integer] the RequestHandle, which pairs a response with the
+  #   request that asked for it.
+  # @return [Hash] fields for a Rex::Proto::OpcUa::Services::RequestHeader.
+  def request_header_fields(handle)
     {
-      service_result: service_result,
-      channel_id: cur.u32,   # SecurityToken.ChannelId
-      token_id: cur.u32      # SecurityToken.TokenId
+      timestamp: OpcUa::Types::OpcUaDateTime.now,
+      request_handle: handle,
+      return_diagnostics: 0,
+      timeout_hint: REQUEST_TIMEOUT_MS
     }
   end
 
-  # GetEndpointsResponse: a ResponseHeader followed by EndpointDescription[].
-  # The payload passed in already has the secure conversation prefix stripped.
+  # The TypeId that names the service a message body carries. Every service
+  # identifier this module uses is a FourByte NodeId in namespace 0.
+  #
+  # @param identifier [Integer] a Rex::Proto::OpcUa::Enums::NodeIds value.
+  # @return [String] the encoded NodeId.
+  def type_id(identifier)
+    OpcUa::Types::OpcUaNodeId.four_byte(identifier).to_binary_s
+  end
+
+  # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
+  # @param endpoint_url [String] the URL this client believes it dialled.
+  # @return [Integer] bytes written.
+  def send_hello(stream, endpoint_url)
+    hello = OpcUa::Tcp::HelloMessage.new(
+      protocol_version: 0,
+      receive_buffer_size: HELLO_BUFFER_SIZE,
+      send_buffer_size: HELLO_BUFFER_SIZE,
+      max_message_size: 0,
+      max_chunk_count: 0,
+      endpoint_url: endpoint_url
+    )
+
+    stream.send_message(OpcUa::Tcp::MessageType::HELLO, hello.to_binary_s)
+  end
+
+  # An OPN message body: a plaintext SecureChannelId, the asymmetric security
+  # header, the sequence header, then the TypeId and the service request. Under
+  # SecurityPolicy None the certificate fields of the security header are null
+  # and no cryptography is applied to this or any later message on the channel.
+  #
+  # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
+  # @return [Integer] bytes written.
+  def send_open_secure_channel(stream)
+    # SecureChannelId, zero because the channel does not exist yet.
+    body = [0].pack('V')
+    body << OpcUa::SecureChannel::AsymmetricSecurityHeader.new(
+      security_policy_uri: OpcUa::Enums::NONE_POLICY_URI
+    ).to_binary_s
+    body << OpcUa::SecureChannel::SequenceHeader.new(sequence_number: 1, request_id: 1).to_binary_s
+    body << type_id(OpcUa::Enums::NodeIds::OPEN_SECURE_CHANNEL_REQUEST)
+    body << OpcUa::SecureChannel::OpenSecureChannelRequest.new(
+      request_header: request_header_fields(1),
+      client_protocol_version: 0,
+      request_type: OpcUa::SecureChannel::OpenSecureChannelRequest::ISSUE,
+      security_mode: SECURITY_MODE_NONE,
+      requested_lifetime: CHANNEL_LIFETIME_MS
+    ).to_binary_s
+
+    stream.send_message(OpcUa::Tcp::MessageType::OPEN_SECURE_CHANNEL, body)
+  end
+
+  # A MSG or CLO body on an open channel: the SecureChannelId and TokenId the
+  # server issued, the sequence header, then the TypeId and the service request.
+  #
+  # @param token [Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken]
+  # @param sequence [Integer] SequenceNumber and RequestId for this message.
+  # @param request [String] the TypeId and encoded service request.
+  # @return [String] the message body.
+  def channel_body(token, sequence, request)
+    body = [token.channel_id.snapshot].pack('V')
+    body << OpcUa::SecureChannel::SymmetricSecurityHeader.new(token_id: token.token_id.snapshot).to_binary_s
+    body << OpcUa::SecureChannel::SequenceHeader.new(sequence_number: sequence, request_id: sequence).to_binary_s
+    body << request
+    body
+  end
+
+  # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
+  # @param token [Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken]
+  # @param endpoint_url [String] the URL this client believes it dialled.
+  # @return [Integer] bytes written.
+  def send_get_endpoints(stream, token, endpoint_url)
+    # LocaleIds and ProfileUris are filters and default to null, which asks for
+    # every endpoint the server has.
+    request = type_id(OpcUa::Enums::NodeIds::GET_ENDPOINTS_REQUEST)
+    request << OpcUa::Services::GetEndpointsRequest.new(
+      request_header: request_header_fields(2),
+      endpoint_url: endpoint_url
+    ).to_binary_s
+
+    stream.send_message(OpcUa::Tcp::MessageType::MESSAGE, channel_body(token, 2, request))
+  end
+
+  # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
+  # @param token [Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken]
+  # @return [Integer] bytes written.
+  def send_close_secure_channel(stream, token)
+    request = type_id(OpcUa::Enums::NodeIds::CLOSE_SECURE_CHANNEL_REQUEST)
+    request << OpcUa::SecureChannel::CloseSecureChannelRequest.new(
+      request_header: request_header_fields(3)
+    ).to_binary_s
+
+    stream.send_message(OpcUa::Tcp::MessageType::CLOSE_SECURE_CHANNEL, channel_body(token, 3, request))
+  end
+
+  # ---------------------------------------------------------------------------
+  # Responses
+  # ---------------------------------------------------------------------------
+
+  # The StatusCode of an ERR message, by name, with the Reason appended when the
+  # server supplied one.
+  #
+  # @param body [String] the ERR message body.
+  # @return [String] the detail to show the user.
+  def error_detail(body)
+    status_code, reason = OpcUa::Tcp::ErrorMessage.decode(body)
+    return 'unknown' if status_code.nil?
+
+    name = OpcUa::Enums.status_code_name(status_code)
+    reason.to_s.empty? ? name : "#{name} - #{reason}"
+  end
+
+  # The payload handed back by the transport begins at the response TypeId,
+  # which says which service answered.
+  #
+  # @param payload [String] the reassembled service payload.
+  # @return [Rex::Proto::OpcUa::Services::GetEndpointsResponse]
   def parse_get_endpoints(payload)
-    cur = Cursor.new(payload)
-    cur.skip_node_id # TypeId
-    service_result = parse_response_header(cur)
-    return [nil, format('GetEndpoints ServiceResult=0x%08X', service_result)] unless service_result.zero?
+    type_id = OpcUa::Types::OpcUaNodeId.read(payload)
 
-    count = cur.array_length(MAX_ENDPOINTS)
-    endpoints = Array.new(count) { parse_endpoint_description(cur) }
-    [endpoints, nil]
+    OpcUa::Services::GetEndpointsResponse.read(payload.byteslice(type_id.num_bytes..-1).to_s)
   end
 
-  # EndpointDescription (Part 4, section 7.10). Field order is fixed; every
-  # variable length field must be consumed in sequence to keep the cursor
-  # aligned for the next endpoint in the array.
-  def parse_endpoint_description(cur)
-    endpoint_url = cur.string
-
-    # Server: ApplicationDescription (Part 4, section 7.2)
-    application_uri = cur.string
-    product_uri = cur.string
-    application_name = cur.localized_text
-    cur.u32                                       # ApplicationType
-    cur.skip_string                               # GatewayServerUri
-    cur.skip_string                               # DiscoveryProfileUri
-    cur.array_length.times { cur.skip_string }    # DiscoveryUrls
-
-    server_certificate = cur.bytestring
-    security_mode = cur.u32
-    security_policy_uri = cur.string
-
-    # UserIdentityTokens: UserTokenPolicy[] (Part 4, section 7.37)
-    token_count = cur.array_length
-    tokens = Array.new(token_count) do
-      policy_id = cur.string
-      token_type = cur.u32
-      cur.skip_string                             # IssuedTokenType
-      cur.skip_string                             # IssuerEndpointUrl
-      cur.skip_string                             # SecurityPolicyUri, per token
-      {
-        policy_id: policy_id,
-        token_type: token_type,
-        token_type_name: TOKEN_TYPES[token_type] || "Unknown(#{token_type})"
-      }
-    end
-
-    cur.skip_string                               # TransportProfileUri
-    security_level = cur.u8
+  # Flatten an EndpointDescription into the shape this module reports and files
+  # in the database. The keys and their order are what report_note serialises
+  # and what the module documentation describes, so they are part of the
+  # module's interface rather than an implementation detail.
+  #
+  # @param endpoint [Rex::Proto::OpcUa::Services::EndpointDescription]
+  # @return [Hash]
+  def present(endpoint)
+    server = endpoint.server
+    name = server.application_name
+    certificate = endpoint.server_certificate.snapshot
+    mode = endpoint.security_mode.snapshot
+    policy_uri = endpoint.security_policy_uri.snapshot
 
     {
-      endpoint_url: endpoint_url,
-      application_uri: application_uri,
-      product_uri: product_uri,
-      application_name: application_name,
-      server_certificate_len: server_certificate.nil? ? 0 : server_certificate.bytesize,
-      security_mode: security_mode,
-      security_mode_name: SECURITY_MODES[security_mode] || "Unknown(#{security_mode})",
-      security_policy_uri: security_policy_uri,
-      security_policy_name: short_policy(security_policy_uri),
-      user_tokens: tokens,
-      security_level: security_level
+      endpoint_url: endpoint.endpoint_url.snapshot,
+      application_uri: server.application_uri.snapshot,
+      product_uri: server.product_uri.snapshot,
+      application_name: name.text? ? name.text.snapshot : nil,
+      # The length rather than the certificate: the note goes to the database
+      # and there is nothing to be learned from storing the whole blob.
+      server_certificate_len: certificate.nil? ? 0 : certificate.bytesize,
+      security_mode: mode,
+      security_mode_name: OpcUa::Enums.security_mode_name(mode),
+      security_policy_uri: policy_uri,
+      security_policy_name: OpcUa::Enums.security_policy_name(policy_uri),
+      user_tokens: endpoint.user_identity_tokens.map { |token| present_token(token) },
+      security_level: endpoint.security_level.snapshot
     }
   end
 
-  def short_policy(uri)
-    return 'Unknown' if uri.nil? || uri.empty?
+  # @param token [Rex::Proto::OpcUa::Services::UserTokenPolicy]
+  # @return [Hash]
+  def present_token(token)
+    token_type = token.token_type.snapshot
 
-    uri.include?('#') ? uri.rpartition('#').last : uri
+    {
+      policy_id: token.policy_id.snapshot,
+      token_type: token_type,
+      token_type_name: OpcUa::Enums.user_token_type_name(token_type)
+    }
   end
 
   # ---------------------------------------------------------------------------
@@ -544,7 +295,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def anonymous?(endpoint)
-    endpoint[:user_tokens].any? { |t| t[:token_type].zero? }
+    endpoint[:user_tokens].any? { |t| t[:token_type] == TOKEN_TYPE_ANONYMOUS }
   end
 
   def report_endpoints(ip, endpoints)
@@ -607,57 +358,110 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner entry point
   # ---------------------------------------------------------------------------
 
+  # Say hello and read the acknowledgement.
+  #
+  # A framing error is reported the same way as silence, because from the far
+  # side of a scan they are the same thing: whatever answered is not speaking
+  # this protocol, and there is nothing further to try.
+  #
+  # @return [Boolean] whether the server acknowledged.
+  def hello_acknowledged?(stream, endpoint_url)
+    send_hello(stream, endpoint_url)
+
+    begin
+      msg = stream.recv_message
+    rescue OpcUa::Error::OpcUaError
+      vprint_status('No OPC-UA response to HEL')
+      return false
+    end
+
+    return true if msg.message_type == OpcUa::Tcp::MessageType::ACKNOWLEDGE
+
+    if msg.error?
+      print_status("OPC-UA server present but refused the Hello - #{error_detail(msg.body)}")
+    else
+      vprint_status("Non-OPC-UA response (type=#{msg.message_type.inspect})")
+    end
+    false
+  end
+
+  # @return [Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken, nil] the
+  #   token to quote on later messages, or nil if the channel did not open.
+  def open_secure_channel(stream)
+    send_open_secure_channel(stream)
+
+    msg = begin
+      stream.recv_message
+    rescue OpcUa::Error::OpcUaError
+      nil
+    end
+
+    if msg.nil? || msg.message_type != OpcUa::Tcp::MessageType::OPEN_SECURE_CHANNEL
+      detail = msg.nil? ? 'no response' : "got #{msg.message_type.inspect}"
+      print_status("OpenSecureChannel with SecurityPolicy=None failed (#{detail}); endpoints cannot be enumerated")
+      return nil
+    end
+
+    response = OpcUa::SecureChannel.parse_open_response(msg.body)
+    service_result = response.response_header.service_result.snapshot
+    unless service_result.zero?
+      print_status(format('OpenSecureChannel rejected, ServiceResult=0x%08X', service_result))
+      return nil
+    end
+
+    response.security_token
+  end
+
+  # Read the GetEndpoints response, reporting why it did not arrive.
+  #
+  # 'no response' is the detail for silence specifically; every other failure
+  # carries the account the error itself gives, which for an ERR or an abort is
+  # the StatusCode the server sent.
+  #
+  # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
+  # @return [String, nil] the reassembled service payload, or nil on failure.
+  def read_service_response(stream)
+    stream.recv_service_response
+  rescue OpcUa::Error::TimeoutError
+    print_error('GetEndpoints failed: no response')
+    nil
+  rescue OpcUa::Error::OpcUaError => e
+    print_error("GetEndpoints failed: #{e.message}")
+    nil
+  end
+
+  # @return [Array<Hash>, nil] the endpoints in report shape, or nil on failure.
+  def enumerate_endpoints(stream, token, endpoint_url)
+    send_get_endpoints(stream, token, endpoint_url)
+
+    payload = read_service_response(stream)
+    return nil if payload.nil?
+
+    response = parse_get_endpoints(payload)
+    service_result = response.response_header.service_result.snapshot
+    unless service_result.zero?
+      print_error(format('GetEndpoints ServiceResult=0x%08X', service_result))
+      return nil
+    end
+
+    response.endpoints.map { |endpoint| present(endpoint) }
+  end
+
   def run_host(ip)
     connect
 
+    stream = OpcUa::Tcp::MessageStream.new(sock, timeout: read_timeout)
     endpoint_url = "opc.tcp://#{Rex::Socket.to_authority(ip, rport)}"
 
-    sock.put(build_hello(endpoint_url))
-    msg = recv_message
-    if msg.nil?
-      vprint_status('No OPC-UA response to HEL')
-      return
-    end
-
-    unless msg[0] == 'ACK'
-      if msg[0] == 'ERR'
-        status, reason = decode_error(msg[2])
-        detail = reason.to_s.empty? ? status : "#{status} - #{reason}"
-        print_status("OPC-UA server present but refused the Hello - #{detail}")
-      else
-        vprint_status("Non-OPC-UA response (type=#{msg[0].inspect})")
-      end
-      return
-    end
+    return unless hello_acknowledged?(stream, endpoint_url)
 
     vprint_good('OPC-UA Hello acknowledged, opening secure channel')
 
-    sock.put(build_open_secure_channel)
-    msg = recv_message
-    if msg.nil? || msg[0] != 'OPN'
-      detail = msg.nil? ? 'no response' : "got #{msg[0].inspect}"
-      print_status("OpenSecureChannel with SecurityPolicy=None failed (#{detail}); endpoints cannot be enumerated")
-      return
-    end
+    token = open_secure_channel(stream)
+    return if token.nil?
 
-    channel = parse_open_response(msg[2])
-    unless channel[:service_result].zero?
-      print_status(format('OpenSecureChannel rejected, ServiceResult=0x%08X', channel[:service_result]))
-      return
-    end
-
-    sock.put(build_get_endpoints(channel[:channel_id], channel[:token_id], endpoint_url))
-    payload, error = recv_service_response
-    if payload.nil?
-      print_error("GetEndpoints failed: #{error}")
-      return
-    end
-
-    endpoints, error = parse_get_endpoints(payload)
-    if endpoints.nil?
-      print_error(error)
-      return
-    end
+    endpoints = enumerate_endpoints(stream, token, endpoint_url)
+    return if endpoints.nil?
 
     if endpoints.empty?
       print_status('OPC-UA server returned no endpoints')
@@ -666,16 +470,26 @@ class MetasploitModule < Msf::Auxiliary
 
     report_endpoints(ip, endpoints)
 
-    # Release the channel rather than leaving it open until its lifetime expires.
+    # Release the channel rather than leaving it open until its lifetime
+    # expires. Nothing is read back; the scan is finished either way.
     begin
-      sock.put(build_close_secure_channel(channel[:channel_id], channel[:token_id]))
+      send_close_secure_channel(stream, token)
     rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET, ::Errno::EPIPE
       nil
     end
-  rescue UaParseError => e
-    print_error("Malformed OPC-UA response: #{e.message}")
+  # Every error the library raises descends from Rex::RuntimeError, and
+  # Msf::Auxiliary::Scanner re-raises a bare ::RuntimeError out of its per host
+  # loop rather than moving to the next host. One malformed server would
+  # otherwise end a whole sweep, so the family is caught here as well as at each
+  # step that expects it.
+  rescue OpcUa::Error::OpcUaError => e
+    vprint_error("OPC-UA transport error: #{e.message}")
   rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET => e
     vprint_error("#{e.class}: #{e.message}")
+  # A record that will not decode raises from BinData rather than from the
+  # library. EOFError is an IOError, so it has to be caught above this.
+  rescue ::BinData::ValidityError, ::IOError => e
+    print_error("Malformed OPC-UA response: #{e.message}")
   ensure
     disconnect
   end

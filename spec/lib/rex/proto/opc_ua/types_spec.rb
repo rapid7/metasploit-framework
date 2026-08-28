@@ -171,7 +171,7 @@ RSpec.describe 'Rex::Proto::OpcUa length prefixed types' do
     end
   end
 
-  # The synthetic cases above assert the intended behaviour; these assert it
+  # The synthetic cases above assert the intended behavior; these assert it
   # against bytes a real server put on the wire.
   #
   # The AsymmetricAlgorithmSecurityHeader of an OpenSecureChannelResponse opens

@@ -277,4 +277,37 @@ RSpec.describe 'Rex::Proto::OpcUa::SecureChannel' do
       expect(described_class.read(request.to_binary_s).snapshot).to eq request.snapshot
     end
   end
+
+  # Named parsed rather than response: response is already the whole captured
+  # message in this file, and message_body is derived from it.
+  describe '.parse_open_response' do
+    subject(:parsed) { Rex::Proto::OpcUa::SecureChannel.parse_open_response(message_body) }
+
+    it 'walks past the framing to the service response' do
+      expect(parsed.security_token.channel_id.snapshot).to eq 6
+      expect(parsed.security_token.revised_lifetime.snapshot).to eq 600_000
+    end
+
+    # response_body_offset is where the service response starts, established by
+    # the byte for byte walk this file already asserts. Landing on the same
+    # bytes from the framing alone is what says the walk inside the method
+    # agrees with it.
+    it 'lands on the same bytes as the offset the walk established' do
+      expect(parsed.snapshot)
+        .to eq Rex::Proto::OpcUa::SecureChannel::OpenSecureChannelResponse
+        .read(response[response_body_offset..]).snapshot
+    end
+
+    it 'accounts for the rest of the message' do
+      expect(parsed.num_bytes).to eq response.bytesize - response_body_offset
+    end
+
+    # The three records ahead of the response are all variable length, so a body
+    # that ends inside one of them cannot be walked and has to fail rather than
+    # return a response decoded from the wrong offset.
+    it 'raises rather than guess when the body ends inside the framing' do
+      expect { Rex::Proto::OpcUa::SecureChannel.parse_open_response(message_body.byteslice(0, 20)) }
+        .to raise_error(::IOError)
+    end
+  end
 end
