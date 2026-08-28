@@ -17,6 +17,7 @@ module Msf
       SHT_NOBITS = 8
 
       PF_X = 1
+      PF_W = 2
       PF_R = 4
 
       MAX_ALIGNMENT = 0x200000
@@ -96,7 +97,7 @@ module Msf
         modified[@entrypoint_offset, @word_size] = pack_word(injected_address)
         modified[program_header[:header_offset], @program_header_size] = encode_program_header(
           type: PT_LOAD,
-          flags: PF_R | PF_X,
+          flags: PF_R | PF_W | PF_X,
           offset: injected_offset,
           virtual_address: injected_address,
           physical_address: injected_address,
@@ -110,6 +111,7 @@ module Msf
 
       def inject_code_cave(code_cave)
         segment = code_cave.fetch(:segment).dup
+        segment[:flags] |= PF_W
         segment[:file_size] += code_cave.fetch(:data).bytesize
         segment[:memory_size] = [segment[:memory_size], segment[:file_size]].max
 

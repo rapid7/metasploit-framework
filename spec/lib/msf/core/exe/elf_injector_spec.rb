@@ -50,9 +50,10 @@ RSpec.describe Msf::Exe::ElfInjector do
   it 'adds a loadable segment and marks the result' do
     injector = described_class.new(template: elf64, payload: "\xcc".b)
     generated = injector.generate
-    program_header_types = generated.byteslice(64, 112).unpack('VVQ<Q<Q<Q<Q<Q<VVQ<Q<Q<Q<Q<Q<').values_at(0, 8)
+    program_headers = generated.byteslice(64, 112).unpack('VVQ<Q<Q<Q<Q<Q<VVQ<Q<Q<Q<Q<Q<')
 
-    expect(program_header_types).to eq([1, 1])
+    expect(program_headers.values_at(0, 8)).to eq([1, 1])
+    expect(program_headers.values_at(1, 9)).to eq([5, 7])
     expect(injector.technique).to eq(:program_header)
     expect(described_class.new(template: generated).injected?).to be(true)
   end
@@ -62,6 +63,7 @@ RSpec.describe Msf::Exe::ElfInjector do
     generated = injector.generate
 
     expect(injector.technique).to eq(:code_cave)
+    expect(generated.byteslice(64, 8).unpack('VV').last).to eq(7)
     expect(generated.bytesize).to eq(elf64_with_code_cave.bytesize)
     expect(described_class.new(template: generated).injected?).to be(true)
   end
