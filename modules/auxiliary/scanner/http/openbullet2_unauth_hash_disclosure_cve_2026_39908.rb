@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
   include Msf::Exploit::Remote::SMB::Server::HashCapture
   prepend Msf::Exploit::Remote::AutoCheck
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => [REPEATABLE_SESSION]
+          'Reliability' => []
         }
       )
     )
