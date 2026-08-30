@@ -1,0 +1,68 @@
+<html>
+<head>
+<% unless kb.empty? %>
+<script>
+  function showOverview() {
+    var overview_info_button = document.getElementById('overview_info_button');
+    overview_info_button.style.borderColor = "#ccc";
+    overview_info_button.style.color = "#333";
+    var knowledge_base_button = document.getElementById('knowledge_base_button');
+    knowledge_base_button.style.borderColor = "#EEEEEE";
+    knowledge_base_button.style.color = "#C4C4C4";
+    document.getElementById('knowledge_base').style.display = "none";
+    document.getElementById('overview_info').style.display = "inline";
+  }
+
+  function showKnowledge() {
+    var overview_info_button = document.getElementById('overview_info_button');
+    overview_info_button.style.borderColor = "#EEEEEE";
+    overview_info_button.style.color = "#C4C4C4";
+    var knowledge_base_button = document.getElementById('knowledge_base_button');
+    knowledge_base_button.style.borderColor = "#ccc";
+    knowledge_base_button.style.color = "#333";
+    document.getElementById('overview_info').style.display = "none";
+    document.getElementById('knowledge_base').style.display = "inline";
+  }
+
+  function initDoc() {
+    var kb = document.getElementById('knowledge_base');
+    var oi = document.getElementById('overview_info');
+    oi.style.display = "none";
+    kb.style.display = "inline";
+
+    var kb_button = document.getElementById('knowledge_base_button');
+    var oi_button = document.getElementById('overview_info_button');
+    kb_button.style.borderColor = "#ccc";
+    kb_button.style.color = "#333";
+    oi_button.style.borderColor = "#EEEEEE";
+    oi_button.style.color = "#C4C4C4";
+  }
+</script>
+<% end %>
+<style>
+<%= load_css %>
+</style>
+</head>
+<body onload="initDoc()">
+<% unless kb.empty? %>
+<table border="0">
+<tr>
+<th>
+<div id="overview_info_button" onClick="showOverview()">Overview</a>
+</th>
+<th>
+<div id="knowledge_base_button" onClick="showKnowledge()">Knowledge Base</a>
+</th>
+</tr></table>
+<p></p>
+<% end %>
+<div id="overview_info">
+<%= r.render(md) %>
+</div>
+<% unless kb.empty? %>
+<div id="knowledge_base">
+<%= r.render(kb) %>
+</div>
+<% end %>
+</body>
+</html>

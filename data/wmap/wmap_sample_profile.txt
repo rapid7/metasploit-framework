@@ -1,0 +1,18 @@
+# 
+# WMAP 1.0 Sample Profile
+# wmap_run -e /path/to/profile
+#
+# Just add the name of the module. Use # for comments
+#
+frontpage
+frontpage_login
+options 
+version 
+backup_file 
+#blind_sql_query 
+#brute_dirs 
+copy_of_file 
+dir_listing 
+dir_scanner
+file_same_name_dir
+writable

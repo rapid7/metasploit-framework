@@ -1,0 +1,2 @@
+# Providers for midi devices
+com.sun.media.sound.MixerSequencerProvider

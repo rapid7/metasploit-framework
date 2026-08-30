@@ -1,0 +1,244 @@
+# -*- coding: binary -*-
+
+require 'bindata'
+require 'rex/socket'
+require 'rex/proto/proxy/socks5/packet'
+
+module Rex
+module Proto
+module Proxy
+
+#
+# A client connected to the proxy server.
+#
+module Socks5
+
+  #
+  # A client connected to the SOCKS5 server.
+  #
+  class ServerClient
+    AUTH_NONE                        = 0
+    AUTH_GSSAPI                      = 1
+    AUTH_CREDS                       = 2
+    AUTH_NO_ACCEPTABLE_METHODS       = 255
+
+    AUTH_PROTOCOL_VERSION            = 1
+    AUTH_RESULT_SUCCESS              = 0
+    AUTH_RESULT_FAILURE              = 1
+
+    COMMAND_CONNECT                  = 1
+    COMMAND_BIND                     = 2
+    COMMAND_UDP_ASSOCIATE            = 3
+
+    REPLY_SUCCEEDED                  = 0
+    REPLY_GENERAL_FAILURE            = 1
+    REPLY_NOT_ALLOWED                = 2
+    REPLY_NET_UNREACHABLE            = 3
+    REPLY_HOST_UNREACHABLE           = 4
+    REPLY_CONNECTION_REFUSED         = 5
+    REPLY_TTL_EXPIRED                = 6
+    REPLY_CMD_NOT_SUPPORTED          = 7
+    REPLY_ADDRESS_TYPE_NOT_SUPPORTED = 8
+
+    HOST = 1
+    PORT = 2
+
+    #
+    # Create a new client connected to the server.
+    #
+    def initialize(server, sock, opts={})
+      @server        = server
+      @lsock         = sock
+      @opts          = opts
+      @rsock         = nil
+      @client_thread = nil
+      @mutex         = ::Mutex.new
+    end
+
+    # Start handling the client connection.
+    #
+    def start
+      # create a thread to handle this client request so as to not block the socks5 server
+      @client_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyClient", false) do
+        begin
+          @server.add_client(self)
+          # get the initial client request packet
+          handle_authentication
+
+          # handle the request
+          handle_command
+        rescue StandardError => e
+          # respond with a general failure to the client
+          response         = ResponsePacket.new
+          response.command = REPLY_GENERAL_FAILURE
+          @lsock.put(response.to_binary_s)
+
+          elog('ServerClient#start - encountered a problem while processing the client connection', error:e)
+          self.stop
+        end
+      end
+    end
+
+    def handle_authentication
+      request = AuthRequestPacket.read(@lsock.get_once)
+      if @opts['ServerUsername'].nil? && @opts['ServerPassword'].nil?
+        handle_authentication_none(request)
+      else
+        handle_authentication_creds(request)
+      end
+    end
+
+    def handle_authentication_creds(request)
+      unless request.supported_methods.include? AUTH_CREDS
+        raise "Invalid SOCKS5 request packet received (no supported authentication methods)."
+      end
+      response = AuthResponsePacket.new
+      response.chosen_method = AUTH_CREDS
+      @lsock.put(response.to_binary_s)
+
+      version = @lsock.read(1)
+      raise "Invalid SOCKS5 authentication packet received." unless version.unpack('C').first == 0x01
+
+      username_length = @lsock.read(1).unpack('C').first
+      username        = @lsock.read(username_length)
+
+      password_length = @lsock.read(1).unpack('C').first
+      password        = @lsock.read(password_length)
+
+      #  +-----+--------+
+      #  | VER | STATUS |
+      #  +-----+--------+  VERSION: 0x01
+      #  | 1   | 1      |  STATUS:  0x00=SUCCESS, otherwise FAILURE
+      #  +-----+--------+
+      if username == @opts['ServerUsername'] && password == @opts['ServerPassword']
+        raw = [ AUTH_PROTOCOL_VERSION, AUTH_RESULT_SUCCESS ].pack ('CC')
+        ilog("SOCKS5: Successfully authenticated")
+        @lsock.put(raw)
+      else
+        raw = [ AUTH_PROTOCOL_VERSION, AUTH_RESULT_FAILURE ].pack ('CC')
+        @lsock.put(raw)
+        raise "Invalid SOCKS5 credentials provided"
+      end
+    end
+
+    def handle_authentication_none(request)
+      unless request.supported_methods.include? AUTH_NONE
+        raise "Invalid SOCKS5 request packet received (no supported authentication methods)."
+      end
+      response = AuthResponsePacket.new
+      response.chosen_method = AUTH_NONE
+      @lsock.put(response.to_binary_s)
+    end
+
+    def handle_command
+      request = RequestPacket.read(@lsock.get_once)
+      response = nil
+      case request.command
+        when COMMAND_BIND
+          response = handle_command_bind(request)
+        when COMMAND_CONNECT
+          response = handle_command_connect(request)
+        when COMMAND_UDP_ASSOCIATE
+          response = handle_command_udp_associate(request)
+      end
+      @lsock.put(response.to_binary_s) unless response.nil?
+    end
+
+    def handle_command_bind(request)
+      # create a server socket for this request
+      params = {
+        'LocalHost' => request.address_type == Address::ADDRESS_TYPE_IPV6 ? '::' : '0.0.0.0',
+        'LocalPort' => 0,
+      }
+      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+      bsock = Rex::Socket::TcpServer.create(params)
+
+      # send back the bind success to the client
+      response              = ResponsePacket.new
+      response.command      = REPLY_SUCCEEDED
+      response.address      = bsock.getlocalname[HOST]
+      response.port         = bsock.getlocalname[PORT]
+      @lsock.put(response.to_binary_s)
+
+      # accept a client connection (2 minute timeout as per the socks4a spec)
+      begin
+        ::Timeout.timeout(120) do
+          @rsock = bsock.accept
+        end
+      rescue ::Timeout::Error
+        raise "Timeout reached on accept request."
+      end
+
+      # close the listening socket
+      bsock.close
+
+      setup_tcp_relay
+      response              = ResponsePacket.new
+      response.command      = REPLY_SUCCEEDED
+      response.address      = @rsock.peerhost
+      response.port         = @rsock.peerport
+      response
+    end
+
+    def handle_command_connect(request)
+      # perform the connection request
+      params = {
+        'PeerHost' => request.address,
+        'PeerPort' => request.port,
+      }
+      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+      @rsock = Rex::Socket::Tcp.create(params)
+
+      setup_tcp_relay
+      response              = ResponsePacket.new
+      response.command      = REPLY_SUCCEEDED
+      response.address      = @rsock.getlocalname[HOST].split('-')[-1]
+      response.port         = @rsock.getlocalname[PORT]
+      response
+    end
+
+    def handle_command_udp_associate(request)
+      response              = ResponsePacket.new
+      response.command      = REPLY_CMD_NOT_SUPPORTED
+      response
+    end
+
+    #
+    # Setup the relay between lsock and rsock.
+    #
+    def setup_tcp_relay
+      @server.relay_manager.add_relay(@rsock, sink: @lsock, name: 'SOCKS5ProxyRelay-Remote', on_exit: method(:stop))
+      @server.relay_manager.add_relay(@lsock, sink: @rsock, name: 'SOCKS5ProxyRelay-Local', on_exit: method(:stop))
+    end
+
+    #
+    # Stop handling the client connection.
+    #
+    def stop
+      @mutex.synchronize do
+        unless @closed
+          begin
+            @lsock.close if @lsock
+          rescue
+          end
+
+          begin
+            @rsock.close if @rsock
+          rescue
+          end
+
+          @server.remove_client(self)
+          @closed = true
+
+          unless @client_thread == Thread.current
+            @client_thread.join
+          end
+          @client_thread = nil
+        end
+      end
+    end
+  end
+end
+end
+end
+end

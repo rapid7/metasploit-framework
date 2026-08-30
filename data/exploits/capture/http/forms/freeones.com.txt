@@ -1,0 +1,1 @@
+<form name='search' action='/cgi-bin/search.cgi' style='margin: 0px;'> <input name="b" size="40" class="SearchBox" type="text" value="" maxlength="40" /><input name="submitnow" class="SearchButton" type="button" value="" onclick="this.form.submit();" /></form><form style='margin: 0px;'> </form>

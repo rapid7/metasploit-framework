@@ -1,0 +1,309 @@
+# -*- coding: binary -*-
+
+module Msf
+module Exploit::FileDropper
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_delete_dir
+              stdapi_fs_delete_file
+              stdapi_fs_getwd
+              stdapi_fs_stat
+            ]
+          }
+        }
+      )
+    )
+
+    self.needs_cleanup = true
+    @dropped_files = []
+    @dropped_dirs = []
+
+    register_advanced_options(
+      [
+        OptInt.new('FileDropperDelay', [false, 'Delay in seconds before attempting cleanup']),
+        OptBool.new('AllowNoCleanup', [false, 'Allow exploitation without the possibility of cleaning up files'])
+      ])
+  end
+
+  # Record file as needing to be cleaned up
+  #
+  # @param files [Array<String>] List of paths on the target that should
+  #   be deleted during cleanup. Each filename should be either a full
+  #   path or relative to the current working directory of the session
+  #   (not necessarily the same as the cwd of the server we're
+  #   exploiting).
+  # @return [void]
+  def register_files_for_cleanup(*files)
+    @dropped_files += files.map(&:dup)
+  end
+
+  def allow_no_cleanup
+    datastore['AllowNoCleanup']
+  end
+
+  # Record directory as needing to be cleaned up
+  #
+  # @param dirs [Array<String>] List of paths on the target that should
+  #   be deleted during cleanup. Each directory should be either a full
+  #   path or relative to the current working directory of the session
+  #   (not necessarily the same as the cwd of the server we're
+  #   exploiting).
+  # @return [void]
+  def register_dirs_for_cleanup(*dirs)
+    @dropped_dirs += dirs.map(&:dup)
+  end
+
+  # Singular versions
+  alias register_file_for_cleanup register_files_for_cleanup
+  alias register_dir_for_cleanup register_dirs_for_cleanup
+
+  # When a new session is created, attempt to delete any paths that the
+  # exploit created.
+  #
+  # @param (see Msf::Exploit#on_new_session)
+  # @return [void]
+  def on_new_session(session)
+    super
+
+    if session.type == 'meterpreter'
+      session.core.use('stdapi') unless session.ext.aliases.include?('stdapi')
+    end
+
+    if @dropped_files.empty? && @dropped_dirs.empty?
+      return
+    end
+
+    @dropped_files.delete_if do |file|
+      exists_before = file_dropper_exist?(session, file)
+
+      if file_dropper_delete_file(session, file)
+        file_dropper_deleted?(session, file, exists_before)
+      end
+    end
+
+    @dropped_dirs.delete_if do |dir|
+      if file_dropper_check_cwd?(session, dir)
+        print_warning("Attempting to delete working directory #{dir}")
+      end
+
+      exists_before = file_dropper_exist?(session, dir)
+
+      if file_dropper_delete_dir(session, dir)
+        file_dropper_deleted?(session, dir, exists_before)
+      end
+    end
+  end
+
+  # While the exploit cleanup do a last attempt to delete any paths created
+  # if there is a file_rm/dir_rm method available. Warn the user if any paths were
+  # not cleaned up.
+  #
+  # @see Msf::Exploit#cleanup
+  # @see Msf::Post::File#file_rm
+  # @see Msf::Post::File#dir_rm
+  def cleanup
+    super
+
+    if @dropped_files.empty? && @dropped_dirs.empty?
+      return
+    end
+
+    delay = datastore['FileDropperDelay']
+    if delay
+      print_status("Waiting #{delay}s before cleanup...")
+      sleep(delay)
+    end
+
+    # Check if file_rm method is available (local exploit, mixin support, module support)
+    if respond_to?(:file_rm)
+      @dropped_files.delete_if do |file|
+        begin
+          file_rm(file)
+        rescue ::Exception => e
+          vprint_error("Failed to delete #{file}: #{e}")
+          elog("Failed to delete #{file}", error: e)
+        end
+      end
+    end
+
+    # Check if dir_rm method is available (local exploit, mixin support, module support)
+    if respond_to?(:dir_rm)
+      @dropped_dirs.delete_if do |dir|
+        if respond_to?(:pwd) && pwd.include?(dir)
+          print_warning("Attempting to delete working directory #{dir}")
+        end
+
+        begin
+          dir_rm(dir)
+        rescue ::Exception => e
+          vprint_error("Failed to delete #{dir}: #{e}")
+          elog("Failed to delete #{dir}", error: e)
+        end
+      end
+    end
+
+    # We don't know for sure if paths have been deleted, so always warn about it to the user
+    (@dropped_files + @dropped_dirs).each do |p|
+      print_warning("This exploit may require manual cleanup of '#{p}' on the target")
+    end
+  end
+
+  private
+
+  # See if +path+ exists on the remote system and is a regular file or directory
+  #
+  # @param path [String] Remote pathname to check
+  # @return [Boolean] True if the path exists, otherwise false.
+  def file_dropper_exist?(session, path)
+    if session.platform == 'windows'
+      normalized = file_dropper_win_path(path)
+    else
+      normalized = path
+    end
+
+    if session.type == 'meterpreter'
+      stat = session.fs.file.stat(normalized) rescue nil
+      return false unless stat
+      stat.file? || stat.directory?
+    else
+      if session.platform == 'windows'
+        f = session.shell_command_token("cmd.exe /C IF exist \"#{normalized}\" ( echo true )")
+      else
+        f = session.shell_command_token("test -f \"#{normalized}\" -o -d \"#{normalized}\" && echo true")
+      end
+
+      return false if f.nil? || f.empty?
+      return false unless f =~ /true/
+      true
+    end
+  end
+
+  # Sends a file deletion command to the remote +session+
+  #
+  # @param [String] file The file to delete
+  # @return [Boolean] True if the delete command has been executed in the remote machine, otherwise false.
+  def file_dropper_delete_file(session, file)
+    win_file = file_dropper_win_path(file)
+
+    if session.type == 'meterpreter'
+      begin
+        # Meterpreter should do this automatically as part of
+        # fs.file.rm().  Until that has been implemented, remove the
+        # read-only flag with a command.
+        if session.platform == 'windows'
+          session.shell_command_token(%Q|attrib.exe -r #{win_file}|)
+        end
+        session.fs.file.rm(file)
+        true
+      rescue ::Rex::Post::Meterpreter::RequestError
+        false
+      end
+    else
+      win_cmds = [
+        %Q|attrib.exe -r "#{win_file}"|,
+        %Q|del.exe /f /q "#{win_file}"|
+      ]
+      # We need to be platform-independent here. Since we can't be
+      # certain that {#target} is accurate because exploits with
+      # automatic targets frequently change it, we just go ahead and
+      # run both a windows and a unix command in the same line. One
+      # of them will definitely fail and the other will probably
+      # succeed. Doing it this way saves us an extra round-trip.
+      # Trick shared by @mihi42
+      session.shell_command_token("rm -f \"#{file}\" >/dev/null ; echo ' & #{win_cmds.join(" & ")} & echo \" ' >/dev/null")
+      true
+    end
+  end
+
+  # Sends a directory deletion command to the remote +session+
+  #
+  # @param [String] dir The directory to delete
+  # @return [Boolean] True if the delete command has been executed in the remote machine, otherwise false.
+  def file_dropper_delete_dir(session, dir)
+    win_dir = file_dropper_win_path(dir)
+
+    if session.type == 'meterpreter'
+      begin
+        # Meterpreter should do this automatically as part of
+        # fs.dir.rmdir().  Until that has been implemented, remove the
+        # read-only flag with a command.
+        if session.platform == 'windows'
+          session.shell_command_token(%Q|attrib.exe -r #{win_dir}|)
+        end
+        session.fs.dir.rmdir(dir)
+        true
+      rescue ::Rex::Post::Meterpreter::RequestError
+        false
+      end
+    else
+      win_cmds = [
+        %Q|attrib.exe -r "#{win_dir}"|,
+        %Q|rd.exe /s /q "#{win_dir}"|
+      ]
+      # We need to be platform-independent here. Since we can't be
+      # certain that {#target} is accurate because exploits with
+      # automatic targets frequently change it, we just go ahead and
+      # run both a windows and a unix command in the same line. One
+      # of them will definitely fail and the other will probably
+      # succeed. Doing it this way saves us an extra round-trip.
+      # Trick shared by @mihi42
+      session.shell_command_token("rm -rf \"#{dir}\" >/dev/null ; echo ' & #{win_cmds.join(" & ")} & echo \" ' >/dev/null")
+      true
+    end
+  end
+
+  # Checks if a path has been deleted by the current job
+  #
+  # @param [String] path The path to check
+  # @return [Boolean] If the path has been deleted, otherwise false.
+  def file_dropper_deleted?(session, path, exists_before)
+    if exists_before && file_dropper_exist?(session, path)
+      print_error("Unable to delete #{path}")
+      false
+    elsif exists_before
+      print_good("Deleted #{path}")
+      true
+    else
+      print_warning("Tried to delete #{path}, unknown result")
+      true
+    end
+  end
+
+  # Check if the path being removed is the same as the working directory
+  #
+  # @param [String] path The path to check
+  # @return [Boolean] true if the path is the same, otherwise false
+  def file_dropper_check_cwd?(session, path)
+    if session.type == 'meterpreter'
+      return true if path == session.fs.dir.pwd
+    else
+      pwd =
+        if session.platform == 'windows'
+          session.shell_command_token('echo %cd%')
+        else
+          session.shell_command_token('pwd')
+        end
+
+      # Check for subdirectories and relative paths
+      return true if pwd.include?(path)
+    end
+
+    false
+  end
+
+  # Converts a path to use the windows separator '\'
+  #
+  # @param [String] path The path to convert
+  # @return [String] The path converted
+  def file_dropper_win_path(path)
+    path.gsub('/', '\\\\')
+  end
+
+end
+end

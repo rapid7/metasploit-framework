@@ -1,0 +1,34 @@
+# oracle_sids.rc
+# Author: nebulus
+
+<ruby>
+
+hosts = []
+
+begin
+	framework.db.services.each do |service|
+		if ( (service.port == 1521 or service.port == 1522 or service.port == 1526) and (service.name =~ /oracle/i) and service.state == 'open')
+			hosts << {'ip' => service.host.address, 'port' => service.port}
+		end
+	end
+	rescue ActiveRecord::ConnectionNotEstablished
+		puts "DB not connected..."
+# Uncomment if you want auto-reconnect and retry (on really large scans the db connector can time out)
+#		self.run_single('db_connect <creds>')
+#		puts "trying again..."
+#		retry
+end
+
+
+self.run_single("use auxiliary/admin/oracle/sid_brute")
+
+hosts.each do |rhost|
+
+	self.run_single("set RHOST #{rhost['ip']}")
+	self.run_single("set RPORT #{rhost['port']}")
+	self.run_single('set ConnectTimeout 5')
+	self.run_single('run')
+	sleep 1
+end
+</ruby>
+

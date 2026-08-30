@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SolutionPath>.\Win7Elevate.sln</SolutionPath>
+  </PropertyGroup>
+
+  <Target Name="all" DependsOnTargets="x86;x64" />
+
+  <Target Name="x86">
+    <Message Text="Building bypassuac x86" />
+    <MSBuild Projects="$(SolutionPath)" Properties="Configuration=Release;Platform=Win32" Targets="Clean;Rebuild"/>
+  </Target>
+
+  <Target Name="x64">
+    <Message Text="Building bypassuac x64" />
+    <MSBuild Projects="$(SolutionPath)" Properties="Configuration=Release;Platform=x64" Targets="Clean;Rebuild"/>
+  </Target>
+</Project>
+

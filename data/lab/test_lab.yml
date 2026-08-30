@@ -1,0 +1,11 @@
+ - vmid: backtrack
+   driver: workstation
+   location: /opt/vm/backtrack5/Backtrack5x64.vmx
+   modifiers:
+     - Test
+   credentials:
+     - user: root
+       pass: toor
+   os: linux
+   flavor: ubuntu
+   arch: 64

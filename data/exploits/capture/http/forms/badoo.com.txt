@@ -1,0 +1,1 @@
+<form action='http://badoo.com/peoplesearch.phtml?sold2=WfUAcN7m9tVO.yJdl3CDF0RoiSL2ZIB_' method='get'> <input name="q" size="30" type="text" id="f_q" value="" /><input name="" type="image" src="" id="f_search_submit" /></form>

@@ -1,0 +1,1 @@
+<form name='content_search' onsubmit='return frm_submit();'> <input name="search" type="hidden" value="" /><input name="name" size="25" class="smalltext" type="text" value="" onclick="clear_text(this);" /><input name="searchbutton" class="smalltext" type="button" value="" onclick="frm_submit();" /></form>

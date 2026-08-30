@@ -1,0 +1,165 @@
+a 0100
+;-----------------------------------------------
+; Hex to Binary 16-bit ASM in debug.com syntax.
+; v0.2
+;
+; Joshua J. Drake <jduck [at] metasploit.com>
+;
+; References:
+; http://kipirvine.com/asm/debug/Debug_Tutorial.pdf
+; http://jakash3.wordpress.com/2010/02/20/file-operations-in-assembly-language/
+;-----------------------------------------------
+;
+jmp 999       ;jmp main (jmp)
+;
+;exit_program:
+; close read file
+mov bx,[1a9]  ;read_handle=1a9
+call 998      ;call close_file
+; close write file
+mov bx,[1b8]  ;write_handle=1b8
+call 998      ;call close_file
+mov ax,4c00   ;Exit function (AL=Errorlevel to return)
+int 21        ;Do it
+;
+;open_for_reading:
+mov ah,3d     ;Open file function
+mov al,00     ;Read-Only file access
+mov dx,1ab    ;read_filename=1ab
+int 21        ;Do it
+mov [1a9],ax  ;read_handle=1a9
+ret
+;
+;open_for_writing:
+mov ah,3c     ;Open file function
+mov cx,4      ;Archive file attribute
+mov dx,1ba    ;write_filename=1ba
+int 21        ;Do it
+mov [1b8],ax  ;write_handle=1b8
+ret
+;
+;close_file:
+mov ax,3e00   ;Close file function
+int 21
+ret
+;
+; read(*phR,0x200,0x100)
+;read_data:
+mov bx,[1a9]  ;read_handle=1a9
+mov ax,3f00   ;Read from file function
+mov cx,100    ;Read the first 256 bytes of file
+mov dx,0200   ;Address of buffer to store bytes read
+int 21        ;Do it
+cmp ax,2      ;must have at least 2 bytes to continue
+ja 988        ;ja have_enough (jmp)
+call 997      ;call write_data
+call 996      ;call exit_program
+;have_enough:
+ret
+;
+;convert_to_nibble: (al)
+mov ah,0      ;no error
+or al,20      ;lowercase the byte
+sub al,30     ;is it in the 0-9 range?
+cmp al,9
+jbe 987       ;jbe convert_success (jmp)
+sub al,31     ;if not, is it in the 0x61-0x66 range?
+cmp al,5
+ja 986        ;ja convert_error (jmp)
+add al,a      ;yep, converted -> add 10 and return it
+;convert_success:
+ret
+;convert_error:
+mov ah,ff     ;return error
+ret
+;
+;get_one_byte:
+cmp bp,0      ;see if we have bytes left
+jne 985       ;jne return_byte (jmp)
+call 995      ;call read_data
+mov bp,ax     ;store bytes read in bp
+mov si,200    ;reset src ptr
+;return_byte:
+lodsb
+dec bp
+ret
+;
+; write(*phW,0x300,di-0x300)
+;write_data:
+mov cx,di     ;load dst ptr
+sub cx,300    ;convert to count
+mov bx,[1b8]  ;write_handle=1b8
+mov ax,4000   ;Write to File function
+mov dx,0300   ;Points to data to write
+int 21        ;Do it
+ret
+;
+;get_nibble_or_die_trying:
+call 994      ;call get_one_byte
+call 993      ;call convert_to_nibble
+cmp ah,0      ;check for error
+jne 990       ;jne get_nibble_or_die_trying (jmp)
+ret
+;
+;
+;================================================================
+;
+;------
+;main:
+;------
+;
+call 992      ;call open_for_reading
+call 991      ;call open_for_writing
+;
+;-----------------------------------------------
+; loop, processing bytes, refilling when needed
+;-----------------------------------------------
+;
+; init pre-loop
+mov bp,0      ;bytes left
+;outer_loop:
+mov di,300    ;write buf
+;inner_loop:
+;
+; load the first byte (high nibble)
+call 990      ;call get_nibble_or_die_trying
+;
+; save the nibble in ah -> stack
+mov cx,1000
+mul cx
+push ax
+;
+; load the second byte (low nibble)
+call 990      ;call get_nibble_or_die_trying
+;
+; combine the nibbles and save the result
+pop dx
+or al,dh
+stosb
+;
+; if we're not done, process the next byte
+cmp bp, 0
+jne 984       ;jne inner_loop (jmp)
+;
+;
+; flush output and try for more
+call 989      ;call write_data
+jmp 983       ;jmp outer_loop (jmp)
+;
+; declare global data
+;read_handle:
+db 00,00
+;read_filename:
+db "testfile.dat",00
+;write_handle:
+db 00,00
+;write_filename:
+db "testfile.out",00
+;
+; remainder is buffer space
+
+r cx
+0400
+n h2b.com
+w
+q

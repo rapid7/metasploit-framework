@@ -1,0 +1,16 @@
+/etc/passwd
+/etc/shadow
+/etc/group
+/etc/groups
+/etc/mysql.conf
+/etc/mysql/my.cnf
+/etc/hosts
+/etc/hosts.allow
+/etc/hosts.deny
+/etc/php.ini
+/etc/issue
+/etc/motd
+/etc/fstab
+/etc/inetd.conf
+/etc/xinetd.conf
+/proc/version

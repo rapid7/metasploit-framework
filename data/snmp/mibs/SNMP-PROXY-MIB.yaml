@@ -1,0 +1,17 @@
+--- 
+snmpProxyTable: 1.3.6.1.6.3.14.1.2
+snmpProxyTargetParamsIn: 1.3.6.1.6.3.14.1.2.1.5
+snmpProxyEntry: 1.3.6.1.6.3.14.1.2.1
+snmpProxyMIB: 1.3.6.1.6.3.14
+snmpProxyGroups: 1.3.6.1.6.3.14.3.2
+snmpProxyName: 1.3.6.1.6.3.14.1.2.1.1
+snmpProxyContextEngineID: 1.3.6.1.6.3.14.1.2.1.3
+snmpProxyRowStatus: 1.3.6.1.6.3.14.1.2.1.9
+snmpProxyMultipleTargetOut: 1.3.6.1.6.3.14.1.2.1.7
+snmpProxyObjects: 1.3.6.1.6.3.14.1
+snmpProxyCompliances: 1.3.6.1.6.3.14.3.1
+snmpProxySingleTargetOut: 1.3.6.1.6.3.14.1.2.1.6
+snmpProxyStorageType: 1.3.6.1.6.3.14.1.2.1.8
+snmpProxyConformance: 1.3.6.1.6.3.14.3
+snmpProxyType: 1.3.6.1.6.3.14.1.2.1.2
+snmpProxyContextName: 1.3.6.1.6.3.14.1.2.1.4

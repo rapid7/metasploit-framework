@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+# -*- coding: binary -*-
+#
+# $Id$
+#
+# This user interface allows users to interact with a remote framework
+# instance through a XMLRPC socket.
+#
+# $Revision$
+#
+
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+require 'msfenv'
+
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'rex/parser/arguments'
+
+# Declare the argument parser for msfrpc
+arguments = Rex::Parser::Arguments.new(
+  "-a" => [ true,  "Connect to this IP address"                           ],
+  "-p" => [ true,  "Connect to the specified port instead of 55553"       ],
+  "-U" => [ true,  "Specify the username to access msfrpcd"               ],
+  "-P" => [ true,  "Specify the password to access msfrpcd"               ],
+  "-S" => [ false, "Disable SSL on the RPC socket"                        ],
+  "-h" => [ false, "Help banner"                                          ]
+)
+
+opts = {
+  'User' => 'msf',
+  'SSL'  => true,
+  'ServerPort' => 55553,
+  'Type' => 'Msg'
+}
+
+# Parse command line arguments.
+arguments.parse(ARGV) do |opt, idx, val|
+  case opt
+    when "-a"
+      opts['ServerHost'] = val
+    when "-S"
+      opts['SSL'] = false
+    when "-p"
+      opts['ServerPort'] = val
+    when '-U'
+      opts['User'] = val
+    when '-P'
+      opts['Pass'] = val
+    when "-h"
+      print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
+      exit
+  end
+end
+
+unless opts['ServerHost']
+  $stderr.puts "[-] Error: a server IP must be specified (-a)"
+  $stderr.puts arguments.usage
+  exit(0)
+end
+
+unless opts['Pass']
+  $stderr.puts "[-] Error: a password must be specified (-P)"
+  $stderr.puts arguments.usage
+  exit(0)
+end
+
+$0 = "msfrpc"
+
+require 'msf/core/rpc/v10/client'
+
+rpc = Msf::RPC::Client.new(
+  :host => opts['ServerHost'],
+  :port => opts['ServerPort'],
+  :ssl  => opts['SSL']
+)
+
+rpc.login(opts['User'], opts['Pass'])
+
+puts "[*] The 'rpc' object holds the RPC client interface"
+puts "[*] Use rpc.call('group.command') to make RPC calls"
+puts ''
+
+while(ARGV.shift)
+end
+
+Rex::Ui::Text::IrbShell.new(binding).run

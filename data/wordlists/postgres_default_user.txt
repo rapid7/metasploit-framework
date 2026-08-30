@@ -1,0 +1,4 @@
+
+postgres
+scott
+admin

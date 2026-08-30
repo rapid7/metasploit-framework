@@ -1,0 +1,1 @@
+<form name='searchForm' action='http://www.att.com/search/integrate' method='post' id='searchForm'> <input name="query" size="20" type="text" id="query" maxlength="256" /><input title="Search." type="image" src="/Common/indc/homepage/images/btn_go.gif" id="searchbuttonGo" value="" align="middle" alt="Go." /></form>

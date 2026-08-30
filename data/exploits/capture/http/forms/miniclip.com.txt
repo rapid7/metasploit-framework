@@ -1,0 +1,1 @@
+<form name='jumpList' action=''> </form><form action='/php/en/search_results.php' method='get'> <input name="query" type="text" /><input class="button" type="submit" value="" /></form>

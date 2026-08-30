@@ -1,0 +1,1 @@
+<form action='http://cgiserv01.fc2web.com/cgi-bin/hps.cgi' method='post'> <input name="username" size="15" class="normal1" /><input name="password" size="12" class="text" type="password" /><input name="action" type="hidden" value="" /><input name="submit" class="text12px" type="submit" value="" /></form>

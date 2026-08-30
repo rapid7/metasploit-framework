@@ -1,0 +1,23 @@
+services:
+  ldap:
+    tty: true
+    network_mode: bridge
+    hostname: ldap.example.com
+    ports:
+      - "389:389"
+      - "636:636"
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      SMB_ADMIN_PASSWORD: admin123!
+    volumes:
+      - ./:/opt/ad-scripts
+    healthcheck:
+      test: ldapsearch -x -H ldap://localhost:389 -b '' -D DEV-AD\\Administrator -w admin123! -s base
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    build:
+      context: .
+      dockerfile: Dockerfile

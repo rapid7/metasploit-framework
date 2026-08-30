@@ -1,0 +1,1 @@
+<form class='search' action='/search' method='get'> <input name="q" autocomplete="off" type="text" id="thesearchbox" onkeyup="suggest();" value="" /><input type="submit" value="" /></form>

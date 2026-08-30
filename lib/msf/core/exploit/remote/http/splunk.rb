@@ -1,0 +1,32 @@
+# -*- coding: binary -*-
+
+module Msf
+  class Exploit
+    class Remote
+      module HTTP
+        # This module provides a way of interacting with splunk installations
+        module Splunk
+          include Msf::Exploit::Remote::HttpClient
+          include Msf::Exploit::Remote::HTTP::Splunk::Apps
+          include Msf::Exploit::Remote::HTTP::Splunk::Base
+          include Msf::Exploit::Remote::HTTP::Splunk::Helpers
+          include Msf::Exploit::Remote::HTTP::Splunk::Login
+          include Msf::Exploit::Remote::HTTP::Splunk::URIs
+          include Msf::Exploit::Remote::HTTP::Splunk::Version
+          include Msf::Exploit::Remote::HTTP::Splunk::Dashboards
+          include Msf::Exploit::Remote::HTTP::Splunk::Search
+
+          def initialize(info = {})
+            super
+
+            register_options(
+              [
+                Msf::OptString.new('TARGETURI', [true, 'The base path to the splunk application', '/'])
+              ], Msf::Exploit::Remote::HTTP::Splunk
+            )
+          end
+        end
+      end
+    end
+  end
+end

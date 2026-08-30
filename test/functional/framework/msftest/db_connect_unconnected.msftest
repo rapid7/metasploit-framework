@@ -1,0 +1,23 @@
+<xml>
+<msf_test>
+	<name>
+		db_connect_unconnected
+	</name>
+	<description>
+		This test will run the db_connect command and check that the user is prompted.
+	</description>
+	<commands>
+		db_connect
+		exit
+	</commands>
+	<output>
+		<successes>
+			<success>OR: db_connect -y \[path\/to\/database.yml\]</success>
+			<success>Examples:</success>
+		</successes>
+		<failures>
+		</failures>
+		<failure_exceptions>
+		</failure_exceptions>
+	</output>
+<msf_test>

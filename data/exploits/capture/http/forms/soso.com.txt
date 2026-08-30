@@ -1,0 +1,1 @@
+<form name='flpage' action='q'> <input name="pid" type="hidden" value="" /><input name="w" autocomplete="off" class="s bor" type="text" onkeyup="userInput(this.value,'sb',event);" id="sb" maxlength="64" /><input class="bt" type="submit" value="" /></form>

@@ -1,0 +1,1 @@
+<form class='sw_box' action='http://search.live.com/results.aspx' id='sb_form'> <input name="q" class="sw_qbox" title="Search for" type="text" id="sb_form_q" value="" /><input name="go" tabindex="0" class="sw_qbtn" title="Search" type="submit" id="sb_form_go" value="" /><input name="form" type="hidden" value="" /></form>

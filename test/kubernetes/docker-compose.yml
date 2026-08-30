@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  setup:
+    build: .
+    environment:
+      - KUBECONFIG=/kube/config
+    volumes:
+      - ./:/kubernetes
+      - ~/.kube:/kube:ro
+    ports:
+      - 8443:8443 # Kubernetes dashboard
+      - 9001:9001 # thinkphp
+      - 9002:9002 # lucee
+    command: make install

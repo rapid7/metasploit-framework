@@ -1,0 +1,10 @@
+This snapshot of Anemone has been modified for use within the Metasploit Framework
+
+ * Extract links from additional elements in page.links()
+ * Insert a callback to use a custom Net::HTTP factory
+ * Insert a callback to tweak HTTP requests before they are sent
+ * Addition of core.shutdown() to stop all background threads
+ * Addition of a Rex::Proto::HTTP version of anemone/http
+ * Handle Rex::Proto::HTTP headers (not arrays)
+ * Disable freeze_options() since it can recurse into the framework/module options
+ * Addition of a page.request accessor to store the associated raw request

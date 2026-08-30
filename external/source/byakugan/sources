@@ -1,0 +1,40 @@
+TARGETNAME=byakugan
+TARGETTYPE=DYNLINK
+TARGETPATH=.
+
+DLLENTRY=_DllMainCRTStartup
+
+!if "$(DBGSDK_INC_PATH)" != ""
+INCLUDES = $(DBGSDK_INC_PATH);$(INCLUDES)
+!endif
+!if "$(DBGSDK_LIB_PATH)" == ""
+DBGSDK_LIB_PATH = $(SDK_LIB_PATH)
+!else
+DBGSDK_LIB_PATH = $(DBGSDK_LIB_PATH)\$(TARGET_DIRECTORY)
+!endif
+
+TARGETLIBS=$(SDK_LIB_PATH)\kernel32.lib \
+		   $(SDK_LIB_PATH)\ws2_32.lib \
+           $(DBGSDK_LIB_PATH)\dbgeng.lib
+
+USE_MSVCRT=1
+USE_STL=1
+
+UMTYPE=windows
+
+USE_NATIVE_EH=1
+
+MSC_WARNING_LEVEL = 
+
+SOURCES= byakugan.cpp       \
+		 csv_parser.cpp		\
+         msfpattern.cpp     \
+		 jutsu.cpp			\
+		 exts.cpp			\
+		 handlerJutsu.cpp	\
+		 tenketsu.cpp		\
+		 heapModeler.cpp	\
+         byakugan.rc		\
+		 mushishi.cpp		\
+		 symPort.cpp		\
+		 stdwindbg.cpp

@@ -1,0 +1,9 @@
+---
+queries:
+#  - action: SAMPLE_ACTION
+#    description: 'A description.'
+#    # base_dn_prefix: 'An optional string to prefix to the Base DN'
+#    filter: '(objectClass=*)'
+#    attributes:
+#      - dn
+#      - objectClass

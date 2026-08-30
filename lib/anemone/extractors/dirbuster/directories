@@ -1,0 +1,10 @@
+test/
+tmp/
+stuff/
+awstats/
+awstats/awstats/
+basilic/
+cacti/
+docs/text/manual.txt
+docs/CHANGELOG
+docs/html/php_script_server.html

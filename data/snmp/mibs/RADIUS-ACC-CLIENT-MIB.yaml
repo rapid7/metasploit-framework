@@ -1,0 +1,26 @@
+--- 
+radiusAccounting: 1.3.6.1.2.1.67.2
+radiusAccClientBadAuthenticators: 1.3.6.1.2.1.67.2.2.1.1.3.1.9
+radiusAccClientMIBGroups: 1.3.6.1.2.1.67.2.2.2.2
+radiusAccClientMIBObjects: 1.3.6.1.2.1.67.2.2.1
+radiusAccClientTimeouts: 1.3.6.1.2.1.67.2.2.1.1.3.1.11
+radiusAccClientMIBCompliances: 1.3.6.1.2.1.67.2.2.2.1
+radiusMIB: 1.3.6.1.2.1.67
+radiusAccServerAddress: 1.3.6.1.2.1.67.2.2.1.1.3.1.2
+radiusAccClientRetransmissions: 1.3.6.1.2.1.67.2.2.1.1.3.1.6
+radiusAccClientMIBConformance: 1.3.6.1.2.1.67.2.2.2
+radiusAccClientIdentifier: 1.3.6.1.2.1.67.2.2.1.1.2
+radiusAccClient: 1.3.6.1.2.1.67.2.2.1.1
+radiusAccServerEntry: 1.3.6.1.2.1.67.2.2.1.1.3.1
+radiusAccServerIndex: 1.3.6.1.2.1.67.2.2.1.1.3.1.1
+radiusAccClientMIB: 1.3.6.1.2.1.67.2.2
+radiusAccClientPendingRequests: 1.3.6.1.2.1.67.2.2.1.1.3.1.10
+radiusAccClientInvalidServerAddresses: 1.3.6.1.2.1.67.2.2.1.1.1
+radiusAccServerTable: 1.3.6.1.2.1.67.2.2.1.1.3
+radiusAccClientRoundTripTime: 1.3.6.1.2.1.67.2.2.1.1.3.1.4
+radiusAccClientResponses: 1.3.6.1.2.1.67.2.2.1.1.3.1.7
+radiusAccClientMalformedResponses: 1.3.6.1.2.1.67.2.2.1.1.3.1.8
+radiusAccClientServerPortNumber: 1.3.6.1.2.1.67.2.2.1.1.3.1.3
+radiusAccClientRequests: 1.3.6.1.2.1.67.2.2.1.1.3.1.5
+radiusAccClientPacketsDropped: 1.3.6.1.2.1.67.2.2.1.1.3.1.13
+radiusAccClientUnknownTypes: 1.3.6.1.2.1.67.2.2.1.1.3.1.12

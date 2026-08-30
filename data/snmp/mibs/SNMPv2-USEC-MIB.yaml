@@ -1,0 +1,19 @@
+--- 
+agentID: 1.3.6.1.6.3.6.1.1.1
+agentTime: 1.3.6.1.6.3.6.1.1.3
+usecStatsUnknownUserNames: 1.3.6.1.6.3.6.1.2.3
+usecStatsUnknownContexts: 1.3.6.1.6.3.6.1.2.5
+usecMIBConformance: 1.3.6.1.6.3.6.2
+usecStatsBadParameters: 1.3.6.1.6.3.6.1.2.6
+usecAgent: 1.3.6.1.6.3.6.1.1
+usecMIB: 1.3.6.1.6.3.6
+usecMIBObjects: 1.3.6.1.6.3.6.1
+usecStats: 1.3.6.1.6.3.6.1.2
+usecStatsUnsupportedQoS: 1.3.6.1.6.3.6.1.2.1
+usecStatsNotInWindows: 1.3.6.1.6.3.6.1.2.2
+usecStatsWrongDigestValues: 1.3.6.1.6.3.6.1.2.4
+agentBoots: 1.3.6.1.6.3.6.1.1.2
+usecStatsUnauthorizedOperations: 1.3.6.1.6.3.6.1.2.7
+usecMIBCompliances: 1.3.6.1.6.3.6.2.1
+usecMIBGroups: 1.3.6.1.6.3.6.2.2
+agentSize: 1.3.6.1.6.3.6.1.1.4

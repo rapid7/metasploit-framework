@@ -1,0 +1,1 @@
+<form name='s_form' action='/search/'> <input name="q" class="text" type="text" value="" /></form><form name='s_form' action='/search/'> <input name="q" class="text" type="text" value="" /></form>

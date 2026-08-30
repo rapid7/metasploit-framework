@@ -1,0 +1,39 @@
+ruby-serialport (0.6.1) unstable; urgency=low
+
+  * Added nonblock= and nonblock()
+  * Added input_type= and input_type()
+  * Added output_type= and output_type()
+  * Re-indented code
+
+ -- Marcello Barnaba <l.barnaba@openssl.it>  Wed,  8 Sep 2004 17:18:25 +0200
+
+ruby-serialport (0.6) unstable; urgency=low
+
+  * Windows support
+  * Get/set modem parameters
+  * Read and write timeouts
+  * Open method
+
+ -- Guillaume Pierronnet <moumar@duron.maison.chello.fr>  Thu, 13 Feb 2003 20:59:37 +0100
+
+ruby-serialport (0.5-1) unstable; urgency=low
+
+  * Cygwin support 
+
+ -- Guillaume Pierronnet <moumar@duron.maison.chello.fr>  Fri, 25 Oct 2002 13:48:44 +0200
+
+ruby-serialport (0.4-1) unstable; urgency=low
+
+  * Modified to support 8 serial ports 
+
+ -- Guillaume Pierronnet <moumar@duron.maison.chello.fr>  Fri, 20 Sep 2002 15:26:20 +0200
+
+ruby-serialport (0.3-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Guillaume Pierronnet <moumar@netcourrier.com>  Mon, 21 Sep 2001 11:19:36 +0900
+
+Local variables:
+mode: debian-changelog
+End:

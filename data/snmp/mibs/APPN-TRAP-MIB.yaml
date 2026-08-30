@@ -1,0 +1,14 @@
+--- 
+appnPortOperStateChangeTrap: 1.3.6.1.2.1.34.4.0.4
+dlurDlusTableChanges: 1.3.6.1.2.1.34.4.1.7.5
+appnLocalTgCpCpChangeTrap: 1.3.6.1.2.1.34.4.0.3
+appnTrapMIB: 1.3.6.1.2.1.34.4.0
+appnLsTableChanges: 1.3.6.1.2.1.34.4.1.7.4
+appnPortTableChanges: 1.3.6.1.2.1.34.4.1.7.3
+appnTrapObjects: 1.3.6.1.2.1.34.4.1.7
+appnLsOperStateChangeTrap: 1.3.6.1.2.1.34.4.0.5
+appnIsrAccountingDataTrap: 1.3.6.1.2.1.34.4.0.1
+dlurDlusStateChangeTrap: 1.3.6.1.2.1.34.4.0.6
+appnTrapControl: 1.3.6.1.2.1.34.4.1.7.1
+appnLocalTgOperStateChangeTrap: 1.3.6.1.2.1.34.4.0.2
+appnLocalTgTableChanges: 1.3.6.1.2.1.34.4.1.7.2

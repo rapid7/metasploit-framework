@@ -1,0 +1,176 @@
+Byakugan - Increase Your Sight
+	Pusscat		Lin0xx
+
+NOTE: If you trust me, skip to 4. - I've already included built libs.
+
+A. Building / Installation
+	1. Requirements
+		a. WDK
+		b. Debugging Tools For Windows
+			- Install to C:\windbg\ - or injectsu will not be found
+			- Make sure to install with the custom setting
+			- Explicitly choose to install the SDK
+	2. Building the libraries
+		a. Open a WDK build environment for the proper windows version
+		b. Go to the byakugan base directory
+		c. type: setup
+		
+	3. Installation (self built)
+		a. copy injectsu\i386\injectsu.dll C:\windbg\
+		b. copy bin\detoured.dll C:\windows\system32\
+		c. copy i386\byakugan.dll C:\windbg\
+
+	4. Installation (Prebuilt binaries)
+		a. copy bin\<platform>\injectsu.dll C:\windbg\
+		b. copy bin\<platform>\detoured.dll C:\windows\system32\
+		c.  copy bin\<platform>\byakugan.dll C:\windbg\
+
+
+B. Deployment:
+	1.	Start up windbg and attach to (or start up) a new process
+		a. Ensure that both process are at the same priv level,
+		   so they can both access the named pipe 
+		b. Load the byakugan dll:
+			!load byakugan.dll
+		c. Display options with !byakugan command if desired
+
+C. Testing:
+	1. testPattern
+		a. This tests the pattern matcher in byakugan
+		b. Build and run in windbg
+		c. on crash you should be able to type:
+			!pattern_offset 500
+
+			And have it give you the registers you control,
+			and at what offset into the buffer they occur
+	2. testTenketsu
+		a. This tests the heap visualization in byakugan
+		b. Build and run in windbg
+		c. On the first break, type
+			!tenketsu listHeaps
+			
+			to find the heap containing the chunks you see (should say 11),
+			then type
+
+			!tenketsu listChunks <heap base>
+
+			to list the chunks information
+		d. Let it go, then when it breaks again, check the chunks again,
+		   and it should show half of them as freed.  You can for fun try to
+		   find out what that extra allocation is for. Should be pretty simple.
+
+D. Usage:
+	1. Tenketsu (Heap Visualization)
+        a1. Load tenketsu heap logging with:
+			!tenketsu log <logname.xml>
+		
+		OR
+		
+		a2. Load tenketsu heap modeling with:
+            !tenketsu model
+        b. When process is broken, display heaps with
+            !tenketsu listHeaps
+        c. Display chunks with
+            !tenketsu listChunks <heap base>
+	2. Jutsu (Buffer Handling)
+		a. Register input with !jutsu identBuf <bufType> <bufname> <VALUE> <size>
+			1. Viable types are ascii, msfpattern, and file
+				ascii requires a name, and pattern, but no size
+				file takes the file path as a VALUE and requires a size argument
+				msfpattern requires no value argument
+
+				Depending on the TYPE, the rest of the command may have different parts. 
+				Lets examine the currently supported types:
+
+				ASCII
+				The ascii type acts in the same way as you're used to. It requires a name, 
+				and a value which will be tracked, but no size. The string will be null terminated as normal.
+
+				!jutsu identBuf ascii myAsciiBuf CatImAKittyCatAndIDanceDanceDance
+
+				msfPattern
+				The msfpattern input type has been enhanced to allow for you to provide a custom 
+				name. It requires a name and a size, but no value. Future enhancements may involve 
+				multiple msfpatterns starting where the last left off in the pattern so as to not 
+				confuse multiple pattern buffers with one another. The format looks like this:
+
+				!jutsu identBuf msfpattern myMsfPattern 16
+
+				File
+				The file input type will suck in a file of any format and register it as a tracked 
+				buffer. It requires a name, and takes the file path as a value. It also requires a 
+				size to be input. Future enhancements may include ability to provide an offset into 
+				the file to start reading from. Let me know if you'd like to see this. Currently 
+				though, the format looks like:
+
+				!jutsu identBuf file myFileBuf C:\msf3\input.bin 64
+
+				Note that listing non-ascii buffers with !jutsu listBuf may result in some funny output, 
+				but this wont break anything...
+
+				To load an 010 map file, (the output from a parsed file), use identBufFile:
+
+				!jutsu identBufFile inputFile mapFile 
+
+				This will load the inputFile as many seperate buffers broken up as the 010 template has parsed
+				it, naming it as the template has named each part.
+
+		c. List registered buffers with !jutsu listBuf
+		d. Remove registered buffers with !jutsu rmBuf <name>
+		e. After crash, type !jutsu hunt to find out:
+			1. What buffer caused a crash
+			2. What registers you've overwritten (and if pattern, at what offset)
+			3. What registers point at what buffers
+			4. What corruption has occured (toupper, tolower, etc)
+		f. Use !jutsu findReturn to find valid return addresses
+			1. hunt will use all knowledge about controlled registers and buffer offsets
+			   to find all possible usable return addresses
+		g. Use !jutsu searchOpcode to find opcodes in executable memory
+			1. delimit instructions with pipes - example:
+
+			0:000> !jutsu searchOpcode  pop ecx | pop ecx | ret
+			[J] Searching for:
+			>  pop ecx
+			>  pop ecx
+			>  ret
+			[J] Machine Code:
+			> 59 59 c3
+			[J] Opcode sequence found at: 0x004012f9
+
+		h. Use !jutsu searchVtptr to find ptr -> ptr - x -> ptr -> opcodes
+			Use this just like searchOpcode, except with the second ptr offset
+			as the first argument:
+
+			if your crash looks like:
+
+			mov eax, [ebx]
+			push ebx
+			call [eax+4]
+
+			Where you control ebx, and esp+0x14 points at a buffer you own,
+			you would use:
+
+			!jutsu searchVtptr 4  add esp, 0x14 | ret
+
+			0x75cb4b36 -> 0x10450107 -> 0x100ffc08 -> sequence
+			0x6bb322a6 -> 0x1045891b -> 0x100ffc08 -> sequence
+
+			You may then use 0x75cb4b36 or 0x6bb322a6 for your vtable overwrite
+
+		i. use !jutsu trackVal to find and primitive values in memory
+
+	3. Mushishi (Anti-debugging detection / removal)
+		a. Not much in here now, but growing
+		b. !mushishi detect - detects several methods
+		c. !mushishi defeat - defeats known defeatable methods
+
+	4. Symport (Import IDA map files into windbg - map files contain all custom names)
+		a. !symport moduleName mapFilePath
+
+		0:001> !symport calc C:\Users\lgrenier\calc.map
+		[S] Adjusting symbols to base address of: 0x calc (00680000)
+		[S] Failed to add synthetic symbol: ?bFocus@@3HA
+		[S] Failed to add synthetic symbol: ?machine@@3PAY04DA
+		[S] Failed to add synthetic symbol: ?init_num_ten@@3U_number@@A
+		[S] Failed to add synthetic symbol: ?init_p_rat_exp@@3U_number@@A
+		[S] Successfully imported 566 symbols.

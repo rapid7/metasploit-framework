@@ -1,0 +1,1 @@
+<form method='POST'> <input name="user_choice" type="submit" id="enterbutton" value="" /><input name="user_choice" type="submit" value="" /></form>

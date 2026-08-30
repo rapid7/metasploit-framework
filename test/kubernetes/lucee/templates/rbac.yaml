@@ -1,0 +1,52 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "lucee.serviceAccountName" . }}
+  labels:
+    {{- include "lucee.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+---
+{{- $allAccess := printf "%s-all-access" (include "lucee.fullname" .) }}
+{{- $noAccess := printf "%s-no-access" (include "lucee.fullname" .) }}
+{{- $roleRefName := .Values.privileges.bindClusterRoleOverride | default $noAccess }}
+{{- if eq $roleRefName $noAccess -}}
+# Grant the service account no access to Kubernetes
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "lucee.fullname" . }}-no-access
+rules: []
+---
+{{- else if eq $roleRefName $allAccess -}}
+# Grant the service account full access to Kubernetes
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "lucee.fullname" . }}-all-access
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["*"]
+    verbs: ["*"]
+---
+{{- end -}}
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "lucee.fullname" . }}-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "lucee.serviceAccountName" . }}
+    apiGroup: ""
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $roleRefName }}
+  apiGroup: ""
+
+{{- end }}

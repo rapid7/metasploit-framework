@@ -1,0 +1,27 @@
+--- 
+tcpConnLocalAddress: 1.3.6.1.2.1.6.13.1.2
+tcp: 1.3.6.1.2.1.6
+tcpCurrEstab: 1.3.6.1.2.1.6.9
+tcpInErrs: 1.3.6.1.2.1.6.14
+tcpOutRsts: 1.3.6.1.2.1.6.15
+tcpConnRemPort: 1.3.6.1.2.1.6.13.1.5
+tcpMIBGroups: 1.3.6.1.2.1.49.2.2
+tcpMaxConn: 1.3.6.1.2.1.6.4
+tcpInSegs: 1.3.6.1.2.1.6.10
+tcpOutSegs: 1.3.6.1.2.1.6.11
+tcpConnState: 1.3.6.1.2.1.6.13.1.1
+tcpConnTable: 1.3.6.1.2.1.6.13
+tcpConnEntry: 1.3.6.1.2.1.6.13.1
+tcpMIBConformance: 1.3.6.1.2.1.49.2
+tcpRtoMax: 1.3.6.1.2.1.6.3
+tcpActiveOpens: 1.3.6.1.2.1.6.5
+tcpRtoAlgorithm: 1.3.6.1.2.1.6.1
+tcpPassiveOpens: 1.3.6.1.2.1.6.6
+tcpRetransSegs: 1.3.6.1.2.1.6.12
+tcpConnRemAddress: 1.3.6.1.2.1.6.13.1.4
+tcpMIBCompliances: 1.3.6.1.2.1.49.2.1
+tcpAttemptFails: 1.3.6.1.2.1.6.7
+tcpConnLocalPort: 1.3.6.1.2.1.6.13.1.3
+tcpMIB: 1.3.6.1.2.1.49
+tcpRtoMin: 1.3.6.1.2.1.6.2
+tcpEstabResets: 1.3.6.1.2.1.6.8

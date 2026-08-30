@@ -1,0 +1,1 @@
+<form name='searchForm' action='/search.php' method='get'> <input tabindex="1" name="q" size="20" value="" maxlength="64" /><input type="submit" value="" /></form>

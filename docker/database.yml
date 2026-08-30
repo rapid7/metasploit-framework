@@ -1,0 +1,5 @@
+development: &pgsql
+  url: <%= ENV['DATABASE_URL'] %>
+
+production: &production
+  <<: *pgsql

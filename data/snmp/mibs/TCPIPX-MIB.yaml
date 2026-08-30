@@ -1,0 +1,24 @@
+--- 
+tcpIpxConnTable: 1.3.6.1.4.1.23.2.29.1.1
+tcpIpxConnEntry: 1.3.6.1.4.1.23.2.29.1.1.1
+tcpIpxConnRemAddress: 1.3.6.1.4.1.23.2.29.1.1.1.4
+tcpUnspecConnLocalPort: 1.3.6.1.4.1.23.2.29.1.2.1.2
+udpUnspecEntry: 1.3.6.1.4.1.23.2.29.2.2.1
+tcpx: 1.3.6.1.4.1.23.2.29
+udpUnspecLocalPort: 1.3.6.1.4.1.23.2.29.2.2.1.1
+tcpIpxConnRemPort: 1.3.6.1.4.1.23.2.29.1.1.1.5
+tcpUnspecConnTable: 1.3.6.1.4.1.23.2.29.1.2
+tcpIpxConnState: 1.3.6.1.4.1.23.2.29.1.1.1.1
+tcpIpxConnLocalAddress: 1.3.6.1.4.1.23.2.29.1.1.1.2
+udpIpxEntry: 1.3.6.1.4.1.23.2.29.2.1.1
+mibDoc: 1.3.6.1.4.1.23.2
+udpIpxLocalAddress: 1.3.6.1.4.1.23.2.29.2.1.1.1
+udpUnspecTable: 1.3.6.1.4.1.23.2.29.2.2
+udpIpxTable: 1.3.6.1.4.1.23.2.29.2.1
+novell: 1.3.6.1.4.1.23
+tcpIpxConnLocalPort: 1.3.6.1.4.1.23.2.29.1.1.1.3
+tcpUnspecConnState: 1.3.6.1.4.1.23.2.29.1.2.1.1
+tcpxTcp: 1.3.6.1.4.1.23.2.29.1
+tcpUnspecConnEntry: 1.3.6.1.4.1.23.2.29.1.2.1
+tcpxUdp: 1.3.6.1.4.1.23.2.29.2
+udpIpxLocalPort: 1.3.6.1.4.1.23.2.29.2.1.1.2

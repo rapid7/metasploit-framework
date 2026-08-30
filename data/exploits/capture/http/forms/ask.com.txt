@@ -1,0 +1,1 @@
+<form action='web' id='sform' onsubmit='if (a10.ss) a10.ss.updateQsrc();' style='margin:0;padding:0'> <input name="q" autocomplete="off" id="q" value="" align="bottom" /><input name="qsrc" type="hidden" id="qsrc" value="" /><input name="o" type="hidden" id="origin" value="" /><input name="l" type="hidden" value="" /></form>

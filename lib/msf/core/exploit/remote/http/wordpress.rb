@@ -1,0 +1,67 @@
+# -*- coding: binary -*-
+
+module Msf
+  class Exploit
+    class Remote
+      module HTTP
+        # This module provides a way of interacting with wordpress installations
+        module Wordpress
+          include Msf::Exploit::Remote::HttpClient
+          include Msf::Exploit::Remote::HTTP::Wordpress::Admin
+          include Msf::Exploit::Remote::HTTP::Wordpress::Base
+          include Msf::Exploit::Remote::HTTP::Wordpress::Helpers
+          include Msf::Exploit::Remote::HTTP::Wordpress::Login
+          include Msf::Exploit::Remote::HTTP::Wordpress::Register
+          include Msf::Exploit::Remote::HTTP::Wordpress::Posts
+          include Msf::Exploit::Remote::HTTP::Wordpress::URIs
+          include Msf::Exploit::Remote::HTTP::Wordpress::Users
+          include Msf::Exploit::Remote::HTTP::Wordpress::Version
+          include Msf::Exploit::Remote::HTTP::Wordpress::XmlRpc
+
+          def initialize(info = {})
+            super
+
+            register_options(
+              [
+                Msf::OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/'])
+              ], Msf::Exploit::Remote::HTTP::Wordpress
+            )
+
+            register_advanced_options(
+              [
+                Msf::OptString.new('WPCONTENTDIR', [true, 'The name of the wp-content directory', 'wp-content']),
+                Msf::OptBool.new('WPCHECK', [true, 'Check if the website is a valid WordPress install', true]),
+              ], Msf::Exploit::Remote::HTTP::Wordpress
+            )
+          end
+
+          def wp_content_dir
+            datastore['WPCONTENTDIR']
+          end
+
+          def report_wordpress_service
+            report_service(
+              host: rhost,
+              port: rport,
+              proto: 'tcp',
+              name: 'WordPress',
+              parents: {
+                name: ssl ? 'https' : 'http',
+                host: rhost,
+                port: rport,
+                proto: 'tcp',
+                parents: {
+                  name: 'tcp',
+                  host: rhost,
+                  port: rport,
+                  proto: 'tcp',
+                  parents: nil
+                }
+              }
+            )
+          end
+        end
+      end
+    end
+  end
+end

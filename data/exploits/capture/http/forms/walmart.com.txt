@@ -1,0 +1,7 @@
+<form action='/search/search-ng.do' id='searchForm' method='GET'> <input name="search_constraint" type="hidden" id="searchValue" value="" /><input name="search_query" size="18" class="SearchInput" type="text" value="" maxlength="100" /><input name="Find" class="FindBtn" type="image" src="" value="" alt="Find" /><input name="ic" type="hidden" value="" /></form><form name='findStore' action='/cservice/ca_storefinder_results.gsp' method='GET' onsubmit='return validateSFZIP(this.sfsearch_zip.value);'> <input name="serviceName" type="hidden" value="" /><input name="sfatt" type="hidden" value="" /><input name="rx_title" type="hidden" value="" /><input name="rx_dest" type="hidden" value="" /><input name="sfsearch_zip" size="10" class="ZIPInput" type="text" value="" maxlength="10" /><input name="#" class="FindStoreBtn" type="image" src="" value="" alt="Find" /></form><form name='form1' action='x' method='POST' onsubmit='if(!shouldCOPPAPrevent())openThxPopup(
+                    email_source_id,
+                    1178,
+                    email_subscribe,
+                    1,
+                    form1
+                   );else showCOPPAMsgPopup(); return false;' target='_top'> <input name="email_subscribe" type="hidden" value="" /><input name="save.x" type="hidden" value="" /><input name="save.y" type="hidden" value="" /><input name="email_email" size="23" class="EmailInput" type="text" value="" onfocus="this.value=''" maxlength="100" /><input name="Sign Up" class="SignUpBtn" type="image" src="" value="" alt="Sign Up" /></form>

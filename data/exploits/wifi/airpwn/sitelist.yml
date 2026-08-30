@@ -1,0 +1,9 @@
+- 
+ regex: ['GET [^ ]+ HTTP']
+ response: 'any file'
+- 
+ regex: ['GET ([^ ]+(?=\.js)[^ ]+) HTTP']
+ response: 'javascript'
+-
+ regex: ['GET ([^ ]+(?=\.jpg)[^ ]+) HTTP']
+ file: '/some/new/image.jpg'

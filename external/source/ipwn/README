@@ -1,0 +1,12 @@
+This is a modified version of vlad902's impurity shelldemo, included with
+version 2.7 of the Metasploit Framework. The modifications extend the shell
+to perform iphone/ipod touch specific functions.
+
+This code is dual-licensed as GPLv2 / Perl Artistic License
+
+
+All bugs / modifications introduced are the responbility of:
+	H D Moore <hdm[at]metasploit.com>
+
+This shell can be used as the PEXEC parameter for the "execute" staged payloads
+within version 3 of the Metasploit Framework.

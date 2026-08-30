@@ -1,0 +1,1 @@
+<form name='sf1' action='r/sx/*-http://search.yahoo.com/search'> <input name="ei" type="hidden" value="" /><input name="fr" type="hidden" value="" /><input name="cop" type="hidden" value="" /><input name="p" size="20" type="text" id="p" /><input type="image" src="" border="0" value="" alt="Web Search" /></form>

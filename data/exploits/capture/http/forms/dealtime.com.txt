@@ -1,0 +1,1 @@
+<form action='/xFS' id='frmGSRequest' method='get' onsubmit='return validateInput(this.KW);' target='_top'> <input name="KW" class="schInput2" type="text" id="searchTxtField" value="" /><input name="FN" type="hidden" value="" /><input class="vMid" type="image" src="" value="" alt="Go" /></form>

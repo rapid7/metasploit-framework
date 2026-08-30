@@ -1,0 +1,12 @@
+--- 
+dot5SrRouteEntry: 1.3.6.1.2.1.42.1.1.1
+dot5SrGroups: 1.3.6.1.2.1.42.2.1
+dot5SrCompliances: 1.3.6.1.2.1.42.2.2
+dot5SrMIBObjects: 1.3.6.1.2.1.42.1
+dot5SrConformance: 1.3.6.1.2.1.42.2
+dot5SrRouteTable: 1.3.6.1.2.1.42.1.1
+dot5SrRouteDestination: 1.3.6.1.2.1.42.1.1.1.2
+dot5SrRouteStatus: 1.3.6.1.2.1.42.1.1.1.5
+dot5SrRouteDescr: 1.3.6.1.2.1.42.1.1.1.4
+dot5SrMIB: 1.3.6.1.2.1.42
+dot5SrRouteControl: 1.3.6.1.2.1.42.1.1.1.3

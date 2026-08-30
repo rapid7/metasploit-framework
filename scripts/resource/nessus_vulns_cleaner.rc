@@ -1,0 +1,44 @@
+# nessus_cleaner.rc
+# Author: m-1-k-3 (Web: http://www.s3cur1ty.de / Twitter: @s3cur1ty_de)
+#
+# after importing the nesssus results, typically we have lots of mess in our vuln database
+# cause we dont use the vuln infos which just have a Nessus ID (NSS) we could clean them out
+# of our database
+
+<ruby>
+# having a counter is nice
+count = 0
+
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
+        verbose = 1
+else
+        verbose = 0
+end
+
+# Test and see if we have a database connected
+begin
+        framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+        print_error("Database connection isn't established")
+        return
+end
+
+
+if (framework.db.workspace.vulns.size > 0)
+	print_line("starting with #{framework.db.workspace.vulns.size} vulnerabilities")
+end
+
+framework.db.workspace.vulns.each do |vuln|
+	next if (vuln.refs.to_s !~ /NSS/)
+	next if (vuln.refs.size > 1)
+	if (verbose == 1)
+		print_line("#{vuln.refs.to_s}")
+		print_line("deleting Nessus stuff ...")
+	end
+	vuln.destroy
+	count = count +1
+end
+print_line("cleaned out #{count} vulnerabilities, results with #{framework.db.workspace.vulns.size} vulnerabilities")
+</ruby>
+

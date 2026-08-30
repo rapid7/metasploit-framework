@@ -1,0 +1,31 @@
+<xml>
+<msf_test>
+	<name>
+		example
+	</name>
+	<description>
+		This test will fail on upload, and should alert the user.
+	</description>
+	<commands>
+		use windows/iis/iis_webdav_upload_asp
+		set RHOST 127.0.0.1
+		set RPORT 54321
+		exploit
+		<ruby>
+			puts "werd!" ## prints to stdout :(
+		</ruby>
+		exit
+		exit
+	</commands>
+	<output>
+		<successes>
+			<success>Uploading</success>	
+			<success>Exploit exception: The connection was refused by the remote host</success>
+		</successes>
+		<failures>
+		</failures>
+		<failure_exceptions>
+			<failure_exception>Exploit exception: The connection was refused by the remote host</failure_exception>
+		</failure_exceptions>
+	</output>
+<msf_test>

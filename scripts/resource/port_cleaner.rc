@@ -1,0 +1,30 @@
+# portcleaner.rc
+# Author: m-1-k-3 (Web: http://www.s3cur1ty.de / Twitter: @s3cur1ty_de)
+
+# This Metasploit RC-File could be used to clean up your metasploit database from closed ports
+
+<ruby>
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
+counter = 0
+framework.db.hosts.each do |host|
+	host.services.each do |serv|
+		next if not serv.host
+		if (serv.state != Msf::ServiceState::Open)
+			print_line("cleaning closed services (Port: #{serv.port.to_i} / Host: #{host.address})")
+			run_single("services -d -p #{serv.port.to_i} -r #{serv.proto} #{host.address}")
+			counter = counter + 1
+			next
+		end
+	end
+end
+print_line("")
+print_line("cleaned #{counter} closed ports")
+print_line("")
+</ruby>

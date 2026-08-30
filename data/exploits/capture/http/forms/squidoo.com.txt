@@ -1,0 +1,1 @@
+<form name='searchForm' action='http://www.squidoo.com/search/results' method='post' onsubmit='return processSearch();'> <input name="query" class="searchField" type="text" id="query" value="" /></form>

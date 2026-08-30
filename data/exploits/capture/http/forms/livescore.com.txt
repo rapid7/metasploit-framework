@@ -1,0 +1,1 @@
+<form name='check' action='/default.dll?page=home' method='post'> <input name="sid" type="hidden" value="" /></form>

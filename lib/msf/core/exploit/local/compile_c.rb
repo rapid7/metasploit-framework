@@ -1,0 +1,20 @@
+# -*- coding: binary -*-
+
+module Msf
+module Exploit::Local::CompileC
+
+  attr_accessor :cpu
+  attr_accessor :cparser
+
+  def setup
+    super
+    init_metasm(Metasm::Ia32.new)
+  end
+
+  def init_metasm(cpu, cparser=nil)
+    @cpu = cpu
+    @cparser = cparser || @cpu.new_cparser
+  end
+
+end
+end

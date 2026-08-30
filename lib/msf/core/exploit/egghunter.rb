@@ -1,0 +1,69 @@
+# -*- coding: binary -*-
+
+require 'rex/exploitation/egghunter'
+
+module Msf
+
+###
+#
+# This mixin provides an interface to generating egghunters for various
+# platforms using the Rex::Exploitation::Egghunter class.
+#
+# Originally written by skape
+# BadChar support added by David Rude
+# Updated to take the payload and options by Joshua J. Drake
+#
+###
+module Exploit::Egghunter
+
+  #
+  # Creates an instance of an exploit that uses an Egghunter overwrite.
+  #
+  def initialize(info = {})
+    super
+  end
+
+
+  #
+  # Generates an egghunter stub based on the current target's architecture
+  # and operating system.
+  #
+  def generate_egghunter(payload, badchars = nil, opts = {})
+    # Prefer the target's platform/architecture information, but use
+    # the module's if no target specific information exists
+    los   = target_platform
+    larch = target_arch || ARCH_X86
+
+    # If we found a platform list, then take the first platform
+    los   = los.names[0] if (los.kind_of?(Msf::Module::PlatformList))
+
+    # Use the first architecture if one was specified
+    larch = larch[0] if (larch.kind_of?(Array))
+
+    if los.nil?
+      raise RuntimeError, "No platform restrictions were specified -- cannot select egghunter"
+    end
+
+    badchars ||= payload_badchars
+
+    egg   = Rex::Exploitation::Egghunter.new(los, larch)
+    bunny = egg.generate(payload, payload_badchars, opts)
+
+    if (bunny.nil?)
+      print_error("The egghunter could not be generated")
+      raise ArgumentError
+    end
+
+    return bunny
+  end
+
+  #
+  # Set the wfs_delay setting for all exploits using the Egghunter
+  #
+  def wfs_delay
+    30
+  end
+
+end
+
+end

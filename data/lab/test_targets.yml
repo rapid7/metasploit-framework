@@ -1,0 +1,19 @@
+ - vmid: metasploitable
+   driver: workstation
+   location: /opt/vm/lab/user/Metasploitable/Metasploitable.vmx
+   tools: false
+   credentials: 
+     - user: msfadmin
+       pass: msfadmin
+ - vmid: windows2000_target
+   driver: workstation
+   location: /opt/vm/lab/vuln/msf_Win2000SP4/Windows 2000 AS.vmx
+   tools: true
+   credentials: 
+ - vmid: windowsxp_target
+   driver: workstation
+   location: /opt/vm/lab/vuln/msf_WinXPSP1/Windows XP Professional.vmx
+   tools: true
+   credentials: 
+     - user: administrator
+       pass: administrator

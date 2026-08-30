@@ -1,0 +1,21 @@
+--- 
+circuitIfMIB: 1.3.6.1.2.1.94
+ciCircuitStorageType: 1.3.6.1.2.1.94.1.1.1.6
+ciCircuitCreateTime: 1.3.6.1.2.1.94.1.1.1.5
+ciCircuitObject: 1.3.6.1.2.1.94.1.1.1.1
+ciIfLastChange: 1.3.6.1.2.1.94.1.3
+ciIfNumActive: 1.3.6.1.2.1.94.1.4
+ciMIBCompliances: 1.3.6.1.2.1.94.3.2
+ciCircuitStatus: 1.3.6.1.2.1.94.1.1.1.3
+ciIfMapTable: 1.3.6.1.2.1.94.1.2
+ciIfMapEntry: 1.3.6.1.2.1.94.1.2.1
+ciCircuitTable: 1.3.6.1.2.1.94.1.1
+ciCircuitEntry: 1.3.6.1.2.1.94.1.1.1
+ciConformance: 1.3.6.1.2.1.94.3
+ciIfMapObject: 1.3.6.1.2.1.94.1.2.1.1
+ciObjects: 1.3.6.1.2.1.94.1
+ciCircuitIfIndex: 1.3.6.1.2.1.94.1.1.1.4
+ciIfMapFlow: 1.3.6.1.2.1.94.1.2.1.2
+ciMIBGroups: 1.3.6.1.2.1.94.3.1
+ciCircuitFlow: 1.3.6.1.2.1.94.1.1.1.2
+ciCapabilities: 1.3.6.1.2.1.94.2

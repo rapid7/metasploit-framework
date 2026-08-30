@@ -1,0 +1,1 @@
+<form class='form' action='http://adslcgi.free.fr/subscribe/00_choose_offre.pl' method='post'> <input name="tel" class="form-input" type="text" id="numero" maxlength="12" /><input class="form-button" type="submit" value="" /></form>

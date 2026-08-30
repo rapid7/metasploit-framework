@@ -1,0 +1,152 @@
+-----Ruby/SerialPort-----
+
+-- Description --
+
+Ruby/SerialPort is a Ruby library that provides a class for using
+RS-232 serial ports.  This class also contains low-level functions to
+check and set the current state of the signals on the line.
+
+The native Windows version of this library supports Microsoft's Visual C++
+and Borland's C++ compilers.
+
+-- Installation --
+
+$ ruby extconf.rb
+$ make
+$ make install
+
+
+-- Testing --
+
+* test/miniterm.rb
+
+Ruby's copy of miniterm.c !
+
+
+-- API --
+
+  **** Class SerialPort, Parent IO ****
+
+    ** Class constants **
+
+       VERSION -> aString (this release is "0.6")
+       NONE, HARD, SOFT, SPACE, MARK, EVEN, ODD -> anInteger
+
+    ** Class methods **
+
+      * new(port_num [, modem_parameters]) -> aSerialPort
+      * open(port_num [, modem_parameters]) -> aSerialPort
+      * open(port_num [, modem_parameters]) {|aSerialPort| block} -> nil
+
+        port_num -> anInteger: port number, 0 for first port which is
+                      "/dev/ttyS0" on GNU/Linux and "COM1" on Windows,
+                or  aString: file name of the device (example: "/dev/ttyS2")
+
+        Optional modem_parameters:
+
+        baudrate -> anInteger: from 50 to 256000, depends on platform.
+
+        databits -> anInteger: from 5 to 8 (4 is allowed on Windows)
+
+        stopbits -> anInteger: 1 or 2 (1.5 is not supported)
+
+        parity -> anInteger: SerialPort::NONE, SerialPort::EVEN,
+                  SerialPort::ODD, SerialPort::MARK, SerialPort::SPACE
+                  (MARK and SPACE are not supported on Posix)
+
+        Raise an argError on bad argument.
+
+        SerialPort.new and SerialPort.open without a block return an
+        instance of SerialPort.  SerialPort.open with a block passes
+        a SerialPort to the block and closes it when the block exits
+        (like File.open).
+
+
+    ** Instance methods **
+
+      * modem_params() -> aHash
+      * modem_params=(aHash) -> self
+      * get_modem_params() -> aHash
+      * set_modem_params(aHash) -> self
+      * set_modem_params(baudrate [, databits [, stopbits [, parity]]])
+
+        Get and set the modem parameters.  Hash keys are "baud", "data_bits",
+        "stop_bits", and "parity" (see above).
+
+        Parameters not present in the hash or set to nil remain unchanged.
+        Default parameter values for the set_modem_params method are:
+        databits = 8, stopbits = 1, parity = (databits == 8 ?
+        SerialPort::NONE : SerialPort::EVEN).
+
+      * baud() -> anInteger
+      * baud=(anInteger) -> self
+      * data_bits() -> 4, 5, 6, 7, or 8
+      * data_bits=(anInteger) -> self
+      * stop_bits() -> 1 or 2
+      * stop_bits=(anInteger) -> self
+      * parity() -> anInteger: SerialPort::NONE, SerialPort::EVEN,
+          SerialPort::ODD, SerialPort::MARK, or SerialPort::SPACE
+      * parity=(anInteger) -> self
+
+        Get and set the corresponding modem parameter.
+
+      * flow_control() -> anInteger
+      * flow_control=(anInteger) -> self
+
+        Get and set the flow control: SerialPort::NONE, SerialPort::HARD,
+        SerialPort::SOFT, or (SerialPort::HARD | SerialPort::SOFT).
+
+        Note: SerialPort::HARD mode is not supported on all platforms.
+        SerialPort::HARD uses RTS/CTS handshaking; DSR/DTR is not
+        supported.
+
+      * read_timeout() -> anInteger
+      * read_timeout=(anInteger) -> self
+      * write_timeout() -> anInteger
+      * write_timeout=(anInteger) -> self
+
+        Get and set timeout values (in milliseconds) for reading and writing.
+        A negative read timeout will return all the available data without
+        waiting, a zero read timeout will not return until at least one
+        byte is available, and a positive read timeout returns when the
+        requested number of bytes is available or the interval between the
+        arrival of two bytes exceeds the timeout value.
+
+        Note: Read timeouts don't mix well with multi-threading.
+
+        Note: Under Posix, write timeouts are not implemented.
+
+      * break(time) -> nil
+
+        Send a break for the given time.  
+
+        time -> anInteger: tenths-of-a-second for the break.
+        Note: Under Posix, this value is very approximate.
+
+      * signals() -> anHash
+
+        Return a hash with the state of each line status bit.  Keys are
+        "rts", "dtr", "cts", "dsr", "dcd", and "ri".
+
+        Note: Under Windows, the rts and dtr values are not included.
+
+      * rts()
+      * dtr()
+      * cts()
+      * dsr()
+      * dcd()
+      * ri() -> 0 or 1
+
+      * rts=(0 or 1)
+      * dtr=(0 or 1) -> self
+
+        Get and set the corresponding line status bit.
+
+        Note: Under Windows, rts() and dtr() are not implemented.
+
+-- License --
+
+GPL
+
+Guillaume Pierronnet <moumar@netcourrier.com>
+Alan Stern <stern@rowland.harvard.edu>

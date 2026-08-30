@@ -1,0 +1,18 @@
+development: &pgsql
+  adapter: postgresql
+  database: msf_dev_db
+  username: vagrant
+  password: vagrant
+  host: localhost
+  port: 5432
+  pool: 200
+  timeout: 5
+
+production: &production
+  <<: *pgsql
+
+test:
+  <<: *pgsql
+  database: msf_test_db
+  username: vagrant
+  wassword: vagrant

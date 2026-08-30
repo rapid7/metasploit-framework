@@ -1,0 +1,18 @@
+This directory contains the win32 payload development environment used
+for creating the payloads in version 3 of the Metasploit Framework.
+
+The 'nasm' executable must be in your path to use the included build.sh tool.
+
+The included 'build' script automatically creates a number of file types
+each time it used to compile a payload. These file types are:
+
+    - Native ELF executable
+    - Win32 PE executable
+    - Generated C source code
+    - Raw opcodes in ".bin" format
+
+The PE executable templates were developed by 'rix' and used with permission.
+
+To use this script, simply run ./build.sh <name of payload>, where the name
+does not include the ".asm" suffix. To build win32_stage_api.asm, the 
+command line would be "./build.sh win32_stage_api". 

@@ -1,0 +1,5 @@
+dn: CN=Computer,CN=Schema,CN=Configuration,DC=ldap,DC=example,DC=com
+changetype: modify
+add: mayContain
+mayContain: ms-Mcs-AdmPwd
+mayContain: msLAPS-Password

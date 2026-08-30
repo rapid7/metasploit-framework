@@ -1,0 +1,1 @@
+<form name='search_form' action='/search' method='get' onsubmit='return formcheck();'> <input name="q" class="text" type="text" id="search-terms" value="" maxlength="256" /><input class="image" type="image" src="" alt="Search" /></form>

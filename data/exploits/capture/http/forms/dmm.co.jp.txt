@@ -1,0 +1,1 @@
+<form class='header-login right' action='https://www.dmm.com/my/=/path=SgheXQNOT1pMCF0_' method='get' target='_top'> <input name="image" class="middle" type="image" src="" alt="ログイン" /></form>

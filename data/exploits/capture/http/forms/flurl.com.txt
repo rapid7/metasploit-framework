@@ -1,0 +1,1 @@
+<form name='search_form' action='search' id='f' method='get' style='display:inline'> </form>

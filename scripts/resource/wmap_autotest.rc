@@ -1,0 +1,85 @@
+# wmap-autoscan.rc
+# Author: m-1-k-3 (Web: http://www.s3cur1ty.de / Twitter: @s3cur1ty_de)
+
+# This Metasploit RC-File could be used to analyse webapps automatically
+# first you should use the crawler module or autocrawler resource file
+# for learning the application
+
+<ruby>
+if (framework.datastore['WMAP_PROFILE'] == nil)
+	profile = nil
+elsif (framework.datastore['WMAP_PROFILE'] == "profile")
+	#default profile of the metasploit installation
+	profile = "#{Msf::Config.install_root}/data/wmap/wmap_sample_profile.txt"
+else
+	#we are able to define an other file as the profile file, for example we are able to
+	#define a file in our .msf4 directory which we use for our webaudits
+	profile = framework.datastore['WMAP_PROFILE']
+end
+
+#default to 50 Threads
+if (framework.datastore['THREADS'] == nil)
+        run_single("setg THREADS 50")
+end
+
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
+	verbose = 1
+else
+	verbose = 0
+end
+
+if (framework.plugins.to_s =~ /[Ww]map/)
+	print_line("Wmap plugin already loaded ...")
+else
+	print_line("Loading the wmap plugin ...")
+	run_single("load wmap")
+end
+
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
+framework.db.hosts.each do |host|
+	host.services.each do |serv|
+		next if not serv.host
+		next if (serv.state != Msf::ServiceState::Open)
+		next if (serv.name !~ /http/)
+
+		if(verbose == 1)
+			print_line("")
+			print_line("====================================")
+			print_line("IP #{host.address}")
+			print_line("OS #{host.os_name}")
+			print_line("Servicename #{serv.name}")
+			print_line("Service Port #{serv.port.to_i}")
+			print_line("Service Protocol #{serv.proto}")
+			print_line("====================================")
+			print_line("")
+		end
+		print_line("available sites:")
+		run_single("wmap_sites -l")
+		print_line("site which will get analyzed:")
+		run_single("wmap_sites -s #{host.address}:#{serv.port}")
+		run_single("wmap_targets -t #{host.address}:#{serv.port}")
+		serv.web_sites.each do |site|
+			run_single("wmap_targets -t #{site.vhost},#{host.address}:#{serv.port}")
+		end
+		print_line("defined target:")
+		run_single("wmap_targets -l")
+		if(profile != nil)
+			run_single("wmap_run -e #{profile}")
+		else
+			run_single("wmap_run -e")
+		end
+		run_single("wmap_targets -c")
+		print_line("")
+		print_line("Finished analysing the webserver on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
+		print_line("")
+	end
+end
+</ruby>

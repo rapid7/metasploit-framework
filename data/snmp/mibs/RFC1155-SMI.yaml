@@ -1,0 +1,9 @@
+--- 
+mgmt: 1.3.6.1.2
+directory: 1.3.6.1.1
+dod: 1.3.6
+private: 1.3.6.1.4
+org: "1.3"
+internet: 1.3.6.1
+enterprises: 1.3.6.1.4.1
+experimental: 1.3.6.1.3

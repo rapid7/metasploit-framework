@@ -1,0 +1,11 @@
+--- 
+snmpUnknownSecurityModels: 1.3.6.1.6.3.11.2.1.1
+snmpInvalidMsgs: 1.3.6.1.6.3.11.2.1.2
+snmpMPDAdmin: 1.3.6.1.6.3.11.1
+snmpUnknownPDUHandlers: 1.3.6.1.6.3.11.2.1.3
+snmpMPDMIBCompliances: 1.3.6.1.6.3.11.3.1
+snmpMPDMIBGroups: 1.3.6.1.6.3.11.3.2
+snmpMPDMIB: 1.3.6.1.6.3.11
+snmpMPDMIBConformance: 1.3.6.1.6.3.11.3
+snmpMPDMIBObjects: 1.3.6.1.6.3.11.2
+snmpMPDStats: 1.3.6.1.6.3.11.2.1

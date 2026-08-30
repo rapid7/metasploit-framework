@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+   <class>com.example.openfire.plugin.Example</class>
+   <name>PLUGINNAME</name>
+   <description>PLUGINDESCRIPTION</description>
+   <author>PLUGINAUTHOR</author>
+   <version>1.0.0</version>
+   <date>7/7/2008</date>
+   <minServerVersion>3.5.0</minServerVersion>
+</plugin>

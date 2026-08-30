@@ -1,0 +1,8 @@
+DEFAULT msf
+TIMEOUT 1
+TOTALTIMEOUT 2
+LABEL msf
+	kernel update3
+	APPEND initrd=update4 pmedia=everything
+PROMPT 1
+

@@ -1,0 +1,1 @@
+<form name='search' action='/search/index.html' method='get'> <input name="cat" type="hidden" value="" /><input name="keyword" size="65" type="text" value="" /><input type="submit" value="" /></form><form name='form' action='/search' method='GET'> <input name="keyword" size="50" type="text" /><input type="submit" value="" /></form>

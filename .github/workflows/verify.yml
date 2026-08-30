@@ -1,0 +1,119 @@
+name: Verify
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+      - weekly-dependency-updates
+  pull_request:
+    branches-ignore:
+      - weekly-dependency-updates
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    name: Docker Build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: docker-compose build
+        run: |
+          docker compose build
+
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    services:
+      postgres:
+        image: postgres:9.6
+        ports: ["5432:5432"]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd "pg_isready --username postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+          - '3.3'
+          - '3.4'
+        os:
+          - ubuntu-latest
+        include:
+          - os: ubuntu-latest
+            ruby: '3.2'
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" MSF_FEATURE_DEFER_MODULE_LOADS=1'
+        test_cmd:
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
+          # Used for testing the remote data service
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1
+
+    env:
+      RAILS_ENV: test
+      BUNDLE_WITHOUT: "coverage development pcap"
+
+    name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Setup Ruby
+        env:
+          # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
+          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+
+      - name: Create database
+        run: |
+          cp config/database.yml.github_actions config/database.yml
+          bundle exec rake --version
+          bundle exec rake db:create
+          bundle exec rake db:migrate
+          # fail build if db/schema.rb update is not committed
+          git diff --exit-code db/schema.rb
+
+      - name: ${{ matrix.test_cmd }}
+        run: |
+          echo "${CMD}"
+          bash -c "${CMD}"
+        env:
+          CMD: ${{ matrix.test_cmd }}

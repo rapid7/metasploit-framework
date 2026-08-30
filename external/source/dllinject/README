@@ -1,0 +1,3 @@
+This is the in-memory DLL injection system developed by Jarkko Turkulainen
+and Matt Miller. The payload included with the Metasploit Framework is simply
+the output of libloader.c (it sends a chunk of itself over as the payload).

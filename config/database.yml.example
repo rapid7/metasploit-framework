@@ -1,0 +1,32 @@
+# To set up a metasploit database, follow the directions hosted at:
+# http://r-7.co/MSF-DEV#set-up-postgresql
+#
+# Kali Linux and the Omnibus installers both include an easy wrapper script for
+# managing your database, which may be more convenient than rolling your own.
+
+development: &pgsql
+  adapter: postgresql
+  database: metasploit_framework_development
+  username: metasploit_framework_development
+  password: __________________________________
+  host: localhost
+  port: 5432
+  pool: 200
+  timeout: 5
+
+# You will often want to seperate your databases between dev
+# mode and prod mode. Absent a production db, though, defaulting
+# to dev is pretty sensible for many developer-users.
+production: &production
+  <<: *pgsql
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+#
+# Note also, sqlite3 is totally unsupported by Metasploit now.
+test:
+  <<: *pgsql
+  database: metasploit_framework_test
+  username: metasploit_framework_test
+  password: ___________________________

@@ -1,0 +1,1 @@
+<form name='f' action='http://find.2ch.net/' method='GET'> <input name="STR" size="22" value="" /><input type="submit" value="" style="font-size:90%;padding:1px;" /><input name="BBS" type="hidden" value="" /><input name="ENCODING" type="hidden" value="" /><input name="COUNT" type="hidden" value="" /></form>

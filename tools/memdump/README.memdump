@@ -1,0 +1,5 @@
+This is the README file for memdump.exe. Memdump was written by
+Matt Miller <mmiller[at]hick.org> and is used to dump the entire
+memory of a running process. The directory created by memdump
+can be used with msfpescan to quickly find viable instructions
+and return addresses.

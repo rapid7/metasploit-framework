@@ -1,0 +1,56 @@
+diff -bur threadexec-orig/src/thread_call.c threadexec/src/thread_call.c
+--- threadexec-orig/src/thread_call.c	2020-03-13 21:38:03.000000000 -0400
++++ threadexec/src/thread_call.c	2020-03-13 20:16:57.000000000 -0400
+@@ -17,6 +17,7 @@
+ #if __arm64__
+ 	impl = thread_save_state_arm64;
+ #endif
++	return NULL;
+ 	if (impl == NULL) {
+ 		DEBUG_TRACE(1, "%s: No implementation available for this platform", __func__);
+ 		return false;
+@@ -31,6 +32,7 @@
+ #if __arm64__
+ 	impl = thread_restore_state_arm64;
+ #endif
++	return NULL;
+ 	if (impl == NULL) {
+ 		DEBUG_TRACE(1, "%s: No implementation available for this platform", __func__);
+ 		return false;
+diff -bur threadexec-orig/src/threadexec_call.c threadexec/src/threadexec_call.c
+--- threadexec-orig/src/threadexec_call.c	2020-03-13 21:38:03.000000000 -0400
++++ threadexec/src/threadexec_call.c	2020-03-13 20:16:57.000000000 -0400
+@@ -4,6 +4,7 @@
+ #include "tx_log.h"
+ 
+ #include <assert.h>
++#include <stdio.h>
+ 
+ bool
+ threadexec_call_fast(threadexec_t threadexec, void *result, size_t result_size,
+@@ -57,6 +58,7 @@
+ 	size_t shmem_position = 0;
+ 	for (size_t i = 0; i < argument_count; i++) {
+ 		enum threadexec_value_disposition disposition = arguments[i].disposition;
++		printf("%d\n", disposition);
+ 		switch (disposition) {
+ 			case TX_DISPOSITION_LITERAL:
+ 				literal_arguments[i].value = arguments[i].value;
+diff -bur threadexec-orig/src/tx_call.c threadexec/src/tx_call.c
+--- threadexec-orig/src/tx_call.c	2020-03-13 21:38:03.000000000 -0400
++++ threadexec/src/tx_call.c	2020-03-13 20:16:57.000000000 -0400
+@@ -10,10 +10,10 @@
+ tx_preserve(threadexec_t threadexec) {
+ 	assert(threadexec->preserve_state == NULL && threadexec->thread != MACH_PORT_NULL);
+ 	const void *state = thread_save_state(threadexec->thread);
+-	if (state == NULL) {
+-		ERROR("Could not preserve thread 0x%x", threadexec->thread);
+-		return false;
+-	}
++	// if (state == NULL) {
++	// 	ERROR("Could not preserve thread 0x%x", threadexec->thread);
++	// 	return false;
++	// }
+ 	threadexec->preserve_state = state;
+ 	return true;
+ }

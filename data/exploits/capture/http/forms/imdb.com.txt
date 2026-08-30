@@ -1,0 +1,1 @@
+<form name='find' action='/find' method='get'> <input name="q" size="28" value="" /><input title="go" type="image" src="" id="nb15go_image" value="" alt="go" /></form><form> </form>

@@ -1,0 +1,73 @@
+# -*- coding: binary -*-
+
+module Msf
+
+###
+#
+# This module provides some functions for dealing with MCI RIFF data
+#
+###
+
+module Exploit::RIFF
+
+  #
+  # Builds a RIFF chunk with a specified tag and data
+  #
+  def riff_chunk(tag, data)
+
+    len = data.length
+    padding = len % 2   # RIFF chunks must be 2 byte aligned
+
+    return tag + [len].pack('V') + data + ("\x00" * padding)
+  end
+
+  #
+  # Builds a RIFF list chunk (one containing other chunks)
+  #
+  def riff_list_chunk(tag, type, data)
+
+    len = data.length + 4
+    padding = len % 2
+
+    return tag + [len].pack('V') + type + data
+  end
+
+  #
+  # Generates a random number of random RIFF chunks, up to 4352 bytes
+  #
+  def random_riff_chunks(count = rand(16) + 17)
+    chunks = ''
+
+    0.upto(count) do
+    chunks << random_riff_chunk()
+    end
+
+    return chunks
+  end
+
+  #
+  # Generates a random RIFF chunk, up to 136 bytes
+  #
+  def random_riff_chunk(len = rand(128) + 1)
+    riff_chunk(random_riff_tag, rand_text(len))
+  end
+
+
+  #
+  # Generates a random RIFF tag, making sure that it's not one of the
+  # tags processed by LoadAniIcon or LoadCursorIconFromFileMap
+  #
+  def random_riff_tag
+    valid = ['RIFF', 'ACON', 'anih', 'LIST', 'fram', 'icon', 'rate']
+
+    tag = nil
+    begin
+    tag = rand_text_alpha(4)
+    end while valid.include? tag
+
+    return tag
+  end
+
+end
+
+end

@@ -1,0 +1,1 @@
+<form name='ageverify' action='index.php?' method='post'> <input name="submit" type="submit" value="" style="font-size: 1.5em;background-color: #fff;border: 1px solid #fb9b03;color: #fb9b03;" /><input name="verifyAge" type="hidden" id="verifyAge" value="" /></form>

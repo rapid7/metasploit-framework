@@ -1,0 +1,1017 @@
++--------------------------------------------------------------------+
+|   This is a brief summary of changes introduced in each TightVNC   |
+|   release. For more details, please see ChangeLog files included   |
+|   in TightVNC source and binary archives.                          |
++--------------------------------------------------------------------+
+
+* TightVNC 1.3.10
+
+  - Windows Server: Impersonating currently logged on user while
+    processing file transfer requests. Disabling file transfers if
+    current user is unknown or nobody is logged in.
+
+  - Windows Server: Fixed rendering problems when multiple CopyRects
+    were combined with normal updates. That could caused distortions
+    that never updated even with full-screen polling active.
+
+  - Windows Server: Added new "-silent" command-line option which
+    modifies the behavior of -install, -reinstall and -remove options
+    and makes them not show informational windows on successful
+    execution. Note that -silent should precede other respective
+    options in the command line.
+
+  - Windows Server: LastRect, XCursor and RichCursor pseudo-encodings
+    were not properly enabled if they preceded true encodings in the
+    SetEncodings protocol message.
+
+  - Windows Viewer: Fixed integer overflow vulnerabilities reported
+    by Core Security Technologies. A specially modified VNC server
+    could currupt the heap of the connected viewer causing its crash
+    or malfunction.
+
+  - Windows Viewer: TightVNC Viewer version 1.3.9 saved only
+    successful connections in the list of recently visited VNC
+    servers. Now we save unsuccessful connections too so that users
+    would not ever have to re-type server names after connection
+    failures. Also, several other enhancements were made to the code
+    which handles the list of recent connections.
+
+  - Windows Viewer: Fixed a bug with not loading passwords from saved
+    .vnc files correctly if the first byte of their encrypted
+    representation was zero.
+
+  - Windows Viewer: Fixed problems under Windows Vista where Windows
+    taskbar could remain visible above the full-screen window.
+
+  - Windows Viewer: Fixed a problem with decoding JPEG rectangles
+    wider than 2048 pixels.
+
+  - Windows Viewer: Fixed a bug with not saving log file name
+    correctly on using the Browse button.
+
+  - Windows Viewer: Usability improvements in the "New Connection"
+    dialog. 
+
+  - Windows Packaging: Improved installer and uninstall utility.
+    In this version, self-installing executable will not try to
+    install service in Windows Vista. Improved uninstall program
+    always removes the WinVNC service if it was previously installed.
+
+  - Unix Server: Applied fixes for 64-bit Linux issues, a patch from
+    Russel Miranda.
+
+  - Unix Server: Made the vncserver script read configuration from
+    files (system-wide /etc/tightvncserver.conf and user-specific
+    $HOME/.vnc/tightvncserver.conf).
+
+  - All viewers: Allow configuring JPEG quality level regardless of
+    the preferred encoding set. This makes sense because TightVNC
+    Servers can transmit video data as JPEG even if Tight is not the
+    preferred encoding.
+ 
+  - Java viewer: Fixed a bug that caused NullPointerException when
+    connecting to any VNC server not supporting TightVNC protocol
+    extensions.
+
+  - Java viewer: Fixed a bug with ignoreCursorUpdates option in 24-bit
+    color mode caused the viewer to disconnect. Thanks to Damien
+    Mascre for pointing out the issue.
+
+  - Java viewer: PORT parameter is not required any more, now it
+    defaults to 5900.
+
+  - Java viewer: Do not defer update requests by default, to minimize
+    delays in screen updates.
+
+  - Java viewer: Improvements in reporting statistics on disconnect.
+
+  - Java viewer: Added debugging parameters (DEBUG_XU, DEBUG_CU) that
+    allow using the viewer as a tool for measuring VNC server
+    performance.
+
+  - Other minor improvements and bugfixes.
+
+* TightVNC 1.3.9
+
+  - All platforms: Added support for the standard RFB protocol version
+    3.8 with TightVNC extensions.
+
+  - All platforms: Made "host:port" parsing maximally compatible with
+    VNC4. Interpreting a number in host names like somehost:5900 as an
+    actual port number if it's not in the range [0..99].
+
+  - Windows Server: Various user interface enhancements - changes in
+    GUI labels, tray icon with a red border when incoming connections
+    are not possible for any reason, more information in the tray icon
+    tip, smarter logic in displaying the Properties dialog, and more.
+ 
+  - Windows Server: Fixed a problem introduced in TightVNC 1.3.8 -
+    default passwords were not respected if user passwords were not
+    set.
+
+  - Windows Server: Slightly improved handling of passwords. One of
+    the notable changes is that now it's enough to enter a view-only
+    password without providing primary password.
+
+  - Windows Server: Fixed problems with running WinVNC service and
+    Terminal Services. When a Remote Desktop (RDP) client connected to
+    the console, WinVNC showed black screen and did not restore normal
+    operations even on disconnection of that RDP client. Now, we
+    always share the console correctly, and disable simultaneous RDP
+    and VNC sessions. The changes were ported from VNC 4.1.2.
+
+  - Windows Server: Better way of simulating Ctrl+Alt+Del. There are
+    reports that this solves the problem with greyed username and
+    password fields on Windows 2003 Server (bug #887617).
+
+  - Windows Server: Bugfix for the bug #1109102: attempt to restart
+    the machine remotely via TightVNC led to disconnect if there was
+    some non-saved data, and further connections were rejected.
+
+  - Windows Viewer: Multiple selection now works in file transfers,
+    thanks to developers at Novell and personally Rohit Kumar.
+
+  - Windows Viewer: The viewer terminated silently when the server
+    dropped connection right after accepting it. Now we report such
+    errors.
+
+  - Windows version source archive: Included project files for
+    compiling with Visual C++ 2005 Express Edition. Also, all required
+    libraries are now included within the source distribution.
+
+  - Unix Server: Applied patches from Debian Linux that port Xvnc to
+    x86_64 platform (tightvnc-1.2.9-amd64support.p and
+    tightvnc-1.3_alpha7-x86_64.patch), thanks to Quanah Gibson-Mount.
+
+  - Java viewer: Implemented scaling, either with a fixed scaling
+    factor or automatic. If Java 2D API is available (Java 1.2 and
+    higher), then high-quality scaling is used. From the other side,
+    the viewer remains compatible with Java 1.1 where it would simply
+    use scaling with much decreased image quality. Scaling can be
+    enabled with new "Scaling Factor" parameter but cannot be
+    controlled from the GUI yet.
+
+  - Java viewer: Added support for ZRLE encoding.
+
+  - Java viewer: Disabled focus traversal keys under JVMs 1.4 and
+    higher. This fixes the problem with not sending Tab key events to
+    the VNC server.
+
+  - Java viewer: Fixed wrong pixel format interpretation at decoding
+    RichCursor pseudo-encoding (local cursor could be rendered in
+    wrong colors).
+
+  - Other improvements and bugfixes, see ChangeLog files within the
+    distribution for more details.
+
+* TightVNC 1.3.8, release candidate version
+
+  - Win32 server: Fixed major problem with disconnecting clients on
+    screen locking, user logoff and logon, in the service mode.
+
+  - Win32 server: Added support for DFMirage driver direct screen
+    access mode (from DemoForge LLC).
+
+  - Win32 server: Added support for multiple monitors (from DemoForge
+    LLC).
+
+  - Win32 server: Improved layout and functionality of the Properties
+    dialog.
+
+  - Win32 server: More accurate password handling - now the server
+    code tries to distinguish between "empty" and "unset" passwords
+    better.
+
+  - Win32 server: New -shareall, -shareprimary and -sharearea
+    command-line options, working similarly to the -sharewindow
+    option.
+
+  - Win32 server: Fixed problems with restoring desktop wallpaper.
+
+  - Win32 viewer: Fixed bug with not enabling JPEG compression by
+    default.
+
+  - Win32 viewer: Fixed bug with not setting proper size of the viewer
+    window.
+
+  - Unix server: Port numbers are now calculated modulo 65536 with
+    vncviewer's -listen option. That makes it possible to listen on
+    TCP ports under 5900.
+
+  - Java viewer: Automatic encoding selection based on measuring
+    current network throughput.
+
+  - Other improvements and bugfixes, see ChangeLog files within the
+    distribution for more details.
+
+* TightVNC 1.3dev7, release candidate version
+
+  - Win32 server: Fixed the problem with "olemainthreadwndname not
+    responding" in service mode under Windows NT 4.0. Under that OS,
+    the TightVNC service could hang on logoff.
+
+  - Win32 server: Removed the code for "desktop optimizations" that
+    was rather harmful than useful. Hopefully, this should fix
+    problems with crashing Delphi applications. Also this should
+    prevent settings like font smoothing always set to true on
+    disconnect.
+
+  - Win32 server: Fixed the issue with port number edit boxes that
+    were labeled incorrectly in the Properties dialog.
+
+  - Win32 server: Disallowing clipboard transfers in view-only mode.
+
+  - Win32 server: Fixed the problem with carriage return/linefeed
+    conversion of clipboard data.
+
+  - Win32 server: Fixed the problem with wallpaper being removed only
+    after completing the initial screen transmission.
+
+  - Win32 server: Minor improvements in the File Transfers dialog.
+
+  - Win32 server: More context help messages in Properties and File
+    Transfers dialogs.
+
+  - Unix server: Fixed a serious bug with sending cursor updates when
+    there was no FrameBufferUpdateRequest from that client.
+
+  - Unix server: Fixed problems with building Xvnc on modern linux
+    distributions, such as Fedora Core 3.
+
+  - Unix server: Disallowing clipboard transfers for view-only
+    clients.
+
+  - Other improvements and bugfixes, see ChangeLog files within the
+    distribution for more details.
+
+* TightVNC 1.3dev6, Win32 release candidate version
+
+  - Win32 server: Improved layout of the Properties dialog, added
+    context help for every option. Also, current mirror driver status
+    is shown in the Hooks tab.
+
+  - Win32 server: Implemented new checkbox "Enable applet params in
+    URLs" corresponding to EnableURLParams registry setting.
+
+  - Win32 server: The option "Don't use mirror display driver even if
+    available" is now functional.
+
+  - Win32 server: New option "Blank screen on client connections". 
+    When set and new client connects, the server's monitor is forced
+    to go to power saving mode.
+
+  - Win32 server: Fixed bugs with saving certain settings in the
+    registry, and bugs with setting default values when the registry
+    is not writable.
+
+  - Win32 server: Fixed a problem with one-pixel mouse offset.
+
+  - Win32 server: Fixed problems with inter-thread locking, this
+    should solve "Unhandled message type received" problems.
+
+  - Win32 server: Fixed a problem with the setting "Block remote input
+    on local activity", it was not working with DLL hooks disabled.
+
+  - Win32 server: Fixed various problems with file transfer
+    implementation. Error handling was improved, the C: drive bug
+    under Win98/Me seems to be solved.
+
+  - Win32 viewer: New "Auto" scaling mode. In this mode, the viewer
+    scales remote desktop to fit local window or screen size. If the
+    window size is changed, the scaling factor is adjusted
+    automatically.
+
+  - Win32 viewer: Now the viewer checks server's capabilities and does
+    not ever use non-standard protocol messages not supported by the
+    server. This change affects file transfers only, as other features
+    do not use non-standard protocol messages..
+
+  - Java viewer: New "scale remote cursor" option has been added. It
+    allows to reduce or enlarge cursor image in the full-control mode.
+
+  - Java viewer: A cursor repaint problem has been fixed.
+
+  - Other improvements and bugfixes, see ChangeLog files within the
+    distribution for more details.
+
+* TightVNC 1.3dev5, development version
+
+  - Win32 server: Support for the "DFMirage" mirror video driver has
+    been added (the driver itself will be available separately). Using
+    the mirror driver greatly increases the speed and reliability of
+    updates, and also desreases CPU utilization on the server.
+
+  - Win32 server: New polling algorithm has been implemented. It's
+    similar to that found in x0rfbserver. New algorithm uses minimum
+    CPU time when there are no changes on the screen, and detects
+    major changes very quickly, resulting in greatly improved
+    responsiveness on the client side.
+
+  - Win32 server: Improved methods for filtering screen changes that
+    actually do not change anything. New algorithm not only works
+    faster, but it also detects changes much more accurately, leaving
+    less work to encoders.
+
+  - Win32 viewer: A special mode for Unix users has been implemented:
+    when ScrollLock is on, the viewer will send Meta on pressing Alt
+    keys.
+
+  - Win32 server: Fixed a problem with view-only clients that were
+    enabled full control on just opening the Properties dialog of the
+    server.
+
+  - Win32 server: It should not ever hang any more on changing ports
+    or the LoopbackOnly setting.
+
+  - Win32 server: DisableTrayIcon and RemoveWallpaper settings are
+    working again.
+
+  - Win32 server: The problem with not saving Query Settings has been
+    fixed.
+
+  - Win32 server: The polling mode "on event received only" has been
+    fixed - it did not work correctly in previous version.
+
+  - Win32 server: Fixed a number of issues with mouse handling,
+    including that annoying problem with pointer jumping on slow
+    connections.
+
+  - Win32 server: Applied a bugfix from HorizonLive solving the
+    problem with crashes or incorrect operation after color depth
+    changes on the server's desktop.
+
+  - Win32 viewer: It does not crash any more on entering long
+    passwords in the authentication window.
+
+  - Win32 viewer: Positioning and resizing logic of the viewer window
+    has been improved.
+
+  - Win32 viewer: Now the viewer chooses more reasonable file names
+    for saved .vnc sessions.
+
+  - Win32 viewer: In the full-screen mode, the viewer allows other
+    windows to be shown above the remote desktop. This makes hotkeys
+    such as Shift-Ctrl-Alt-O useful in the full-screen mode.
+
+  - Unix version: A number of bugfixes -- copying clipboard to
+    non-authenticated clients in Xvnc, delayed cursor shape updates in
+    Xvnc, and crashing on switching between KDE virtual desktops in
+    vncviewer.
+
+  - Unix viewer: Support for the new -autopass option has been added,
+    a patch from Ki NETWORKS, Inc.
+
+  - Other changes, see ChangeLog files within the distribution for
+    more details.
+
+* TightVNC 1.3dev4, development version
+
+  - Featuring updated Unix version and Java viewer, supporting RFB
+    protocol version 3.7, with or without TightVNC protocol
+    extensions. Version 3.3 of the protocol is supported as well.
+
+  - Win32 version: Built-in Java viewer was absent in the previous
+    development version; now it's available again.
+
+  - Win32 version: Now the server does not crash on remote
+    Ctrl-Alt-Del events, and on changing display modes.
+
+  - Win32 version: A problem with reinstalling the service has been
+    fixed (WinVNC -reinstall command-line option). In previous
+    versions, reinstalling the service could fail if a user did not
+    close "Service unregistered" message box within a few seconds.
+
+  - Win32 version: Now the server does not hang on selecting equal RFB
+    and HTTP port numbers. A warning is shown instead.
+
+  - Win32 version: The server does not hang on toggling loopback
+    connection options, and on changing port/display numbers.
+
+  - Win32 version: WinVNC does not crash on choosing "Kill All
+    Clients" during file download.
+
+  - Win32 version: CopyRect handling in the server has been fixed, the
+    CopyRect encoding is enabled again.
+
+  - Win32 version: The Advanced Properties dialog of the server has
+    been removed. The controls of that dialog has been moved to tabs
+    in the Properties dialog.
+
+  - Win32 version: Context help in the server's Properties dialog has
+    been implemented (although not all descriptions are ready yet).
+
+  - Unix viewer: Fixed a bug with the viewer crashing on selecting
+    text in Xvnc, and then choosing F8 / Clipboard: local -> remote,
+    twice.
+
+  - There was some progress on supporting pluggable encryption and
+    authentication methods, in both Win32 and Unix versions, and in
+    the Java viewer.
+
+  - Other changes, see ChangeLog files within the distribution for
+    more details.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.3dev3, Win32 development (unstable) version
+
+  - All features and fixes from 1.2.9 and 1.3dev1 versions included.
+
+  - Improved GUI of the viewer featuring toolbar, hotkeys, pre-set
+    connection profiles, more configuration options, context help in
+    dialogs, and more. Finally, the viewer remembers all
+    per-connection and global settings in the registry.
+
+  - File transfers between viewer and server machines.
+
+  - Support for RFB protocol version 3.7, with TightVNC extensions.
+
+  - A possibility to turn off hooking via VNCHooks.dll in WinVNC while
+    full screen polling is in use.
+
+  - Other changes, see ChangeLog files within the distribution for
+    more details.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.9
+
+  - Win32 version: Major security-related bug in the server has been
+    fixed -- handling of the "QueryAllowNoPass" option was seriously
+    broken. Together with fixing this bug, the whole authentication
+    logic in the server code has been redesigned.
+
+  - Win32 version: Now the HKEY_CURRENT_USER registry hive is being
+    closed properly on restoring display settings, on disconnect. This
+    change should solve the problem with unloading the registry on
+    logout, when WinVNC is running as a service.
+
+  - Win32 version: Problems with "QuerySetting" and "QueryTimeout"
+    options have been fixed -- the settings could be copied from user
+    configuration to default settings without user's intention.
+
+  - Win32 version: A long-standing bug has been fixed -- the logic to
+    handle retries after authentication failures was flawed, and used
+    to delete the same object twice under certain conditions.
+
+  - Win32 version: Now it's possible to specify port numbers with the
+    winvnc -connect option, using the "host::port" format. Also,
+    providing a -connect option without arguments now brings up the
+    "Add New Client" dialog.
+
+  - Unix version: New "Request refresh" button has been implemented in
+    the viewer's F8 popup menu.
+
+  - Unix version: Xvnc compilation fixes for HP-UX and MacOS X have
+    been applied, from Ki NETWORKS, Inc.
+
+  - Unix version: New vncpasswd -f command-line option has been
+    implemented. It allows providing passwords on stdin and writes
+    encrypted passwords to stdout. In addition, the password file name
+    "-" now denotes stdout. Finally, a buffer overflow has been fixed
+    in vncpasswd -- it could be caused by a long file name in the
+    command line.
+
+  - Unix version: A patch to fix input focus problems in the X11
+    viewer has been applied, from Greg Breland.
+
+  - Unix version: A patch fixing Xvnc crashes on Sparc has been
+    applied, from the RealVNC distribution.
+
+  - Unix version: A problem with incorrect port interpretation has
+    been fixed, in the vncviewer's -tunnel option handling. Thanks to
+    Clark Sessions.
+
+  - Java viewer: A modification from Bernd Krueger-Knauber has been
+    accepted, to pass through X keysyms for foreign currencies.
+
+  - Java viewer: The problem with initial keyboard focus not set to
+    the desktop on some JVMs has been fixed.
+
+  - Other minor improvements and bugfixes.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.8
+
+  - Unix and Win32 versions: Support for a separate view-only password
+    has been implemented. Now the servers support two passwords -- one
+    to allow full control, another to restrict remote keyboard and
+    mouse input.
+
+  - Win32 version: The password reset problem has been solved. In
+    versions starting from 1.2.4, the password could get changed in
+    the registry on opening Properties dialog and just hitting the OK
+    button.
+
+  - Win32 version: New "-reload" command-line option has been
+    implemented in Win32 server. It forces the running instance to
+    reload the registry settings.
+
+  - Win32 version: "RemoveWallpaper" and "LockSetting" options have
+    been made configurable in the Properties dialog; the code has been
+    ported from RealVNC 3.3.6.
+
+  - Win32 version: Support for "AllowEditClients" registry setting has
+    been ported from RealVNC 3.3.6.
+
+  - Unix version: New "-x11cursor" option has been implemented in
+    vncviewer; a patch from Peter Astrand. This option allows using a
+    real X11 cursor with X11-style cursor shape updates, disables the
+    dot cursor, and disables cursor position updates in non-fullscreen
+    mode.
+
+  - Unix version: New "RunCommand" command to customize the X11
+    vncviewer popup menu has been implemented; a patch from Peter
+    Astrand.
+
+  - Unix version: Several patches from Debian Linux have been applied.
+    This should fix a number of bugs and improve building on some
+    platforms supported by Debian Linux.
+
+  - Unix version: A problem with Xvnc eating all CPU time after xfs
+    restarts has been fixed; a patch from Martin Koegler.
+
+  - Other minor improvements and bugfixes.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.7
+
+  - Unix and Win32 versions, Java viewer: The most significant problem
+    with local cursor handling has been solved -- now clients can see
+    remote cursor movements performed on the server or by another
+    client. New PointerPos encoding and cursor shape updates both
+    minimize bandwidth requirements and greatly improve responsiveness
+    of the mouse pointer, while still allow to track correct pointer
+    position in all situations.
+
+  - Unix and Win32 versions: In all the places where display numbers
+    had to be used, now it's easy to use port numbers as well. The
+    viewers now allow to use new "hostname::port" syntax, in addition
+    to the traditional "hostname:display" format. The same new syntax
+    can be used in the "Add new client" dialog of Win32 server. In the
+    server, now it's equally easy to set display and port numbers. 
+    Besides that, HTTP and RFB port numbers can be set individually.
+
+  - Unix and Win32 versions: In servers, decreased JPEG quality
+    factors for low quality levels. This improves bandwidth usage
+    while the image quality remains satisfactory in most cases. In
+    clients, JPEG compression is now enabled by default, because
+    usually it's a reasonable choice. To prevent viewers from
+    requesting JPEG compression, new -nojpeg option can be used.
+
+  - Unix and Win32 versions: Improved installer under Windows, better
+    RPMs for Linux.
+
+  - Win32 version: Major enhancements in layout and functionality of
+    the dialog boxes.
+
+  - Win32 version: New keyboard handling code has been ported from
+    RealVNC 3.3.6. This should solve all the issues with arrow keys
+    acting as numbers in console windows, and shift+arrows not working
+    under Win2k.
+
+  - Win32 version: Adopted WinVNC -reinstall option from RealVNC
+    3.3.5, together with a number of other changes in different
+    places. The viewer now accepts a port number after the -listen
+    command-line option, an improvement from RealVNC 3.3.6.
+
+  - Win32 version: Eliminated high CPU usage on the server before
+    sending cursor shape updates.
+
+  - Unix version: Bugfix for Xvnc's -localhost and -interface options
+    that were broken on many systems, thanks to Luke Mewburn for the
+    bugfix. Xvnc -version command-line option is now supported.
+
+  - Tight encoding is now documented in rfbproto.h files within source
+    archives.
+
+  - Java viewer: Implemented new buttons "Login again" and "Close
+    window" near the disconnect or error messages in the applet mode,
+    and introduced new "Offer Relogin" parameter to control this
+    improvement. Thanks to Peter Astrand for the initial version of
+    the "Login again" patch.
+
+  - Java viewer: Support for connections via HTTP proxies using HTTP
+    CONNECT method. This will not work in the applet mode, due to Java
+    security restrictions.
+
+  - Java viewer: Extra .vnc files have been removed, having just
+    index.vnc should be enough. Also, an example HTML page has been
+    prepared, to simplify installation under a standalone Web server.
+
+  - Java viewer: Added a MANIFEST to the JAR archive, to allow easy
+    execution of the JAR file, using java -jar command-line option.
+
+  - Other minor improvements and bugfixes.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.3dev1, Win32 development (unstable) version
+
+  - Implemented partial screen sharing. Any single window or any
+    rectangular screen area can be shared instead of the whole screen.
+    The position and dimensions of the shared screen area can be
+    changed dynamically, and client windows will adjust their
+    dimensions on the fly. The user interface to choose shared screen
+    area is very intuitive and easy to use.
+
+  - Screen resolution changes won't cause WinVNC to disconnect clients
+    any more (but changes in screen color format still result in
+    disconnects, this will be fixed later).
+
+  - It's possible to make WinVNC ignore remote inputs when local mouse
+    or keyboard is in use. Remote events will be re-enabled after a
+    specified timeout (3 seconds by default).
+
+  - There may be other changes I forgot to mention. :-)
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.6
+
+  - Win32 version: In this version, when WinVNC binds to a local TCP
+    port, it does not try to check several times if the port is in
+    use. It just re-uses the port if the display number is not set to
+    "Auto". One visible effect of this change is that the delay
+    between starting up and showing the icon is greatly reduced.
+
+  - Unix version: Fixed the bug which caused the vncserver script to
+    fail when the XAUTHORITY environment variable was not set.
+
+  - Unix version: Fixed the bug which prevented the vncpasswd utility
+    from setting correct permissons on the passwd file.
+
+  - Unix version: Fixed a repeated challenge replay attack
+    vulnerability, bugtraq id 5296.
+
+  - Unix version: Added files to simplify building of Linux RPMs,
+    thanks to Peter Astrand.
+
+  - Unix version: Improved scrolling in the full-screen mode, modified
+    patch from Ville Herva.
+
+  - Minor cleanups.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.5
+
+  - Win32 version: Fixed a problem in the I/O subsystem that was
+    introduced in TightVNC 1.2.2 and was causing major slowdown in
+    communication with clients.
+
+  - Win32 version: Enabled remote upgrade in the installation script. 
+    Also, the installer will install a copy of the TightVNC Web site,
+    and will create shortcuts to most important documentation pages.
+
+  - Win32 version: Implemented new feature to specify applet
+    parameters in URL requests being sent to the built-in HTTP server. 
+    Added support for new "EnableURLParams" registry setting which can
+    be used to enable this feature.
+
+  - Win32 version: Added support for the NewFBSize pseudo-encoding
+    allowing to change framebuffer geometry on the fly on server's
+    request.
+
+  - Win32 version: Included "solution" and "project" files for MS
+    Visual Studio 7, from Andrew van der Stock, applied a set of minor
+    fixes to suppress compilation warnings under MS Visual Studio 7.
+
+  - Win32 version: The viewer now tries to preserve the size and
+    position of the desktop window after applying new connection
+    options.
+
+  - Unix version: Implemented new feature to specify applet parameters
+    in URL requests being sent to the built-in HTTP server. Added
+    support for new $PARAMS variable in .vnc HTML templates.
+
+  - Unix version: Added the possibility to keep users' vnc directories
+    under /tmp, as suggested by Ivan Popov. This mode can be enabled
+    by editing the $vncUserDir variable in the vncserver script. Also,
+    new -t option has been implemented in the vncpasswd utility which
+    allows to change VNC password files under /tmp.
+
+  - Unix version: Applied Xvnc -viewonly patch from Ehud Karni.
+
+  - Unix version: Applied Linux/PowerPC Xvnc fix from Peter A. Castro.
+
+  - Unix version: Bug fixed: Xvnc failed to reset compression level
+    and JPEG image quality on reading lists of encodings supported by
+    clients.
+
+  - Unix version: Made the viewer handle XCursor encoding operating on
+    the framebuffer instead of setting new cursors directly in X.
+
+  - Unix version: Applied a number of porting fixes from Ki Networks,
+    Inc.
+
+  - Java viewer: Added new feature allowing to save RFB sessions in
+    FBS files compatible with rfbproxy. This feature works only if JVM
+    security manager allows access to the local filesystem, which is
+    usually true only when the viewer is used as a standalone
+    application or if the viewer applet is cryptographically signed.
+    New "Record" button will appear in the button panel if this
+    feature is enabled.
+
+  - Java viewer: Added new "ENCPASSWORD" parameter, modified patch
+    from Peter Astrand.
+
+  - Java viewer: Applied patch from Peter Astrand to fix problems with
+    Swedish keys and broken JVMs.
+
+  - Other minor fixes and cleanups.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.4
+
+  - Win32 version: WinVNC crashes on reporting zero statistics were
+    fixed. This should eliminate crashes when using x2vnc and win2vnc
+    client programs.
+
+  - Win32 version: a problem with listening viewer was fixed.
+    Initiating multiple non-shared connections could crash the viewer
+    application.
+
+  - Win32 version: real passwords are never placed into the password
+    text control in the WinVNC Properties dialog any more. This should
+    prevent grabbing plain-text passwords from that text control.
+
+  - Win32 version: logging on errors was improved to provide better
+    diagnosis for errors, especially for those causing the message
+    "Connection closed" right after authentication.
+
+  - Win32 version: handling of log files was improved. Now WinVNC
+    should be able to save backup copies of log files under
+    Win95/98/Me. Also, all log files are now written in MS-DOS/Windows
+    text format instead of the Unix one.
+
+  - Win32 version: a problem with reporting error messages in the
+    listening viewer was fixed.
+
+  - Win32 version: reporting incorrect statistics in the Tight encoder
+    was fixed.
+
+  - Win32 version: HTML pages and templates for the built-in HTTP
+    server were improved.
+
+  - Unix version: applied patch from Ki Networks, Inc. solving build
+    problems on a number of commercial Unix systems, and fixing a
+    number of minor bugs and typos.
+
+  - Unix version: added a possibility to denote standard input with
+    the "-" file name instead of a real password file name.
+
+  - Unix version: fixed a bug causing vncpasswd utility work
+    incorrectly when a file name argument was given in the command
+    line.
+
+  - Unix version: applied patch to solve keyboard focus problems in
+    the full-screen vncviewer, from Peter Astrand. The patch does not
+    seem to solve all the issues, but definitely makes things better.
+    New grabKeyboard resource was added to control full-screen mode
+    behavior.
+
+  - Java viewer: new "Show Offline Desktop" parameter was added to
+    make the desktop still visible even after the remote side has
+    closed connection.
+
+  - Java viewer: error messages were made much more meaningful.
+
+  - Java viewer: keyboard focus problems were fixed. This should
+    prevent opening new windows (e.g. Options or Clipboard) behind the
+    active authenticator or desktop window.
+
+  - Java viewer: now "R"/"r" keys can be used to request screen
+    updates in view-only mode.
+
+  - Java viewer: applied patch from Peter Astrand to fix problems with
+    Swedish keys and broken JVMs.
+
+  - Other minor fixes and cleanups.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.3
+
+  - Unix and Win32 versions: zlib library was updated to the most
+    recent version (1.1.4) where a potential security issue was fixed.
+
+  - Unix and Win32 versions: fixed blocking I/O problems in built-in
+    HTTP servers. Older versions had to wait while one client finishes
+    his transaction, only then they served new client connections,
+    thus making easy denial-of-service attacks possible.
+
+  - Unix and Win32 versions: updated built-in Java viewer, see details
+    below.
+
+  - Win32 version: Added support for mouse wheel events. Wheel mouse
+    support is fully compatible and interoperable with Unix version
+    where this feature was available for a long time.
+
+  - Win32 version (WinVNC): The -connect command-line option now
+    accepts a display number after a hostname.
+
+  - Win32 version: Creating associations for .vnc files in the
+    installer.
+
+  - Java viewer was GREATLY improved: the code was converted to Java
+    1.1, painting techniques were re-designed completely (now the
+    viewer should work in MacOS), several new parameters were added,
+    all parameters were documented in the README file. Most important
+    new features include: support for 24-bit colors, JPEG support in
+    Tight encoding, RFB Bell message support, new "Refresh" button, a
+    possibility to operate in a separate scrollable window, dynamic
+    view-only mode. Many more changes were introduces, see the
+    ChangeLog for more information. Please note that new Java viewer
+    class names were changed, e.g. vncviewer.jar file has become
+    VncViewer.jar etc.
+
+  - Unix version: a number of changes in the vncserver script, e.g.
+    the default color depth is now 24, extra delay after Xvnc startup
+    removed, font path is now configurable in the beginning of the
+    script, and more.
+
+  - Unix version: zlib library was removed from the core X sources.
+    Instead, both vncviewer and Xvnc now can use either system zlib
+    and JPEG libraries, or ones packaged within TightVNC source
+    archive in the lib/ directory. Unix sources are distributed in two
+    versions: one with these libraries for those who don't have them
+    installed in the system, and another version without libraries,
+    copied directly from CVS, for those who do have zlib and/or JPEG
+    libraries installed. In the former case, build procedure would
+    include additional "make libs" step. System libraries will be
+    linked dynamically, libraries included in the source archive will
+    be linked in statically.
+
+  - Unix version now includes comprehensive manual pages for
+    vncviewer, vncserver, Xvnc, vncconnect and vncpasswd programs. The
+    vncinstall script in the source distribution now accepts one more
+    parameter allowing to specify where to install manual pages.
+
+  - Unix version (Xvnc): a number of patches from Red Hat Linux vnc
+    package were incorporated into the TightVNC codebase. This adds
+    support for more architectures including s390 and s390x, adds a
+    possibility to use tcp_wrappers for Xvnc access control.
+
+  - Unix version (Xvnc): several bugfixes, e.g. applied patch to fix
+    crash in the code dealing with font server; fixed word alignment
+    problem in raw encoder experienced by Sparc users.
+
+  - Unix version is no more distributed as patches to a standard VNC
+    release. This is because patches cannot handle changes in binary
+    files and handle file removals very inefficiently.
+
+  - Other minor fixes and cleanups.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.2
+
+  - Win32 server: long-standing Win9x resource consumption problem has
+    been fixed. Now the server thread does not use blocking I/O, and
+    therefore is always ready to process messages from the VNCHooks
+    DLL.
+
+  - Win32 server: now built-in HTTP daemon may be enabled and disabled
+    interactively from the Advanced Preferences dialog (this setting
+    is saved in new "EnableHTTPDaemon" registry key).
+
+  - Win32 server: changes in layout and text of the Advanced
+    Preferences dialog.
+
+  - Xvnc: Minor bugfix which should prevent potential dereference of a
+    NULL pointer.
+
+  - Unix viewer: Now viewer window would be raised on beep (bell)
+    event, unless new -noraiseonbeep option is provided in the command
+    line or "raiseOnBeep" resource set to False.
+
+  - One more packaging option for the Unix source: ready to build
+    archive with Zlib and JPEG libraries inside.
+
+  - Other minor fixes and cleanups.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.1
+
+  - Win32 server: added support for reverse connections on ports other
+    than 5500, modified patch from Steve Kann.
+
+  - Win32 viewer: added support for new command-line options:
+    -noshared and -encoding XXX.
+
+  - Bugfixes in Win32 viewer: changes in exception handling eliminate
+    Borland C++ compilation problems causing application crashes on
+    repetitive connections, notably in the listen mode. Also, now
+    warning exceptions causing disconnects are reported to user,
+    except for the case when a user has closed the viewer window.
+
+  - Better packaging in Win32 version: self-installing package is
+    available, vncviewer now shows correct icon image.
+
+  - Unix vncviewer: Default tunneling command template has been
+    changed, to allow tunneled connections to hosts where only
+    loopback VNC connections are enabled. New -via <GATEWAY>
+    command-line option provides enhanced tunneling functionality, now
+    one can make vncviewer tunnel connections to a VNC host via third
+    machine acting as a gateway.
+
+  - Java viewer: Addition of new parameters PASSWORD, "Show Controls",
+    and "View Only", modified patch from Steve Kann.
+
+----------------------------------------------------------------------
+
+* TightVNC 1.2.0
+
+  - Tight encoding is now configurable and can operate at different
+    compression levels where low compression levels are very fast in
+    terms of CPU usage. New "-compresslevel N" option implemented in
+    vncviewer to set compression levels for Tight encoding (1 - fast,
+    9 - best).
+
+  - Enhanced techniques to split large rectangles in Tight encoder;
+    now it tries to find large solid-color areas and send them in
+    separate rectangles.
+
+  - Lossy JPEG compression in Tight encoding has been implemented, new
+    "-quality N" vncviewer option should be used to enable this
+    feature (0 - low image quality and best compression, 9 - best
+    image quality). JPEG compression is used only for screen areas
+    that seem to be suitable for JPEG compression (although algorithms
+    to detect such areas are not perfect, of course).
+
+  - New "XCursor" and "RichCursor" encodings implemented. They are
+    used to transmit cursor shape updates from server to clients
+    ("local cursor" feature requested by many users). Mouse movement
+    no longer causes framebuffer updates to happen, vncviewer
+    processes mouse locally when this feature is active. New
+    -nocursorshape vncviewer option turns this feature off.
+
+  - A number of recent changes from both TridiaVNC and AT&T's releases
+    merged into the source, now the code is based on version 3.3.3r2
+    for Unix part, and on 3.3.3r9 for Win32.
+
+  - Unix vncviewer: When -tunnel option is specified in the command
+    line, special rules are now used to choose preferred encoding. Now
+    viewer does not think that server is running on the same machine
+    when tunneling is on and the preferred encoding is now "tight"
+    with default compression instead of raw.
+
+  - Xvnc: Rules to set default pixel formats have been changed: now
+    they are RGB565 instead of BGR556 for color depth 16, and RGB888
+    instead of BGR888 for depth 24. This makes Xvnc compatible with
+    Imlib renderer used in Gnome and also helps to avoid unnecessary
+    pixel format translations in many cases.
+
+  - Xvnc: X11 modifier mapped to META key is now Mod4 instead of Mod1.
+    New -compatiblekbd option implemented in Xvnc to force META and
+    ALT keys behave the same way as they do in the original AT&T's
+    version.
+
+  - A number of bugs fixed: viewer crashes after inflate() call, Xvnc
+    CoRRE encoding problems, Xvnc bit-order issues in XCursor and
+    RichCursor encodings, etc.
+
+  - Java viewer now supports Tight encoding and cursor shape updates.
+    Drawing techniques were changed, settings "Raw pixel drawing:
+    Fast/Reliable" and "CopyRect: Fast/Reliable" removed from the
+    Options panel since they do not make sense in new drawing model.
+
+  - Other new features, optimizations, fixes and cleanups, see
+    ChangeLog files.
+
+----------------------------------------------------------------------
+
+* VNC Tight Encoding 1.1
+
+  - New ``gradient'' filter implemented in servers (it can be disabled
+    in Xvnc with new -lazytight option). The filter preprocess
+    full-color screen areas prior to compression in order to achieve
+    better compression ratios (with the cost of slower compression).
+    Vncviewers of version 1.0 had support for this filter already, but
+    there was small bug causing image distortions in certain cases. So
+    it is recommended to upgrade both servers and viewers.
+
+  - Stupid bug fixed: extra unused color was included in palettes in
+    many cases; compression ratios used to be worse than they should
+    be.
+
+  - The algorithm used to split large rectangles into parts has been
+    changed. This change can increase compression ratios in many
+    situations.
+
+  - Byte-order issues in servers have been (hopefully) fixed.
+
+  - Performance tuning, code rewrites and cleanups in various places.
+
+----------------------------------------------------------------------
+
+* VNC Tight Encoding 1.0
+
+  - Initial release.
+
+----------------------------------------------------------------------

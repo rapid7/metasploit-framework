@@ -1,0 +1,39 @@
+# -*- coding: binary -*-
+
+# Require most things so that modules using this will "just work"
+require 'net/ssh'
+require 'net/ssh/command_stream'
+require 'rex/socket/ssh_factory'
+
+# Patch in our custom auth methods:
+#   fortinet-backdoor
+#   libssh-auth-bypass
+#   malformed-packet
+require 'msf/core/exploit/remote/ssh/auth_methods'
+
+module Msf::Exploit::Remote::SSH
+  # Register SSH datastore options:
+  #   SSH_IDENT   (TODO: Refactor to SSHIdent)
+  #   SSH_TIMEOUT (TODO: Refactor to SSHTimeout)
+  #   SSH_DEBUG   (TODO: Refactor to SSHDebug)
+  include Msf::Exploit::Remote::SSH::Options
+
+  def ssh_socket_factory
+    unless defined? datastore
+      return Rex::Socket::SSHFactory.new(framework, self, proxies)
+    end
+
+    Rex::Socket::SSHFactory.new(framework, self, datastore['Proxies'])
+  end
+
+  def ssh_client_defaults
+    {
+      non_interactive: true,
+      config: false,
+      use_agent: false,
+      verify_host_key: :never,
+      proxy: ssh_socket_factory,
+      append_all_supported_algorithms: true
+    }
+  end
+end

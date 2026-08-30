@@ -1,0 +1,1 @@
+<form name='mfrm' action='http://www.altavista.com/web/results'> <input name="itag" type="hidden" value="" /></form>

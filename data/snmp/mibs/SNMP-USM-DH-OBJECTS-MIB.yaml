@@ -1,0 +1,21 @@
+--- 
+usmDHKeyMIBCompliances: 1.3.6.1.3.101.2.1
+usmDHPublicObjects: 1.3.6.1.3.101.1.1
+usmDHUserKeyTable: 1.3.6.1.3.101.1.1.2
+usmDHUserAuthKeyChange: 1.3.6.1.3.101.1.1.2.1.1
+usmDHUserPrivKeyChange: 1.3.6.1.3.101.1.1.2.1.3
+usmDHUserOwnPrivKeyChange: 1.3.6.1.3.101.1.1.2.1.4
+usmDHKickstartEntry: 1.3.6.1.3.101.1.2.1.1
+usmDHKickstartIndex: 1.3.6.1.3.101.1.2.1.1.1
+usmDHKickstartMgrPublic: 1.3.6.1.3.101.1.2.1.1.3
+usmDHKickstartSecurityName: 1.3.6.1.3.101.1.2.1.1.4
+usmDHKeyConformance: 1.3.6.1.3.101.2
+usmDHKeyMIBGroups: 1.3.6.1.3.101.2.2
+usmDHKickstartGroup: 1.3.6.1.3.101.1.2
+usmDHKickstartTable: 1.3.6.1.3.101.1.2.1
+snmpUsmDHObjectsMIB: 1.3.6.1.3.101
+usmDHParameters: 1.3.6.1.3.101.1.1.1
+usmDHKeyObjects: 1.3.6.1.3.101.1
+usmDHKickstartMyPublic: 1.3.6.1.3.101.1.2.1.1.2
+usmDHUserOwnAuthKeyChange: 1.3.6.1.3.101.1.1.2.1.2
+usmDHUserKeyEntry: 1.3.6.1.3.101.1.1.2.1

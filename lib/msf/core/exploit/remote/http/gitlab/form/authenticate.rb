@@ -1,0 +1,62 @@
+# -*- coding: binary -*-
+
+# GitLab session mixin
+module Msf::Exploit::Remote::HTTP::Gitlab::Form::Authenticate
+  # performs a gitlab login
+  #
+  # @param username [String] Username
+  # @param password [String] Password
+  # @return [String,nil] the session cookies as a single string on successful login, nil otherwise
+  # @raise [Msf::Exploit::Remote::HTTP::Gitlab::Error::ClientError] if the request timed out
+  # @raise [Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError] if the authentication failed
+  # @raise [Msf::Exploit::Remote::HTTP::Gitlab::Error::CsrfError] if it was not possible to extract the CSRF token
+  def gitlab_sign_in(username, password)
+    sign_in_path = '/users/sign_in'
+    csrf_token = gitlab_helper_extract_csrf_token(
+      path: sign_in_path,
+      regex: %r{action="/users/sign_in".*name="authenticity_token"\s+value="([^"]+)"}
+    )
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, sign_in_path),
+      'keep_cookies' => true,
+      'vars_post' => gitlab_helper_login_post_data(username, password, csrf_token)
+    })
+
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::ClientError.new message: 'Request timed out' unless res
+
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::AuthenticationError if res.code != 302
+
+    cookies = res.get_cookies
+    # Check if a valid gitlab cookie is returned
+    return cookies if cookies =~ /(_gitlab_session=[A-Za-z0-9%-]+)/i
+
+    nil
+  end
+
+  # performs a gitlab logout
+  #
+  # @return [Boolean,GitLabError] True if sign out, Msf::Exploit::Remote::HTTP::Gitlab::Error otherwise
+  def gitlab_sign_out
+    csrf_token = gitlab_helper_extract_csrf_token(
+      path: '/',
+      regex: /name="csrf-token" content="(.*)"/
+    )
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/users/sign_out'),
+      'keep_cookies' => true,
+      'vars_post' => {
+        '_method' => 'post',
+        'authenticity_token' => csrf_token
+      }
+    })
+
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::ClientError.new message: 'Request timed out' unless res
+
+    raise Msf::Exploit::Remote::HTTP::Gitlab::Error::ClientError, 'Failed to sign out' unless res.code == 302 && res.headers&.fetch('Location', '')&.include?('/users/sign_in')
+
+    true
+  end
+end

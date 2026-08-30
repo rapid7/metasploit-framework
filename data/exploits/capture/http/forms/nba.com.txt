@@ -1,0 +1,1 @@
+<form name='subsForm' action='http://www.nba.com/allaccess/newsletters_signup.jsp' onsubmit='return submitIt(this)' method='GET' style='margin:0px'> <input name="email" type="text" style="width:133px;height:16px;_margin-bottom:5px;_font-size:11px;" /><input name="submit" type="image" src="/media/homepage/button_subscribe.gif" style="margin-left:5px;margin-top:5px;" /></form>

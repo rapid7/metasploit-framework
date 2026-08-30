@@ -1,0 +1,11 @@
+      'Name'        => <%= meta[:name] %>,
+      'Description' => <%= meta[:description] %>,
+      'Author'      =>
+        [
+          <%= meta[:authors] %>
+        ],
+      'License'     => <%= meta[:license] %>,
+      'Notes'       => <%= meta[:notes] %>,
+      'DefaultOptions' => {
+        <%= meta[:default_options].map { |name, value| "#{name.dump} => #{value.inspect}" }.join(",\n#{' ' * 8}") %>
+      },

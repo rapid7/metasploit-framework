@@ -1,0 +1,105 @@
+.dockerignore
+.gitignore
+.env*
+docker-compose*.yml
+docker/
+!docker/msfconsole.rc
+!docker/entrypoint.sh
+!docker/database.yml
+Dockerfile
+README.md
+.git/
+.github/
+.ruby-version
+.ruby-gemset
+
+.bundle
+Gemfile.local
+Gemfile.local.lock
+# Rubymine project directory
+.idea
+# Sublime Text project directory (not created by ST by default)
+.sublime-project
+# RVM control file, keep this to avoid backdooring Metasploit
+.rvmrc
+# Allow for a local choice of (unsupported / semi-supported) ruby versions
+# See PR #4136 for usage, but example usage for rvm:
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
+# Because rbenv doesn't use .versions.conf, to achieve this same functionality, run:
+#   rbenv shell 2.1.4
+.versions.conf
+# YARD cache directory
+.yardoc
+# Mac OS X files
+.DS_Store
+# database config for testing
+config/database.yml
+# target config file for testing
+features/support/targets.yml
+# simplecov coverage data
+coverage/
+doc/
+external/source/meterpreter/java/bin
+external/source/meterpreter/java/build
+external/source/meterpreter/java/extensions
+external/source/javapayload/bin
+external/source/javapayload/build
+# Java binary ignores. Replace the 5 above with this once we're merged.
+external/source/javapayload/*/.classpath
+external/source/javapayload/*/.project
+external/source/javapayload/*/.settings
+external/source/javapayload/*/bin
+external/source/javapayload/*/target
+external/source/javapayload/*/*/.classpath
+external/source/javapayload/*/*/.project
+external/source/javapayload/*/*/.settings
+external/source/javapayload/*/*/bin
+external/source/javapayload/*/*/target
+# Packaging directory
+pkg
+tags
+*.swp
+*.orig
+*.rej
+*~
+# Ignore backups of retabbed files
+*.notab
+
+# ignore Visual Studio external source garbage
+*.suo
+*.sdf
+*.opensdf
+*.user
+
+# Rails log directory
+/log
+# Rails tmp directory
+/tmp
+
+# ignore release/debug folders for exploits
+external/source/exploits/**/Debug
+external/source/exploits/**/Release
+
+# Avoid checking in Meterpreter binaries. These are supplied upstream by
+# the metasploit-payloads gem.
+data/meterpreter/*.dll
+data/meterpreter/*.php
+data/meterpreter/*.py
+data/meterpreter/*.bin
+data/meterpreter/*.jar
+data/meterpreter/*.lso
+data/android
+data/java
+
+# Avoid checking in Meterpreter libs that are built from
+# private source. If you're interested in this functionality,
+# check out Metasploit Pro: https://metasploit.com/download
+data/meterpreter/ext_server_pivot.*.dll
+
+# Avoid checking in metakitty, the source for
+# https://rapid7.github.io/metasploit-framework. It's an orphan branch.
+/metakitty
+.vagrant
+
+# no need for rspecs
+spec/

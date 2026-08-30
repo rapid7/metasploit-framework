@@ -1,0 +1,13 @@
+Source: ruby-serialport
+Section: interpreters
+Priority: optional
+Maintainer: Guillaume Pierronnet <moumar@netcourrier.com>
+Standards-Version: 3.1.1
+Build-Depends: debhelper (>= 2.1.2), ruby (>= 1.8-1), ruby1.8-dev (>= 1.8-1)
+
+Package: ruby-serialport
+Architecture: any
+Depends: ${shlibs:Depends}, ruby (>= 1.8)
+Description: serial port module for Ruby
+ serial port module for ruby
+

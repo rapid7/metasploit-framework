@@ -1,0 +1,61 @@
+Due to the ruby-serialport project provided by RubyForge.org apparently
+being unmaintained, this is a MSF-specific fork of that project.  This
+version has been modified by both MSF developers as well as by applying
+a patch found submitted to the RubyForge project but never included in
+the distribution provided there.  The versioning scheme has been updated
+from the format X.y, to X.Y.z-msf.  The text accompanying the applied
+patch can be found below.
+
+Please see the README.orig file for the original project's README, which
+includes buid and install instructions as well as documentation of the
+SerialPort Class API.
+
+                                                -- I)ruid
+
+########################################################################
+Applied Patches:
+
+========================================================================
+[#878] Six new methods (implemented for the posix flavor only) for the 
+SerialPort class
+
+I had to use the SerialPort class to communicate chunks of binary data
+through the serial port, and i needed to set some of the low-level
+flags onto the serial fd using fcntl() and tcsetattr(), so I implemented
+some nifty methods and added them to the class.
+
+The six new methods are:
+
+.nonblock= and .nonblock()       -> Manipulate the O_NONBLOCK descriptor flag
+.input_type= and .input_type()   -> Manipulate the ICANON/RAW input flags
+.output_type= and .output_type() -> Manipulate the OPOST/RAW output flags
+
+Also two new constants were added:
+
+SerialPort::PROCESSED            -> Identifies the CANONICAL/PROCESSED I/O
+SerialPort::RAW                  -> Identifies the RAW/RAW I/O
+
+Example usage:
+
+	def open_port
+		ret = SerialPort.new @device
+
+		ret.baud = @port_baud
+		ret.data_bits = @port_data_bits
+		ret.stop_bits = @port_stop_bits
+		ret.parity = SerialPort::NONE
+		ret.flow_control = SerialPort::HARD
+		ret.input_type = SerialPort::RAW
+		ret.output_type = SerialPort::RAW
+		ret.read_timeout = -1
+		ret.nonblock = false
+		ret.dtr = 1
+
+		ret
+	end
+
+This was the best setup for modem communications I could achieve, for
+binary and string I/O, in a multithreaded application.  Obviously YMMV.
+
+-void
+void@core-dumped.info
