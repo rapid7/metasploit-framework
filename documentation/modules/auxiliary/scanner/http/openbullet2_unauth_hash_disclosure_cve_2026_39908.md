@@ -21,7 +21,7 @@ The affected versions include releases from 0.2.5.
 Authentication is turned off by default.
 You need to set it to check bypass.
 
-1. Go to http://127.0.0.1:8069/settings
+1. Go to http://127.0.0.1:5000/settings
 2. Click "Change admin password" and set any password
 3. Turn "Require admin login" on
 4. Save

