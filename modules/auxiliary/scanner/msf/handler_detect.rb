@@ -76,6 +76,14 @@ class MetasploitModule < Msf::Auxiliary
     datastore['TIMEOUT'].to_f
   end
 
+  # CONCURRENCY drives 1.upto() in run_host, so a value < 1 would spawn zero
+  # worker threads and leave the port queue forever unemptied (a silent
+  # busy-loop). Reject it up front with the standard option-validation error.
+  def validate
+    super
+    raise Msf::OptionValidateError, ['CONCURRENCY'] if datastore['CONCURRENCY'].to_i < 1
+  end
+
   def validate_ports
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     raise Msf::OptionValidateError, ['PORTS'] if ports.empty?
@@ -609,7 +617,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # 2. Python staged: big-endian length prefix + base64(zlib(...)) text stage.
-    if base64_stage?(body) && l_be.positive?
+    #    The prefix must be a plausible stage length: a benign base64 text blob
+    #    reads its four leading ASCII bytes as a 700M+ "length", far outside the
+    #    plausible range, while a real stage declares its exact base64 size.
+    if base64_stage?(body) && plausible_stage_len?(l_be)
       confidence = (l_be == body.length) ? 'high' : 'medium'
       return {
         match: true,

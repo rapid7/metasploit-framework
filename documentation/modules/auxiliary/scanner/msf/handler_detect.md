@@ -69,7 +69,7 @@ flowchart TD
     %% ---- fingerprint() ordered checks ----
     FP --> F1{"starts with<br/>'echo TOKEN'?"}
     F1 -->|yes| RShell["Command shell handler<br/>(echo probe) - high"]
-    F1 -->|no| F2{"base64 + 4-byte<br/>big-endian length?"}
+    F1 -->|no| F2{"base64 + plausible<br/>big-endian length?"}
     F2 -->|yes| RPy["python meterpreter<br/>(base64/zlib staged)"]
     F2 -->|no| F3{"4-byte little-endian<br/>length delivered?"}
     F3 -->|yes| RWin["Windows native staged<br/>(metsrv/shell) - high"]
@@ -84,7 +84,7 @@ flowchart TD
     F7 -->|no| RBanner["Talks first, not a stage<br/>(unrelated service)"]
 
     RShell --> EB{"ECHO_BACK?"}
-    EB -->|yes| CAP["echo token back →<br/>capture AutoRunScript → loot"]
+    EB -->|yes| CAP["echo token back -><br/>capture AutoRunScript -> loot"]
 
     %% ---- silent-port fallbacks ----
     SIL --> H1["HTTP probe: GET random URI"]
@@ -110,7 +110,7 @@ flowchart TD
     D3c -->|no| SOpen
 
     %% ---- UDP (independent, if SCAN_UDP) ----
-    UDP["check_port_udp (if SCAN_UDP):<br/>send datagram → fingerprint()"] --> RUdp["reverse_udp"]
+    UDP["check_port_udp (if SCAN_UDP):<br/>send datagram -> fingerprint()"] --> RUdp["reverse_udp"]
 ```
 
 ### Detectability summary by transport
@@ -399,7 +399,9 @@ How long (seconds) to keep reading after echoing the token back, to capture
 
 ### CONCURRENCY
 
-The number of concurrent ports to check per host. Default `10`.
+The number of concurrent ports to check per host. Default `10`. Must be at
+least `1`; lower values are rejected at run time (they would spawn no worker
+threads and the scan would never progress).
 
 ### DEEP_PROBE
 
