@@ -620,13 +620,17 @@ class MetasploitModule < Msf::Auxiliary
     #    The prefix must be a plausible stage length: a benign base64 text blob
     #    reads its four leading ASCII bytes as a 700M+ "length", far outside the
     #    plausible range, while a real stage declares its exact base64 size.
-    if base64_stage?(body) && plausible_stage_len?(l_be)
-      confidence = (l_be == body.length) ? 'high' : 'medium'
+    #    Only the declared l_be bytes are the stage - handlers can append a
+    #    binary tail after it (a plain-TCP python handler sends ~400 extra
+    #    bytes), so slice to the declared length or those stages fall through
+    #    to the generic big-endian branch below.
+    if plausible_stage_len?(l_be) && base64_stage?(body[0, l_be])
+      confidence = (body.length >= l_be) ? 'high' : 'medium'
       return {
         match: true,
         payload: 'python/meterpreter/reverse_tcp',
         detail: 'base64/zlib staged',
-        framing: "4-byte big-endian length prefix (declared #{l_be}); base64/zlib stage",
+        framing: "4-byte big-endian length prefix (declared #{l_be}, #{bytes} bytes received); base64/zlib stage",
         confidence: confidence,
         bytes: bytes
       }

@@ -432,55 +432,43 @@ SCAN_UDP => true
 msf auxiliary(scanner/msf/handler_detect) > set verbose true
 verbose => true
 msf auxiliary(scanner/msf/handler_detect) > run
-[*] 127.0.0.1             - 127.0.0.1:4007 - Connection refused
-[*] 127.0.0.1             - 127.0.0.1:4008 - Metasploit handler detected (tcp): Windows staged payload - raw stager shellcode
-[*] 127.0.0.1             - 127.0.0.1:4002 - Metasploit handler detected (tcp): staged payload with big-endian length prefix
-[*] 127.0.0.1             - 127.0.0.1:4001 - Metasploit handler detected (tcp): windows/x64/meterpreter/reverse_tcp
-[-] 127.0.0.1             - 127.0.0.1:4010 - SSL probe failed: Errno::ECONNRESET Connection reset by peer - SSL_connect
-[*] 127.0.0.1             - 127.0.0.1:4003 - Metasploit handler detected (tcp): command shell handler
-[*] 127.0.0.1             - 127.0.0.1:4007 - Metasploit handler detected (udp): command shell handler
-[*] 127.0.0.1             - 127.0.0.1:4005 - Metasploit handler detected (tcp): reverse_https Meterpreter handler
-[*] 127.0.0.1             - 127.0.0.1:4006 - Metasploit handler detected (tcp): python/meterpreter/reverse_tcp
-[*] 127.0.0.1             - 127.0.0.1:4004 - Metasploit handler detected (tcp): reverse_http Meterpreter handler
-[*] 127.0.0.1             - 127.0.0.1:4010 - Metasploit handler detected (tcp): likely pingback handler
-[-] 127.0.0.1             - 127.0.0.1:4009 - SSL probe failed: OpenSSL::SSL::SSLError SSL_connect returned=1 errno=0 peeraddr=127.0.0.1:4009 state=SSLv3/TLS write client hello: wrong version number
-[*] 127.0.0.1             - 127.0.0.1:4009 - Metasploit handler detected (tcp): command shell handler
-[*] 127.0.0.1             - 127.0.0.1:4003 - No follow-up commands after echo-back (no AutoRunScript configured)
-[*] 127.0.0.1             - 127.0.0.1:4011 - Metasploit handler detected (tcp): command shell handler
-[+] 127.0.0.1             - 127.0.0.1:4011 - Captured follow-up after shell verification (likely AutoRunScript / operator commands):
+[*] 127.0.0.1             - Connection refused
+[*] 127.0.0.1             - Metasploit handler detected (tcp): Windows staged payload - raw stager shellcode
+[*] 127.0.0.1             - Metasploit handler detected (tcp): windows/x64/meterpreter/reverse_tcp
+[*] 127.0.0.1             - Metasploit handler detected (tcp): python/meterpreter/reverse_tcp
+[-] 127.0.0.1             - SSL probe failed: Errno::ECONNRESET Connection reset by peer - SSL_connect
+[*] 127.0.0.1             - Metasploit handler detected (tcp): command shell handler
+[*] 127.0.0.1             - Metasploit handler detected (udp): command shell handler
+[*] 127.0.0.1             - Metasploit handler detected (tcp): reverse_https Meterpreter handler
+[*] 127.0.0.1             - Metasploit handler detected (tcp): python/meterpreter/reverse_tcp
+[*] 127.0.0.1             - Metasploit handler detected (tcp): reverse_http Meterpreter handler
+[*] 127.0.0.1             - Metasploit handler detected (tcp): likely pingback handler
+[-] 127.0.0.1             - SSL probe failed: Rex::ConnectionTimeout The connection with (127.0.0.1:4009) timed out.
+[*] 127.0.0.1             - Metasploit handler detected (tcp): command shell handler
+[*] 127.0.0.1             - No follow-up commands after echo-back (no AutoRunScript configured)
+[*] 127.0.0.1             - Metasploit handler detected (tcp): command shell handler
+[+] 127.0.0.1             - Captured follow-up after shell verification (likely AutoRunScript / operator commands):
       whoami
       id
       hostname
       uname -a
-[+] 127.0.0.1             - 127.0.0.1:4011 - Saved captured commands to loot: /home/h00die/.msf4/loot/20260827120034_default_127.0.0.1_metasploit.handl_002043.txt
+[+] 127.0.0.1             - Saved captured commands to loot: /home/h00die/.msf4/loot/20260831120955_default_127.0.0.1_metasploit.handl_073457.txt
 [+] 127.0.0.1             - Metasploit payload handlers detected on 127.0.0.1 (11 found)
 ============================================================
 
- Port  Proto  Payload                      Detail                       Confidence  Bytes   Framing                                         Notes
- ----  -----  -------                      ------                       ----------  -----   -------                                         -----
- 4001  tcp    windows/x64/meterpreter/rev  x64 native staged            high        249293  4-byte little-endian length prefix (declared 2
-              erse_tcp                                                                      48902, 249293 bytes received)
- 4002  tcp    staged payload with big-end  python/php/java family       medium      23795   4-byte big-endian length prefix (declared 2340
-              ian length prefix                                                             4, 23795 bytes received)
- 4003  tcp    command shell handler                                     high        20      unsolicited "echo <token>" shell-verification
-                                                                                            command
- 4004  tcp    reverse_http Meterpreter ha  HTTP transport               high                200 OK + default "It works!" body on an unknow
-              ndler                                                                         n URI; Server: Apache
- 4005  tcp    reverse_https Meterpreter h  HTTPS transport              high                200 OK + default "It works!" body on an unknow
-              andler                                                                        n URI; Server: Apache
- 4006  tcp    python/meterpreter/reverse_  over SSL/TLS; base64/zlib s  high        23408   4-byte big-endian length prefix (declared 2340
-              tcp                          taged                                            4); base64/zlib stage
- 4007  udp    command shell handler                                     high        27      unsolicited "echo <token>" shell-verification
-                                                                                            command
- 4008  tcp    Windows staged payload - ra  e.g. reverse_nonx_tcp/rever  medium      216     raw x86 stager shellcode, no length prefix (21
-              w stager shellcode           se_ord_tcp/shell                                 6 bytes, 0xFC prelude)
- 4009  tcp    command shell handler        ReverseTcpDouble paired con  high        23      unsolicited "echo <token>" shell-verification
-                                           nections                                         command
- 4010  tcp    likely pingback handler      pingback_reverse_tcp family  low                 handler closed the connection 0.34s after a 16
-                                                                                            -byte write, returning no data (reads a 16-byt
-                                                                                            e UUID then closes)
- 4011  tcp    command shell handler                                     high        22      unsolicited "echo <token>" shell-verification   AutoRunScript/operator commands captured to loo
-                                                                                            command                                         t
+ Port  Proto  Payload                                        Detail                                       Confidence  Bytes   Framing                                                                                                          Notes
+ ----  -----  -------                                        ------                                       ----------  -----   -------                                                                                                          -----
+ 4001  tcp    windows/x64/meterpreter/reverse_tcp            x64 native staged                            high        249293  4-byte little-endian length prefix (declared 248902, 249293 bytes received)
+ 4002  tcp    python/meterpreter/reverse_tcp                 base64/zlib staged                           high        23799   4-byte big-endian length prefix (declared 23408, 23799 bytes received); base64/zlib stage
+ 4003  tcp    command shell handler                                                                       high        26      unsolicited "echo <token>" shell-verification command
+ 4004  tcp    reverse_http Meterpreter handler               HTTP transport                               high                200 OK + default "It works!" body on an unknown URI; Server: Apache
+ 4005  tcp    reverse_https Meterpreter handler              HTTPS transport                              high                200 OK + default "It works!" body on an unknown URI; Server: Apache
+ 4006  tcp    python/meterpreter/reverse_tcp                 over SSL/TLS; base64/zlib staged             high        23412   4-byte big-endian length prefix (declared 23408, 23412 bytes received); base64/zlib stage
+ 4007  udp    command shell handler                                                                       high        29      unsolicited "echo <token>" shell-verification command
+ 4008  tcp    Windows staged payload - raw stager shellcode  e.g. reverse_nonx_tcp/reverse_ord_tcp/shell  medium      216     raw x86 stager shellcode, no length prefix (216 bytes, 0xFC prelude)
+ 4009  tcp    command shell handler                          ReverseTcpDouble paired connections          high        23      unsolicited "echo <token>" shell-verification command
+ 4010  tcp    likely pingback handler                        pingback_reverse_tcp family                  low                 handler closed the connection 0.33s after a 16-byte write, returning no data (reads a 16-byte UUID then closes)
+ 4011  tcp    command shell handler                                                                       high        24      unsolicited "echo <token>" shell-verification command                                                            AutoRunScript/operator commands captured to loot
 
 [*] 127.0.0.1             - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
