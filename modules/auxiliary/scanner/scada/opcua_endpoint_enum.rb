@@ -19,18 +19,23 @@ class MetasploitModule < Msf::Auxiliary
   # The ceilings that bound a hostile response live there too, and are the only
   # thing standing between this module and unbounded allocation:
   #
-  #   Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE    one message, 4 MiB
+  #   Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE      one chunk, 4 MiB, until the
+  #                                               Acknowledge negotiates a
+  #                                               smaller one
+  #   Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE    one reassembled message, 4 MiB
   #   Rex::Proto::OpcUa::Tcp::MAX_CHUNKS          chunks per response, 64
   #   Rex::Proto::OpcUa::Services::MAX_ENDPOINTS  endpoints per response, 64
   #   Rex::Proto::OpcUa::Types::OpcUaArray::DEFAULT_MAX_LENGTH   any other
   #                                               array, 512
+  #
+  # The first three are also what the Hello advertises, so a server that honours
+  # the handshake stops before any of them is reached and one that does not is
+  # cut off locally.
   OpcUa = Rex::Proto::OpcUa
 
-  # ProtocolVersion 0 is the only version this standard defines. The buffer
-  # sizes are what this client is willing to receive; zero for MaxMessageSize
-  # and MaxChunkCount says the client imposes no limit of its own, which is not
-  # the same as accepting anything, since the ceilings above apply regardless.
-  # See OPC-UA Specification Part 6, section 7.1.2.3.
+  # The largest chunk this client will receive or send, and the value the
+  # server's own SendBufferSize is negotiated down against. See OPC-UA
+  # Specification Part 6, section 7.1.2.3.
   HELLO_BUFFER_SIZE = 65_535
 
   # TimeoutHint on every request, in milliseconds.
@@ -130,20 +135,29 @@ class MetasploitModule < Msf::Auxiliary
     OpcUa::Types::OpcUaNodeId.four_byte(identifier).to_binary_s
   end
 
+  # MaxMessageSize and MaxChunkCount are the ceilings this module enforces
+  # locally, sent rather than left at zero. Part 6, section 7.1.2.3 reads zero
+  # as "the Client has no limit", which declines the server side protection
+  # while applying the limits anyway; sending the real figures means a
+  # cooperative server aborts with Bad_ResponseTooLarge before the local
+  # ceilings are reached, and an uncooperative one is cut off at them.
+  #
   # @param stream [Rex::Proto::OpcUa::Tcp::MessageStream]
   # @param endpoint_url [String] the URL this client believes it dialled.
-  # @return [Integer] bytes written.
+  # @return [Rex::Proto::OpcUa::Tcp::HelloMessage] the Hello that was sent, kept
+  #   so the Acknowledge can be negotiated against what it asked for.
   def send_hello(stream, endpoint_url)
     hello = OpcUa::Tcp::HelloMessage.new(
       protocol_version: 0,
       receive_buffer_size: HELLO_BUFFER_SIZE,
       send_buffer_size: HELLO_BUFFER_SIZE,
-      max_message_size: 0,
-      max_chunk_count: 0,
+      max_message_size: OpcUa::Tcp::MAX_MESSAGE_SIZE,
+      max_chunk_count: OpcUa::Tcp::MAX_CHUNKS,
       endpoint_url: endpoint_url
     )
 
     stream.send_message(OpcUa::Tcp::MessageType::HELLO, hello.to_binary_s)
+    hello
   end
 
   # An OPN message body: a plaintext SecureChannelId, the asymmetric security
@@ -366,7 +380,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   # @return [Boolean] whether the server acknowledged.
   def hello_acknowledged?(stream, endpoint_url)
-    send_hello(stream, endpoint_url)
+    hello = send_hello(stream, endpoint_url)
 
     begin
       msg = stream.recv_message
@@ -375,14 +389,26 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    return true if msg.message_type == OpcUa::Tcp::MessageType::ACKNOWLEDGE
-
-    if msg.error?
-      print_status("OPC-UA server present but refused the Hello - #{error_detail(msg.body)}")
-    else
-      vprint_status("Non-OPC-UA response (type=#{msg.message_type.inspect})")
+    unless msg.message_type == OpcUa::Tcp::MessageType::ACKNOWLEDGE
+      if msg.error?
+        print_status("OPC-UA server present but refused the Hello - #{error_detail(msg.body)}")
+      else
+        vprint_status("Non-OPC-UA response (type=#{msg.message_type.inspect})")
+      end
+      return false
     end
-    false
+
+    # Part 6, section 7.1.2.2 requires the connection layer to check every
+    # MessageSize against the negotiated buffer size, so the size the server
+    # named has to replace the standing ceiling before anything else is read.
+    begin
+      stream.negotiate(hello, OpcUa::Tcp::AcknowledgeMessage.read(msg.body))
+    rescue OpcUa::Error::FramingError => e
+      print_status("OPC-UA handshake rejected - #{e.message}")
+      return false
+    end
+
+    true
   end
 
   # @return [Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken, nil] the

@@ -15,7 +15,7 @@ require 'spec_helper'
 # The whole conversation is replayed from spec/file_fixtures/opc_ua, so this
 # exercises the real HEL, OPN and GetEndpoints handling end to end rather than
 # any one method of it. See spec/file_fixtures/opc_ua/README.md for provenance.
-RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
+RSpec.shared_context 'an opcua_endpoint_enum replay' do
   include_context 'Msf::Simple::Framework#modules loading'
 
   subject(:scanner) do
@@ -93,6 +93,10 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
   def report_for(kind)
     reports.find { |name, _| name == kind }&.last
   end
+end
+
+RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
+  include_context 'an opcua_endpoint_enum replay'
 
   describe 'a successful enumeration of the captured server' do
     before { run_against(conversation) }
@@ -128,6 +132,18 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
         [:print_status, '  ApplicationUri: urn:ua-node:NodeOPCUA-Server'],
         [:print_status, '  ProductUri: NodeOPCUA-Server']
       ]
+    end
+
+    # Part 6 section 7.1.2.3 reads a zero MaxMessageSize or MaxChunkCount as
+    # "the Client has no limit", which would decline the server side protection
+    # while the module applied the same limits locally anyway. Sending the real
+    # figures lets a cooperative server stop first.
+    it 'advertises the ceilings it enforces rather than declining the protection' do
+      hello = Rex::Proto::OpcUa::Tcp::HelloMessage.read(sent.first.byteslice(8..))
+
+      expect(hello.max_message_size.snapshot).to eq Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE
+      expect(hello.max_chunk_count.snapshot).to eq Rex::Proto::OpcUa::Tcp::MAX_CHUNKS
+      expect(hello.receive_buffer_size.snapshot).to be_positive
     end
 
     it 'sends a HEL, an OPN, a GetEndpoints MSG and a CLO, in that order' do
@@ -331,6 +347,13 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
   # loop and re-raises it, which ends the sweep rather than moving to the next
   # host. Every error the library raises is one, so run_host has to contain them
   # or a single malformed server takes the whole scan down with it.
+end
+
+# The bounds that stop a hostile server, split into a group of their own so
+# neither exceeds the block length the project's RuboCop configuration allows.
+RSpec.describe 'scanner/scada/opcua_endpoint_enum bounds' do
+  include_context 'an opcua_endpoint_enum replay'
+
   describe 'containing library errors' do
     it 'raises errors that Msf::Auxiliary::Scanner would re-raise out of its host loop' do
       expect(Rex::Proto::OpcUa::Error::OpcUaError.ancestors).to include ::RuntimeError
@@ -361,7 +384,13 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
   # Constraint 4. These are the only thing between the module and a response
   # that claims to be larger than memory.
   describe 'the ceilings on a hostile response' do
-    it 'keeps a message ceiling of 4 MiB' do
+    it 'keeps a chunk ceiling of 4 MiB' do
+      expect(Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE).to eq 4 * 1024 * 1024
+    end
+
+    # The one bwatters found missing: bounding a chunk and bounding the number
+    # of chunks leaves the size of what they add up to unbounded.
+    it 'keeps a cumulative ceiling of 4 MiB on a reassembled message' do
       expect(Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE).to eq 4 * 1024 * 1024
     end
 
@@ -390,7 +419,7 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
     # The read that matters is the one that never happens: the size is believed
     # only far enough to reject it, so the header is read and nothing else.
     it 'never reads the body of a message that declares more than the ceiling' do
-      run_against('ACKF'.b + [Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE + 1].pack('V'))
+      run_against('ACKF'.b + [Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE + 1].pack('V'))
 
       expect(reads).to eq [Rex::Proto::OpcUa::Tcp::HEADER_LEN]
       expect(output).to eq [[:vprint_status, 'No OPC-UA response to HEL']]
@@ -421,6 +450,57 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
       run_against(ack + open_response + oversize)
 
       expect(reports).to be_empty
+    end
+  end
+
+  # The handshake decides how large a chunk this module will accept for the rest
+  # of the connection, so what the server says in its Acknowledge has to be
+  # checked rather than taken.
+  describe 'the negotiated chunk size' do
+    def ack_frame(send_buffer_size)
+      'ACKF'.b + [28].pack('V') + [0, 65_535, send_buffer_size, 0, 0].pack('V5')
+    end
+
+    it 'refuses a server that answers the Hello with an absurd buffer size' do
+      run_against(ack_frame(0xFFFFFFFF))
+
+      expect(output).to eq [
+        [
+          :print_status, 'OPC-UA handshake rejected - server advertised a SendBufferSize of 4294967295, ' \
+                        'outside 1..4194304'
+        ]
+      ]
+    end
+
+    it 'refuses a server that answers with a buffer size of zero' do
+      run_against(ack_frame(0))
+
+      expect(output.first.first).to eq :print_status
+      expect(output.first.last).to include 'SendBufferSize of 0'
+    end
+
+    it 'stops before opening a channel when the handshake is refused' do
+      run_against(ack_frame(0xFFFFFFFF))
+
+      expect(sent.map { |frame| frame.byteslice(0, 4) }).to eq %w[HELF]
+      expect(reports).to be_empty
+    end
+
+    # The captured server agrees to 65535, so from that point a chunk larger
+    # than the module said it could take is refused even though the standing
+    # 4 MiB ceiling would have allowed it.
+    it 'bounds later chunks by what the server agreed to' do
+      oversize = 'MSGF'.b + [70_000].pack('V')
+      run_against(ack + open_response + oversize)
+
+      expect(output.last).to eq [:print_error, 'GetEndpoints failed: message size 70000 outside 8..65535']
+    end
+
+    it 'takes the size from the captured Acknowledge' do
+      run_against(conversation)
+      acknowledge = Rex::Proto::OpcUa::Tcp::AcknowledgeMessage.read(ack[8..])
+
+      expect(acknowledge.send_buffer_size.snapshot).to eq 65_535
     end
   end
 end

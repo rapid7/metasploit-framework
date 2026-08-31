@@ -39,9 +39,23 @@ module Rex::Proto::OpcUa::Tcp
   SECURE_MSG_PREFIX_LEN = 16
 
   # Defensive ceilings. A malformed or hostile response must fail quickly rather
-  # than allocate without bound. Both values are carried over unchanged from the
-  # module this library was factored out of.
+  # than allocate without bound, and the three below are deliberately layered:
+  # bounding a chunk does not bound a message, and bounding the number of chunks
+  # does not either, because the product of the two is what actually arrives.
+  #
+  # The largest single chunk accepted before a size has been negotiated, and the
+  # most this library will ever accept as a negotiated one. A server answering
+  # the Hello with a buffer size above this is refused rather than believed.
+  MAX_CHUNK_SIZE = 4 * 1024 * 1024
+
+  # The largest reassembled message, applied cumulatively as the chunks arrive.
+  # This is the MaxMessageSize a client advertises in its Hello, so a server
+  # that honours it aborts before reaching the ceiling and one that does not is
+  # cut off here. See OPC-UA Specification Part 6, section 7.1.2.3.
   MAX_MESSAGE_SIZE = 4 * 1024 * 1024
+
+  # The most chunks one message may be split into, the MaxChunkCount of the same
+  # Hello.
   MAX_CHUNKS = 64
 
   # MessageType values, each three ASCII bytes. These come from two layers, and
@@ -196,13 +210,55 @@ module Rex::Proto::OpcUa::Tcp
     #   header and the body of a message are each read under a fresh deadline.
     attr_reader :timeout
 
-    # @param sock [#get_once] the socket to read from. Only
-    #   get_once(length, timeout) is called on it.
+    # @return [Integer] the largest single chunk currently accepted. This is
+    #   MAX_CHUNK_SIZE until #negotiate replaces it with what the server agreed
+    #   to in its Acknowledge.
+    attr_reader :max_chunk_size
+
+    # @param sock [#get_once, #put] the socket to work over.
     # @param timeout [Integer, Float] seconds allowed per read.
     # @return [MessageStream]
     def initialize(sock, timeout: DEFAULT_TIMEOUT)
       @sock = sock
       @timeout = timeout
+      @max_chunk_size = MAX_CHUNK_SIZE
+    end
+
+    # Apply the chunk size the server agreed to in its Acknowledge.
+    #
+    # OPC-UA Specification Part 6, section 7.1.2.2 requires the connection layer
+    # to check MessageSize against the negotiated ReceiveBufferSize before
+    # passing a message up. Until this is called there is no negotiated value
+    # and MAX_CHUNK_SIZE stands in for one.
+    #
+    # The field that bounds what arrives here is the server's SendBufferSize,
+    # not its ReceiveBufferSize: Table 75 defines the latter as the largest
+    # chunk the sender of the Acknowledge can receive, which bounds what this
+    # client sends rather than what it is sent. That table also requires the
+    # server's SendBufferSize not to exceed the ReceiveBufferSize the Hello
+    # asked for, so the smaller of the two is taken rather than trusting the
+    # server to have honoured it.
+    #
+    # A value below the specification's minimum is accepted as the server's own
+    # tighter limit, since it can only make this client allocate less.
+    #
+    # @param hello [HelloMessage] the Hello that was sent.
+    # @param acknowledge [AcknowledgeMessage] the Acknowledge that came back.
+    # @return [Integer] the bound now applied to each chunk.
+    # @raise [Error::FramingError] if the server named a chunk size that is
+    #   unusable or larger than this library will accept from anyone.
+    def negotiate(hello, acknowledge)
+      offered = acknowledge.send_buffer_size.snapshot
+      requested = hello.receive_buffer_size.snapshot
+
+      if offered.zero? || offered > MAX_CHUNK_SIZE
+        raise Error::FramingError,
+              "server advertised a SendBufferSize of #{offered}, outside 1..#{MAX_CHUNK_SIZE}"
+      end
+
+      # A Hello that asked for nothing in particular leaves the server's figure
+      # to stand on its own.
+      @max_chunk_size = requested.positive? ? [offered, requested].min : offered
     end
 
     # Frame a message and write it. MessageSize counts the header, so it is
@@ -272,8 +328,8 @@ module Rex::Proto::OpcUa::Tcp
     def recv_message
       header = MessageHeader.read(read_exact(HEADER_LEN))
       size = header.message_size.snapshot
-      if size < HEADER_LEN || size > MAX_MESSAGE_SIZE
-        raise Error::FramingError, "message size #{size} outside #{HEADER_LEN}..#{MAX_MESSAGE_SIZE}"
+      if size < HEADER_LEN || size > max_chunk_size
+        raise Error::FramingError, "message size #{size} outside #{HEADER_LEN}..#{max_chunk_size}"
       end
 
       Message.new(
@@ -316,7 +372,16 @@ module Rex::Proto::OpcUa::Tcp
                 "chunk of #{msg.body.bytesize} bytes is shorter than its #{SECURE_MSG_PREFIX_LEN} byte header"
         end
 
-        payload << msg.body.byteslice(SECURE_MSG_PREFIX_LEN..-1)
+        # The chunk ceiling and the chunk size ceiling do not bound this between
+        # them: the whole point of reassembly is that the result is larger than
+        # any one chunk, so the running total needs a ceiling of its own.
+        slice = msg.body.byteslice(SECURE_MSG_PREFIX_LEN..-1)
+        if payload.bytesize + slice.bytesize > MAX_MESSAGE_SIZE
+          raise Error::FramingError,
+                "reassembled response exceeded the #{MAX_MESSAGE_SIZE} byte ceiling"
+        end
+
+        payload << slice
         return payload if msg.final?
       end
 

@@ -285,9 +285,10 @@ RSpec.describe 'Rex::Proto::OpcUa TCP transport' do
       end
 
       # The ceiling matters most here: the size is believed only far enough to
-      # reject it, so nothing is allocated on the strength of it.
+      # reject it, so nothing is allocated on the strength of it. Before a size
+      # has been negotiated the bound is MAX_CHUNK_SIZE.
       it 'rejects a MessageSize above the ceiling' do
-        oversize = 'MSGF'.b + [Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE + 1].pack('V')
+        oversize = 'MSGF'.b + [Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE + 1].pack('V')
 
         expect { stream_over(oversize).recv_message }
           .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /message size 4194305 outside/)
@@ -541,6 +542,157 @@ RSpec.describe Rex::Proto::OpcUa::Tcp::ErrorMessage do
       record = described_class.read(raw)
 
       expect(described_class.decode(raw)).to eq [record.status_code.snapshot, record.reason.snapshot]
+    end
+  end
+end
+
+# The three ceilings are layered, and each of the specs above tests one of them
+# on its own. These test them against each other, which is where the gap was:
+# bounding one chunk and bounding the number of chunks says nothing about the
+# size of what they add up to.
+RSpec.describe 'Rex::Proto::OpcUa::Tcp::MessageStream bounds' do
+  def frame(message_type, chunk_type, body)
+    (message_type + chunk_type).b + [Rex::Proto::OpcUa::Tcp::HEADER_LEN + body.bytesize].pack('V') + body
+  end
+
+  def msg_chunk(chunk_type, payload)
+    frame('MSG', chunk_type, [1, 2, 3, 4].pack('V4') + payload)
+  end
+
+  def stream_over(data)
+    socket = Class.new do
+      define_method(:initialize) { @buffer = data.dup.b }
+      define_method(:get_once) { |length, _timeout| @buffer.empty? ? nil : @buffer.slice!(0, length) }
+    end.new
+
+    Rex::Proto::OpcUa::Tcp::MessageStream.new(socket, timeout: 0.5)
+  end
+
+  let(:hello) { Rex::Proto::OpcUa::Tcp::HelloMessage.new(receive_buffer_size: 65_535) }
+
+  def acknowledge(send_buffer_size)
+    Rex::Proto::OpcUa::Tcp::AcknowledgeMessage.new(
+      receive_buffer_size: 65_535,
+      send_buffer_size: send_buffer_size
+    )
+  end
+
+  describe '#negotiate' do
+    subject(:stream) { stream_over('') }
+
+    it 'accepts MAX_CHUNK_SIZE until a size has been negotiated' do
+      expect(stream.max_chunk_size).to eq Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE
+    end
+
+    it 'takes the chunk size the server said it would send' do
+      expect(stream.negotiate(hello, acknowledge(16_384))).to eq 16_384
+      expect(stream.max_chunk_size).to eq 16_384
+    end
+
+    # Part 6 Table 75 requires the server's SendBufferSize not to exceed the
+    # ReceiveBufferSize the Hello asked for. A server that ignores that is not
+    # believed: it cannot enlarge what this client agreed to receive.
+    it 'never exceeds what the Hello asked to receive' do
+      stream.negotiate(hello, acknowledge(1_000_000))
+
+      expect(stream.max_chunk_size).to eq 65_535
+    end
+
+    # This is the guard that stops a server answering the Hello with a figure
+    # that would put the per chunk bound back where it started.
+    it 'refuses a chunk size larger than this library will ever accept' do
+      oversize = acknowledge(Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE + 1)
+
+      expect { stream.negotiate(hello, oversize) }
+        .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /SendBufferSize of 4194305, outside/)
+    end
+
+    it 'refuses a chunk size of zero, which no message could satisfy' do
+      expect { stream.negotiate(hello, acknowledge(0)) }
+        .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /SendBufferSize of 0, outside/)
+    end
+
+    it 'leaves the bound alone when it refuses' do
+      begin
+        stream.negotiate(hello, acknowledge(0))
+      rescue Rex::Proto::OpcUa::Error::FramingError
+        nil
+      end
+
+      expect(stream.max_chunk_size).to eq Rex::Proto::OpcUa::Tcp::MAX_CHUNK_SIZE
+    end
+
+    # A server entitled to send smaller chunks than asked for is taken at its
+    # word, since that can only make this client allocate less.
+    it 'accepts a smaller chunk size than was asked for' do
+      stream.negotiate(hello, acknowledge(8192))
+
+      expect(stream.max_chunk_size).to eq 8192
+    end
+  end
+
+  describe 'the negotiated chunk size' do
+    it 'bounds a chunk that the unnegotiated ceiling would have allowed' do
+      stream = stream_over('MSGF'.b + [70_000].pack('V'))
+      stream.negotiate(hello, acknowledge(65_535))
+
+      expect { stream.recv_message }
+        .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /message size 70000 outside 8..65535/)
+    end
+
+    it 'admits a chunk that fits inside it' do
+      body = [1, 2, 3, 4].pack('V4') + 'payload'
+      stream = stream_over(frame('MSG', 'F', body))
+      stream.negotiate(hello, acknowledge(65_535))
+
+      expect(stream.recv_service_response).to eq 'payload'
+    end
+  end
+
+  describe 'the cumulative bound on a reassembled response' do
+    # Each chunk is legal on its own and the chunk count is nowhere near spent,
+    # so this is the case neither of the other two ceilings catches: without a
+    # running total, 64 chunks of this size would reassemble to 140 MB.
+    let(:payload) { 'x' * 2_200_000 }
+
+    it 'fails on the running total before the chunk count runs out' do
+      data = msg_chunk('C', payload) + msg_chunk('C', payload) + msg_chunk('F', 'tail')
+
+      expect { stream_over(data).recv_service_response }
+        .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /reassembled response exceeded the 4194304 byte ceiling/)
+    end
+
+    it 'accepts each of those chunks on its own' do
+      expect(stream_over(msg_chunk('F', payload)).recv_service_response.bytesize).to eq payload.bytesize
+    end
+
+    # The bound is on the total rather than on the chunk that crosses it, so the
+    # second chunk is refused for what it would add, not for its own size.
+    it 'counts what has already been reassembled' do
+      data = msg_chunk('C', payload) + msg_chunk('F', 'x' * 2_000_000)
+
+      expect { stream_over(data).recv_service_response }
+        .to raise_error(Rex::Proto::OpcUa::Error::FramingError, /reassembled response exceeded/)
+    end
+
+    it 'allows a response that reaches the ceiling exactly' do
+      exact = 'x' * (Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE / 2)
+      data = msg_chunk('C', exact) + msg_chunk('F', exact)
+
+      expect(stream_over(data).recv_service_response.bytesize).to eq Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE
+    end
+
+    # Once a size has been negotiated the two ceilings are consistent with each
+    # other: 64 chunks of 65535 bytes cannot reach 4 MB, so the chunk count is
+    # what a server runs into first and the running total is the backstop for a
+    # connection that never negotiated one.
+    it 'is not reachable within the chunk count once a size has been negotiated' do
+      stream = stream_over('')
+      stream.negotiate(hello, acknowledge(65_535))
+      largest = stream.max_chunk_size - Rex::Proto::OpcUa::Tcp::HEADER_LEN -
+                Rex::Proto::OpcUa::Tcp::SECURE_MSG_PREFIX_LEN
+
+      expect(largest * Rex::Proto::OpcUa::Tcp::MAX_CHUNKS).to be < Rex::Proto::OpcUa::Tcp::MAX_MESSAGE_SIZE
     end
   end
 end
