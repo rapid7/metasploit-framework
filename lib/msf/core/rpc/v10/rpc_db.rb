@@ -375,7 +375,7 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
-  # @option xopts [String] :addresses Host addresses
+  # @option xopts [String, Array<String>] :addresses Address or CIDR range to filter by; may be an array of either.
   # @option xopts [Boolean] :only_up If true, return hosts that are up.
   # @option xopts [Integer] :limit Maximum number of hosts to return.
   # @option xopts [Integer] :offset return the hosts starting at index `offset`.
@@ -406,34 +406,60 @@ public
 
     conditions = {}
     conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:only_up]
-    conditions[:address] = opts[:addresses] if opts[:addresses]
 
-    limit = opts.delete(:limit) || 100
+    cidr_addrs = exact_addrs = []
+    if opts[:addresses]
+      addresses = Array(opts[:addresses])
+      cidr_addrs, exact_addrs = addresses.partition { |a| a.to_s.include?('/') }
+      cidr_addrs.map! { |c| IPAddr.new(c).cidr }
+    end
+
+    limit  = opts.delete(:limit)  || 100
     offset = opts.delete(:offset) || 0
 
     ret = {}
     ret[:hosts] = []
-    wspace.hosts.where(conditions).offset(offset).order(:address).limit(limit).each do |h|
+
+    host_query = wspace.hosts.where(conditions)
+    if exact_addrs.any? || cidr_addrs.any?
+      address_filter_sql = []
+      bind_values = []
+
+      if exact_addrs.any?
+        address_filter_sql << 'hosts.address IN (?)'
+        bind_values << exact_addrs
+      end
+
+      if cidr_addrs.any?
+        address_filter_sql << cidr_addrs.map { 'hosts.address <<= ?::cidr' }.join(' OR ')
+        bind_values.concat(cidr_addrs)
+      end
+
+      host_query = host_query.where(["(#{address_filter_sql.join(') OR (')})", *bind_values])
+    end
+
+    hosts = host_query.order(:address).offset(offset).limit(limit)
+
+    hosts.each do |h|
       host = {}
       host[:created_at] = h.created_at.to_i
-      host[:address] = h.address.to_s
-      host[:mac] = h.mac.to_s
-      host[:name] = h.name.to_s
-      host[:state] = h.state.to_s
-      host[:os_name] = h.os_name.to_s
-      host[:os_flavor] = h.os_flavor.to_s
-      host[:os_sp] = h.os_sp.to_s
-      host[:os_lang] = h.os_lang.to_s
+      host[:address]    = h.address.to_s
+      host[:mac]        = h.mac.to_s
+      host[:name]       = h.name.to_s
+      host[:state]      = h.state.to_s
+      host[:os_name]    = h.os_name.to_s
+      host[:os_flavor]  = h.os_flavor.to_s
+      host[:os_sp]      = h.os_sp.to_s
+      host[:os_lang]    = h.os_lang.to_s
       host[:updated_at] = h.updated_at.to_i
-      host[:purpose] = h.purpose.to_s
-      host[:info] = h.info.to_s
-      host[:comments] = h.comments.to_s
-      ret[:hosts]  << host
+      host[:purpose]    = h.purpose.to_s
+      host[:info]       = h.info.to_s
+      host[:comments]   = h.comments.to_s
+      ret[:hosts] << host
     end
     ret
   }
   end
-
 
   # Returns information about services.
   #

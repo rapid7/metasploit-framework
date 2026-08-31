@@ -116,12 +116,12 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
 
-    vprint_status("#{rhost}:#{rport} - Trying user:'#{user}' with password:'#{pass}'")
+    vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Trying user:'#{user}' with password:'#{pass}'")
     cmd = "Action: Login\r\nUsername: #{user}\r\nSecret: #{pass}\r\n\r\n"
     send_manager(cmd)
 
     if /Response: Success/.match(@result)
-      print_good("User: \"#{user}\" using pass: \"#{pass}\" - can login on #{rhost}:#{rport}!")
+      print_good("User: \"#{user}\" using pass: \"#{pass}\" - can login on #{Rex::Socket.to_authority(rhost, rport)}!")
       report_cred(ip: rhost, port: rport, user: user, password: pass, proof: @result)
       disconnect
       return :next_user

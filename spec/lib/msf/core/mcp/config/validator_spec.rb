@@ -173,6 +173,126 @@ RSpec.describe Msf::MCP::Config::Validator do
       end
     end
 
+    context 'with MCP auth token validation' do
+      let(:base_config) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          },
+          mcp: {
+            transport: 'http'
+          }
+        }
+      end
+
+      it 'accepts nil, empty, and printable non-whitespace string tokens' do
+        [nil, '', 'password', 'abc_123-XYZ.~'].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+          expect(described_class.validate!(config)).to be true
+        end
+      end
+
+      it 'rejects non-string tokens' do
+        config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: 123))
+
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a string/)
+      end
+
+      it 'rejects whitespace and non-printable tokens' do
+        ['with space', "tab\t", "newline\n", "bad\x7f"].each do |auth_token|
+          config = base_config.merge(mcp: base_config[:mcp].merge(auth_token: auth_token))
+
+          expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.auth_token must be a valid token/)
+        end
+      end
+
+      it 'rejects auth tokens for stdio transport' do
+        config = base_config.merge(mcp: { transport: 'stdio', auth_token: 'password' })
+
+        expect { described_class.validate!(config) }.to raise_error(
+          Msf::MCP::Config::ValidationError,
+          /mcp\.auth_token authentication must only be used with the 'http' transport/
+        )
+      end
+    end
+
+    context 'with Puma thread/worker validation' do
+      let(:valid_base) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          },
+          mcp: { transport: 'http' }
+        }
+      end
+
+      it 'accepts valid min_threads value' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 2 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts valid max_threads value' do
+        config = valid_base.merge(mcp: { transport: 'http', max_threads: 16 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts valid workers value' do
+        config = valid_base.merge(mcp: { transport: 'http', workers: 4 })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'rejects negative min_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: -1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('>= 0')
+        end
+      end
+
+      it 'rejects zero max_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', max_threads: 0 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.max_threads']).to include('>= 1')
+        end
+      end
+
+      it 'rejects negative workers' do
+        config = valid_base.merge(mcp: { transport: 'http', workers: -1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.workers']).to include('>= 0')
+        end
+      end
+
+      it 'rejects min_threads greater than max_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 10, max_threads: 5 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('less than or equal')
+        end
+      end
+
+      it 'rejects non-integer min_threads' do
+        config = valid_base.merge(mcp: { transport: 'http', min_threads: 'abc' })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.min_threads']).to include('>= 0')
+        end
+      end
+    end
+
     context 'with port validation' do
       it 'accepts port 8080' do
         config = {
@@ -940,6 +1060,61 @@ RSpec.describe Msf::MCP::Config::Validator do
       it 'does not validate sanitize when key is absent' do
         config = base_config.merge(logging: { enabled: true, level: 'INFO' })
         expect(described_class.validate!(config)).to be true
+      end
+    end
+
+    context 'with dangerous_actions validation' do
+      let(:base_config) do
+        {
+          msf_api: {
+            type: 'messagepack',
+            host: 'localhost',
+            user: 'msf',
+            password: 'password'
+          }
+        }
+      end
+
+      it 'accepts dangerous_actions set to true' do
+        config = base_config.merge(mcp: { dangerous_actions: true })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'accepts dangerous_actions set to false' do
+        config = base_config.merge(mcp: { dangerous_actions: false })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'does not raise when dangerous_actions is not present' do
+        config = base_config.merge(mcp: { transport: 'stdio' })
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'rejects non-boolean dangerous_actions (string)' do
+        config = base_config.merge(mcp: { dangerous_actions: 'true' })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
+      end
+
+      it 'rejects non-boolean dangerous_actions (integer)' do
+        config = base_config.merge(mcp: { dangerous_actions: 1 })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
+      end
+
+      it 'rejects non-boolean dangerous_actions (nil)' do
+        config = base_config.merge(mcp: { dangerous_actions: nil })
+        expect {
+          described_class.validate!(config)
+        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
+        end
       end
     end
   end

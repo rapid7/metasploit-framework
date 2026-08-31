@@ -68,8 +68,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # loop a few times to account for multiple or slow responders
     iter = 0
-    while (r = udp_sock.recvfrom(65535, 0.1)) && (iter < 20)
-      parse_reply(r)
+    while (r = udp_sock.timed_recvfrom(65535, 0.1)) && (iter < 20)
+      parse_reply([r[0], r[1][3], r[1][1]])
       iter += 1
     end
   end

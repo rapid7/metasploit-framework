@@ -36,8 +36,7 @@ module Rex::Proto::MsDtyp
 
     # Obtain an array of the abbreviated names of permissions that the access mask specifies.
     #
-    # @return Returns nil if the permissions can't be represented as an array of abbreviations.
-    # @rtype [Array<Symbol>, nil]
+    # @return [Array<Symbol>, nil] Returns nil if the permissions can't be represented as an array of abbreviations.
     def permissions
       if (protocol & 0b1111111000000000) != 0 || ma == 1 || as == 1
         return nil

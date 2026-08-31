@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
           '&LAN_HID1=1'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
-      print_error("Couldn't connect to #{rhost}:#{rport}")
+      print_error("Couldn't connect to #{Rex::Socket.to_authority(rhost, rport)}")
       return
     end
 
@@ -85,9 +85,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check to see if it worked or not
     if is_alive?
-      print_error("#{rhost}:#{rport} - Server is still alive")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Server is still alive")
     else
-      print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Connection Refused: Success!")
     end
   end
 end

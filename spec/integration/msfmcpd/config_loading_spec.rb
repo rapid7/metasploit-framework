@@ -93,7 +93,7 @@ RSpec.describe 'Configuration Loading and Validation Integration' do
       app = Msf::MCP::Application.new(['--config', config_file.path], output: output)
 
       # Stub authentication
-      stub_request(:post, 'https://localhost:55553/api/')
+      stub_request(:post, 'https://127.0.0.1:55553/api/')
         .to_return(
           status: 200,
           body: MessagePack.pack({
@@ -107,7 +107,7 @@ RSpec.describe 'Configuration Loading and Validation Integration' do
       app.send(:validate_configuration)
 
       # Verify defaults were applied
-      expect(app.config[:msf_api][:host]).to eq('localhost')
+      expect(app.config[:msf_api][:host]).to eq('127.0.0.1')
       expect(app.config[:msf_api][:port]).to eq(55553)
       expect(app.config[:rate_limit][:requests_per_minute]).to eq(60)
       expect(app.config[:logging][:level]).to eq('INFO')

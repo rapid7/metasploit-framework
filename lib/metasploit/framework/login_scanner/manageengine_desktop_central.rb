@@ -23,6 +23,7 @@ module Metasploit
 
           fingerprint = 'ManageEngine Desktop Central'
           if res && res.body.include?(fingerprint)
+            report_service(service_opts)
             return false
           end
 
@@ -115,10 +116,7 @@ module Metasploit
             credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp',
-            service_name: ssl ? 'https' : 'http',
+            **service_as_result(service_opts),
           }
 
           begin
@@ -129,6 +127,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('manageengine_desktop_central')
         end
 
       end

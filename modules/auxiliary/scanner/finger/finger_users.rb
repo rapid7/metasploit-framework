@@ -29,13 +29,13 @@ class MetasploitModule < Msf::Auxiliary
     @users = {}
 
     begin
-      vprint_status "#{rhost}:#{rport} - Sending empty finger request."
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending empty finger request."
       finger_empty
-      vprint_status "#{rhost}:#{rport} - Sending test finger requests."
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending test finger requests."
       finger_zero
       finger_dot
       finger_chars
-      vprint_status "#{rhost}:#{rport} - Sending finger request for #{finger_user_common.count} users"
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending finger request for #{finger_user_common.count} users"
       finger_list
     rescue ::Rex::ConnectionError
     rescue ::Exception => e
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     buff = finger_slurp_data
     if buff.scan(/\r?\nm\s/).size > 7
       @multiple_requests = true
-      vprint_status "#{rhost}:#{rport} - Multiple users per request is okay."
+      vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Multiple users per request is okay."
     end
     parse_users(buff)
     disconnect
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
         next if @users[user]
 
         connect
-        vprint_status "#{rhost}:#{rport} - Sending finger request for #{user}..."
+        vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending finger request for #{user}..."
         sock.put("#{user}\r\n")
         buff = finger_slurp_data
         ret = parse_users(buff)
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
           user_batch << new_user
         end
         connect
-        vprint_status "#{rhost}:#{rport} - Sending finger request for #{user_batch.join(", ")}..."
+        vprint_status "#{Rex::Socket.to_authority(rhost, rport)} - Sending finger request for #{user_batch.join(", ")}..."
         sock.put("#{user_batch.join(" ")}\r\n")
         buff = finger_slurp_data
         ret = parse_users(buff)
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if uid
-        print_good "#{rhost}:#{rport} - Found user: #{uid}" unless @users[uid] == :reported
+        print_good "#{Rex::Socket.to_authority(rhost, rport)} - Found user: #{uid}" unless @users[uid] == :reported
         @users[uid] = :reported
         next
       end

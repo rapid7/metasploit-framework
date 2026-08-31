@@ -52,9 +52,9 @@ RSpec.describe Msf::MCP::Tools::ServiceInfo do
   end
 
   describe 'Input Schema Validation' do
-    it 'defines workspace as required parameter' do
+    it 'does not require workspace (defaults to "default")' do
       input_schema = described_class.input_schema
-      expect(input_schema.schema[:required]).to include('workspace')
+      expect(Array(input_schema.schema[:required])).not_to include('workspace')
     end
 
     it 'supports multiple filter parameters' do
@@ -77,6 +77,8 @@ RSpec.describe Msf::MCP::Tools::ServiceInfo do
       expect(data_items[:host_address]).to eq({ type: 'string' })
       expect(data_items[:state]).to eq({ type: 'string' })
       expect(data_items[:info]).to eq({ type: 'string' })
+      expect(data_items[:resource]).to eq({ type: 'object' })
+      expect(data_items[:parents]).to eq({ type: 'array', items: { type: 'object' } })
     end
   end
 

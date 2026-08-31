@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       file_enc = 'plain'
     end
 
-    print_status("Target: #{rhost}:#{rport}")
+    print_status("Target: #{Rex::Socket.to_authority(rhost, rport)}")
     print_status("File to extract: #{file_path}")
 
     # Step 1: Login

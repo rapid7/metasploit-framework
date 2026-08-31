@@ -203,7 +203,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
 
   # Gets the status of a Pkcs12
   #
-  # @param [Msf::Exploit::Remote::Pkcs12::Storage]
+  # @param pkcs12 [Msf::Exploit::Remote::Pkcs12::Storage]
   # @return [String] Status of the Pkcs12
   def pkcs12_status(pkcs12)
     if pkcs12.expired?
@@ -217,8 +217,8 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
 
   # Sets the status of the Pkcs12
   #
-  # @param [Symbol] mode The status (:activate or :deactivate) to apply to the Pkcs12(s)
-  # @param [Array<StoredPkcs12>] tickets The Pkcs12 which statuses are to be updated
+  # @param mode [Symbol] The status (:activate or :deactivate) to apply to the Pkcs12(s)
+  # @param pkcs12 [Array<StoredPkcs12>] The Pkcs12 which statuses are to be updated
   # @return [Array<StoredPkcs12>]
   def set_pkcs12_status(mode, pkcs12)
     if mode == :activate

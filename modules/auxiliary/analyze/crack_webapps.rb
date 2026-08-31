@@ -75,9 +75,16 @@ class MetasploitModule < Msf::Auxiliary
         next unless fields.count >= 2
 
         cred['core_id'] = fields.shift
-        cred['hash'] = fields.shift
-        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
         next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
+
+        case hash_type
+        when 'pbkdf2-sha256'
+          # hashcat format: cred_id:sha256:iterations:b64salt:b64hash:password
+          4.times { fields.shift } # skip sha256, iterations, b64salt, b64hash
+        else
+          cred['hash'] = fields.shift
+        end
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
 
         # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
         # so we can now just go grab the username from the DB

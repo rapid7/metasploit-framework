@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
     connect_udp
 
     udp_sock.put(enip_list_identify_pkt)
-    res = udp_sock.recvfrom(90)
+    res = udp_sock.timed_recvfrom(90)
 
     disconnect_udp
 

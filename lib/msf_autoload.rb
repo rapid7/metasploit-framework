@@ -39,6 +39,10 @@ class MsfAutoload
         'MYSQL'
       elsif basename == 'ssh' && abspath.end_with?("#{__dir__}/rex/proto/ssh")
         'Ssh'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/rex/proto/ftp")
+        'Ftp'
+      elsif basename == 'ftp' && abspath.end_with?("#{__dir__}/msf/core/exploit/remote/ftp.rb")
+        'Ftp'
       elsif basename == 'http' && abspath.end_with?("#{__dir__}/rex/proto/http")
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
@@ -136,6 +140,7 @@ class MsfAutoload
       'mssql' => 'MSSQL',
       'pdf' => 'PDF',
       'fileformat' => 'FILEFORMAT',
+      'ftp' => 'FTP',
       'http' => 'HTTP',
       'html' => 'HTML',
       'pdf_parse' => 'PDF_Parse',
@@ -169,12 +174,14 @@ class MsfAutoload
       'dns' => 'DNS',
       'smtp_deliver' => 'SMTPDeliver',
       'send_uuid' => 'SendUUID',
+      'exec_x86' => 'Exec_X86',
       'exec_x64' => 'Exec_x64',
       'reflective_dll_injection' => 'ReflectiveDLLInjection',
       'reflective_pe_loader' => 'ReflectivePELoader',
       'pe_inject' => 'PEInject',
       'reverse_tcp_x86' => 'ReverseTcp_x86',
       'reverse_tcp_aarch64' => 'ReverseTcp_Aarch64',
+      'exitfunk_aarch64' => 'Exitfunk_Aarch64',
       'ruby_dl' => 'RubyDL',
       'wmic' => 'WMIC',
       'net_api' => 'NetAPI',

@@ -1,12 +1,26 @@
+GIT
+  remote: https://github.com/rapid7/LicenseFinder
+  revision: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
+  ref: 2b1aefcfd6d0745d17843050c1c89f973c1fa98c
+  specs:
+    license_finder (7.2.1)
+      bundler
+      csv (~> 3.2)
+      rubyzip (>= 1, < 4)
+      thor (~> 1.2)
+      tomlrb (>= 1.3, < 2.1)
+      with_env (= 1.1.0)
+      xml-simple (~> 1.1.9)
+
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.134)
+    metasploit-framework (6.5.4)
       aarch64
       abbrev
-      actionpack (~> 7.2.0)
-      activerecord (~> 7.2.0)
-      activesupport (~> 7.2.0)
+      actionpack (~> 8.0.5)
+      activerecord (~> 8.0.5)
+      activesupport (~> 8.0.5)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
@@ -47,9 +61,9 @@ PATH
       metasploit-concern
       metasploit-credential (>= 6.0.21)
       metasploit-model
-      metasploit-payloads (= 2.0.245)
+      metasploit-payloads (= 2.0.247)
       metasploit_data_models (>= 6.0.15)
-      metasploit_payloads-mettle (= 1.0.46)
+      metasploit_payloads-mettle (= 1.0.48)
       mqtt
       msgpack (~> 1.6.0)
       mutex_m
@@ -74,7 +88,7 @@ PATH
       pg
       puma
       rack (~> 3.1)
-      railties
+      railties (~> 8.0.5)
       rasn1 (= 0.14.0)
       rb-readline
       recog
@@ -107,7 +121,7 @@ PATH
       rubyntlm
       rubyzip
       sinatra (~> 4.1)
-      sqlite3 (= 1.7.3)
+      sqlite3 (~> 2.1)
       sshkey
       stringio (= 3.1.1)
       swagger-blocks
@@ -120,7 +134,7 @@ PATH
       win32api
       windows_error
       winrm
-      xdr
+      xdr (~> 3.0)
       xmlrpc
       zeitwerk
 
@@ -131,30 +145,29 @@ GEM
     aarch64 (2.1.0)
       racc (~> 1.6)
     abbrev (0.1.2)
-    actionpack (7.2.2.2)
-      actionview (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    actionpack (8.0.5)
+      actionview (= 8.0.5)
+      activesupport (= 8.0.5)
       nokogiri (>= 1.8.5)
-      racc
-      rack (>= 2.2.4, < 3.2)
+      rack (>= 2.2.4)
       rack-session (>= 1.0.1)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
       useragent (~> 0.16)
-    actionview (7.2.2.2)
-      activesupport (= 7.2.2.2)
+    actionview (8.0.5)
+      activesupport (= 8.0.5)
       builder (~> 3.1)
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activemodel (7.2.2.2)
-      activesupport (= 7.2.2.2)
-    activerecord (7.2.2.2)
-      activemodel (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    activemodel (8.0.5)
+      activesupport (= 8.0.5)
+    activerecord (8.0.5)
+      activemodel (= 8.0.5)
+      activesupport (= 8.0.5)
       timeout (>= 0.4.0)
-    activesupport (7.2.2.2)
+    activesupport (8.0.5)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -166,6 +179,7 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     afm (0.2.2)
@@ -228,14 +242,14 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.2)
+    csv (3.3.5)
     daemons (1.4.1)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
-    dnsruby (1.73.1)
+    dnsruby (1.74.0)
       base64 (>= 0.2)
       logger (~> 1.6)
       simpleidn (~> 0.2.1)
@@ -313,13 +327,6 @@ GEM
       addressable (~> 2.8)
       bigdecimal (>= 3.1, < 5)
     language_server-protocol (3.17.0.5)
-    license_finder (5.11.1)
-      bundler
-      rubyzip (>= 1, < 3)
-      thor
-      toml (= 0.2.0)
-      with_env (= 1.1.0)
-      xml-simple
     lint_roller (1.1.0)
     little-plugger (1.1.4)
     logger (1.7.0)
@@ -333,15 +340,15 @@ GEM
     mcp (0.13.0)
       json-schema (>= 4.1)
     memory_profiler (1.1.0)
-    metasm (1.0.5)
-    metasploit-concern (5.0.5)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
+    metasm (1.0.6)
+    metasploit-concern (5.0.6)
+      activemodel (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
       drb
       mutex_m
-      railties (~> 7.0)
+      railties (>= 7.0, < 8.1)
       zeitwerk
-    metasploit-credential (6.0.23)
+    metasploit-credential (6.0.25)
       bigdecimal
       csv
       drb
@@ -354,15 +361,15 @@ GEM
       railties
       rex-socket
       rubyntlm
-      rubyzip (< 3.0.0)
-    metasploit-model (5.0.4)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
+      rubyzip (>= 3.1.1, < 4.0)
+    metasploit-model (5.0.5)
+      activemodel (>= 7.0, < 8.1)
+      activesupport (>= 7.0, < 8.1)
       bigdecimal
       drb
       mutex_m
-      railties (~> 7.0)
-    metasploit-payloads (2.0.245)
+      railties (>= 7.0, < 8.1)
+    metasploit-payloads (2.0.247)
     metasploit_data_models (6.0.18)
       activerecord (>= 7.0, < 8.1)
       activesupport (>= 7.0, < 8.1)
@@ -376,7 +383,7 @@ GEM
       railties (>= 7.0, < 8.1)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.46)
+    metasploit_payloads-mettle (1.0.48)
     method_source (1.1.0)
     mime-types (3.7.0)
       logger
@@ -395,7 +402,9 @@ GEM
     net-imap (0.5.6)
       date
       net-protocol
-    net-ldap (0.19.0)
+    net-ldap (0.20.0)
+      base64
+      ostruct
     net-protocol (0.2.2)
       timeout
     net-sftp (4.0.0)
@@ -425,7 +434,6 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
-    parslet (1.8.2)
     patch_finder (1.0.2)
     pcaprub (0.13.3)
     pdf-reader (2.14.1)
@@ -471,13 +479,14 @@ GEM
     rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (7.2.2.2)
-      actionpack (= 7.2.2.2)
-      activesupport (= 7.2.2.2)
+    railties (8.0.5)
+      actionpack (= 8.0.5)
+      activesupport (= 8.0.5)
       irb (~> 1.13)
       rackup (>= 1.0.0)
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
+      tsort (>= 0.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.0)
@@ -502,7 +511,7 @@ GEM
       netrc (~> 0.8)
     rex-arch (0.1.20)
       rex-text
-    rex-bin_tools (0.1.16)
+    rex-bin_tools (0.1.17)
       metasm
       rex-arch
       rex-core
@@ -542,7 +551,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.65)
+    rex-socket (0.1.71)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)
@@ -604,7 +613,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.19)
+    ruby_smb (3.3.21)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac
@@ -612,7 +621,7 @@ GEM
       windows_error (>= 0.1.4)
     rubyntlm (0.6.5)
       base64
-    rubyzip (2.4.1)
+    rubyzip (3.3.0)
     sawyer (0.9.2)
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
@@ -629,7 +638,7 @@ GEM
       rack-protection (= 4.2.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
-    sqlite3 (1.7.3)
+    sqlite3 (2.9.4)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
     stringio (3.1.1)
@@ -643,12 +652,11 @@ GEM
       eventmachine (~> 1.0, >= 1.0.4)
       logger
       rack (>= 1, < 4)
-    thor (1.4.0)
+    thor (1.5.0)
     tilt (2.6.0)
     timecop (0.9.10)
     timeout (0.4.3)
-    toml (0.2.0)
-      parslet (~> 1.8.0)
+    tomlrb (2.0.4)
     tsort (0.2.0)
     ttfunk (1.8.0)
       bigdecimal (~> 3.1)
@@ -660,6 +668,7 @@ GEM
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
     unix-crypt (1.3.1)
+    uri (1.1.1)
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -673,7 +682,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     win32api (0.1.0)
-    windows_error (0.1.5)
+    windows_error (0.1.6)
     winrm (2.3.9)
       builder (>= 2.1.2)
       erubi (~> 1.8)
@@ -685,9 +694,9 @@ GEM
       rexml (~> 3.0)
       rubyntlm (~> 0.6.0, >= 0.6.3)
     with_env (1.1.0)
-    xdr (3.0.3)
-      activemodel (>= 4.2, < 8.0)
-      activesupport (>= 4.2, < 8.0)
+    xdr (3.0.1)
+      activemodel (>= 5.2.0)
+      activesupport (>= 5.2.0)
     xml-simple (1.1.9)
       rexml
     xmlrpc (0.3.3)
@@ -703,7 +712,7 @@ DEPENDENCIES
   debug (>= 1.0.0)
   factory_bot_rails
   fivemat
-  license_finder (= 5.11.1)
+  license_finder!
   memory_profiler
   metasploit-framework!
   octokit

@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       raise e
     rescue ::Exception => e
-      vprint_error("#{rhost}:#{rport} error checking version #{e.class} #{e}")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} error checking version #{e.class} #{e}")
       return false
     end
     offset = 0
@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_good "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
+    vprint_good "#{Rex::Socket.to_authority(rhost, rport)} - Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)
   end
 

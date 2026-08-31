@@ -1,104 +1,172 @@
-module Msf::Payload::Adapter::Fetch::Server::HTTP
-
+module Msf
   # This mixin supports only HTTP fetch handlers.
+  module Payload::Adapter::Fetch::Server::HTTP
 
-  def initialize(*args)
-    super
-    register_advanced_options(
-      [
-        Msf::OptString.new('FetchHttpServerName', [true, 'Fetch HTTP server name', 'Apache'])
-      ]
-    )
-  end
+    def initialize(*args)
+      super
+      register_advanced_options(
+        [
+          Msf::OptString.new('FetchHttpServerName', [true, 'Fetch HTTP server name', 'Apache'])
+        ]
+      )
+    end
 
-  def fetch_protocol
-    'HTTP'
-  end
+    def fetch_protocol
+      'HTTP'
+    end
 
-  def srvname
-    datastore['FetchHttpServerName']
-  end
+    def srvname
+      datastore['FetchHttpServerName']
+    end
 
-  def add_resource(fetch_service, uri, srvexe)
-    vprint_status("Adding resource #{uri}")
-    begin
+    def add_resource(fetch_service, uri, srv_entry)
+      vprint_status("Adding resource #{uri}")
       if fetch_service.resources.include?(uri)
         # When we clean up, we need to leave resources alone, because we never added one.
-        fail_with(Msf::Exploit::Failure::BadConfig, "Resource collision detected. Set FETCH_URIPATH to a different value to continue.")
+        fail_with(Msf::Exploit::Failure::BadConfig, 'Resource collision detected. Set FETCH_URIPATH to a different value to continue.')
       end
-      fetch_service.add_resource(uri,
-                                 'Proc' => proc do |cli, req|
-                                   on_request_uri(cli, req, srvexe)
-                                 end,
-                                 'VirtualDirectory' => true)
-    rescue  ::Exception => e
-      # When we clean up, we need to leave resources alone, because we never added one.
-      fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
+      begin
+        fetch_service.add_resource(uri,
+                                   'Proc' => proc do |cli, req|
+                                   on_request_uri(cli, req, srv_entry)
+                                   end,
+                                   'VirtualDirectory' => true)
+        @myresources << uri
+      rescue ::Exception => e
+        # When we clean up, we need to leave resources alone, because we never added one.
+        fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
+      end
     end
-    @myresources << uri
-  end
 
-  def cleanup_http_fetch_service(fetch_service, my_resources)
-    my_resources.each do |uri|
-      if fetch_service.resources.include?(uri)
-        fetch_service.remove_resource(uri)
+    def cleanup_http_fetch_service(fetch_service, my_resources)
+      my_resources.each do |uri|
+        if fetch_service.resources.include?(uri)
+          fetch_service.remove_resource(uri)
+        end
       end
 
+      fetch_service = nil
     end
 
-    fetch_service.deref
-  end
-
-  def start_http_fetch_handler(srvname, ssl=false, ssl_cert=nil, ssl_compression=nil, ssl_cipher=nil, ssl_version=nil)
-    # this looks a bit funny because I converted it to use an instance variable so that if we crash in the
-    # middle and don't return a value, we still have the right fetch_service to clean up.
-    fetch_service = start_http_server(ssl, ssl_cert, ssl_compression, ssl_cipher, ssl_version)
-    if fetch_service.nil?
-      cleanup_handler
-      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{fetch_bindnetloc}")
+    def start_http_fetch_handler(srvname, ssl = false, ssl_cert = nil, ssl_compression = nil, ssl_cipher = nil, ssl_version = nil)
+      # this looks a bit funny because I converted it to use an instance variable so that if we crash in the
+      # middle and don't return a value, we still have the right fetch_service to clean up.
+      fetch_service = start_http_server(ssl, ssl_cert, ssl_compression, ssl_cipher, ssl_version)
+      if fetch_service.nil?
+        cleanup_handler
+        fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{fetch_bindnetloc}")
+      end
+      vprint_status("#{fetch_protocol} server started")
+      fetch_service.server_name = srvname
+      fetch_service
     end
-    vprint_status("#{fetch_protocol} server started")
-    fetch_service.server_name = srvname
-    fetch_service
-  end
 
-  def on_request_uri(cli, request, srvexe)
-    client = cli.peerhost
-    vprint_status("Client #{client} requested #{request.uri}")
-    if (user_agent = request.headers['User-Agent'])
-      client += " (#{user_agent})"
+    def identify_arch(query_string)
+      arch_param = normalize_query_param(query_string['arch'])
+      endian_param = normalize_query_param(query_string['endian'])
+      vprint_status("Detected #{arch_param}") unless arch_param.nil?
+      vprint_status('Detected big endian') if endian_param == '2'
+      vprint_status('Detected little endian') if endian_param == '1'
+      vprint_status('No Endian data detected') if endian_param.nil?
+      if arch_param.nil? || arch_param.strip.empty?
+        print_error('Fetch request missing required arch query parameter')
+        return nil
+      end
+      arch = Rex::Arch.from_uname(arch_param)
+      # Mips hosts are inconsistent with only uname, so we are just guessing, here.
+      if arch_param == 'mips'
+        if endian_param.nil?
+          print_warning("Uname reports 'mips' and no endian data received.")
+          print_warning('We are guessing this means mipsel and are serving a mipsel payload.')
+          print_warning('If it fails, try using an explicit mipsbe payload.')
+          arch = Rex::Arch.from_uname('mipsel')
+        elsif endian_param.to_i == 1
+          arch = Rex::Arch.from_uname('mipsel')
+        elsif endian_param.to_i == 2
+          arch = Rex::Arch.from_uname('mips')
+        else
+          print_warning("Unknown endian value reported: #{endian_param}")
+          print_warning('We are guessing this means mipsel and are serving a mipsel payload.')
+          print_warning('If it fails, try using an explicit mipsbe payload.')
+          arch = Rex::Arch.from_uname('mipsel')
+        end
+      end
+      arch
     end
-    vprint_status("Sending payload to #{client}")
-    cli.send_response(payload_response(srvexe))
-  end
 
-  def payload_response(srvexe)
-    res = Rex::Proto::Http::Response.new(200, 'OK', Rex::Proto::Http::DefaultProtocol)
-    res['Content-Type'] = 'text/html'
-    res.body = srvexe.to_s.unpack('C*').pack('C*')
-    res
-  end
-
-  def start_http_server(ssl=false, ssl_cert=nil, ssl_compression=nil, ssl_cipher=nil, ssl_version=nil)
-    begin
-      fetch_service = Rex::ServiceManager.start(
-        Rex::Proto::Http::Server,
-        fetch_bindport, fetch_bindhost, ssl,
-        {
-          'Msf' => framework,
-          'MsfExploit' => self
-        },
-        _determine_server_comm(fetch_bindhost),
-        ssl_cert,
-        ssl_compression,
-        ssl_cipher,
-        ssl_version
-      )
-    rescue Exception => e
-      cleanup_handler
-      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{fetch_bindnetloc}\n#{e}")
+    def normalize_query_param(value)
+      value.is_a?(Array) ? value.first : value
     end
-    vprint_status("Fetch handler listening on #{fetch_bindnetloc}")
-    fetch_service
+
+    def on_request_uri(cli, request, srv_entry)
+      opts = srv_entry[:opts].dup
+      client = cli.peerhost
+      vprint_status("Client #{client} requested #{request.uri}")
+      if (user_agent = request.headers['User-Agent'])
+        client += " (#{user_agent})"
+      end
+      if opts[:dynamic_arch]
+        vprint_status("Dynamic Payload Detected, expecting a Query String in the request...")
+        query_string = request.uri_parts['QueryString'] || {}
+        arch = identify_arch(query_string)
+        if arch.nil?
+          arch_param = normalize_query_param(query_string['arch'])
+          if arch_param.nil? || arch_param.strip.empty?
+            cli.send_response(fetch_error_response(400, 'Bad Request'))
+          else
+            print_error('Failed to identify arch based on query string. Sending 404.')
+            cli.send_response(fetch_error_response(404, 'Not Found'))
+          end
+        else
+          vprint_status("Building payload for #{arch} arch")
+          opts[:arch] = arch
+          # Call generate with arch and dynamic_arch populated properly to build the right binary
+          payload_exe = generate(opts)
+          if payload_exe.nil?
+            print_error("No payload available for #{arch}")
+            cli.send_response(fetch_error_response(404, 'Not Found'))
+          else
+            cli.send_response(payload_response(payload_exe))
+          end
+        end
+      else
+        cli.send_response(payload_response(srv_entry[:data]))
+      end
+      vprint_status("Sent payload to #{client}")
+    end
+
+    def fetch_error_response(code, message)
+      Rex::Proto::Http::Response.new(code, message, Rex::Proto::Http::DefaultProtocol)
+    end
+
+    def payload_response(srvexe)
+      res = Rex::Proto::Http::Response.new(200, 'OK', Rex::Proto::Http::DefaultProtocol)
+      res['Content-Type'] = 'text/html'
+      res.body = srvexe.to_s.unpack('C*').pack('C*')
+      res
+    end
+
+    def start_http_server(ssl = false, ssl_cert = nil, ssl_compression = nil, ssl_cipher = nil, ssl_version = nil)
+      begin
+        fetch_service = Rex::ServiceManager.start(
+          Rex::Proto::Http::Server,
+          fetch_bindport, fetch_bindhost, ssl,
+          {
+            'Msf' => framework,
+            'MsfExploit' => self
+          },
+          _determine_server_comm(fetch_bindhost),
+          ssl_cert,
+          ssl_compression,
+          ssl_cipher,
+          ssl_version
+        )
+      rescue Exception => e
+        cleanup_handler
+        fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{fetch_bindnetloc}\n#{e}")
+      end
+      vprint_status("Fetch handler listening on #{fetch_bindnetloc}")
+      fetch_service
+    end
   end
 end

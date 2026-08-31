@@ -53,13 +53,13 @@ class MetasploitModule < Msf::Auxiliary
     end
     disconnect
   rescue ::Rex::ConnectionRefused
-    vprint_error("#{rhost}:#{rport} : Cannot connect to host")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} : Cannot connect to host")
     return :done
   rescue ::Rex::ConnectionError
-    vprint_error("#{rhost}:#{rport} : Unable to attempt probe")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} : Unable to attempt probe")
     return :done
   rescue ::Rex::Proto::DRDA::RespError => e
-    vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
+    vprint_error("#{Rex::Socket.to_authority(rhost, rport)} : Error in connecting to DB2 instance: #{e}")
     return :error
   end
 end

@@ -23,7 +23,7 @@ module Rex::Crypto
   #
   # @deprecated Access via Rex::Crypto::Rc4
   # @param key [String] Secret key.
-  # @param [String]
+  # @param value [String] The value to encrypt or decrypt.
   def self.rc4(key, value)
     Rc4.rc4(key, value)
   end

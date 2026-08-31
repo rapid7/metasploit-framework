@@ -118,6 +118,20 @@ RSpec.describe Msf::MCP::Application do
 
       expect(app.options[:no_auto_start_rpc]).to be_nil
     end
+
+    it 'parses --enable-dangerous-actions argument' do
+      app = described_class.new(['--enable-dangerous-actions'], output: output)
+      app.send(:parse_arguments)
+
+      expect(app.options[:enable_dangerous_actions_cli]).to be true
+    end
+
+    it 'does not set enable_dangerous_actions_cli by default' do
+      app = described_class.new([], output: output)
+      app.send(:parse_arguments)
+
+      expect(app.options[:enable_dangerous_actions_cli]).to be_nil
+    end
   end
 
   describe '#initialize_logger' do
@@ -195,15 +209,13 @@ RSpec.describe Msf::MCP::Application do
     end
   end
 
-  describe '#install_signal_handlers' do
-    it 'installs signal handlers for INT and TERM' do
+  describe '#register_exit_handler' do
+    it 'registers an at_exit handler for cleanup' do
       app = described_class.new([], output: output)
 
-      # Mock Signal.trap to avoid actually installing handlers in tests
-      expect(Signal).to receive(:trap).with('INT')
-      expect(Signal).to receive(:trap).with('TERM')
+      expect(app).to receive(:at_exit)
 
-      app.send(:install_signal_handlers)
+      app.send(:register_exit_handler)
     end
   end
 
@@ -365,7 +377,8 @@ RSpec.describe Msf::MCP::Application do
 
       expect(Msf::MCP::Server).to receive(:new).with(
         msf_client: mock_client,
-        rate_limiter: mock_rate_limiter
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: false
       ).and_return(mock_mcp_server)
 
       app.send(:initialize_mcp_server)
@@ -373,10 +386,56 @@ RSpec.describe Msf::MCP::Application do
       expect(app.mcp_server).to eq(mock_mcp_server)
       expect(output.string).to include('Initializing MCP server...')
     end
+
+    it 'forwards dangerous_actions: true when the config enables it' do
+      mock_client = instance_double(Msf::MCP::Metasploit::Client)
+      mock_rate_limiter = instance_double(Msf::MCP::Security::RateLimiter)
+      mock_mcp_server = instance_double(Msf::MCP::Server)
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@msf_client, mock_client)
+      app.instance_variable_set(:@rate_limiter, mock_rate_limiter)
+      app.instance_variable_set(:@config, { mcp: { dangerous_actions: true } })
+
+      expect(Msf::MCP::Server).to receive(:new).with(
+        msf_client: mock_client,
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: true
+      ).and_return(mock_mcp_server)
+
+      app.send(:initialize_mcp_server)
+
+      expect(output.string).to include('WARNING: dangerous actions mode is ENABLED')
+    end
+
+    it 'forwards dangerous_actions: false when the config is absent' do
+      mock_client = instance_double(Msf::MCP::Metasploit::Client)
+      mock_rate_limiter = instance_double(Msf::MCP::Security::RateLimiter)
+      mock_mcp_server = instance_double(Msf::MCP::Server)
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@msf_client, mock_client)
+      app.instance_variable_set(:@rate_limiter, mock_rate_limiter)
+      app.instance_variable_set(:@config, { mcp: {} })
+
+      expect(Msf::MCP::Server).to receive(:new).with(
+        msf_client: mock_client,
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: false
+      ).and_return(mock_mcp_server)
+
+      app.send(:initialize_mcp_server)
+
+      expect(output.string).not_to include('WARNING: dangerous actions mode is ENABLED')
+    end
   end
 
   describe '#start_mcp_server' do
     let(:mock_mcp_server) { instance_double(Msf::MCP::Server) }
+
+    before do
+      allow(mock_mcp_server).to receive(:class).and_return(Msf::MCP::Server)
+    end
 
     it 'starts server with stdio transport by default' do
       app = described_class.new([], output: output)
@@ -396,19 +455,26 @@ RSpec.describe Msf::MCP::Application do
       http_config[:mcp] = {
         transport: 'http',
         host: '0.0.0.0',
-        port: 3000
+        port: 3000,
+        min_threads: 0,
+        max_threads: 5,
+        workers: 0
       }
 
       app = described_class.new([], output: output)
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: '0.0.0.0', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: '0.0.0.0', port: 3000,
+        auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
+        min_threads: 0, max_threads: 5, workers: 0
+      )
 
       app.send(:start_mcp_server)
 
       expect(output.string).to include('Starting MCP server on HTTP transport...')
-      expect(output.string).to include('Server listening on http://0.0.0.0:3000')
+      expect(output.string).to include('MCP server listening on http://0.0.0.0:3000')
     end
 
     it 'uses default host and port for HTTP transport' do
@@ -419,7 +485,13 @@ RSpec.describe Msf::MCP::Application do
       app.instance_variable_set(:@config, http_config)
       app.instance_variable_set(:@mcp_server, mock_mcp_server)
 
-      expect(mock_mcp_server).to receive(:start).with(transport: :http, host: 'localhost', port: 3000)
+      expect(mock_mcp_server).to receive(:start).with(
+        transport: :http, host: 'localhost', port: 3000,
+        auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
+        min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
+        max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
+        workers: Msf::MCP::Server::PUMA_WORKERS
+      )
 
       app.send(:start_mcp_server)
     end
@@ -428,14 +500,14 @@ RSpec.describe Msf::MCP::Application do
   describe '#shutdown' do
     it 'outputs shutdown complete' do
       app = described_class.new([], output: output)
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
 
     it 'does not raise when no Rex sink is registered' do
       app = described_class.new([], output: output)
-      expect { app.shutdown('TERM') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
     end
 
     it 'calls shutdown on mcp_server when present' do
@@ -446,7 +518,7 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_mcp_server).to receive(:shutdown)
 
-      app.shutdown('INT')
+      app.shutdown
 
       expect(output.string).to include('Shutdown complete')
     end
@@ -459,14 +531,14 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_rpc_manager).to receive(:stop_rpc_server)
 
-      app.shutdown('INT')
+      app.shutdown
     end
 
     it 'handles nil mcp_server gracefully' do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@mcp_server, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
 
@@ -474,7 +546,7 @@ RSpec.describe Msf::MCP::Application do
       app = described_class.new([], output: output)
       app.instance_variable_set(:@rpc_manager, nil)
 
-      expect { app.shutdown('INT') }.not_to raise_error
+      expect { app.shutdown }.not_to raise_error
       expect(output.string).to include('Shutdown complete')
     end
   end

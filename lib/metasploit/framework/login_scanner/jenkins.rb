@@ -5,12 +5,14 @@ module Metasploit
     module LoginScanner
       # Jenkins login scanner
       class Jenkins < HTTP
+
         # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
         CAN_GET_SESSION = true
         DEFAULT_HTTP_NOT_AUTHED_CODES = [403]
         DEFAULT_PORT = 8080
         PRIVATE_TYPES = [:password].freeze
         LOGIN_PATH_REGEX = /action="(j_([a-z0-9_]+))"/
+        # TODO: We can potentially append 'Jenkins'/'jenkins' to the LIKELY_SERVICE_NAME as now our service fingerprinting is more granular.
 
         # Checks the setup for the Jenkins Login scanner.
         #
@@ -21,6 +23,8 @@ module Metasploit
           return 'Unable to locate the Jenkins login path' if login_uri.nil?
 
           self.uri = normalize_uri(login_uri)
+
+          report_service(service_opts)
 
           false
         end
@@ -39,16 +43,8 @@ module Metasploit
         def attempt_login(credential)
           result_opts = {
             credential: credential,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
-
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           status, proof = jenkins_login(credential.public, credential.private)
 
@@ -67,6 +63,11 @@ module Metasploit
           return false unless response
 
           self.class::DEFAULT_HTTP_NOT_AUTHED_CODES.include?(response.code)
+        end
+
+        # This needs some tweaking in order to work with credentials
+        def service_opts
+          build_service_opts('jenkins')
         end
 
         private

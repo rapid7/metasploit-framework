@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Auxiliary
         MSCASH2 is format 2100 in hashcat.
         NetNTLM is format 5500 in hashcat.
         NetNTLMv2 is format 5600 in hashcat.
+        krb5tgs is format 13100 in hashcat.
+        krb5tgs-aes128 is format 19600 in hashcat.
+        krb5tgs-aes256 is format 19700 in hashcat.
+        krb5asrep is format 18200 in hashcat.
+        timeroast is format 31300 in hashcat.
       ),
       'Author' => [
         'theLightCosine',
@@ -50,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MSCASH', [false, 'Crack M$ CASH hashes (1 and 2)', true]),
         OptBool.new('NETNTLM', [false, 'Crack NetNTLM', true]),
         OptBool.new('NETNTLMV2', [false, 'Crack NetNTLMv2', true]),
+        OptBool.new('KERBEROS', [false, 'Crack krb5/timeroast related hashes', true]),
         OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true]),
         OptBool.new('NORMAL', [false, 'Run in normal mode (John the Ripper only)', true])
@@ -108,16 +114,22 @@ class MetasploitModule < Msf::Auxiliary
       cred = { 'hash_type' => hash_type, 'method' => method }
       if @cracker_type == 'john'
         # If we don't have an expected minimum number of fields, this is probably not a hash line
-        next unless fields.count > 2
+        next unless fields.count >= 2 # krb5asrep and similar kerberoast fields have 2 fields only
 
-        cred['username'] = fields.shift
-        cred['core_id'] = fields.pop
         case hash_type
+        when 'krb5asrep', 'krb5tgs'
+          cred['core_id'] = fields.shift
+          cred['password'] = fields.pop
         when 'mscash', 'mscash2', 'netntlm', 'netntlmv2'
+          cred['username'] = fields.shift
+          cred['core_id'] = fields.pop
           cred['password'] = fields.shift
         when 'lm', 'nt'
           # If we don't have an expected minimum number of fields, this is probably not a NTLM hash
           next unless fields.count >= 6
+
+          cred['username'] = fields.shift
+          cred['core_id'] = fields.pop
 
           2.times { fields.pop } # Get rid of extra :
           nt_hash = fields.pop
@@ -145,14 +157,17 @@ class MetasploitModule < Msf::Auxiliary
 
         cred['core_id'] = fields.shift
 
-        if ['netntlm', 'netntlmv2'].include? hash_type
+        case hash_type
+        when 'netntlm', 'netntlmv2'
           # we could grab the username here, but no need since we grab it later based on core_id, which is safer
           6.times { fields.shift } # Get rid of a bunch of extra fields
-        else
+        when 'krb5asrep'
+          2.times { fields.shift } # Get rid of extra hash fields
+        else # 'krb5tgs'
           cred['hash'] = fields.shift
         end
 
-        fields.pop if hash_type == 'mscash' # Get rid of username
+        fields.pop if ['mscash'].include? hash_type # Get rid of username
 
         cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
         next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
@@ -182,6 +197,11 @@ class MetasploitModule < Msf::Auxiliary
     hash_types_to_crack << 'mscash2' if datastore['MSCASH']
     hash_types_to_crack << 'netntlm' if datastore['NETNTLM']
     hash_types_to_crack << 'netntlmv2' if datastore['NETNTLMV2']
+    hash_types_to_crack << 'krb5tgs' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5tgs-aes128' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5tgs-aes256' if datastore['KERBEROS']
+    hash_types_to_crack << 'krb5asrep' if datastore['KERBEROS']
+    hash_types_to_crack << 'timeroast' if datastore['KERBEROS']
 
     jobs_to_do = []
 

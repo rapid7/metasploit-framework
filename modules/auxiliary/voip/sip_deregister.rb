@@ -83,8 +83,8 @@ class MetasploitModule < Msf::Auxiliary
     udp_sock.put(req)
     response = false
 
-    while ((r = udp_sock.recvfrom(65535, 3))) && r[1]
-      response = parse_reply(r)
+    while ((r = udp_sock.timed_recvfrom(65535, 3)))
+      response = parse_reply([r[0], r[1][3], r[1][1]])
     end
 
     # print error information if no response has been received

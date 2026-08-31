@@ -351,7 +351,7 @@ class MetasploitModule < Msf::Auxiliary
     get_dmsa_tgs_options = {
       'DOMAIN' => domain_dns_name,
       'PASSWORD' => datastore['LDAPPassword'],
-      'rhosts' => datastore['RHOST'],
+      'rhosts' => session ? session.client.peerhost : datastore['RHOST'],
       'username' => datastore['LDAPUsername'],
       'SPN' => "krbtgt/#{domain_dns_name}",
       'action' => 'get_tgs',
@@ -389,7 +389,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def init_authenticator(options = {})
     options.merge!({
-      host: rhost,
+      host: session ? session.client.peerhost : rhost,
       realm: domain_dns_name,
       username: datastore['LDAPUsername'],
       password: datastore['LDAPPassword'],

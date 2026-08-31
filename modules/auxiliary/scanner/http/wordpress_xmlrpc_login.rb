@@ -49,16 +49,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer}:#{wordpress_url_xmlrpc} - Sending Hello...")
-    if wordpress_xmlrpc_enabled?
-      vprint_good("XMLRPC enabled, Hello message received!")
-    else
-      print_error("XMLRPC is not enabled! Aborting")
-      return :abort
-    end
-
-    print_status("Starting XML-RPC login sweep...")
-
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
@@ -75,6 +65,14 @@ class MetasploitModule < Msf::Auxiliary
         http_password: datastore['HttpPassword']
       )
     )
+
+    msg = scanner.check_setup
+    if msg
+      print_error("#{peer} - #{msg}")
+      return
+    end
+
+    print_status("Starting XML-RPC login sweep...")
 
     scanner.scan! do |result|
       credential_data = result.to_h

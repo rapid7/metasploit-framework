@@ -84,12 +84,20 @@ RSpec.describe Msf::MCP::Server do
           tools: array_including(
             Msf::MCP::Tools::SearchModules,
             Msf::MCP::Tools::ModuleInfo,
+            Msf::MCP::Tools::ModuleExecute,
+            Msf::MCP::Tools::ModuleCheck,
+            Msf::MCP::Tools::ModuleResults,
+            Msf::MCP::Tools::RunningStats,
             Msf::MCP::Tools::HostInfo,
             Msf::MCP::Tools::ServiceInfo,
             Msf::MCP::Tools::VulnerabilityInfo,
             Msf::MCP::Tools::NoteInfo,
             Msf::MCP::Tools::CredentialInfo,
-            Msf::MCP::Tools::LootInfo
+            Msf::MCP::Tools::LootInfo,
+            Msf::MCP::Tools::SessionList,
+            Msf::MCP::Tools::SessionStop,
+            Msf::MCP::Tools::SessionRead,
+            Msf::MCP::Tools::SessionWrite
           )
         )
       ).and_return(mock_mcp_server)
@@ -126,6 +134,47 @@ RSpec.describe Msf::MCP::Server do
       described_class.new(
         msf_client: mock_msf_client,
         rate_limiter: rate_limiter
+      )
+    end
+
+    it 'defaults dangerous_actions to false in server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter
+      )
+    end
+
+    it 'propagates dangerous_actions: true into server_context' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: true)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: true
+      )
+    end
+
+    it 'coerces non-true dangerous_actions values to false' do
+      expect(::MCP::Server).to receive(:new).with(
+        hash_including(
+          server_context: hash_including(dangerous_actions: false)
+        )
+      ).and_return(mock_mcp_server)
+
+      described_class.new(
+        msf_client: mock_msf_client,
+        rate_limiter: rate_limiter,
+        dangerous_actions: 'yes'
       )
     end
 
@@ -180,21 +229,55 @@ RSpec.describe Msf::MCP::Server do
       let(:mock_http_transport) do
         instance_double(::MCP::Server::Transports::StreamableHTTPTransport)
       end
-      let(:puma_handler) { double('puma_handler') }
       let(:rack_app) { double('rack_app') }
+      let(:rack_builder) { double('rack_builder', use: nil, run: nil) }
 
       before do
-        # Stub #require to prevent actually loading rack and rack/handler/puma
-        allow(server).to receive(:require).with('rack').and_return(true)
-        allow(server).to receive(:require).with('rack/handler/puma').and_return(true)
+        require 'rack'
+        require 'puma'
+        require 'puma/server'
+        require 'puma/log_writer'
 
-        stub_const('Rack::Handler::Puma', puma_handler)
-        stub_const('Rack::Builder', double('Rack::Builder'))
+        stub_const('Puma::Server', puma_server_class)
+        stub_const('Puma::LogWriter', puma_log_writer_class)
 
         allow(::MCP::Server::Transports::StreamableHTTPTransport).to receive(:new).and_return(mock_http_transport)
-        allow(Rack::Builder).to receive(:new).and_return(rack_app)
+        allow(Rack::Builder).to receive(:new) do |&block|
+          rack_builder.instance_eval(&block) if block
+          rack_app
+        end
+        allow(File).to receive(:open).with(File::NULL, 'w').and_return(StringIO.new)
+      end
 
-        allow(puma_handler).to receive(:run)
+      after do
+        server.shutdown
+      end
+
+      let(:puma_server_class) do
+        Class.new do
+          attr_reader :bound_host, :bound_port
+
+          def initialize(_app, _events = nil, _options = {}); end
+
+          def add_tcp_listener(host, port, *_rest)
+            @bound_host = host
+            @bound_port = port
+          end
+
+          def run
+            self
+          end
+
+          def join; end
+
+          def stop(*_args); end
+        end
+      end
+
+      let(:puma_log_writer_class) do
+        Class.new do
+          def initialize(_stdout, _stderr); end
+        end
       end
 
       it 'creates http transport' do
@@ -203,32 +286,49 @@ RSpec.describe Msf::MCP::Server do
         server.start(transport: :http, port: 3000)
       end
 
-      it 'starts Puma server via Rack handler' do
-        expect(puma_handler).to receive(:run).with(
-          anything,  # Rack app
-          hash_including(
-            Port: 3000,
-            Host: 'localhost'
-          )
-        )
+      it 'starts Puma via Server' do
+        expect(puma_server_class).to receive(:new).and_call_original
 
         server.start(transport: :http, port: 3000)
       end
 
-      it 'allows custom port' do
-        expect(puma_handler).to receive(:run).with(
-          anything,
-          hash_including(Port: 8080)
-        )
+      it 'binds to the configured host and port' do
+        server_instance = nil
+        allow(puma_server_class).to receive(:new) do |*args|
+          server_instance = puma_server_class.allocate
+          server_instance.send(:initialize, *args)
+          server_instance
+        end
 
-        server.start(transport: :http, port: 8080)
+        server.start(transport: :http, port: 8080, host: '0.0.0.0')
+
+        expect(server_instance.bound_host).to eq('0.0.0.0')
+        expect(server_instance.bound_port).to eq(8080)
+      end
+
+      it 'wraps IPv6 hosts in brackets for the bind URL' do
+        server_instance = nil
+        allow(puma_server_class).to receive(:new) do |*args|
+          server_instance = puma_server_class.allocate
+          server_instance.send(:initialize, *args)
+          server_instance
+        end
+
+        server.start(transport: :http, port: 3000, host: '::1')
+
+        expect(server_instance.bound_host).to eq('[::1]')
+        expect(server_instance.bound_port).to eq(3000)
       end
 
       it 'creates a Rack application' do
-        expect(puma_handler).to receive(:run) do |rack_app, options|
-          expect(rack_app).to be(rack_app)
-          expect(options).to include(Port: 3000, Host: 'localhost')
-        end
+        expect(Rack::Builder).to receive(:new).and_return(rack_app)
+
+        server.start(transport: :http, port: 3000)
+      end
+
+      it 'wires up the RequestLogger middleware and transport' do
+        expect(rack_builder).to receive(:use).with(Msf::MCP::Middleware::RequestLogger)
+        expect(rack_builder).to receive(:run).with(mock_http_transport)
 
         server.start(transport: :http, port: 3000)
       end
@@ -281,6 +381,37 @@ RSpec.describe Msf::MCP::Server do
         server.shutdown
         server.shutdown
       }.not_to raise_error
+    end
+
+    it 'stops the Puma launcher when HTTP transport was used' do
+      mock_launcher = double('Puma::Launcher', stop: nil)
+      server.instance_variable_set(:@puma_launcher, mock_launcher)
+
+      expect(mock_launcher).to receive(:stop)
+      server.shutdown
+      expect(server.instance_variable_get(:@puma_launcher)).to be_nil
+    end
+
+    it 'closes the log IO handle on shutdown' do
+      mock_io = double('IO', close: nil, closed?: false)
+      server.instance_variable_set(:@puma_log_io, mock_io)
+
+      expect(mock_io).to receive(:close)
+      server.shutdown
+      expect(server.instance_variable_get(:@puma_log_io)).to be_nil
+    end
+
+    it 'still cleans up if puma_launcher.stop raises' do
+      mock_launcher = double('Puma::Launcher')
+      allow(mock_launcher).to receive(:stop).and_raise(StandardError, 'stop failed')
+      mock_io = double('IO', close: nil, closed?: false)
+      server.instance_variable_set(:@puma_launcher, mock_launcher)
+      server.instance_variable_set(:@puma_log_io, mock_io)
+
+      expect(mock_io).to receive(:close)
+      expect { server.shutdown }.not_to raise_error
+      expect(server.instance_variable_get(:@puma_launcher)).to be_nil
+      expect(server.instance_variable_get(:@puma_log_io)).to be_nil
     end
   end
 
@@ -503,6 +634,99 @@ RSpec.describe Msf::MCP::Server do
         )
 
         expect(last_log_entry['message']).to include('Error during request processing')
+      end
+    end
+  end
+
+  describe 'HTTP auth_token wiring' do
+    let(:auth_token) { 'integration_test_token_abc123' }
+
+    let(:mock_http_transport) do
+      instance_double(::MCP::Server::Transports::StreamableHTTPTransport).tap do |t|
+        allow(t).to receive(:call).and_return([200, { 'Content-Type' => 'text/plain' }, ['OK']])
+      end
+    end
+
+    let(:server) do
+      allow(::MCP::Server).to receive(:new).and_return(mock_mcp_server)
+      described_class.new(msf_client: mock_msf_client, rate_limiter: rate_limiter)
+    end
+
+    before do
+      require 'rack'
+      require 'puma'
+      require 'puma/configuration'
+      require 'puma/dsl'
+      require 'puma/launcher'
+      require 'puma/server'
+      require 'puma/log_writer'
+
+      allow(::MCP::Server::Transports::StreamableHTTPTransport).to receive(:new).and_return(mock_http_transport)
+      allow(Puma::Launcher).to receive(:new).and_return(instance_double(Puma::Launcher, run: nil, stop: nil))
+      mock_puma_thread = instance_double(Thread, join: nil)
+      allow(Puma::Server).to receive(:new) do |app, *_rest|
+        @rack_app = app
+        instance_double(Puma::Server, add_tcp_listener: nil, run: mock_puma_thread, stop: nil)
+      end
+      allow_any_instance_of(Puma::DSL).to receive(:app).and_wrap_original do |method, rack_app = nil|
+        @rack_app = rack_app if rack_app
+        method.call(rack_app)
+      end
+    end
+
+    after do
+      server.shutdown
+    end
+
+    def call_rack(authorization: nil)
+      env = Rack::MockRequest.env_for(
+        'http://localhost:3000/mcp',
+        method: 'POST',
+        input: StringIO.new('{"jsonrpc":"2.0","method":"ping","id":1}')
+      )
+      env['HTTP_AUTHORIZATION'] = authorization if authorization
+      @rack_app.to_app.call(env)
+    end
+
+    context 'when auth_token is provided' do
+      before { server.start(transport: :http, auth_token: auth_token) }
+
+      it 'rejects requests that have no Authorization header' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(401)
+      end
+
+      it 'rejects requests with an incorrect token' do
+        status, _headers, _body = call_rack(authorization: 'Bearer wrongtoken')
+        expect(status).to eq(401)
+      end
+
+      it 'allows requests with the correct Bearer token' do
+        status, _headers, _body = call_rack(authorization: "Bearer #{auth_token}")
+        expect(status).to eq(200)
+      end
+
+      it 'includes a WWW-Authenticate header in the 401 response' do
+        _status, headers, _body = call_rack
+        expect(headers['WWW-Authenticate']).to eq('Bearer realm="msfmcp"')
+      end
+    end
+
+    context 'when auth_token is nil' do
+      before { server.start(transport: :http, auth_token: nil) }
+
+      it 'passes all requests through without authentication' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(200)
+      end
+    end
+
+    context 'when auth_token is an empty string' do
+      before { server.start(transport: :http, auth_token: '') }
+
+      it 'passes all requests through without authentication' do
+        status, _headers, _body = call_rack
+        expect(status).to eq(200)
       end
     end
   end

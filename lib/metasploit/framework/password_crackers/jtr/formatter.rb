@@ -65,6 +65,8 @@ module Metasploit
                 if format.start_with?('des') # 'des,oracle', not oracle11/12c
                   return "#{username}:O$#{username}##{private_data}:#{db_id}:"
                 end
+              when /^pbkdf2-sha256/
+                return "#{username}:#{private_data}:#{db_id}:"
               when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
                 # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
                 return "#{username}:#{private_data}:::::#{db_id}:"
@@ -97,7 +99,10 @@ module Metasploit
                 # for this we overload the username field with the db_id so we can find it in the db easier later
                 # https://github.com/openwall/john/issues/5944
                 private_data = private_data.split('$')
-                private_data[5] = private_data[5].split(':').first
+                # remove port if there is one
+                if private_data[5].include?(':')
+                  private_data[5] = private_data[5].split(':').first + '*'
+                end
                 private_data = private_data.join('$')
                 return "#{db_id}:#{private_data}"
               when /^(krb5.|timeroast$)/
@@ -127,7 +132,7 @@ module Metasploit
           # This method takes a {framework.db.cred}, and normalizes it
           # from the JTR format to the DB format.
           #
-          # @param [credClass] a credential from framework.db
+          # @param cred_type [String] a credential from framework.db
           # @return [Array] All of the hash types that may be in the DB that apply
           def self.jtr_to_db(cred_type)
             case cred_type

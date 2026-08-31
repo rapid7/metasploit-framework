@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
         ['URL', 'https://svn.nmap.org/nmap/scripts/smtp-open-relay.nse'],
+        ['CVE', '1999-0512'],
       ],
       'Author' => [
         'Campbell Murray',

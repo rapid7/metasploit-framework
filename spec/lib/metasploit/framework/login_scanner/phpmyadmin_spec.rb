@@ -70,7 +70,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
     context 'when the version of PhpMyAdmin is detected' do
       let(:response) { phpMyAdmin_res }
       it 'should return false' do
+        allow(subject).to receive(:report_service)
         expect(subject.check_setup).to eql(false)
+        expect(subject).to have_received(:report_service).with(hash_including(name: 'phpmyadmin', proto: 'tcp'))
       end
     end
 

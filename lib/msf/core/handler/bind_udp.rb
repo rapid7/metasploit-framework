@@ -151,7 +151,7 @@ module BindUdp
             client.close()
             client = nil
           end
-        rescue Errno::ECONNREFUSED
+        rescue Errno::ECONNREFUSED, Errno::ECONNRESET
           client.close()
           client = nil
           wlog("Connection failed in udp bind handler continuing attempts: #{$!.class} #{$!}")

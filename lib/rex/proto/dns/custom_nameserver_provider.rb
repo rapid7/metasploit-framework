@@ -152,7 +152,7 @@ module DNS
     # in the order provided.
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to move
-    # @param insertion_id [Integer] The ID to insert the entries at (in the order provided), or -1 to insert at the end
+    # @param new_id [Integer] The ID to insert the entries at (in the order provided), or -1 to insert at the end
     # @return [Array<UpstreamRule>] The moved entries
     def reorder_ids(ids, new_id)
       if new_id == -1

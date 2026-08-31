@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Body>'
     data << '</SOAP-ENV:Envelope>'
     begin
-      vprint_status("#{rhost}:#{rport} - Sending request to check #{datastore['FILEPATH']}")
+      vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Sending request to check #{datastore['FILEPATH']}")
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
@@ -91,17 +91,17 @@ class MetasploitModule < Msf::Auxiliary
       })
       if res && (res.code == 200) && res.body =~ /PFL_CHECK_OS_FILE_EXISTENCE\.Response/
         if res.body =~ %r{<FILE_EXISTS>X</FILE_EXISTS>}
-          print_good("#{rhost}:#{rport} - File #{datastore['FILEPATH']} exists")
+          print_good("#{Rex::Socket.to_authority(rhost, rport)} - File #{datastore['FILEPATH']} exists")
         else
-          print_warning("#{rhost}:#{rport} - File #{datastore['FILEPATH']} DOESN'T exist")
+          print_warning("#{Rex::Socket.to_authority(rhost, rport)} - File #{datastore['FILEPATH']} DOESN'T exist")
         end
       elsif res
-        vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
-        vprint_error("#{rhost}:#{rport} - Response message: " + res.message.to_s)
-        vprint_error("#{rhost}:#{rport} - Response body: " + res.body.to_s) if res.body
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Response code: " + res.code.to_s)
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Response message: " + res.message.to_s)
+        vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Response body: " + res.body.to_s) if res.body
       end
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Unable to connect")
+      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to connect")
       return
     end
   end

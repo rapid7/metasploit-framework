@@ -47,11 +47,12 @@ jobs:
 
                     What does this generally mean? It could be one or more of several things:
 
-                      - It doesn't look like there has been any activity on this pull request in a while
+                      - It doesn't look like there has been any activity on this pull request in a while (60 days or more).
                       - We may not have the proper access or equipment to test this pull request, or the contributor doesn't have time to work on it right now.
                       - Sometimes the implementation isn't quite right and a different approach is necessary.
 
-                    We would love to land this pull request when it's ready. If you have a chance to address all comments, we would be happy to reopen and discuss how to merge this!
+                    Pull requests in the attic are open for community pickup — if you're a community member looking for something to work on, feel free to pick this up and carry it across the finish line. The original author may or may not return, if they do and want to continue the work, we'd welcome that too.
+                    If you'd like to revive this PR, please comment below expressing your interest, then open a new pull request that references this one, and we'll be happy to review it.
                   `
                 },
                 'needs-docs': {

@@ -108,7 +108,7 @@ if client.platform == 'windows'
     #
     # Execute the agent
     #
-    print_status("Executing the agent with endpoint #{rhost}:#{rport}...")
+    print_status("Executing the agent with endpoint #{Rex::Socket.to_authority(rhost, rport)}...")
     pid = session.sys.process.execute(tempexe, nil, {'Hidden' => true})
   elsif ! spawn
     # Get the target process name

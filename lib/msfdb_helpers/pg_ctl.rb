@@ -15,7 +15,7 @@ module MsfdbHelpers
     def init(msf_pass, msftest_pass)
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
-      run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
+      run_cmd("initdb --auth-host=trust --auth-local=trust --username=postgres -E UTF8 #{@db.shellescape}")
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
@@ -24,7 +24,10 @@ module MsfdbHelpers
       # Try creating a test file at {Dir.tmpdir},
       # Else fallback to creation at @{db}
       # Else fail with error.
-      if test_executable_file("#{Dir.tmpdir}")
+      if Gem.win_platform?
+        # Windows doesn't support Unix sockets; always use TCP
+        @socket_directory = @options[:db_host]
+      elsif test_executable_file("#{Dir.tmpdir}")
         @socket_directory = Dir.tmpdir
       elsif test_executable_file("#{@db}")
         @socket_directory = @db

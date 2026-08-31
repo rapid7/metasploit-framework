@@ -52,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
 
       udp_sock.put(target_mac + cmd)
 
-      res = udp_sock.recvfrom(65535, 0.5) and res[1]
+      res = udp_sock.timed_recvfrom(65535, 0.5)
 
       # Parse the reply if we get a response
       if res
-        password = parse_reply(res)
+        password = parse_reply([res[0], res[1][3], res[1][1]])
       end
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused, ::IOError
       print_error("Connection error")

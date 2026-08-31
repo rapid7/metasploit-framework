@@ -28,6 +28,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res && res.code == 200 && res.body&.include?('Login | OPNsense')
+            report_service(service_opts)
             return false
           end
 
@@ -97,10 +98,7 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential:   credential,
-            host:         @host,
-            port:         @port,
-            protocol:     'tcp',
-            service_name: 'opnsense'
+            **service_as_result(service_opts)
           }
 
           # Each login needs its own magic name and value
@@ -131,6 +129,10 @@ module Metasploit
         rescue ::Rex::ConnectionError => _e
           result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to OPNSense')
           return Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('opnsense')
         end
       end
     end

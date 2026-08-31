@@ -21,6 +21,7 @@ module Metasploit
           res = send_request(request_params)
 
           if res&.code == 200 && res.body&.include?('Login to pfSense')
+            report_service(service_opts)
             return false
           end
 
@@ -75,10 +76,7 @@ module Metasploit
         def attempt_login(credential)
           result_options = {
             credential:   credential,
-            host:         @host,
-            port:         @port,
-            protocol:     'tcp',
-            service_name: 'pfsense'
+            **service_as_result(service_opts)
           }
 
           # Each login needs its own csrf magic tokens
@@ -109,6 +107,10 @@ module Metasploit
         rescue ::Rex::ConnectionError => _e
           result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to pfSense')
           return Result.new(result_options)
+        end
+
+        def service_opts
+          build_service_opts('pfsense')
         end
       end
     end

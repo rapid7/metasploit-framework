@@ -331,7 +331,7 @@ module WindowsCryptoHelpers
   # http://web.mit.edu/kerberos/krb5-latest/doc/admin/enctypes.html?highlight=des#enctype-compatibility
   #
   # @param raw_secret [String] The data to encrypt
-  # @param key [String] The salt used by the encryption algorithm
+  # @param salt [String] The salt used by the encryption algorithm
   # @return [String, nil] The encrypted data
   def des_cbc_md5(raw_secret, salt)
     odd = true
@@ -373,7 +373,7 @@ module WindowsCryptoHelpers
   #
   # @param algorithm [String] The AES algorithm to use (e.g. `128-CBC` or `256-CBC`)
   # @param raw_secret [String] The data to encrypt
-  # @param key [String] The salt used by the encryption algorithm
+  # @param salt [String] The salt used by the encryption algorithm
   # @return [String, nil] The encrypted data
   def aes_cts_hmac_sha1_96(algorithm, raw_secret, salt)
     iterations = 4096

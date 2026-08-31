@@ -15,6 +15,7 @@ module Metasploit
             version = Rex::Version.new($1).to_s
             if version.present?
               framework_module.print_status("PhpMyAdmin Version: #{version}") if framework_module
+              report_service(service_opts)
               return false
             end
           end
@@ -72,14 +73,16 @@ module Metasploit
             credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           result_opts.merge!(do_login(credential.public, credential.private))
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('phpmyadmin')
         end
       end
     end

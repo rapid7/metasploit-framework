@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
         [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
       ],
-      'DisclosureDate' => 'Feb 08 1996',
+      'DisclosureDate' => '1996-02-08',
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [],
@@ -53,13 +53,13 @@ class MetasploitModule < Msf::Auxiliary
       begin
         connect_udp
         udp_sock.write(data)
-        r = udp_sock.recvfrom(65535, 0.1)
+        r = udp_sock.timed_recvfrom(65535, 0.1)
 
         if r and r[1]
-          vprint_status("#{rhost}:#{rport} - Response: #{r[0]}")
+          vprint_status("#{Rex::Socket.to_authority(rhost, rport)} - Response: #{r[0]}")
           res = r[0].to_s.strip
           if res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/)
-            print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
+            print_good("#{Rex::Socket.to_authority(rhost, rport)} answers with #{res.length} bytes (headers + UDP payload)")
             report_service(host: rhost, port: rport, proto: 'udp', name: 'chargen', info: res.length)
           end
         end

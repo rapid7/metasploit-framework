@@ -133,8 +133,8 @@ class MetasploitModule < Msf::Auxiliary
 
       r, = ::IO.select(rds, wds, eds, 0.25)
       if !r.nil? && (r[0] == sock)
-        packet, host, port = sock.recvfrom(65535)
-        dispatch_request(packet, host, port)
+        packet, addr = sock.recvfrom(65535)
+        dispatch_request(packet, addr[3], addr[1])
       end
     end
   end

@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless wordpress_and_online?
-      print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)}#{target_uri} does not appear to be running WordPress")
       return
     end
 

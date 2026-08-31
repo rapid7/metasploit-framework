@@ -75,6 +75,54 @@ module Msf::MCP
           end
         end
 
+        # Validate MCP authentication token
+        if config[:mcp].is_a?(Hash) && config[:mcp].key?(:auth_token)
+          auth_token = config[:mcp][:auth_token]
+          if auth_token.is_a?(String)
+            unless auth_token.match?(/\A[!-~]*\z/)
+              errors[:'mcp.auth_token'] = "must be a valid token"
+            end
+          elsif auth_token != nil
+            errors[:'mcp.auth_token'] = "must be a string"
+          end
+
+          unless config[:mcp][:transport] == 'http'
+            errors[:'mcp.auth_token'] = "authentication must only be used with the 'http' transport"
+          end
+        end
+
+        # Validate MCP Puma thread/worker settings
+        if config[:mcp].is_a?(Hash)
+          if config[:mcp].key?(:min_threads)
+            unless config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:min_threads] >= 0
+              errors[:'mcp.min_threads'] = "must be an integer >= 0"
+            end
+          end
+
+          if config[:mcp].key?(:max_threads)
+            unless config[:mcp][:max_threads].is_a?(Integer) && config[:mcp][:max_threads] >= 1
+              errors[:'mcp.max_threads'] = "must be an integer >= 1"
+            end
+          end
+
+          if config[:mcp].key?(:workers)
+            unless config[:mcp][:workers].is_a?(Integer) && config[:mcp][:workers] >= 0
+              errors[:'mcp.workers'] = "must be an integer >= 0"
+            end
+          end
+
+          if config[:mcp].key?(:min_threads) && config[:mcp].key?(:max_threads)
+            if config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:max_threads].is_a?(Integer) &&
+               config[:mcp][:min_threads] > config[:mcp][:max_threads]
+              errors[:'mcp.min_threads'] = "must be less than or equal to mcp.max_threads"
+            end
+          end
+
+          if config[:mcp].key?(:dangerous_actions) && ![true, false].include?(config[:mcp][:dangerous_actions])
+            errors[:'mcp.dangerous_actions'] = "must be boolean (true or false)"
+          end
+        end
+
         # Validate conditional requirements based on API type
         if config[:msf_api][:type] == 'messagepack'
           validate_messagepack_auth(config, errors)

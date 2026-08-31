@@ -82,16 +82,8 @@ module Metasploit
             credential:  credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
-
-          if ssl
-            result_opts[:service_name] = 'https'
-          else
-            result_opts[:service_name] = 'http'
-          end
 
           begin
             result_opts.merge!(try_login(credential.public, credential.private))
@@ -99,6 +91,10 @@ module Metasploit
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('caidao')
         end
       end
     end

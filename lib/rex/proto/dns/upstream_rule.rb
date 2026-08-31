@@ -49,7 +49,7 @@ module DNS
     # Check whether or not the defined resolver is valid.
     #
     # @param [String] resolver The resolver string to check.
-    # @rtype Boolean
+    # @return [Boolean]
     def self.valid_resolver?(resolver)
       return true if Rex::Socket.is_ip_addr?(resolver)
 
@@ -64,7 +64,7 @@ module DNS
     # Perform a spell check on resolver to suggest corrections.
     #
     # @param [String] resolver The resolver string to check.
-    # @rtype [Nil, Array<String>] The suggestions if resolver is invalid.
+    # @return [nil, Array<String>] The suggestions if resolver is invalid.
     def self.spell_check_resolver(resolver)
       return nil if Rex::Socket.is_ip_addr?(resolver)
 
@@ -81,21 +81,21 @@ module DNS
     # Check whether or not the defined wildcard is a valid pattern.
     #
     # @param [String] wildcard The wildcard text to check.
-    # @rtype Boolean
+    # @return [Boolean]
     def self.valid_wildcard?(wildcard)
       wildcard == '*' || wildcard =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
     end
 
     # Check whether or not the currently configured wildcard pattern will match all names.
     #
-    # @rtype Boolean
+    # @return [Boolean]
     def matches_all?
       wildcard == '*'
     end
 
     # Check whether or not the specified name matches the currently configured wildcard pattern.
     #
-    # @rtype Boolean
+    # @return [Boolean]
     def matches_name?(name)
       if matches_all?
         true

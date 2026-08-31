@@ -352,7 +352,7 @@ class MetasploitModule < Msf::Auxiliary
         set_mssql_session(session.client)
       else
         print_line(' ')
-        print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
+        print_status("Attempting to connect to the SQL Server at #{Rex::Socket.to_authority(rhost, rport)}...")
         return unless mssql_login_datastore
 
         print_good("Successfully connected to #{mssql_client.peerhost}:#{mssql_client.peerport}")
@@ -363,7 +363,7 @@ class MetasploitModule < Msf::Auxiliary
 
       column_data = result[:rows]
     rescue StandardError
-      print_error("Failed to connect to #{rhost}:#{rport}")
+      print_error("Failed to connect to #{Rex::Socket.to_authority(rhost, rport)}")
       return
     end
 

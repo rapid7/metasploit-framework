@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 3.1'
+  spec.required_ruby_version = '>= 3.2'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -74,9 +74,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.245'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.247'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.46'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.48'
   # Needed by msfgui and other rpc components
   # Locked until build env can handle newer version. See: https://github.com/msgpack/msgpack-ruby/issues/334
   spec.add_runtime_dependency 'msgpack', '~> 1.6.0'
@@ -95,7 +95,7 @@ Gem::Specification.new do |spec|
   # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
   spec.add_runtime_dependency 'pg'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
-  spec.add_runtime_dependency 'railties'
+  spec.add_runtime_dependency 'railties', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog'
   # required for bitlocker fvek extraction
@@ -124,9 +124,7 @@ Gem::Specification.new do |spec|
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap
-  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
-    spec.add_runtime_dependency 'xmlrpc'
-  end
+  spec.add_runtime_dependency 'xmlrpc'
   # Gem for handling Cookies
   spec.add_runtime_dependency 'http-cookie'
   # Needed for some modules (polkit_auth_bypass.rb)
@@ -207,8 +205,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rb-readline'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
-  # Needed for some post modules
-  spec.add_runtime_dependency 'sqlite3', '1.7.3'
+  # Needed for some post modules; Rails 8 requires >= 2.1
+  spec.add_runtime_dependency 'sqlite3', '~> 2.1'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
@@ -220,7 +218,7 @@ Gem::Specification.new do |spec|
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
-  spec.add_runtime_dependency 'xdr'
+  spec.add_runtime_dependency 'xdr', '~> 3.0'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
   # SSH server library with ed25519

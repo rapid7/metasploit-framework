@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
       }, 25)
     rescue Rex::ConnectionRefused
-      print_error("#{rhost}:#{rport} Could not connect.")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} Could not connect.")
       return
     end
 
@@ -83,9 +83,9 @@ class MetasploitModule < Msf::Auxiliary
         )
         print_good("File saved in: #{path}")
       elsif res.code == 401
-        print_error("#{rhost}:#{rport} Authentication failed")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} Authentication failed")
       elsif res.code == 404
-        print_error("#{rhost}:#{rport} File not found")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} File not found")
       end
     else
       print_error("HTTP Response failed")

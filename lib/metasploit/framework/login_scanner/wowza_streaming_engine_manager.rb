@@ -16,6 +16,7 @@ module Metasploit
           res = send_request({ 'uri' => normalize_uri('/enginemanager/login.htm') })
 
           if res && res.code == 200 && res.body.include?('Wowza Streaming Engine Manager')
+            report_service(service_opts)
             return false
           end
 
@@ -33,9 +34,7 @@ module Metasploit
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
             proof: nil,
-            host: host,
-            port: port,
-            protocol: 'tcp'
+            **service_as_result(service_opts)
           }
 
           res = send_request({
@@ -59,6 +58,10 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('wowza')
         end
       end
     end

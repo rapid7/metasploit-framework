@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
       pkt = tns_packet(command)
 
-      print_status("Sending '#{command}' to #{rhost}:#{rport}")
+      print_status("Sending '#{command}' to #{Rex::Socket.to_authority(rhost, rport)}")
       sock.put(pkt)
       print_status("writing #{pkt.length} bytes.")
 

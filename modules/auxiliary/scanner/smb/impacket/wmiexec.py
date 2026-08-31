@@ -7,9 +7,6 @@
 #
 
 import logging
-import os
-import string
-import sys
 
 try:
     from impacket.smbconnection import SessionError, SMBConnection, \
