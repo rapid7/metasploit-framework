@@ -538,7 +538,7 @@ GEM
       rex-arch
     rex-ole (0.1.9)
       rex-text
-    rex-powershell (0.1.103)
+    rex-powershell (0.1.105)
       bigdecimal
       rex-random_identifier
       rex-text
