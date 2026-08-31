@@ -187,13 +187,17 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Check for anonymous access by pretending to be a browser
+  # Check for anonymous access - supports both browser-style anonymous and true blank login
   def anonymous_creds
     return [] unless datastore['ANONYMOUS_LOGIN']
 
-    ['mozilla@example.com', 'IEUser@', 'User@', 'chrome@example.com'].map do |password|
+    creds = ['mozilla@example.com', 'IEUser@', 'User@', 'chrome@example.com'].map do |password|
       Metasploit::Framework::Credential.new(public: 'anonymous', private: password, private_type: :password)
     end
+    # Also try true blank credentials (empty user/pass) for servers that allow it - fixes #21096
+    creds << Metasploit::Framework::Credential.new(public: '', private: '', private_type: :password)
+    creds
+  end
   end
 
   def test_ftp_access(ip)
