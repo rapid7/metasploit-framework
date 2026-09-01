@@ -75,7 +75,7 @@ module Rex
             private
 
             def read_source
-              source = ::File.binread(@path).force_encoding(Encoding::UTF_8)
+              source = ::File.binread(@path).force_encoding(::Encoding::UTF_8)
               raise Error, "CNA script is not valid UTF-8: #{@path}" unless source.valid_encoding?
 
               source
