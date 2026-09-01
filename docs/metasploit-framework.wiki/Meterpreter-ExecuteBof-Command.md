@@ -44,6 +44,54 @@ meterpreter > bof run hello message
 meterpreter > bof reload
 meterpreter > bof unload
 ```
+## CNA Directory Layout
+
+```
+┌──(kali㉿kali)-[~/Documents/github/bof-library]
+└─$ ls -lah                 
+total 68K
+drwxrwxr-x  2 kali kali 4.0K Sep  1 13:52 .
+drwxrwxr-x 12 kali kali 4.0K Sep  1 11:30 ..
+-rw-rw-r--  1 kali kali 3.0K Sep  1 13:51 argdump.c
+-rw-rw-r--  1 kali kali 2.1K Sep  1 13:52 argdump.x64.o
+-rw-rw-r--  1 kali kali 2.1K Sep  1 13:52 argdump.x86.o
+-rw-rw-r--  1 kali kali  598 Sep  1 13:50 beacon.h
+-rw-rw-r--  1 kali kali 2.9K Sep  1 13:51 bofs.cna
+-rwxrwxr-x  1 kali kali  433 Sep  1 13:50 build.sh
+-rw-rw-r--  1 kali kali    4 Sep  1 11:34 .gitignore
+-rw-rw-r--  1 kali kali 2.7K Sep  1 11:34 ls.c
+-rw-rw-r--  1 kali kali  390 Sep  1 11:34 ls.cna
+-rw-rw-r--  1 kali kali 1.4K Sep  1 13:52 ls.x64.o
+-rw-rw-r--  1 kali kali 1.5K Sep  1 13:51 ls.x86.o
+-rw-rw-r--  1 kali kali  748 Sep  1 13:50 probe.c
+-rw-rw-r--  1 kali kali 1.1K Sep  1 13:52 probe.x64.o
+-rw-rw-r--  1 kali kali 1.1K Sep  1 13:52 probe.x86.o
+-rw-rw-r--  1 kali kali 1.2K Sep  1 13:51 README.md
+                                                                                                                                                            
+┌──(kali㉿kali)-[~/Documents/github/bof-library]
+└─$ cat bofs.cna           
+sub readbof {
+    $barch = barch($1);
+    return readb(openf(script_resource("$2 $+ . $+ $barch $+ .o")), -1);
+}
+
+beacon_command_register("bof_probe", "Run a no-argument BOF with go", "bof_probe");
+alias bof_probe {
+    $barch = barch($1);
+    $data = readb(openf(script_resource("probe. $+ $barch $+ .o")), -1);
+    beacon_inline_execute($1, $data, "go", $null);
+}
+
+...
+beacon_command_register("bof_ls", "List a directory or wildcard", "bof_ls [path]");
+alias bof_ls {
+    $path = iff(-istrue $2, $2, ".");
+    $packed = bof_pack($1, "z", $path);
+    beacon_inline_execute($1, readbof($1, "ls"), "go", $packed);
+}
+
+```
+
 
 The script and referenced BOFs are read by Metasploit. The native Bofloader extension receives only the selected COFF,
 entry point, format string, and packed arguments. Loading is atomic: a parse failure leaves the previous catalog active.
@@ -145,6 +193,68 @@ argument format string.
 
 # Usage Examples
 Executing [dir][4], passing the path argument and number of sub-directories to list.
+
+
+```
+meterpreter > bof load /home/kali/Documents/github/bof-library/bofs.cna
+[+] Loaded 11 BOFs from /home/kali/Documents/github/bof-library/bofs.cna
+meterpreter > bof help
+Usage:
+  bof load </path/to/script.cna>
+  bof reload
+  bof unload
+  bof list
+  bof info <name>
+  bof run <name> [arguments]
+
+CNA is parsed locally. Compatible aliases pass their COFF and packed
+arguments to the existing native Bofloader extension.
+
+meterpreter > bof list
+...
+bof_ls                   List a directory or wildcard
+meterpreter > bof info bof_ls
+Name: bof_ls
+Description: List a directory or wildcard
+Usage: bof_ls [path]
+Entry point: go
+Architectures: x64, x86
+meterpreter > bof run bof_ls C:\\Users\\Administrator\\Desktop
+<FILE>  00000000:0000011a       desktop.ini
+lsbof: 1 entries
+
+meterpreter > bof run bof_ls C:\\Users\\Administrator
+<DIR>   00000000:00000000       AppData
+<DIR>   00000000:00000000       Application Data
+<DIR>   00000000:00000000       Contacts
+<DIR>   00000000:00000000       Cookies
+<DIR>   00000000:00000000       Desktop
+<DIR>   00000000:00000000       Documents
+<DIR>   00000000:00000000       Downloads
+<DIR>   00000000:00000000       Favorites
+<DIR>   00000000:00000000       Links
+<DIR>   00000000:00000000       Local Settings
+<DIR>   00000000:00000000       Music
+<DIR>   00000000:00000000       My Documents
+<DIR>   00000000:00000000       NetHood
+<FILE>  00000000:000c0000       NTUSER.DAT
+<FILE>  00000000:00028000       ntuser.dat.LOG1
+<FILE>  00000000:00042000       ntuser.dat.LOG2
+<FILE>  00000000:00010000       NTUSER.DAT{40cb4859-4323-11f1-b859-00155d21e702}.TM.blf
+<FILE>  00000000:00080000       NTUSER.DAT{40cb4859-4323-11f1-b859-00155d21e702}.TMContainer00000000000000000001.regtrans-ms
+<FILE>  00000000:00080000       NTUSER.DAT{40cb4859-4323-11f1-b859-00155d21e702}.TMContainer00000000000000000002.regtrans-ms
+<FILE>  00000000:00000014       ntuser.ini
+<DIR>   00000000:00000000       Pictures
+<DIR>   00000000:00000000       PrintHood
+<DIR>   00000000:00000000       Recent
+<DIR>   00000000:00000000       Saved Games
+<DIR>   00000000:00000000       Searches
+<DIR>   00000000:00000000       SendTo
+<DIR>   00000000:00000000       Start Menu
+<DIR>   00000000:00000000       Templates
+<DIR>   00000000:00000000       Videos
+lsbof: 29 entries
+```
 
 ```msf
 meterpreter > execute_bof CS-Situational-Awareness-BOF/SA/dir/dir.x64.o --format-string Zs C:\\ 0
