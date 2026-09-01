@@ -188,7 +188,8 @@ class Server
     resp = Dnsruby::Message.new
     resp.header.id = req.header.id
     resp.header.qr = true
-    resp.header.ra = req.header.rd
+    resp.header.rd = req.header.rd      # echo Recursion Desired back to the client
+    resp.header.ra = !self.fwd_res.nil? # Recursion Available when we can forward upstream
     req.question.each { |q| resp.add_question(q.qname, q.qtype, q.qclass) }
     answers.uniq.each { |a| resp.add_answer(a) }
     send_response(cli, resp.encode)
