@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (6.5.3)
+    metasploit-framework (6.5.4)
       aarch64
       abbrev
       actionpack (~> 8.0.5)
@@ -511,7 +511,7 @@ GEM
       netrc (~> 0.8)
     rex-arch (0.1.20)
       rex-text
-    rex-bin_tools (0.1.16)
+    rex-bin_tools (0.1.17)
       metasm
       rex-arch
       rex-core

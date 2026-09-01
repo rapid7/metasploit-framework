@@ -1103,7 +1103,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if version_raw.blank?
-      print_error("Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM.")
+      print_error("Could not retrieve Windows version string from #{datastore['RHOSTS']} via WinRM. Results may contain false positives.")
+      return
     end
 
     version_obj = Rex::Version.new(version_raw)
@@ -1130,7 +1131,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_error("Could not map detected Windows version #{version_obj} to a known product range.")
+    print_error("Could not map detected Windows version #{version_obj} to a known product range. Results may contain false positives.")
   end
 
   def set_can_enroll_flags
@@ -1173,8 +1174,8 @@ class MetasploitModule < Msf::Auxiliary
       # longer accepts weak certificate mappings regardless of the StrongCertificateBindingEnforcement/ CertificaateMappingMethod registry key.
       begin
         domain_controller_version_check
-      rescue WinRM::WinRMAuthorizationError => e
-        print_warning("Unable to determine the version of Window so these all might be false postives! WinRM authorization error: #{e.message}")
+      rescue WinRM::WinRMError, HTTPClient::TimeoutError, SystemCallError => e
+        print_warning("Unable to determine the Windows version via WinRM: #{e.message}. Results may contain false positives.")
       end
 
       templates = query_ldap_server('(objectClass=pkicertificatetemplate)', CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
