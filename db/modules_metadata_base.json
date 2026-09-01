@@ -110547,7 +110547,7 @@
       "Windows",
       "Linux"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-08-29 17:12:33 +0000",
     "path": "/modules/exploits/multi/http/coldfusion_rds_auth_bypass.rb",
     "is_install_path": true,
     "ref_name": "multi/http/coldfusion_rds_auth_bypass",
