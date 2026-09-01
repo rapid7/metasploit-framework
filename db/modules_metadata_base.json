@@ -122753,6 +122753,71 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/simplehelp_oidc_auth_bypass_rce": {
+    "name": "SimpleHelp OIDC Authentication Bypass Remote Code Execution",
+    "fullname": "exploit/multi/http/simplehelp_oidc_auth_bypass_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-12",
+    "type": "exploit",
+    "author": [
+      "Zach Hanley",
+      "Horizon3.ai",
+      "Blackpoint Cyber",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits CVE-2026-48558 to forge an OpenID Connect identity token and\n          obtain a SimpleHelp technician session. It then uses SimpleHelp's legitimate remote\n          access WebSocket protocol to connect to an online managed machine and execute a\n          payload through the remote terminal.\n\n          An OIDC provider must be enabled for a technician group that permits group-authenticated\n          logins. The group must be allowed to access the selected machine and run remote commands.\n          The SimpleHelp server must have a valid session license, and at least one managed machine\n          must be online.\n\n          SimpleHelp 5.5.0 through 5.5.15 are affected. Some SimpleHelp 6.0 prerelease builds before\n          6.0 RC2 are also affected.",
+    "references": [
+      "CVE-2026-48558",
+      "URL-https://horizon3.ai/attack-research/disclosures/cve-2026-48558-simplehelp-authentication-bypass-iocs/",
+      "URL-https://guides.simple-help.com/kb---security-vulnerabilities-05-2026",
+      "URL-https://blackpointcyber.com/blog/a-djinn-in-the-machine-taskweavers-node-js-intrusion-chain/"
+    ],
+    "platform": "Linux,OSX,Unix,Windows",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix/Linux/macOS Command",
+      "Windows Command"
+    ],
+    "mod_time": "2026-09-01 14:06:12 +0000",
+    "path": "/modules/exploits/multi/http/simplehelp_oidc_auth_bypass_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/simplehelp_oidc_auth_bypass_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/sit_file_upload": {
     "name": "Support Incident Tracker Remote Command Execution",
     "fullname": "exploit/multi/http/sit_file_upload",
