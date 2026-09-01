@@ -7,7 +7,7 @@ require 'bson'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::Mongodb
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -22,15 +22,18 @@ class MetasploitModule < Msf::Auxiliary
           databases and collections via wire protocol, samples documents, and dumps
           the inferred schema structure.
 
-          Sccuessfully tested against MongoDB 3.6 with and without authentication
+          Successfully tested against MongoDB 3.6 with and without authentication
         },
-        'Author' => [ 'h00die' ],
+        'Author' => [
+          'h00die',
+          'prithvee07'
+        ],
         'License' => MSF_LICENSE,
         'References' => [
           [ 'URL', 'https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/' ]
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
+          'Reliability' => UNKNOWN_RELIABILITY,
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
         }
@@ -136,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
 
     conversation_id = reply['conversationId']
     server_payload = reply['payload'].data
-    server_vars = parse_scram_payload(server_payload)
+    server_vars = mongodb_parse_scram_payload(server_payload)
 
     server_nonce = server_vars['r']
     salt = Rex::Text.decode_base64(server_vars['s'])
@@ -155,7 +158,6 @@ class MetasploitModule < Msf::Auxiliary
     client_final_without_proof = "c=biws,r=#{server_nonce}"
     auth_message = "#{client_first_bare},#{server_payload},#{client_final_without_proof}"
 
-    OpenSSL::HMAC.digest('sha1', salted_password, 'Server Key') # Verification
     client_proof = Rex::Text.xor(client_key, OpenSSL::HMAC.digest('sha1', stored_key, auth_message))
     client_final_message = "#{client_final_without_proof},p=#{Rex::Text.encode_base64(client_proof)}"
 
@@ -190,13 +192,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error('Final SASL confirmation failed.')
       false
-    end
-  end
-
-  def parse_scram_payload(payload)
-    payload.split(',').each_with_object({}) do |var, hash|
-      k, v = var.split('=', 2)
-      hash[k] = v if k && v
     end
   end
 
@@ -255,49 +250,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_query_single(full_coll_name, bson_payload)
-    docs = send_query_multi(full_coll_name, bson_payload, 1)
-    docs.first
+    send_query_multi(full_coll_name, bson_payload, 1).first
   end
 
   def send_query_multi(full_coll_name, bson_payload, number_to_return = 5)
-    coll_name = "#{full_coll_name}\x00"
-    req_id = Rex::Text.rand_text(4)
+    pkt = mongodb_build_packet(full_coll_name, bson_payload, number_to_return: number_to_return)
 
-    msg_len = 16 + 4 + coll_name.length + 4 + 4 + bson_payload.length
-
-    packet = [msg_len].pack('V')
-    packet << req_id
-    packet << "\x00\x00\x00\x00"                  # responseTo
-    packet << "\xd4\x07\x00\x00"                  # opCode: 2004 (OP_QUERY)
-    packet << "\x00\x00\x00\x00"                  # flags
-    packet << coll_name
-    packet << "\x00\x00\x00\x00"                  # numberToSkip: 0
-    packet << [number_to_return].pack('V')
-    packet << bson_payload
-
-    sock.put(packet)
+    sock.put(pkt)
     response_raw = sock.get_once(-1, 5)
 
-    return [] unless response_raw && response_raw.length > 36
-
-    bson_bytes = response_raw[36..]
-    docs = []
-    offset = 0
-
-    while offset < bson_bytes.length
-      break if offset + 4 > bson_bytes.length
-
-      doc_len = bson_bytes[offset..offset + 3].unpack1('V')
-      break if doc_len.nil? || doc_len <= 0 || (offset + doc_len) > bson_bytes.length
-
-      buffer = BSON::ByteBuffer.new(bson_bytes[offset...offset + doc_len])
-      docs << BSON::Document.from_bson(buffer)
-      offset += doc_len
-    end
-
-    docs
-  rescue StandardError => e
-    vprint_error("BSON parsing error: #{e.message}")
-    []
+    mongodb_parse_docs(response_raw)
   end
 end

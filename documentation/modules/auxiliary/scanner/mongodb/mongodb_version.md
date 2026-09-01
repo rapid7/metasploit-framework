@@ -76,8 +76,8 @@ msf > use auxiliary/scanner/mongodb/mongodb_version
 msf auxiliary(scanner/mongodb/mongodb_version) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 msf auxiliary(scanner/mongodb/mongodb_version) > run
-[*] 127.0.0.1:27017 - Connecting to 127.0.0.1:27017...
-[+] 127.0.0.1:27017 - 127.0.0.1:27017 - MongoDB version: 3.6.23
-[*] 127.0.0.1:27017 - Scanned 1 of 1 hosts (100% complete)
+[*] 127.0.0.1:27017       - Connecting to 127.0.0.1:27017      
+[+] 127.0.0.1:27017       - MongoDB version: 3.6.23
+[*] 127.0.0.1:27017       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
