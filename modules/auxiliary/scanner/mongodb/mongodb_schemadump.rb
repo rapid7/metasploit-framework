@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/' ]
         ],
         'Notes' => {
-          'Reliability' => UNKNOWN_RELIABILITY,
+          'Reliability' => [],
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
         }
