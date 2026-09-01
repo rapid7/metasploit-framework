@@ -5,6 +5,7 @@
 
 require 'bson'
 require 'openssl'
+require 'digest'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Mongodb

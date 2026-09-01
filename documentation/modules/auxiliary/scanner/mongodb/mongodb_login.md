@@ -93,11 +93,7 @@ volumes:
 
 ## Options
 
-### DB_NAME
-
-Specific database to enumerate (leave blank for all). Defaults to ``
-
-### AUTH_DB
+### DB
 
 Database to authenticate against. Defaults to `admin`
 

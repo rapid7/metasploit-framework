@@ -149,7 +149,6 @@ msf auxiliary(scanner/mongodb/mongodb_schemadump) > set verbose true
 verbose => true
 msf auxiliary(scanner/mongodb/mongodb_schemadump) > exploit
 [*] 127.0.0.1:27017       - Connected to MongoDB wire protocol
-[+] 127.0.0.1:27017       - Authenticated successfully as 'admin' on 'admin'
 [*] 127.0.0.1:27017       - Post-auth listDatabases reply: {"databases"=>[{"name"=>"admin", "sizeOnDisk"=>81920.0, "empty"=>false}, {"name"=>"config", "sizeOnDisk"=>12288.0, "empty"=>false}, {"name"=>"intranet", "sizeOnDisk"=>65536.0, "empty"=>false}, {"name"=>"local", "sizeOnDisk"=>65536.0, "empty"=>false}], "totalSize"=>225280.0, "ok"=>1.0}
 [+] 127.0.0.1:27017       - Found Databases: admin, config, intranet, local
 [*] 127.0.0.1:27017       -   DB 'admin' Collections: system.users, system.version
