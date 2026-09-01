@@ -303,7 +303,7 @@ class MetasploitModule < Msf::Auxiliary
 
     reply = mongodb_parse_doc(resp)
     if reply && reply['ok'].to_i == 1
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
+      print_good("SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
         ip: rhost,
         port: rport,
@@ -338,7 +338,7 @@ class MetasploitModule < Msf::Auxiliary
 
     reply = mongodb_parse_doc(response)
     if reply && reply['ok'].to_i == 1
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
+      print_good("SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
       report_cred(
         ip: rhost,
         port: rport,
