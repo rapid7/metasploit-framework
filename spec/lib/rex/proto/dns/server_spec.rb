@@ -96,5 +96,73 @@ RSpec.describe Rex::Proto::DNS::Server do
         server.default_dispatch_request(cli, query.encode)
       end
     end
+
+    context 'response header flags' do
+      # dispatch a query with a known Recursion Desired bit and decode the reply
+      def dispatch_and_decode(rd:)
+        query = Dnsruby::Message.new
+        query.add_question(Dnsruby::Name.create('flags.example.com.'), Dnsruby::Types::A)
+        query.header.rd = rd
+        captured = nil
+        allow(cli).to receive(:write) { |data| captured = Dnsruby::Message.decode(data) }
+        server.default_dispatch_request(cli, query.encode)
+        captured
+      end
+
+      it 'echoes the request Recursion Desired bit back to the client' do
+        # Regression: the fresh response defaulted RD to false, dropping the
+        # request's RD bit instead of echoing it.
+        server.fwd_res = double('resolver', send: Dnsruby::Message.new)
+        expect(dispatch_and_decode(rd: true).header.rd).to eq(true)
+        expect(dispatch_and_decode(rd: false).header.rd).to eq(false)
+      end
+
+      it 'advertises Recursion Available when a forwarder is configured' do
+        server.fwd_res = double('resolver', send: Dnsruby::Message.new)
+        expect(dispatch_and_decode(rd: true).header.ra).to eq(true)
+      end
+
+      it 'does not advertise Recursion Available when forwarding is disabled' do
+        server.fwd_res = nil
+        expect(dispatch_and_decode(rd: true).header.ra).to eq(false)
+      end
+    end
+  end
+
+  describe '#monitor_listener' do
+    let(:udp_sock) { double('udp_sock') }
+
+    before do
+      allow(server).to receive(:udp_sock).and_return(udp_sock)
+      # make the otherwise-infinite loop run exactly one iteration
+      allow(::IO).to receive(:select).and_return([[udp_sock], [], []])
+    end
+
+    def capture_client
+      captured = nil
+      allow(server).to receive(:dispatch_request) do |client, _data|
+        captured = client
+        throw :stop_listener
+      end
+      catch(:stop_listener) { server.send(:monitor_listener) }
+      captured
+    end
+
+    it 'addresses the reply using the three-value recvfrom form (data, host, port)' do
+      # Rex sockets return [data, host, port]; the reply must go to that host/port.
+      allow(udp_sock).to receive(:recvfrom).with(65535).and_return(['REQ', '192.0.2.77', 5353])
+      client = capture_client
+      expect(client.peerhost).to eq('192.0.2.77')
+      expect(client.peerport).to eq(5353)
+    end
+
+    it 'addresses the reply using the two-value recvfrom form (data, sockaddr array)' do
+      # Raw Ruby UDPSocket returns [data, [family, port, name, ip]]; host/port
+      # come out of the sockaddr array instead.
+      allow(udp_sock).to receive(:recvfrom).with(65535).and_return(['REQ', ['AF_INET', 5353, 'host', '192.0.2.88']])
+      client = capture_client
+      expect(client.peerhost).to eq('192.0.2.88')
+      expect(client.peerport).to eq(5353)
+    end
   end
 end
