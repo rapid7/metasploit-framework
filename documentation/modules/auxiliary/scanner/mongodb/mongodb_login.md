@@ -117,18 +117,20 @@ Password for authentication. Defaults to ``
 msf > use auxiliary/scanner/mongodb/mongodb_login 
 msf auxiliary(scanner/mongodb/mongodb_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf auxiliary(scanner/mongodb/mongodb_login) > set username admin
-username => admin
-msf auxiliary(scanner/mongodb/mongodb_login) > set password adminpassword
-password => adminpassword
+msf auxiliary(scanner/mongodb/mongodb_login) > set username testuser
+username => testuser
+msf auxiliary(scanner/mongodb/mongodb_login) > set password testpass
+password => testpass
+msf auxiliary(scanner/mongodb/mongodb_login) > set db intranet
+db => intranet
 msf auxiliary(scanner/mongodb/mongodb_login) > set verbose true
 verbose => true
 msf auxiliary(scanner/mongodb/mongodb_login) > run
-[*] 127.0.0.1:27017 - Scanning IP: 127.0.0.1
-[*] 127.0.0.1:27017 - 127.0.0.1:27017 - Mongo server (version 3.6.23) requires authentication
-[*] 127.0.0.1:27017 - Trying user: admin, password: adminpassword
-[+] 127.0.0.1:27017 - 127.0.0.1 - SUCCESSFUL LOGIN 'admin' : 'adminpassword' (SCRAM-SHA-1)
-[*] 127.0.0.1:27017 - Scanned 1 of 1 hosts (100% complete)
+[*] 127.0.0.1:27017       - Scanning IP: 127.0.0.1
+[*] 127.0.0.1:27017       - Mongo server (version 3.6.23) requires authentication
+[*] 127.0.0.1:27017       - Trying user: testuser, password: testpass
+[+] 127.0.0.1:27017       - SUCCESSFUL LOGIN 'testuser' : 'testpass' (SCRAM-SHA-1)
+[*] 127.0.0.1:27017       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 
