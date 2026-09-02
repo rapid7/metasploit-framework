@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 Any Linux system using PAM (Pluggable Authentication Modules) for authentication is
-affected — this includes essentially every modern Linux distribution. The module
+affected - this includes essentially every modern Linux distribution. The module
 requires an existing root session on the target. It installs a malicious PAM shared
 library that accepts a configured master password for **any** local account (root,
 regular users, service accounts), while leaving existing passwords intact so the
@@ -16,8 +16,8 @@ A Docker-based test environment is provided below.
 
 ### Test Environment (Docker)
 
-Use the following Dockerfile to spin up an Ubuntu 26.04 target
-with OpenSSH enabled and a non-root user `user:user`.
+Save the following Dockerfile snippet as `Dockerfile` to spin up an Ubuntu 26.04
+target with OpenSSH enabled and a non-root user `user:user`.
 
 ```Dockerfile
 FROM ubuntu:26.04
@@ -41,11 +41,10 @@ EXPOSE 2222
 CMD ["/usr/sbin/sshd", "-D"]
 ```
 
-Build and run:
+Build and run from the directory containing the saved `Dockerfile`:
 
 ```
-docker build -t pam-backdoor-test \
-  -f documentation/modules/post/linux/manage/pam_backdoor.Dockerfile .
+docker build -t pam-backdoor-test .
 docker run --rm -p 2222:2222 pam-backdoor-test
 ```
 
@@ -68,7 +67,7 @@ ssh -p 2222 user@127.0.0.1   # password: user
 5. `set SESSION <id>`
 6. Optionally: `set BACKDOOR_PASS [password]`
 7. `run`
-8. From another terminal: `ssh -p 2222 user@127.0.0.1` and enter `[password]` — login succeeds
+8. From another terminal: `ssh -p 2222 user@127.0.0.1` and enter `[password]` - login succeeds
 
 ## Options
 
@@ -82,8 +81,10 @@ shorter than 63 bytes are null-padded inside the binary.
 ### SO_NAME
 
 The filename for the installed PAM shared library. Defaults to `pam_audit.so` to
-blend in with legitimate PAM modules. The file is written into the system's PAM
-module directory (e.g. `/lib/x86_64-linux-gnu/security/`).
+blend in with legitimate PAM modules. Must be a plain filename (letters, digits,
+`.`, `_`, `-`) with no path separators; the module refuses to overwrite an
+existing file. The file is written into the system's PAM module directory
+(e.g. `/lib/x86_64-linux-gnu/security/`).
 
 ### PAM_CONFIG
 
@@ -98,8 +99,8 @@ auto-detection, which checks the following paths in order:
 
 ### ACTION
 
-* `Install` (default) — compile or upload the PAM module and patch the PAM config
-* `Cleanup` — remove the `.so` file and strip the backdoor line from the PAM config;
+* `Install` (default) - compile or upload the PAM module and patch the PAM config
+* `Cleanup` - remove the `.so` file and strip the backdoor line from the PAM config;
   run with the same `SO_NAME` and `PAM_CONFIG` values used during install
 
 ## Scenarios
