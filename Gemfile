@@ -56,3 +56,5 @@ group :test do
   # stub and set expectations on HTTP requests
   gem 'webmock', '~> 3.18'
 end
+
+gem 'rex-text', '0.2.65', git: 'https://github.com/sjanusz-r7/rex-text.git', branch: 'add-hierarchy-table'
