@@ -51249,6 +51249,44 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/msf/handler_detect": {
+    "name": "Metasploit Payload Handler Detection (TCP/UDP/HTTP/HTTPS)",
+    "fullname": "auxiliary/scanner/msf/handler_detect",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "Detect Metasploit exploit/multi/handler listeners and other reverse\n        payload handlers by fingerprinting their wire behavior. Several\n        techniques are combined:\n\n          * Staged reverse handlers \"talk first\": on connect they transmit the\n            stage with a 4-byte length prefix whose endianness identifies the\n            family\n            - little-endian (pack 'V') for Windows native (metsrv)\n            - big-endian (pack 'N') for Python/PHP/Java/Android\n            - Linux/OSX native stagers send the raw machine-code stage with\n              no length prefix, and unix staged shells send a tiny execve(\"/bin/sh\")\n              shellcode.\n          * Reverse command shells \"talk first\" with an \"echo <token>\" probe.\n            Echoing the token back marks the shell valid and can capture an\n            operator's AutoRunScript / follow-up commands.\n          * reverse_http(s) Meterpreter handlers answer any unknown URI with the\n            default \"It works!\" body and Server: Apache. HTTP servers\n            (web_delivery, fetch handlers, exploit module servers) return a\n            distinctive 404 page.\n          * reverse_tcp_ssl handlers stage over TLS; an SSL probe reads the\n            stage/echo through the handshake.\n          * reverse_udp handlers send the stage in response to any datagram, so\n            an optional UDP probe (SCAN_UDP) catches them too.\n\n        Transports that are not TCP/UDP (reverse_sctp, reverse_named_pipe/SMB)\n        and silent stageless payloads that wait for the client cannot be\n        fingerprinted and appear as a silent open port.",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-08-31 12:42:42 +0000",
+    "path": "/modules/auxiliary/scanner/msf/handler_detect.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/msf/handler_detect",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/msf/msf_rpc_login": {
     "name": "Metasploit RPC Interface Login Utility",
     "fullname": "auxiliary/scanner/msf/msf_rpc_login",
