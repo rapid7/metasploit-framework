@@ -72,6 +72,14 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def transport_parent(port, proto)
+    {
+      name: proto,
+      port: port,
+      proto: proto
+    }
+  end
+
   def scanner_postscan(_batch)
     @results.each_key do |k|
       next if !@results[k].respond_to?('keys')
@@ -83,7 +91,8 @@ class MetasploitModule < Msf::Auxiliary
         port: data[:port],
         proto: 'udp',
         name: data[:app],
-        info: data[:info]
+        info: data[:info],
+        parents: transport_parent(data[:port], 'udp')
       }
 
       if data[:hname]
@@ -111,11 +120,10 @@ class MetasploitModule < Msf::Auxiliary
     case sport
     when 5632
 
-      @results[hkey] ||= {}
-      data = @results[hkey]
-      data[:app] = 'pcAnywhere_stat'
-      data[:port] = sport
-      data[:host] = shost
+      result = (@results[hkey] ||= {})
+      result[:app] = 'pcAnywhere_stat'
+      result[:port] = sport
+      result[:host] = shost
 
       case data
 
@@ -124,8 +132,8 @@ class MetasploitModule < Msf::Auxiliary
         caps = ::Regexp.last_match(2).dup
         name = name.gsub(/_+$/, '').gsub("\x00", '').strip
         caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
-        data[:name] = name
-        data[:caps] = caps
+        result[:name] = name
+        result[:caps] = caps
 
       when /^ST(.+)/
         buff = ::Regexp.last_match(1).dup
@@ -139,21 +147,21 @@ class MetasploitModule < Msf::Auxiliary
           stat = 'Busy'
         end
 
-        data[:stat] = stat
+        result[:stat] = stat
       end
 
-      if data[:name]
-        inf << "Name: #{data[:name]} "
+      if result[:name]
+        inf << "Name: #{result[:name]} "
       end
 
-      if data[:stat]
-        inf << "- #{data[:stat]} "
+      if result[:stat]
+        inf << "- #{result[:stat]} "
       end
 
-      if data[:caps]
-        inf << "( #{data[:caps]} ) "
+      if result[:caps]
+        inf << "( #{result[:caps]} ) "
       end
-      data[:info] = inf
+      result[:info] = inf
     end
 
     # Ignore duplicates
@@ -237,14 +245,16 @@ class MetasploitModule < Msf::Auxiliary
       svc = []
       while (buf.length >= 20)
         rec = buf.slice!(0, 20).unpack('N5')
-        svc << "#{rec[1]} v#{rec[2]} #{rec[3] == 0x06 ? 'TCP' : 'UDP'}(#{rec[4]})"
+        proto = rec[3] == 0x06 ? 'tcp' : 'udp'
+        svc << "#{rec[1]} v#{rec[2]} #{proto.upcase}(#{rec[4]})"
         report_service(
           host: shost,
           port: rec[4],
-          proto: (rec[3] == 0x06 ? 'tcp' : 'udp'),
+          proto: proto,
           name: 'sunrpc',
           info: "#{rec[1]} v#{rec[2]}",
-          state: 'open'
+          state: 'open',
+          parents: transport_parent(rec[4], proto)
         )
       end
       inf = svc.join(', ')
@@ -330,6 +340,16 @@ class MetasploitModule < Msf::Auxiliary
 
     end
 
+    parents = transport_parent(sport, 'udp')
+    if app == 'Portmap'
+      parents = {
+        name: 'sunrpc',
+        port: sport,
+        proto: 'udp',
+        parents: parents
+      }
+    end
+
     report_service(
       host: shost,
       mac: (maddr && (maddr != '00:00:00:00:00:00')) ? maddr : nil,
@@ -338,7 +358,8 @@ class MetasploitModule < Msf::Auxiliary
       proto: 'udp',
       name: app,
       info: inf,
-      state: 'open'
+      state: 'open',
+      parents: parents
     )
 
     print_status("Discovered #{app} on #{shost}:#{sport} (#{inf})")

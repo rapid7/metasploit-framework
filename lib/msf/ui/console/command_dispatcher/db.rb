@@ -23,6 +23,19 @@ class Db
 
   DB_CONFIG_PATH = 'framework/database'
 
+  # The most characters of a service's info shown by `services --tree`. The tree is
+  # there to show the shape of the service hierarchy, and one long info, such as an
+  # rpcbind dump, is enough to push every column after it off screen. The whole
+  # value is still available from `services` without --tree.
+  SERVICE_TREE_INFO_MAX_CHARS = 40
+
+  # The connector sets `services --tree-style` accepts. Keep this sourced from
+  # HierarchyTable so new rex-text styles are available without Framework changes.
+  SERVICE_TREE_STYLES = Rex::Text::HierarchyTable.hierarchy_styles.map(&:to_s).freeze
+
+  # Source columns that `services --tree-group` promotes to hierarchy levels.
+  SERVICE_TREE_GROUP_COLUMNS = %w[host port proto].freeze
+
   #
   # The dispatcher's name.
   #
@@ -683,6 +696,8 @@ class Db
     case words[-1]
     when '-c', '--column'
       return @@services_columns
+    when '--tree-style'
+      return SERVICE_TREE_STYLES
     when '-O', '--order'
       return []
     when '-o', '--output'
@@ -697,7 +712,7 @@ class Db
   end
 
   def cmd_services_help
-    print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+    print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-t] [-o <filename>] [addr1 addr2 ...]"
     print_line
     print @@services_opts.usage
     print_line
@@ -720,6 +735,13 @@ class Db
     [ '-O', '--order' ] => [ true, 'Order rows by specified column number.', '<column id>' ],
     [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
     [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-t', '--tree' ] => [ false, 'Nest each service underneath the service it runs on top of.' ],
+    [ '--tree-style' ] => [
+      true,
+      "Connectors --tree draws the hierarchy with. Defaults to #{Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE}.",
+      "<#{SERVICE_TREE_STYLES.join('|')}>"
+    ],
+    [ '--tree-group' ] => [ false, 'Nest --tree output underneath host, port, and protocol rows instead of repeating them as columns.' ],
     [ '-h', '--help' ] => [ false, 'Show this help information.' ]
   )
 
@@ -845,6 +867,8 @@ class Db
     onlyup = false
     output_file = nil
     set_rhosts = false
+    tree_mode = nil
+    tree_style = Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
     col_search = ['port', 'proto', 'name', 'state', 'info']
     extra_columns = ['resource', 'parents']
 
@@ -916,6 +940,20 @@ class Db
       when '-S', '--search'
         search_term = val
         opts[:search_term] = search_term
+      when '-t', '--tree'
+        tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
+      when '--tree-style'
+        style = val.to_s.strip.downcase
+        unless SERVICE_TREE_STYLES.include?(style)
+          print_error("Invalid tree style. Possible values are (#{SERVICE_TREE_STYLES.join('|')})")
+          return
+        end
+        # A connector style only applies to hierarchy output, so it enables the
+        # default tree mode when no mode has been selected yet.
+        tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
+        tree_style = style.to_sym
+      when '--tree-group'
+        tree_mode = Rex::Text::HierarchyTable::MODE_GROUPED
       when '-h', '--help'
         cmd_services_help
         return
@@ -961,11 +999,61 @@ class Db
     if col_search
       col_names = col_search
     end
-    tbl = Rex::Text::Table.new({
-                                   'Header'    => "Services",
-                                   'Columns'   => extra_columns.empty? ? (['host'] + col_names) : (['host'] + col_names + extra_columns),
-                                   'SortIndex' => order_by
-                               })
+
+    if tree_mode && output_file
+      print_warning('Ignoring --tree, the tree connectors would not survive a round trip through a spreadsheet.')
+      tree_mode = nil
+    end
+
+    if tree_mode && order_by
+      print_warning('Ignoring --order, the tree output is ordered by the service hierarchy.')
+      order_by = nil
+    end
+
+    # Each service is nested underneath its parent, so a parents column would only
+    # restate the row above it.
+    display_columns = tree_mode ? extra_columns - ['parents'] : extra_columns
+
+    # Grouped output still stores complete service rows. HierarchyTable promotes
+    # these source columns to presentation-only levels when it renders the tree.
+    row_columns = if tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED
+                    (SERVICE_TREE_GROUP_COLUMNS.drop(1) + ['name'] + col_names).uniq
+                  else
+                    col_names
+                  end
+    all_columns = ['host'] + row_columns + display_columns
+
+    # The name is the natural label to nest, but it is not always one of the
+    # selected columns, so fall back to whichever service column comes first.
+    if tree_mode == Rex::Text::HierarchyTable::MODE_TREE && !col_names.include?('name')
+      print_warning('The name column is hidden, so the hierarchy is drawn on the first visible service column.')
+    end
+    tree_column = if tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED || col_names.include?('name')
+                    'name'
+                  else
+                    col_names.first || 'host'
+                  end
+
+    row_builder = lambda do |service|
+      _service_table_row(service, row_columns, display_columns, leading: [service.host.address])
+    end
+
+    tbl = if tree_mode
+            Rex::Text::HierarchyTable.new(
+              header: 'Services',
+              columns: all_columns,
+              hierarchy_column: tree_column,
+              hierarchy_style: tree_style,
+              max_chars: all_columns.include?('info') ? { 'info' => SERVICE_TREE_INFO_MAX_CHARS } : {},
+              group_columns: tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED ? SERVICE_TREE_GROUP_COLUMNS : []
+            )
+          else
+            Rex::Text::Table.new(
+              'Header' => 'Services',
+              'Columns' => all_columns,
+              'SortIndex' => order_by
+            )
+          end
 
     # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
@@ -994,12 +1082,12 @@ class Db
           framework.db.update_service(service.as_json.symbolize_keys)
         end
 
-        columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
-        unless extra_columns.empty?
-          columns << service.resource.to_json
-          columns << service.parents.map { |parent| "#{parent.name} (#{parent.port}/#{parent.proto})"}.join(', ')
+        fields = row_builder.call(service)
+        if tree_mode
+          tbl.add_row(fields, key: service.id, parent_keys: service.parents.map(&:id))
+        else
+          tbl << fields
         end
-        tbl << columns
         if set_rhosts
           addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address )
           rhosts << addr
@@ -1013,7 +1101,8 @@ class Db
     end
 
     if (output_file == nil)
-      print_line(tbl.to_s)
+      output = tree_mode ? tbl.render(mode: tree_mode) : tbl.to_s
+      print_line(output)
     else
       # create the output file
       ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
@@ -1026,6 +1115,30 @@ class Db
 
     print_status("Deleted #{delete_count} services") if delete_count > 0
 
+  end
+
+  # Builds one row of the services table.
+  #
+  # @param service [Mdm::Service] the service to render.
+  # @param col_names [Array<String>] the service columns to render.
+  # @param extra_columns [Array<String>] the derived columns to append.
+  # @param leading [Array<String>] the cells the row starts with.
+  # @return [Array<String>]
+  def _service_table_row(service, col_names, extra_columns, leading:)
+    columns = leading + col_names.map { |col_name| service[col_name].to_s }
+
+    extra_columns.each do |extra_column|
+      columns << case extra_column
+                 when 'resource'
+                   service.resource.to_json
+                 when 'parents'
+                   service.parents.map { |parent| "#{parent.name} (#{parent.port}/#{parent.proto})" }.join(', ')
+                 else
+                   ''
+                 end
+    end
+
+    columns
   end
 
   #
