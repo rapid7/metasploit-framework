@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     doc = mongodb_parse_doc(resp)
     return nil unless doc && doc['version']
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(list_db_pkt)
-    auth_resp = sock.get_once(-1, 5)
+    auth_resp = mongodb_read_message(sock, 5)
 
     mongodb_have_auth_error?(auth_resp)
   end
@@ -135,10 +135,18 @@ class MetasploitModule < Msf::Auxiliary
   # SCRAM-SHA-1 Handshake (MongoDB 3.0+)
   def auth_scram_sha1(user, password)
     db = datastore['DB']
+    scram_user = mongodb_encode_scram_username(user)
+    if scram_user.nil?
+      vprint_error("Skipping user '#{user}': SCRAM usernames cannot contain a nul byte")
+      return nil
+    end
+
+    # The MONGODB-CR style password digest uses the raw username; only the
+    # SCRAM wire payload needs the RFC 5802 escaping.
     digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{password}")
 
     client_nonce = Rex::Text.rand_text_alphanumeric(24)
-    auth_payload = "n=#{user},r=#{client_nonce}"
+    auth_payload = "n=#{scram_user},r=#{client_nonce}"
     client_first_bare = auth_payload
     client_first_message = "n,,#{auth_payload}"
 
@@ -150,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
 
     pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(resp)
     return nil unless reply && reply['ok'].to_i == 1
@@ -190,9 +198,25 @@ class MetasploitModule < Msf::Auxiliary
 
     pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(resp)
+
+    # Some servers leave the SASL conversation open (done: false) and expect
+    # one more empty saslContinue before the session is authenticated.
+    if reply && reply['ok'].to_i == 1 && reply['done'] == false
+      final_cmd = BSON::Document.new({
+        'saslContinue' => BSON::Int32.new(1),
+        'conversationId' => conv_id_bson,
+        'payload' => BSON::Binary.new('')
+      })
+
+      pkt = mongodb_build_packet("#{db}.$cmd", final_cmd.to_bson.to_s)
+      sock.put(pkt)
+      resp = mongodb_read_message(sock, 5)
+      reply = mongodb_parse_doc(resp)
+    end
+
     if reply && reply['ok'].to_i == 1
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
       report_cred(
@@ -226,7 +250,7 @@ class MetasploitModule < Msf::Auxiliary
 
     packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
     sock.put(packet)
-    response = sock.get_once(-1, 5)
+    response = mongodb_read_message(sock, 5)
 
     reply = mongodb_parse_doc(response)
     if reply && reply['ok'].to_i == 1
@@ -280,7 +304,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
 
     sock.put(pkt)
-    response = sock.get_once(-1, 5)
+    response = mongodb_read_message(sock, 5)
 
     doc = mongodb_parse_doc(response)
     doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''

@@ -13,10 +13,16 @@ Successfully tested against MongoDB 3.6 with and without authentication
 Write this file to `init-mongo.js`
 
 ```
-// Switch to 'intranet' database
-db = db.getSiblingDB('intranet');
+// Privileged user for hashdump testing (users are stored in admin on 3.0+)
+db = db.getSiblingDB('admin');
+db.createUser({
+  user: "rootuser",
+  pwd: "rootpass",
+  roles: [ { role: "root", db: "admin" } ]
+});
 
-// Create a non-root read/write user for testing
+// Create a non-root read/write user for testing, plus sample data, in intranet
+db = db.getSiblingDB('intranet');
 db.createUser({
   user: "testuser",
   pwd: "testpass",
@@ -48,9 +54,9 @@ services:
     ports:
       - "27017:27017"
     environment:
+      MONGO_INITDB_DATABASE: intranet
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: adminpassword
-      MONGO_INITDB_DATABASE: intranet
     volumes:
       - mongo_data:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
@@ -82,7 +88,7 @@ volumes:
 
 ## Verification Steps
 
-1. Install the application
+1. Install the application (`docker compose down -v && docker compose up -d`)
 1. Start msfconsole
 1. Do: `use auxiliary/scanner/mongodb/mongodb_login`
 1. Optionally Do: `set username <username>`

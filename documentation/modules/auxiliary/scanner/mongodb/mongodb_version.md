@@ -12,10 +12,16 @@ Tested against MongoDB 3.6.23
 Write this file to `init-mongo.js`
 
 ```
-// Switch to 'intranet' database
-db = db.getSiblingDB('intranet');
+// Privileged user for hashdump testing (users are stored in admin on 3.0+)
+db = db.getSiblingDB('admin');
+db.createUser({
+  user: "rootuser",
+  pwd: "rootpass",
+  roles: [ { role: "root", db: "admin" } ]
+});
 
-// Create a non-root read/write user for testing
+// Create a non-root read/write user for testing, plus sample data, in intranet
+db = db.getSiblingDB('intranet');
 db.createUser({
   user: "testuser",
   pwd: "testpass",

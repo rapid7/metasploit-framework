@@ -119,10 +119,18 @@ class MetasploitModule < Msf::Auxiliary
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
 
+    scram_user = mongodb_encode_scram_username(user)
+    if scram_user.nil?
+      print_error("Username '#{user}' cannot be used with SCRAM: nul bytes are not allowed")
+      return false
+    end
+
+    # The MONGODB-CR style password digest uses the raw username; only the
+    # SCRAM wire payload needs the RFC 5802 escaping.
     digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{pass}")
 
     client_nonce = Rex::Text.rand_text_alphanumeric(24)
-    auth_payload = "n=#{user},r=#{client_nonce}"
+    auth_payload = "n=#{scram_user},r=#{client_nonce}"
     client_first_bare = auth_payload
     client_first_message = "n,,#{auth_payload}"
 
@@ -204,6 +212,11 @@ class MetasploitModule < Msf::Auxiliary
     reply = send_query_single('admin.$cmd', cmd.to_bson.to_s)
     vprint_status("Post-auth listDatabases reply: #{reply.inspect}")
 
+    if reply && (error = mongodb_query_error([reply]))
+      print_error("listDatabases failed: #{error}")
+      return []
+    end
+
     return [] unless reply && reply['ok'].to_i == 1 && reply['databases']
 
     reply['databases'].map { |d| d['name'] }
@@ -215,13 +228,18 @@ class MetasploitModule < Msf::Auxiliary
       'listCollections' => BSON::Int32.new(1)
     })
 
-    reply = send_query_single("#{db}.$cmd", cmd.to_bson.to_s)
-    return [] unless reply
+    # listCollections returns a command cursor whose firstBatch holds at
+    # most the server's batch size; mongodb_query_all follows it with getMore
+    # so databases with more collections than the first batch are fully
+    # enumerated.
+    docs = mongodb_query_all(sock, "#{db}.$cmd", cmd.to_bson.to_s)
 
-    cursor = reply['cursor']
-    return [] unless cursor && cursor['firstBatch']
+    if (error = mongodb_query_error(docs))
+      print_error("listCollections on #{db} failed: #{error}")
+      return []
+    end
 
-    cursor['firstBatch'].map { |c| c['name'] }
+    docs.map { |c| c['name'] }.compact
   end
 
   def sample_collection_schema(db, collection)
@@ -230,6 +248,13 @@ class MetasploitModule < Msf::Auxiliary
 
     docs = send_query_multi("#{db}.#{collection}", empty_query, sample_limit)
     return {} if docs.empty?
+
+    # A failed collection query comes back as an error document; without this
+    # check its fields ($err, code, ok) would pollute the inferred schema.
+    if (error = mongodb_query_error(docs))
+      vprint_error("Query on #{db}.#{collection} failed: #{error}")
+      return {}
+    end
 
     field_map = {}
     docs.each do |doc|
@@ -258,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = mongodb_build_packet(full_coll_name, bson_payload, number_to_return: number_to_return)
 
     sock.put(pkt)
-    response_raw = sock.get_once(-1, 5)
+    response_raw = mongodb_read_message(sock, 5)
 
     mongodb_parse_docs(response_raw)
   end

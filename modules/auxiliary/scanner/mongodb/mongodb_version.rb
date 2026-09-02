@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
 
     sock.put(pkt)
-    resp = sock.get_once(-1, 5)
+    resp = mongodb_read_message(sock, 5)
 
     doc = mongodb_parse_doc(resp)
     return nil unless doc && doc['version']
