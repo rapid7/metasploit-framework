@@ -56,6 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(27017),
         OptString.new('DB', [ true, 'Database to query', 'admin']),
+        OptString.new('AUTH_DB', [false, 'Database to authenticate against', 'admin'])
         OptString.new('COLLECTION', [ false, 'Custom collection to dump (if empty, dumps system.users)', '']),
         OptString.new('USER_FIELD', [ false, 'Username field name for custom collection', 'username']),
         OptString.new('HASH_FIELD', [ false, 'Hash field name for custom collection', 'hash']),
