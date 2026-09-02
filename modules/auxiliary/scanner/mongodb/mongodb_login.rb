@@ -76,6 +76,8 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     rescue StandardError => e
       print_error "Unable to connect: #{e}"
+   ensure
+     disconnect
       return
     end
   end
