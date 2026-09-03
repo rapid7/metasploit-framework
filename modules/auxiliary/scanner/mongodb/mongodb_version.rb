@@ -40,21 +40,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    vprint_status("Connecting to #{peer}")
-    begin
-      connect
+    connect
 
-      version = get_version
-      if version
-        print_good("MongoDB version: #{version}")
-      else
-        print_warning('Unable to retrieve MongoDB version')
-      end
-    rescue StandardError => e
-      print_error("Connection failed: #{e}")
-    ensure
-      disconnect
+    version = get_version
+    if version
+      print_good("MongoDB version: #{version}")
+    else
+      print_warning('Unable to retrieve MongoDB version')
     end
+  rescue StandardError => e
+    print_error("Connection failed: #{e}")
+  ensure
+    disconnect
   end
 
   def get_version

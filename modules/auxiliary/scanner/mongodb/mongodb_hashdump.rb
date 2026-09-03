@@ -63,49 +63,46 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(ip)
-    print_status("Connecting to #{ip}...")
-    begin
-      connect
+  def run_host(_ip)
+    connect
 
-      if require_auth?
-        user = datastore['USERNAME']
-        pass = datastore['PASSWORD']
-        if user.blank? || pass.blank?
-          print_error('Authentication required but no USERNAME/PASSWORD provided')
-          return
-        end
-
-        print_status("Authentication required, attempting login as '#{user}'...")
-        mechanism = authenticate(user: user, pass: pass, db: datastore['AUTH_DB'])
-        if mechanism
-          print_good("Successfully authenticated via #{mechanism}")
-          report_cred(
-            ip: rhost,
-            port: rport,
-            service_name: 'mongodb',
-            user: user,
-            password: pass,
-            proof: "authenticated via #{mechanism}"
-          )
-        else
-          print_error('Login failed')
-          return
-        end
-      else
-        print_good('No authentication required')
+    if require_auth?
+      user = datastore['USERNAME']
+      pass = datastore['PASSWORD']
+      if user.blank? || pass.blank?
+        print_error('Authentication required but no USERNAME/PASSWORD provided')
+        return
       end
 
-      if datastore['COLLECTION'].blank?
-        dump_system_users
+      print_status("Authentication required, attempting login as '#{user}'...")
+      mechanism = authenticate(user: user, pass: pass, db: datastore['AUTH_DB'])
+      if mechanism
+        print_good("Successfully authenticated via #{mechanism}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'mongodb',
+          user: user,
+          password: pass,
+          proof: "authenticated via #{mechanism}"
+        )
       else
-        dump_app_users
+        print_error('Login failed')
+        return
       end
-    rescue StandardError => e
-      print_error("Unable to connect: #{e}")
-    ensure
-      disconnect
+    else
+      print_good('No authentication required')
     end
+
+    if datastore['COLLECTION'].blank?
+      dump_system_users
+    else
+      dump_app_users
+    end
+  rescue StandardError => e
+    print_error("Unable to connect: #{e}")
+  ensure
+    disconnect
   end
 
   def dump_system_users

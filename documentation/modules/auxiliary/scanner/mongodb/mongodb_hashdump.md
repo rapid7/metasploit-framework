@@ -119,7 +119,6 @@ username => rootuser
 msf auxiliary(scanner/mongodb/mongodb_hashdump) > set password rootpass
 password => rootpass
 msf auxiliary(scanner/mongodb/mongodb_hashdump) > run
-[*] 127.0.0.1:27017       - Connecting to 127.0.0.1...
 [*] 127.0.0.1:27017       - Authentication required, attempting login as 'rootuser'...
 [+] 127.0.0.1:27017       - SUCCESSFUL LOGIN 'rootuser' : 'rootpass' (SCRAM-SHA-1)
 [+] 127.0.0.1:27017       - Successfully authenticated
