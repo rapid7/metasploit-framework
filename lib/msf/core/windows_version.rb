@@ -122,6 +122,103 @@ module Msf
 
     Win10_InitialRelease = Win10_1507
 
+    #
+    # Ordered mapping used to infer a Windows version from a human-readable
+    # exploit target name (see .from_target_name).
+    #
+    # Entries are ordered from most specific to least specific so that
+    # overlapping names resolve correctly (e.g. "8.1" is claimed before "8",
+    # "2008 R2" before "2008"). Each entry declares:
+    #   :pattern        - regex identifying the family within the target name
+    #   :base           - the oldest (baseline) version for the family, used
+    #                     when no service pack is specified
+    #   :service_packs  - optional map of service-pack number => version
+    #
+    # Year-named families (Server SKUs, Windows 2000) require the year to be
+    # directly preceded by "Windows"/"Server" so that unrelated years found in
+    # CVE identifiers, build numbers or product versions (e.g. "CVE-2019-1458")
+    # are not mistaken for an operating system version.
+    #
+    TARGET_NAME_FAMILIES = [
+      # --- Windows Server (always Server SKUs, must be prefixed with Windows/Server) ---
+      { pattern: /(?:windows|server)\s+2025\b/i, base: ServerSpecificVersions::Server2025 },
+      { pattern: /(?:windows|server)\s+2022\b/i, base: ServerSpecificVersions::Server2022 },
+      { pattern: /(?:windows|server)\s+2019\b/i, base: ServerSpecificVersions::Server2019 },
+      { pattern: /(?:windows|server)\s+2016\b/i, base: ServerSpecificVersions::Server2016 },
+      { pattern: /(?:windows|server)\s+2012\s*r2\b/i, base: ServerSpecificVersions::Server2012_R2 },
+      { pattern: /(?:windows|server)\s+2012\b/i, base: ServerSpecificVersions::Server2012 },
+      {
+        pattern: /(?:windows|server)\s+2008\s*r2\b/i,
+        base: ServerSpecificVersions::Server2008_R2_SP0,
+        service_packs: {
+          0 => ServerSpecificVersions::Server2008_R2_SP0,
+          1 => ServerSpecificVersions::Server2008_R2_SP1
+        }
+      },
+      {
+        pattern: /(?:windows|server)\s+2008\b/i,
+        base: ServerSpecificVersions::Server2008_SP0,
+        service_packs: {
+          0 => ServerSpecificVersions::Server2008_SP0,
+          1 => ServerSpecificVersions::Server2008_SP1,
+          2 => ServerSpecificVersions::Server2008_SP2
+        }
+      },
+      {
+        pattern: /(?:windows|server)\s+2003\b/i,
+        base: ServerSpecificVersions::Server2003_SP0,
+        service_packs: {
+          0 => ServerSpecificVersions::Server2003_SP0,
+          1 => ServerSpecificVersions::Server2003_SP1,
+          2 => ServerSpecificVersions::Server2003_SP2
+        }
+      },
+
+      # --- Windows workstation ---
+      { pattern: /\bwin(?:dows)?\s*11\b/i, base: WorkstationSpecificVersions::Win11_21H2 },
+      { pattern: /\bwin(?:dows)?\s*10\b/i, base: WorkstationSpecificVersions::Win10_1507 },
+      { pattern: /\bwin(?:dows)?\s*8\.1\b/i, base: WorkstationSpecificVersions::Win81 },
+      { pattern: /\bwin(?:dows)?\s*8\b/i, base: WorkstationSpecificVersions::Win8 },
+      {
+        pattern: /\bwin(?:dows)?\s*7\b/i,
+        base: WorkstationSpecificVersions::Win7_SP0,
+        service_packs: {
+          0 => WorkstationSpecificVersions::Win7_SP0,
+          1 => WorkstationSpecificVersions::Win7_SP1
+        }
+      },
+      {
+        pattern: /\bvista\b/i,
+        base: WorkstationSpecificVersions::Vista_SP0,
+        service_packs: {
+          0 => WorkstationSpecificVersions::Vista_SP0,
+          1 => WorkstationSpecificVersions::Vista_SP1,
+          2 => WorkstationSpecificVersions::Vista_SP2
+        }
+      },
+      {
+        pattern: /\bxp\b/i,
+        base: WorkstationSpecificVersions::XP_SP0,
+        service_packs: {
+          0 => WorkstationSpecificVersions::XP_SP0,
+          1 => WorkstationSpecificVersions::XP_SP1,
+          2 => WorkstationSpecificVersions::XP_SP2,
+          3 => WorkstationSpecificVersions::XP_SP3
+        }
+      },
+      {
+        pattern: /(?:windows|server)\s+2000\b/i,
+        base: WorkstationSpecificVersions::Win2000,
+        service_packs: {
+          0 => WorkstationSpecificVersions::Win2000,
+          1 => WorkstationSpecificVersions::Win2000,
+          2 => WorkstationSpecificVersions::Win2000,
+          3 => WorkstationSpecificVersions::Win2000,
+          4 => WorkstationSpecificVersions::Win2000_SP4
+        }
+      }
+    ].freeze
+
     module MajorRelease
       NT351 = 'Windows NT 3.51'.freeze
       Win95 = 'Windows 95'.freeze
@@ -247,6 +344,80 @@ module Msf
       else
         nil
       end
+    end
+
+    # Attempt to infer a specific Windows version from a human-readable exploit
+    # target name (for example "Windows 7 SP1 x64" resolves to Win7_SP1).
+    #
+    # The inference is deliberately conservative so it can be relied upon for
+    # automatic metadata tagging:
+    #   * Only names that reference exactly one Windows family are resolved.
+    #     Names referencing several different versions (e.g.
+    #     "Windows XP SP3 / Windows 7 SP1") are treated as ambiguous and return
+    #     nil, since no single version represents them reliably.
+    #   * Generic names such as "Windows", "Windows x64" or "Windows Universal"
+    #     return nil because they do not specify a version.
+    #   * Year-named families (Server SKUs, Windows 2000) are only considered
+    #     when the name also mentions "Windows"/"Server", so unrelated software
+    #     release years are not mistaken for an OS version.
+    #
+    # When a family is matched without a recognisable service pack, the oldest
+    # (baseline) release of that family is returned. This represents the minimum
+    # Windows version the target is expected to run on, which is the value that
+    # matters for payload version-compatibility checks.
+    #
+    # @param name [String] The exploit target name.
+    # @return [Rex::Version, nil] The inferred version, or nil when the name is
+    #   too generic or ambiguous to resolve reliably.
+    def self.from_target_name(name)
+      return nil unless name.is_a?(String) && !name.empty?
+
+      service_packs = service_packs_from_name(name)
+
+      matched = []
+      remaining = name.dup
+
+      TARGET_NAME_FAMILIES.each do |family|
+        # Consume each occurrence so a less specific pattern (e.g. "8") cannot
+        # re-match a substring already claimed by a more specific one ("8.1").
+        while remaining =~ family[:pattern]
+          matched << family unless matched.include?(family)
+          remaining = remaining.sub(family[:pattern], ' ')
+        end
+      end
+
+      # No version referenced, or the name is ambiguous (several distinct
+      # versions) - not safe to tag automatically.
+      return nil unless matched.length == 1
+
+      resolve_family_version(matched.first, service_packs)
+    end
+
+    # Resolve a matched family to a concrete version, honouring any service
+    # packs referenced in the name.
+    #
+    # @param family [Hash] An entry from TARGET_NAME_FAMILIES.
+    # @param service_packs [Array<Integer>] Service-pack numbers found in the name.
+    # @return [Rex::Version]
+    def self.resolve_family_version(family, service_packs)
+      sp_versions = family[:service_packs]
+      return family[:base] if sp_versions.nil? || service_packs.empty?
+
+      # Only consider service packs that are valid for this family. When several
+      # are present (e.g. "XP SP2/SP3") pick the oldest, as it is the lowest
+      # version the target could be running.
+      mapped = service_packs.filter_map { |sp| sp_versions[sp] }
+      mapped.min || family[:base]
+    end
+
+    # Extract every service-pack number referenced in a target name.
+    #
+    # @param name [String] The exploit target name.
+    # @return [Array<Integer>] The unique service-pack numbers found.
+    def self.service_packs_from_name(name)
+      matches = name.scan(/service\s*pack\s*(\d+)/i)
+      matches += name.scan(/\bsp\s?(\d+)\b/i)
+      matches.flatten.map(&:to_i).uniq
     end
 
     private
