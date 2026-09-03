@@ -32,6 +32,7 @@ require:
   - ./lib/rubocop/cop/lint/redundant_peer_in_print.rb
   - ./lib/rubocop/cop/lint/module_missing_autocheck.rb
   - ./lib/rubocop/cop/lint/module_default_payload.rb
+  - ./lib/rubocop/cop/lint/module_duplicate_option.rb
   - ./lib/rubocop/cop/lint/module_http_fingerprint.rb
 
 Lint/CheckCodeMissingReason:
@@ -733,6 +734,15 @@ Lint/ModuleDefaultPayload:
   Description: >-
     Do not hardcode a default PAYLOAD in DefaultOptions.
     Let the framework choose the most appropriate payload automatically.
+  Enabled: true
+  Severity: warning
+  Include:
+    - 'modules/**/*'
+
+Lint/ModuleDuplicateOption:
+  Description: >-
+    Do not register an option supplied by a mixin just to change its default value.
+    Set the value in the module's DefaultOptions metadata instead.
   Enabled: true
   Severity: warning
   Include:
