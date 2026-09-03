@@ -95,5 +95,43 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::Zip' do
         expect(File.exist?(File.join(controlled_tmpdir, 'escaped', 'pwned.txt'))).to be false
       end
     end
+
+    context 'with a zip entry resolving to a sibling that shares the extraction prefix' do
+      let(:zip_path) { File.join(controlled_tmpdir, 'malicious.zip') }
+
+      before do
+        create_msf_zip(zip_path, {
+          '../malicious_evil/pwned.txt' => 'pwned',
+          'legit.xml' => valid_msf_xml
+        })
+      end
+
+      it 'does not extract the sibling-prefix entry' do
+        begin
+          framework.db.import_file(filename: zip_path)
+        rescue Msf::DBImportError
+          # Expected - the minimal XML is detected but may not fully import.
+        end
+
+        extracted_dir = find_extracted_dir
+        sibling_dir = File.join(File.dirname(extracted_dir), 'malicious_evil')
+        expect(File.exist?(File.join(sibling_dir, 'pwned.txt'))).to be false
+      end
+    end
+
+    describe '#is_child_of?' do
+      it 'accepts the extraction root and descendants' do
+        root = File.expand_path(File.join(controlled_tmpdir, 'archive'))
+
+        expect(framework.db.send(:is_child_of?, root, root)).to be true
+        expect(framework.db.send(:is_child_of?, root, File.join(root, 'loot', 'file.bin'))).to be true
+      end
+
+      it 'rejects sibling paths that merely share the extraction root prefix' do
+        root = File.expand_path(File.join(controlled_tmpdir, 'archive'))
+
+        expect(framework.db.send(:is_child_of?, root, "#{root}_evil/file.bin")).to be false
+      end
+    end
   end
 end
