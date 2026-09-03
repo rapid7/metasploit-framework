@@ -119972,6 +119972,69 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/papercut_ng_external_user_lookup_rce": {
+    "name": "PaperCut NG/MF Unauthenticated RCE (CVE-2026-81578 + CVE-2026-82078)",
+    "fullname": "exploit/multi/http/papercut_ng_external_user_lookup_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-27",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an authentication bypass in PaperCut NG and MF. A crafted Apache Tapestry\n          complex-direct request invokes privileged ConfigEditor components through the public Home\n          page. On version 26, the module reconfigures external user lookup to use an H2 JDBC URL whose\n          initialization SQL evaluates Groovy code. On versions 24 and 25, it uses a bundled Derby\n          procedure to write a temporary Groovy bootstrap class to the application classpath, then loads\n          it as a database driver. The Java target serves an executable payload JAR and a generic\n          memory-backed JAR loader over HTTP. Its payload classes and resources remain in memory; however,\n          versions 24 and 25 still require the temporary Derby bootstrap class. The command targets execute\n          a Windows or Linux command payload directly.\n\n          This module was successfully tested against:\n          * PaperCut MF 26.0.4 (Build 76494) <-- emergency patch v1\n          * PaperCut NG 26.0.4 (Build 76495) <-- emergency patch v1\n          * PaperCut NG 26.0.3 (Build 76225)\n          * PaperCut NG 25.0.11 (Build 75758)\n          * PaperCut NG 24.1.9 (Build 73376)",
+    "references": [
+      "CVE-2026-81578",
+      "CVE-2026-82078",
+      "URL-https://www.rapid7.com/blog/post/etr-papercut-ng-mf-critical-zero-day-exploited-in-the-wild/",
+      "URL-https://www.papercut.com/kb/Main/security-bulletin-27-aug-2026-urgent-security-advisory/"
+    ],
+    "platform": "Java,Linux,Unix,Windows",
+    "arch": "java, cmd",
+    "rport": 9191,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java",
+      "Windows Command",
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-02 10:28:21 +0000",
+    "path": "/modules/exploits/multi/http/papercut_ng_external_user_lookup_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/papercut_ng_external_user_lookup_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "config-changes"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/pentaho_business_server_authbypass_and_ssti": {
     "name": "Pentaho Business Server Auth Bypass and Server Side Template Injection RCE",
     "fullname": "exploit/multi/http/pentaho_business_server_authbypass_and_ssti",
