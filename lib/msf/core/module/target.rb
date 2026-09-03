@@ -153,6 +153,8 @@ class Msf::Module::Target
     if opts['Bruteforce']
       self.bruteforce = Bruteforce.new(opts['Bruteforce'])
     end
+
+    infer_runtime_versions
   end
 
   #
@@ -168,6 +170,17 @@ class Msf::Module::Target
   #
   def bruteforce?
     return (bruteforce != nil)
+  end
+
+  #
+  # Returns the runtime version requirements for this target, if any. This is
+  # the metadata consulted when checking whether a payload is compatible with
+  # the target (see Msf::Module::VersionCompatibility). It may be supplied
+  # explicitly via the target's 'RuntimeVersions' option, or inferred from the
+  # target name on creation.
+  #
+  def runtime_versions
+    opts['RuntimeVersions']
   end
 
   ##
@@ -324,6 +337,43 @@ class Msf::Module::Target
   attr_reader :default_options
 
 protected
+
+  #
+  # Attempt to automatically tag this target with runtime version metadata
+  # derived from its name (e.g. a target named "Windows 7 SP1" is tagged with
+  # 'RuntimeVersions' => { 'Windows' => Win7_SP1 }).
+  #
+  # This complements manual tagging: versions supplied explicitly in the
+  # target's 'RuntimeVersions' option are always preserved. Inference is
+  # delegated to Msf::Module::RuntimeVersionInference, which is the extension
+  # point for supporting additional runtimes (macOS, Linux, ...) in future.
+  # Generic or ambiguous names are left untagged.
+  #
+  def infer_runtime_versions
+    existing = opts['RuntimeVersions']
+    existing = {} unless existing.is_a?(Hash)
+
+    inferred = Msf::Module::RuntimeVersionInference.infer(
+      name,
+      existing: existing,
+      platform_names: declared_platform_names
+    )
+    return if inferred.empty?
+
+    self.opts = opts.merge('RuntimeVersions' => existing.merge(inferred))
+  end
+
+  #
+  # The lower-cased platform names declared directly on this target, or nil when
+  # the target declares no platform (in which case runtime inference falls back
+  # to the target name alone).
+  #
+  def declared_platform_names
+    platform_opt = opts['Platform']
+    return nil if platform_opt.nil?
+
+    Array(platform_opt).map { |entry| entry.to_s.downcase }
+  end
 
   attr_writer :name, :platform, :arch, :opts, :ret, :save_registers # :nodoc:
   attr_writer :bruteforce # :nodoc:
