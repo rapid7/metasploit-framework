@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::MCP::Tools::ModuleCheck
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::MCP::Tools::ModuleCheck";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Tools.html" title="Msf::MCP::Tools (module)">Tools</a></span></span>
+     &raquo; 
+    <span class="title">ModuleCheck</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::MCP::Tools::ModuleCheck
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">MCP::Tool</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">MCP::Tool</li>
+          
+            <li class="next">Msf::MCP::Tools::ModuleCheck</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd><span class='object_link'><a href="ToolHelper.html" title="Msf::MCP::Tools::ToolHelper (module)">ToolHelper</a></span></dd>
+  </dl>
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/mcp/tools/module_check.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>MCP Tool: Run a Module’s Check Method</p>
+
+<p>Invokes the Metasploit Framework ‘module.check` RPC endpoint. Returns the job_id and run UUID for polling via <span class='object_link'><a href="ModuleResults.html" title="Msf::MCP::Tools::ModuleResults (class)">ModuleResults</a></span>. When the module does not implement a check method, returns a structured `status: unsupported` response instead of an error.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="CHECK_SUPPORTED_TYPES-constant" class="">CHECK_SUPPORTED_TYPES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Module types accepted by module.check.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>exploit</span><span class='words_sep'> </span><span class='tstring_content'>auxiliary</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="UNSUPPORTED_CHECK_MESSAGE-constant" class="">UNSUPPORTED_CHECK_MESSAGE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Message the module.check RPC returns when a module has no check method.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>This module does not support check.</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="ToolHelper.html" title="Msf::MCP::Tools::ToolHelper (module)">ToolHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ToolHelper.html#DANGEROUS_MODE_DISABLED_MESSAGE-constant" title="Msf::MCP::Tools::ToolHelper::DANGEROUS_MODE_DISABLED_MESSAGE (constant)">ToolHelper::DANGEROUS_MODE_DISABLED_MESSAGE</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call-class_method" title="call (class method)">.<strong>call</strong>(type:, name:, options:, server_context:)  &#x21d2; MCP::Tool::Response </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Execute module check.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ToolHelper.html" title="Msf::MCP::Tools::ToolHelper (module)">ToolHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ToolHelper.html#dangerous_mode_required!-instance_method" title="Msf::MCP::Tools::ToolHelper#dangerous_mode_required! (method)">dangerous_mode_required!</a></span>, <span class='object_link'><a href="ToolHelper.html#tool_error_response-instance_method" title="Msf::MCP::Tools::ToolHelper#tool_error_response (method)">tool_error_response</a></span>, <span class='object_link'><a href="ToolHelper.html#with_tool_context-instance_method" title="Msf::MCP::Tools::ToolHelper#with_tool_context (method)">with_tool_context</a></span></p>
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="call-class_method">
+  
+    .<strong>call</strong>(type:, name:, options:, server_context:)  &#x21d2; <tt>MCP::Tool::Response</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Execute module check</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Module type (‘exploit’ or ‘auxiliary’)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Module path/name</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Datastore options forwarded to module.check</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>server_context</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Server context with msf_client, rate_limiter</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>MCP::Tool::Response</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Structured response with job_id and uuid, or { status: ‘unsupported’ } when the module has no check method</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/mcp/tools/module_check.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>type:</span><span class='comma'>,</span> <span class='label'>name:</span><span class='comma'>,</span> <span class='label'>options:</span><span class='comma'>,</span> <span class='label'>server_context:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_with_tool_context'>with_tool_context</span><span class='lparen'>(</span><span class='id identifier rubyid_server_context'>server_context</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>module_check</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>dangerous:</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_msf_client'>msf_client</span><span class='op'>|</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_parameter!'><span class='object_link'><a href="../Security/InputValidator.html#validate_parameter!-class_method" title="Msf::MCP::Security::InputValidator.validate_parameter! (method)">validate_parameter!</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Module type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#CHECK_SUPPORTED_TYPES-constant" title="Msf::MCP::Tools::ModuleCheck::CHECK_SUPPORTED_TYPES (constant)">CHECK_SUPPORTED_TYPES</a></span></span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_module_name!'><span class='object_link'><a href="../Security/InputValidator.html#validate_module_name!-class_method" title="Msf::MCP::Security::InputValidator.validate_module_name! (method)">validate_module_name!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security.html" title="Msf::MCP::Security (module)">Security</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Security/InputValidator.html" title="Msf::MCP::Security::InputValidator (class)">InputValidator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_validate_module_options!'><span class='object_link'><a href="../Security/InputValidator.html#validate_module_options!-class_method" title="Msf::MCP::Security::InputValidator.validate_module_options! (method)">validate_module_options!</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+
+    <span class='comment'># MCP deep-symbolizes JSON input; the Metasploit datastore is keyed by Strings.
+</span>    <span class='id identifier rubyid_stringified_options'>stringified_options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_transform_keys'>transform_keys</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_api_error'>api_error</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_raw_result'>raw_result</span><span class='comma'>,</span> <span class='id identifier rubyid_elapsed'>elapsed</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Stopwatch</span><span class='period'>.</span><span class='id identifier rubyid_elapsed_time'>elapsed_time</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_msf_client'>msf_client</span><span class='period'>.</span><span class='id identifier rubyid_module_check'>module_check</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_stringified_options'>stringified_options</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../MCP.html" title="Msf::MCP (module)">MCP</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit.html" title="Msf::MCP::Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Metasploit/APIError.html" title="Msf::MCP::Metasploit::APIError (class)">APIError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_api_error'>api_error</span> <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_metadata'>metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>query_time:</span> <span class='id identifier rubyid_elapsed'>elapsed</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_api_error'>api_error</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_api_error'>api_error</span> <span class='kw'>unless</span> <span class='id identifier rubyid_api_error'>api_error</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#UNSUPPORTED_CHECK_MESSAGE-constant" title="Msf::MCP::Tools::ModuleCheck::UNSUPPORTED_CHECK_MESSAGE (constant)">UNSUPPORTED_CHECK_MESSAGE</a></span></span><span class='rparen'>)</span>
+
+        <span class='lbrace'>{</span> <span class='label'>status:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unsupported</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Module does not implement a check method</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='lbrace'>{</span> <span class='label'>job_id:</span> <span class='id identifier rubyid_raw_result'>raw_result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>job_id</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>uuid:</span> <span class='id identifier rubyid_raw_result'>raw_result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+
+    <span class='op'>::</span><span class='const'>MCP</span><span class='op'>::</span><span class='const'>Tool</span><span class='op'>::</span><span class='const'>Response</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='lbracket'>[</span><span class='lbrace'>{</span> <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>text:</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>structured_content:</span> <span class='lbrace'>{</span> <span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_data'>data</span> <span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Sep  3 17:25:46 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

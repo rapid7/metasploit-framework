@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Trace::CertificateTracePresenter
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Trace::CertificateTracePresenter";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Trace.html" title="Msf::Trace (module)">Trace</a></span></span>
+     &raquo; 
+    <span class="title">CertificateTracePresenter</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Trace::CertificateTracePresenter
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Trace::CertificateTracePresenter</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/trace/certificate_trace_presenter.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Presenter for X.509 certificates.</p>
+
+<p>Follows the same responsibility split as Rex::Proto::Kerberos::CredentialCache::Krb5CCachePresenter: this class constructs formatted strings only. The caller (module instance) is responsible for invoking its own print methods so output is correctly associated with the running module.</p>
+
+<p>Usage:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_presenter'>presenter</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Trace.html" title="Msf::Trace (module)">Trace</a></span></span><span class='op'>::</span><span class='const'>CertificateTracePresenter</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Msf::Trace::CertificateTracePresenter#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_presenter'>presenter</span><span class='period'>.</span><span class='id identifier rubyid_to_s_metadata'>to_s_metadata</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_presenter'>presenter</span><span class='period'>.</span><span class='id identifier rubyid_to_s_full'>to_s_full</span><span class='rparen'>)</span>
+
+<span class='comment'># CSR mode - present a certificate signing request before it is submitted
+</span><span class='comment'># (e.g. the AD CS / MS-ICPR enrollment flow). +attributes+ is the enrollment
+</span><span class='comment'># attribute hash returned alongside the CSR by CertRequest#create_csr.
+</span><span class='id identifier rubyid_presenter'>presenter</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Trace.html" title="Msf::Trace (module)">Trace</a></span></span><span class='op'>::</span><span class='const'>CertificateTracePresenter</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Msf::Trace::CertificateTracePresenter#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_presenter'>presenter</span><span class='period'>.</span><span class='id identifier rubyid_to_s_csr_metadata'>to_s_csr_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_presenter'>presenter</span><span class='period'>.</span><span class='id identifier rubyid_to_s_csr_full'>to_s_csr_full</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='comma'>,</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='rparen'>)</span><span class='rparen'>)</span>
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="SEPARATOR_WIDTH-constant" class="">SEPARATOR_WIDTH =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>‘[CertificateTrace] ’ (19) + 38 dashes, preserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>57</span></pre></dd>
+      
+        <dt id="NAMED_OIDS-constant" class="">NAMED_OIDS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>OIDs surfaced as named fields in to_s_full; excluded from the raw extension dump.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='tstring_content'>subjectAltName</span><span class='words_sep'> </span><span class='tstring_content'>extendedKeyUsage</span><span class='words_sep'> </span><span class='tstring_content'>keyUsage</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="CERT_TEMPLATE_NAME_OID-constant" class="">CERT_TEMPLATE_NAME_OID =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Microsoft AD CS enrollment extensions whose content carries the template name / template version. OpenSSL has no friendly decoder for these, so we decode them ourselves below.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.3.6.1.4.1.311.20.2</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="CERT_TEMPLATE_INFO_OID-constant" class="">CERT_TEMPLATE_INFO_OID =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.3.6.1.4.1.311.21.7</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="APPLICATION_POLICIES_OID-constant" class="">APPLICATION_POLICIES_OID =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Microsoft Application Policies extension. Its content is a CertificatePolicies SEQUENCE OF PolicyInformation, which the framework already decodes for the icpr_cert workflow; we resolve each policy OID to its friendly label rather than dumping the raw bytes (the policy OIDs - e.g. Client Authentication - are central to ESC attack triage).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.3.6.1.4.1.311.21.10</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="EXTENSION_OID_NAMES-constant" class="">EXTENSION_OID_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Friendly labels for extension OIDs that OpenSSL leaves as raw numeric strings (predominantly Microsoft enrollment OIDs on AD CS certificates).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='const'><span class='object_link'><a href="#CERT_TEMPLATE_NAME_OID-constant" title="Msf::Trace::CertificateTracePresenter::CERT_TEMPLATE_NAME_OID (constant)">CERT_TEMPLATE_NAME_OID</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Certificate Template Name</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#CERT_TEMPLATE_INFO_OID-constant" title="Msf::Trace::CertificateTracePresenter::CERT_TEMPLATE_INFO_OID (constant)">CERT_TEMPLATE_INFO_OID</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Certificate Template Information</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#APPLICATION_POLICIES_OID-constant" title="Msf::Trace::CertificateTracePresenter::APPLICATION_POLICIES_OID (constant)">APPLICATION_POLICIES_OID</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Application Policies</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.3.6.1.4.1.311.25.2</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AD DS Security Extension (SID)</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="OPENSSL_READABLE_EXTENSIONS-constant" class="">OPENSSL_READABLE_EXTENSIONS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Standard PKIX extensions OpenSSL renders as clean, human-readable text. For any other extension - notably the Microsoft AD CS enrollment OIDs - OpenSSL emits a lossy byte dump (raw bytes on OpenSSL, non-printables collapsed to ‘.’ on LibreSSL), so we hex-encode the raw extnValue instead of printing mojibake. Matched against the short name OpenSSL reports for recognised OIDs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w[</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>basicConstraints</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>authorityKeyIdentifier</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>subjectKeyIdentifier</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>crlDistributionPoints</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>authorityInfoAccess</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>certificatePolicies</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>issuerAltName</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>nameConstraints</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>nsComment</span><span class='words_sep'>
+</span><span class='words_sep'>  </span><span class='tstring_content'>nsCertType</span><span class='words_sep'>
+</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="IDENTITY_SOURCES-constant" class="">IDENTITY_SOURCES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Priority order for resolving a single auth identity from the cert. UPN is the primary AD identity; email and CN are fallbacks.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='lbracket'>[</span><span class='symbol'>:upn</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UPN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='symbol'>:email</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Email SAN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='symbol'>:cn</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Subject CN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#coerce-class_method" title="coerce (class method)">.<strong>coerce</strong>(cert)  &#x21d2; OpenSSL::X509::Certificate<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempt to coerce input into an OpenSSL::X509::Certificate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#coerce_csr-class_method" title="coerce_csr (class method)">.<strong>coerce_csr</strong>(csr)  &#x21d2; OpenSSL::X509::Request<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempt to coerce input into an OpenSSL::X509::Request (CSR).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(cert = nil)  &#x21d2; CertificateTracePresenter </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of CertificateTracePresenter.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s_csr_full-instance_method" title="#to_s_csr_full (instance method)">#<strong>to_s_csr_full</strong>(csr, attributes = {})  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a formatted full CSR string: metadata plus the requested template and SAN (taken from the enrollment <code>attributes</code> hash) and any extensions carried in the CSR’s PKCS#9 extensionRequest attribute.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s_csr_metadata-instance_method" title="#to_s_csr_metadata (instance method)">#<strong>to_s_csr_metadata</strong>(csr)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a formatted CSR metadata string: subject, public key, signature algorithm.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s_full-instance_method" title="#to_s_full (instance method)">#<strong>to_s_full</strong>(label: &#39;x.509&#39;)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a formatted full string: metadata + serial, version, public key algorithm, SAN / EKU / Key Usage as named fields, then remaining extensions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s_metadata-instance_method" title="#to_s_metadata (instance method)">#<strong>to_s_metadata</strong>(label: &#39;x.509&#39;)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a formatted metadata string: subject, issuer, validity, SHA-256 fingerprint.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(cert = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Trace::CertificateTracePresenter (class)">CertificateTracePresenter</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of CertificateTracePresenter.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cert</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Certificate</tt>, <tt>OpenSSL::PKCS12</tt>, <tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@cert</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_coerce'>coerce</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="coerce-class_method">
+  
+    .<strong>coerce</strong>(cert)  &#x21d2; <tt>OpenSSL::X509::Certificate</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Attempt to coerce input into an OpenSSL::X509::Certificate. Accepts a live certificate object, an OpenSSL::PKCS12 bundle (extracts the leaf certificate), or raw DER/PEM bytes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cert</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Certificate</tt>, <tt>OpenSSL::PKCS12</tt>, <tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Certificate</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_coerce'>coerce</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_cert'>cert</span> <span class='kw'>if</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Certificate</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_certificate'>certificate</span> <span class='kw'>if</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS12</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Certificate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>CertificateError</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS12</span><span class='op'>::</span><span class='const'>PKCS12Error</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="coerce_csr-class_method">
+  
+    .<strong>coerce_csr</strong>(csr)  &#x21d2; <tt>OpenSSL::X509::Request</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Attempt to coerce input into an OpenSSL::X509::Request (CSR). Accepts a live request object (the type CertRequest#create_csr returns is a plain OpenSSL::X509::Request) or raw DER/PEM bytes. Anything else - for example the CMC ContentInfo wrapper produced for on-behalf-of enrollments - is returned as nil so the caller silently skips the trace.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>csr</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>, <tt>String</tt>, <tt>#to_der</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_coerce_csr'>coerce_csr</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_csr'>csr</span> <span class='kw'>if</span> <span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Request</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Request</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:to_der</span><span class='rparen'>)</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>RequestError</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>ASN1Error</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="to_s_csr_full-instance_method">
+  
+    #<strong>to_s_csr_full</strong>(csr, attributes = {})  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a formatted full CSR string: metadata plus the requested template and SAN (taken from the enrollment <code>attributes</code> hash) and any extensions carried in the CSR’s PKCS#9 extensionRequest attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>csr</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>, <tt>String</tt>, <tt>#to_der</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>attributes</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>enrollment request attributes from CertRequest#create_csr (e.g. 'CertificateTemplate', 'SAN')</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil if the CSR could not be parsed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 213</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s_csr_full'>to_s_csr_full</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='comma'>,</span> <span class='id identifier rubyid_attributes'>attributes</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_csr'>csr</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_coerce_csr'>coerce_csr</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_to_s_csr_metadata'>to_s_csr_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span>
+
+  <span class='id identifier rubyid_attributes'>attributes</span> <span class='op'>||=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_base'>base</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_template'>template</span> <span class='op'>=</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CertificateTemplate</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='symbol'>:CertificateTemplate</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Req Template : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_template'>template</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_template'>template</span>
+
+  <span class='id identifier rubyid_san'>san</span> <span class='op'>=</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SAN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='symbol'>:SAN</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Req SAN      : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_san'>san</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_san'>san</span>
+
+  <span class='comment'># subjectAltName is already surfaced above as the friendly &quot;Req SAN&quot; line;
+</span>  <span class='comment'># drop it from the raw dump so we don&#39;t repeat it as an opaque hex blob.
+</span>  <span class='id identifier rubyid_extensions'>extensions</span> <span class='op'>=</span> <span class='id identifier rubyid_csr_extensions'>csr_extensions</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>subjectAltName</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>  Req Extns    :</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+      <span class='id identifier rubyid_label'>label</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#EXTENSION_OID_NAMES-constant" title="Msf::Trace::CertificateTracePresenter::EXTENSION_OID_NAMES (constant)">EXTENSION_OID_NAMES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_normalize_oid'>normalize_oid</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span>
+      <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label'>label</span><span class='embexpr_end'>}</span><span class='tstring_content'> : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_extension'>format_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s_csr_metadata-instance_method">
+  
+    #<strong>to_s_csr_metadata</strong>(csr)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a formatted CSR metadata string: subject, public key, signature algorithm. Mirrors #to_s_metadata for the request side of an enrollment.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>csr</span>
+      
+      
+        <span class='type'>(<tt>OpenSSL::X509::Request</tt>, <tt>String</tt>, <tt>#to_der</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil if the CSR could not be parsed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s_csr_metadata'>to_s_csr_metadata</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_csr'>csr</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_coerce_csr'>coerce_csr</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_csr'>csr</span>
+
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_trace_separator'>trace_separator</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CSR</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Subject    : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_csr'>csr</span><span class='period'>.</span><span class='id identifier rubyid_subject'>subject</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_public_key'>public_key</span> <span class='op'>=</span> <span class='id identifier rubyid_csr_public_key'>csr_public_key</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Public Key : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_public_key'>format_public_key</span><span class='lparen'>(</span><span class='id identifier rubyid_public_key'>public_key</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_public_key'>public_key</span>
+
+  <span class='id identifier rubyid_sig_alg'>sig_alg</span> <span class='op'>=</span> <span class='id identifier rubyid_csr_signature_algorithm'>csr_signature_algorithm</span><span class='lparen'>(</span><span class='id identifier rubyid_csr'>csr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Sig Alg    : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sig_alg'>sig_alg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_sig_alg'>sig_alg</span>
+
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'>StandardError</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s_full-instance_method">
+  
+    #<strong>to_s_full</strong>(label: &#39;x.509&#39;)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a formatted full string: metadata + serial, version, public key algorithm, SAN / EKU / Key Usage as named fields, then remaining extensions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>label</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;x.509&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>separator header label (see <span class='object_link'><a href="#to_s_metadata-instance_method" title="Msf::Trace::CertificateTracePresenter#to_s_metadata (method)">#to_s_metadata</a></span>)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil if certificate could not be parsed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s_full'>to_s_full</span><span class='lparen'>(</span><span class='label'>label:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x.509</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_to_s_metadata'>to_s_metadata</span><span class='lparen'>(</span><span class='label'>label:</span> <span class='id identifier rubyid_label'>label</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_base'>base</span>
+
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_base'>base</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Serial     : </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_serial'>serial</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='comment'># OpenSSL exposes the zero-based encoded X.509 version (v3 == 2).
+</span>  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Version    : v</span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_version'>version</span> <span class='op'>+</span> <span class='int'>1</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Public Key : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_public_key'>format_public_key</span><span class='lparen'>(</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_identities'>identities</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_san_identities'>parse_san_identities</span>
+  <span class='id identifier rubyid_identity_key'>identity_key</span><span class='comma'>,</span> <span class='id identifier rubyid_identity_label'>identity_label</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#IDENTITY_SOURCES-constant" title="Msf::Trace::CertificateTracePresenter::IDENTITY_SOURCES (constant)">IDENTITY_SOURCES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='op'>|</span> <span class='id identifier rubyid_identities'>identities</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_identity_value'>identity_value</span> <span class='op'>=</span> <span class='id identifier rubyid_identity_key'>identity_key</span> <span class='op'>?</span> <span class='id identifier rubyid_identities'>identities</span><span class='lbracket'>[</span><span class='id identifier rubyid_identity_key'>identity_key</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='id identifier rubyid_subject_cn'>subject_cn</span>
+  <span class='id identifier rubyid_identity_source'>identity_source</span> <span class='op'>=</span> <span class='id identifier rubyid_identity_key'>identity_key</span> <span class='op'>?</span> <span class='id identifier rubyid_identity_label'>identity_label</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Subject CN</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Identity   : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_identity_value'>identity_value</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_identity_source'>identity_source</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_identity_value'>identity_value</span>
+
+  <span class='id identifier rubyid_san'>san</span> <span class='op'>=</span> <span class='id identifier rubyid_extension_value'>extension_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>subjectAltName</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  SAN        : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_san'>san</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_san'>san</span>
+
+  <span class='id identifier rubyid_eku'>eku</span> <span class='op'>=</span> <span class='id identifier rubyid_extension_value'>extension_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>extendedKeyUsage</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  EKU        : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_eku'>eku</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_eku'>eku</span>
+
+  <span class='id identifier rubyid_ku'>ku</span> <span class='op'>=</span> <span class='id identifier rubyid_extension_value'>extension_value</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>keyUsage</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Key Usage  : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ku'>ku</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_ku'>ku</span>
+
+  <span class='id identifier rubyid_other'>other</span> <span class='op'>=</span> <span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="#NAMED_OIDS-constant" title="Msf::Trace::CertificateTracePresenter::NAMED_OIDS (constant)">NAMED_OIDS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>  Extensions :</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+      <span class='id identifier rubyid_label'>label</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#EXTENSION_OID_NAMES-constant" title="Msf::Trace::CertificateTracePresenter::EXTENSION_OID_NAMES (constant)">EXTENSION_OID_NAMES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_normalize_oid'>normalize_oid</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_oid'>oid</span>
+      <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_label'>label</span><span class='embexpr_end'>}</span><span class='tstring_content'> : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_extension'>format_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s_metadata-instance_method">
+  
+    #<strong>to_s_metadata</strong>(label: &#39;x.509&#39;)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a formatted metadata string: subject, issuer, validity, SHA-256 fingerprint.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>label</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;x.509&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>separator header label (e.g. 'x.509' for an issued cert, 'Peer Cert' for a server TLS cert, 'Chain 1/2' for a chain member)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>nil if certificate could not be parsed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/trace/certificate_trace_presenter.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s_metadata'>to_s_metadata</span><span class='lparen'>(</span><span class='label'>label:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x.509</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='ivar'>@cert</span>
+
+  <span class='id identifier rubyid_fingerprint'>fingerprint</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA256</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span>
+
+  <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_trace_separator'>trace_separator</span><span class='lparen'>(</span><span class='id identifier rubyid_label'>label</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Subject    : </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_subject'>subject</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Issuer     : </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_issuer'>issuer</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Not Before : </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_not_before'>not_before</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Not After  : </span><span class='embexpr_beg'>#{</span><span class='ivar'>@cert</span><span class='period'>.</span><span class='id identifier rubyid_not_after'>not_after</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  SHA-256    : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fingerprint'>fingerprint</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Sep  3 17:25:54 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

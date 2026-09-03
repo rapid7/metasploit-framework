@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Linux::MultiArch
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Linux::MultiArch";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Linux.html" title="Msf::Payload::Linux (module)">Linux</a></span></span>
+     &raquo; 
+    <span class="title">MultiArch</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Linux::MultiArch
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/linux/multi_arch.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Linux Multi shared logic.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desired_arch-instance_method" title="#desired_arch (instance method)">#<strong>desired_arch</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_payload_uuid-instance_method" title="#generate_payload_uuid (instance method)">#<strong>generate_payload_uuid</strong>(conf = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#include_send_uuid-instance_method" title="#include_send_uuid (instance method)">#<strong>include_send_uuid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#metasploit_arch_transform-instance_method" title="#metasploit_arch_transform (instance method)">#<strong>metasploit_arch_transform</strong>(arch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mettle_arch_transform-instance_method" title="#mettle_arch_transform (instance method)">#<strong>mettle_arch_transform</strong>(arch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="desired_arch-instance_method">
+  
+    #<strong>desired_arch</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desired_arch'>desired_arch</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REQUESTED_ARCH</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REQUESTED_ARCH</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NONE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_return_arch'>return_arch</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REQUESTED_ARCH</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_return_arch'>return_arch</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_return_arch'>return_arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_payload_uuid-instance_method">
+  
+    #<strong>generate_payload_uuid</strong>(conf = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_payload_uuid'>generate_payload_uuid</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_metasploit_arch_transform'>metasploit_arch_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_desired_arch'>desired_arch</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="include_send_uuid-instance_method">
+  
+    #<strong>include_send_uuid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+4
+5
+6
+7
+8
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 4</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../OptEnum.html" title="Msf::OptEnum (class)">OptEnum</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptEnum.html#initialize-instance_method" title="Msf::OptEnum#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REQUESTED_ARCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The desired architecture of the returned payload.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NONE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NONE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_AARCH64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMBE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMLE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPS64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSBE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSLE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPCE500V2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC64LE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X86</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ZARCH</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="metasploit_arch_transform-instance_method">
+  
+    #<strong>metasploit_arch_transform</strong>(arch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metasploit_arch_transform'>metasploit_arch_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_AARCH64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_AARCH64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_AARCH64</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ARMBE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMBE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_ARMBE</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ARMLE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMLE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_ARMLE</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPS64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPS64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_MIPS64</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPSBE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSBE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_MIPSBE</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPSLE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSLE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_MIPSLE</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPC</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_PPC</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPCE500V2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPCE500V2</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_PPCE500V2</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPC64LE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC64LE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_PPC64LE</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_X64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_X64</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_X86</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X86</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_X86</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ZARCH</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ZARCH</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='const'>ARCH_ZARCH</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mettle_arch_transform-instance_method">
+  
+    #<strong>mettle_arch_transform</strong>(arch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux/multi_arch.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mettle_arch_transform'>mettle_arch_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>when</span> <span class='const'>ARCH_AARCH64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_AARCH64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aarch64-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ARMBE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMBE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armv5b-linux-musleabi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ARMLE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ARMLE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>armv5l-linux-musleabi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPS64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPS64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mips64-linux-muslsf</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPSBE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSBE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mips-linux-muslsf</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_MIPSLE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_MIPSLE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mipsel-linux-muslsf</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPC</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powerpc-linux-muslsf</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPCE500V2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPCE500V2</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powerpc-e500v2-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_PPC64LE</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_PPC64LE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powerpc64le-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_X64</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86_64-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_X86</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_X86</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>i486-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='const'>ARCH_ZARCH</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH_ZARCH</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>s390x-linux-musl</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Sep  3 17:24:40 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>

