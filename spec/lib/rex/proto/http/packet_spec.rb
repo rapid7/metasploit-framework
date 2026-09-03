@@ -1,7 +1,29 @@
 
 require 'spec_helper'
+require 'rex/proto/http/packet'
+require 'rex/proto/http/packet/header'
+require 'rex/proto/http/request'
+require 'support/shared/examples/hash_with_insensitive_access'
 
 RSpec.describe Rex::Proto::Http::Packet do
+  describe '#parse with max_body_size' do
+    subject(:request) { Rex::Proto::Http::Request.new }
+
+    it 'rejects a declared body larger than the configured maximum before buffering it' do
+      result = request.parse("POST / HTTP/1.1\r\nContent-Length: 5\r\n\r\n", max_body_size: 4)
+
+      expect(result).to eq(Rex::Proto::Http::Packet::ParseCode::Error)
+      expect(request.error).to be_a(ArgumentError)
+    end
+
+    it 'rejects chunked bodies when their decoded size exceeds the configured maximum' do
+      result = request.parse("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", max_body_size: 4)
+
+      expect(result).to eq(Rex::Proto::Http::Packet::ParseCode::Error)
+      expect(request.error).to be_a(ArgumentError)
+    end
+  end
+
   it_behaves_like "hash with insensitive keys"
 
   describe "#parse" do
