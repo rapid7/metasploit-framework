@@ -213151,7 +213151,7 @@
       "MOF upload",
       "Command"
     ],
-    "mod_time": "2026-08-17 18:01:09 +0000",
+    "mod_time": "2026-08-31 23:54:17 +0000",
     "path": "/modules/exploits/windows/smb/psexec.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/psexec",
