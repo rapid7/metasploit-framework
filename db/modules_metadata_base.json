@@ -67778,6 +67778,37 @@
     "session_types": false,
     "needs_cleanup": false
   },
+  "evasion_linux/x64/sandbox_gate": {
+    "name": "Linux x64 Sandbox Environment Gate",
+    "fullname": "evasion/linux/x64/sandbox_gate",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "evasion",
+    "author": [
+      "Massimo Bertocchi"
+    ],
+    "description": "Generates a Linux x64 ELF whose entry point is a pre-execution\n          environment gate designed to detect and evade automated malware\n          analysis sandboxes, hypervisors and containerized environments.",
+    "references": [],
+    "platform": "Linux",
+    "arch": "x64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": [
+      "Linux x64"
+    ],
+    "mod_time": "2026-08-27 23:04:40 +0000",
+    "path": "/modules/evasion/linux/x64/sandbox_gate.rb",
+    "is_install_path": true,
+    "ref_name": "linux/x64/sandbox_gate",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false
+  },
   "evasion_linux/x86/rc4_packer": {
     "name": "Linux RC4 Packer with In-Memory Execution (x86)",
     "fullname": "evasion/linux/x86/rc4_packer",
