@@ -8,6 +8,8 @@ module RPC
 
 class Service
 
+  MAX_REQUEST_SIZE = 10 * 1024 * 1024
+
   attr_accessor :service, :srvhost, :srvport, :uri, :options
   attr_accessor :handlers, :default_handler, :tokens, :users, :framework
   attr_accessor :dispatcher_timeout, :token_timeout, :debug, :str_encoding
@@ -57,6 +59,7 @@ class Service
       self.options[:comm],
       self.options[:cert]
     )
+    self.service.max_request_body_size = MAX_REQUEST_SIZE
 
     self.service.add_resource(self.uri, {
       'Proc' => Proc.new { |cli, req| on_request_uri(cli, req) },
@@ -113,6 +116,10 @@ class Service
         raise ArgumentError, "Invalid Content Type"
       end
 
+      if req.body.bytesize > MAX_REQUEST_SIZE
+        raise ArgumentError, "RPC request body is too large (maximum #{MAX_REQUEST_SIZE} bytes)"
+      end
+
       msg = MessagePack.unpack(req.body)
 
       unless (msg && msg.kind_of?(::Array) && msg.length > 0)
@@ -121,7 +128,10 @@ class Service
 
       msg.map { |a| a.respond_to?(:force_encoding) ? a.force_encoding(self.str_encoding) : a }
 
-      group, funct = msg.shift.split(".", 2)
+      method_name = msg.shift
+      raise ArgumentError, 'Invalid API method' unless method_name.kind_of?(::String)
+
+      group, funct = method_name.split(".", 2)
 
       unless self.handlers[group]
         raise ArgumentError, "Unknown API Group: '#{group.inspect}'"
