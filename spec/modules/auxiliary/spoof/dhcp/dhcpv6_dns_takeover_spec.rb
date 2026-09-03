@@ -44,12 +44,26 @@ RSpec.describe 'auxiliary/spoof/dhcp/dhcpv6_dns_takeover' do
       expect(resp.answer.any? { |rr| rr.type == 'AAAA' }).to be(true)
     end
 
-    it 'answers with a CNAME when RELAY_CNAME is set' do
+    it 'answers with a CNAME and terminal attacker address when RELAY_CNAME is set' do
       mod.datastore['RELAY_CNAME'] = 'evil.kerberos.issue'
       resp = captured_response { mod.on_dispatch_request(cli, query_bytes('dc1.kerberos.issue', 'AAAA')) }
       cname = resp.answer.find { |rr| rr.type == 'CNAME' }
+      aaaa = resp.answer.find { |rr| rr.type == 'AAAA' }
       expect(cname).not_to be_nil
       expect(cname.domainname.to_s.chomp('.')).to eq('evil.kerberos.issue')
+      expect(aaaa).not_to be_nil
+      expect(aaaa.name.to_s.chomp('.')).to eq('evil.kerberos.issue')
+      expect(aaaa.address.to_s.downcase).to eq('dead:beef::53')
+    end
+
+    it 'includes the CNAME target A record when SRVHOST is IPv4' do
+      mod.datastore['RELAY_CNAME'] = 'evil.kerberos.issue'
+      mod.datastore['SRVHOST'] = '192.0.2.50'
+      resp = captured_response { mod.on_dispatch_request(cli, query_bytes('dc1.kerberos.issue', 'A')) }
+      address = resp.answer.find { |rr| rr.type == 'A' }
+      expect(address).not_to be_nil
+      expect(address.name.to_s.chomp('.')).to eq('evil.kerberos.issue')
+      expect(address.address.to_s).to eq('192.0.2.50')
     end
 
     it 'only poisons the listed hosts when TARGET_HOSTS is set' do
