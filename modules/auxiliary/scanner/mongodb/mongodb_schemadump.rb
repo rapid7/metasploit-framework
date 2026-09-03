@@ -43,11 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(27017),
         OptString.new('DB_NAME', [ false, 'Specific database to enumerate (leave blank for all)', '' ]),
-        OptString.new('AUTH_DB', [ false, 'Database to authenticate against', 'admin' ]),
-        OptString.new('USERNAME', [ false, 'Username for authentication', '' ]),
-        OptString.new('PASSWORD', [ false, 'Password for authentication', '' ]),
         OptInt.new('SAMPLE_SIZE', [ true, 'Number of sample documents to inspect per collection for schema mapping', 5 ])
       ]
     )
@@ -60,7 +56,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['USERNAME'].present?
       auth_db = datastore['AUTH_DB'].presence || 'admin'
-      unless authenticate(auth_db)
+      mechanism = authenticate(db: auth_db)
+      if mechanism
+        print_good("Authenticated as '#{datastore['USERNAME']}' on '#{auth_db}' via #{mechanism}")
+      else
         print_error('Stopping scan due to authentication failure.')
         return
       end
@@ -68,11 +67,20 @@ class MetasploitModule < Msf::Auxiliary
 
     dbs = fetch_databases
     if dbs.empty?
-      print_error('Could not retrieve databases.')
-      return
-    end
+      if datastore['DB_NAME'].blank?
+        print_error('Could not retrieve databases.')
+        return
+      end
 
-    print_good("Found Databases: #{dbs.join(', ')}")
+      # listDatabases is a cluster-level command: a database-scoped user
+      # (e.g. readWrite on a single database) is denied it even though it
+      # may read that database's collections. With DB_NAME set, skip
+      # discovery and enumerate that database directly.
+      print_status('Could not list databases (insufficient privileges?); enumerating DB_NAME directly')
+      dbs = [datastore['DB_NAME']]
+    else
+      print_good("Found Databases: #{dbs.join(', ')}")
+    end
 
     schema_report = {}
 
@@ -115,95 +123,6 @@ class MetasploitModule < Msf::Auxiliary
 
   private
 
-  def authenticate(db = 'admin')
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
-
-    scram_user = mongodb_encode_scram_username(user)
-    if scram_user.nil?
-      print_error("Username '#{user}' cannot be used with SCRAM: nul bytes are not allowed")
-      return false
-    end
-
-    # The MONGODB-CR style password digest uses the raw username; only the
-    # SCRAM wire payload needs the RFC 5802 escaping.
-    digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{pass}")
-
-    client_nonce = Rex::Text.rand_text_alphanumeric(24)
-    auth_payload = "n=#{scram_user},r=#{client_nonce}"
-    client_first_bare = auth_payload
-    client_first_message = "n,,#{auth_payload}"
-
-    sasl_start_cmd = BSON::Document.new({
-      'saslStart' => BSON::Int32.new(1),
-      'mechanism' => 'SCRAM-SHA-1',
-      'payload' => BSON::Binary.new(client_first_message)
-    })
-
-    reply = send_query_single("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
-    unless reply && reply['ok'].to_i == 1
-      print_error('SCRAM-SHA-1 auth initial request rejected.')
-      return false
-    end
-
-    conversation_id = reply['conversationId']
-    server_payload = reply['payload'].data
-    server_vars = mongodb_parse_scram_payload(server_payload)
-
-    server_nonce = server_vars['r']
-    salt = Rex::Text.decode_base64(server_vars['s'])
-    iterations = server_vars['i'].to_i
-
-    salted_password = OpenSSL::PKCS5.pbkdf2_hmac(
-      digest_pass,
-      salt,
-      iterations,
-      20,
-      OpenSSL::Digest.new('SHA1')
-    )
-
-    client_key = OpenSSL::HMAC.digest('sha1', salted_password, 'Client Key')
-    stored_key = OpenSSL::Digest::SHA1.digest(client_key)
-    client_final_without_proof = "c=biws,r=#{server_nonce}"
-    auth_message = "#{client_first_bare},#{server_payload},#{client_final_without_proof}"
-
-    client_proof = Rex::Text.xor(client_key, OpenSSL::HMAC.digest('sha1', stored_key, auth_message))
-    client_final_message = "#{client_final_without_proof},p=#{Rex::Text.encode_base64(client_proof)}"
-
-    conv_id_bson = conversation_id.is_a?(Integer) ? BSON::Int32.new(conversation_id) : conversation_id
-
-    sasl_continue_cmd = BSON::Document.new({
-      'saslContinue' => BSON::Int32.new(1),
-      'conversationId' => conv_id_bson,
-      'payload' => BSON::Binary.new(client_final_message)
-    })
-
-    reply = send_query_single("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
-    unless reply && reply['ok'].to_i == 1
-      vprint_error("saslContinue failure: #{reply.inspect}")
-      print_error("Authentication failed for '#{user}' on '#{db}'")
-      return false
-    end
-
-    # Handle final SASL step if done is false or server signature validation is pending
-    if reply['done'] == false
-      final_cmd = BSON::Document.new({
-        'saslContinue' => BSON::Int32.new(1),
-        'conversationId' => conv_id_bson,
-        'payload' => BSON::Binary.new('')
-      })
-      reply = send_query_single("#{db}.$cmd", final_cmd.to_bson.to_s)
-    end
-
-    if reply && reply['ok'].to_i == 1
-      print_good("Authenticated successfully as '#{user}' on '#{db}'")
-      true
-    else
-      print_error('Final SASL confirmation failed.')
-      false
-    end
-  end
-
   def fetch_databases
     cmd = BSON::Document.new({
       'listDatabases' => BSON::Int32.new(1)
@@ -212,8 +131,7 @@ class MetasploitModule < Msf::Auxiliary
     reply = send_query_single('admin.$cmd', cmd.to_bson.to_s)
     vprint_status("Post-auth listDatabases reply: #{reply.inspect}")
 
-    if reply && (error = mongodb_query_error([reply]))
-      print_error("listDatabases failed: #{error}")
+    if reply && mongodb_query_error([reply])
       return []
     end
 

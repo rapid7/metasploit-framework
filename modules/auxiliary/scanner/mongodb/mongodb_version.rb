@@ -36,12 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-
-    register_options(
-      [
-        Opt::RPORT(27017)
-      ]
-    )
+    deregister_options('AUTH_DB', 'USERNAME', 'PASSWORD')
   end
 
   def run_host(_ip)

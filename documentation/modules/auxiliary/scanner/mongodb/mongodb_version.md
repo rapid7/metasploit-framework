@@ -64,7 +64,7 @@ volumes:
 
 ## Verification Steps
 
-1. Install the application
+1. Install the application (`docker compose down -v && docker compose up -d`)
 1. Start msfconsole
 1. Do: `use auxiliary/scanner/mongodb/mongodb_version`
 1. Do: `set rhost [ip]`

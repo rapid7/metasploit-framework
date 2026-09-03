@@ -40,13 +40,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-
-    register_options(
-      [
-        Opt::RPORT(27017),
-        OptString.new('DB', [ true, 'Database to use', 'admin'])
-      ]
-    )
   end
 
   def run_host(ip)
@@ -76,8 +69,8 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     rescue StandardError => e
       print_error "Unable to connect: #{e}"
-   ensure
-     disconnect
+    ensure
+      disconnect
       return
     end
   end
@@ -106,172 +99,22 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  def require_auth?
-    cmd = BSON::Document.new({ 'listDatabases' => BSON::Int32.new(1) })
-    list_db_pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
-
-    sock.put(list_db_pkt)
-    auth_resp = mongodb_read_message(sock, 5)
-
-    mongodb_have_auth_error?(auth_resp)
-  end
-
   def do_login(user, password)
     vprint_status("Trying user: #{user}, password: #{password}")
 
-    # 1. Try SCRAM-SHA-1 first (MongoDB 3.0+)
-    scram_status = auth_scram_sha1(user, password)
-    return scram_status if scram_status == :next_user
+    mechanism = authenticate(user: user, pass: password)
+    return nil unless mechanism
 
-    # 2. Fallback to MONGODB-CR if SCRAM failed or is unsupported
-    vprint_status('SCRAM-SHA-1 not accepted or failed; trying MONGODB-CR fallback...')
-    nonce = get_nonce
-    if nonce.present?
-      cr_status = auth_cr(user, password, nonce)
-      return cr_status if cr_status == :next_user
-    end
-
-    nil
-  end
-
-  # SCRAM-SHA-1 Handshake (MongoDB 3.0+)
-  def auth_scram_sha1(user, password)
-    db = datastore['DB']
-    scram_user = mongodb_encode_scram_username(user)
-    if scram_user.nil?
-      vprint_error("Skipping user '#{user}': SCRAM usernames cannot contain a nul byte")
-      return nil
-    end
-
-    # The MONGODB-CR style password digest uses the raw username; only the
-    # SCRAM wire payload needs the RFC 5802 escaping.
-    digest_pass = Digest::MD5.hexdigest("#{user}:mongo:#{password}")
-
-    client_nonce = Rex::Text.rand_text_alphanumeric(24)
-    auth_payload = "n=#{scram_user},r=#{client_nonce}"
-    client_first_bare = auth_payload
-    client_first_message = "n,,#{auth_payload}"
-
-    sasl_start_cmd = BSON::Document.new({
-      'saslStart' => BSON::Int32.new(1),
-      'mechanism' => 'SCRAM-SHA-1',
-      'payload' => BSON::Binary.new(client_first_message)
-    })
-
-    pkt = mongodb_build_packet("#{db}.$cmd", sasl_start_cmd.to_bson.to_s)
-    sock.put(pkt)
-    resp = mongodb_read_message(sock, 5)
-
-    reply = mongodb_parse_doc(resp)
-    return nil unless reply && reply['ok'].to_i == 1
-
-    conversation_id = reply['conversationId']
-    server_payload = reply['payload'].data
-    server_vars = mongodb_parse_scram_payload(server_payload)
-
-    server_nonce = server_vars['r']
-    salt = Rex::Text.decode_base64(server_vars['s'])
-    iterations = server_vars['i'].to_i
-
-    salted_password = OpenSSL::PKCS5.pbkdf2_hmac(
-      digest_pass,
-      salt,
-      iterations,
-      20,
-      OpenSSL::Digest.new('SHA1')
+    print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (#{mechanism})")
+    report_cred(
+      ip: rhost,
+      port: rport,
+      service_name: 'mongodb',
+      user: user,
+      password: password,
+      proof: "authenticated via #{mechanism}"
     )
-
-    client_key = OpenSSL::HMAC.digest('sha1', salted_password, 'Client Key')
-    stored_key = OpenSSL::Digest::SHA1.digest(client_key)
-    client_final_without_proof = "c=biws,r=#{server_nonce}"
-    auth_message = "#{client_first_bare},#{server_payload},#{client_final_without_proof}"
-
-    client_signature = OpenSSL::HMAC.digest('sha1', stored_key, auth_message)
-    client_proof = Rex::Text.xor(client_key, client_signature)
-    client_final_message = "#{client_final_without_proof},p=#{Rex::Text.encode_base64(client_proof)}"
-
-    conv_id_bson = conversation_id.is_a?(Integer) ? BSON::Int32.new(conversation_id) : conversation_id
-
-    sasl_continue_cmd = BSON::Document.new({
-      'saslContinue' => BSON::Int32.new(1),
-      'conversationId' => conv_id_bson,
-      'payload' => BSON::Binary.new(client_final_message)
-    })
-
-    pkt = mongodb_build_packet("#{db}.$cmd", sasl_continue_cmd.to_bson.to_s)
-    sock.put(pkt)
-    resp = mongodb_read_message(sock, 5)
-
-    reply = mongodb_parse_doc(resp)
-
-    # Some servers leave the SASL conversation open (done: false) and expect
-    # one more empty saslContinue before the session is authenticated.
-    if reply && reply['ok'].to_i == 1 && reply['done'] == false
-      final_cmd = BSON::Document.new({
-        'saslContinue' => BSON::Int32.new(1),
-        'conversationId' => conv_id_bson,
-        'payload' => BSON::Binary.new('')
-      })
-
-      pkt = mongodb_build_packet("#{db}.$cmd", final_cmd.to_bson.to_s)
-      sock.put(pkt)
-      resp = mongodb_read_message(sock, 5)
-      reply = mongodb_parse_doc(resp)
-    end
-
-    if reply && reply['ok'].to_i == 1
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (SCRAM-SHA-1)")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'mongodb',
-        user: user,
-        password: password,
-        proof: reply.inspect
-      )
-      return :next_user
-    end
-
-    nil
-  rescue StandardError => e
-    vprint_error("SCRAM-SHA-1 exception: #{e.message}")
-    nil
-  end
-
-  # Legacy MONGODB-CR Handshake (MongoDB < 3.0)
-  def auth_cr(user, password, nonce)
-    db = datastore['DB']
-    key = Rex::Text.md5(nonce + user + Rex::Text.md5("#{user}:mongo:#{password}"))
-
-    cmd = BSON::Document.new({
-      'authenticate' => BSON::Int32.new(1),
-      'user' => user,
-      'nonce' => nonce,
-      'key' => key
-    })
-
-    packet = mongodb_build_packet("#{db}.$cmd", cmd.to_bson.to_s)
-    sock.put(packet)
-    response = mongodb_read_message(sock, 5)
-
-    reply = mongodb_parse_doc(response)
-    if reply && reply['ok'].to_i == 1
-      print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}' (MONGODB-CR)")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'mongodb',
-        user: user,
-        password: password,
-        proof: reply.inspect
-      )
-      return :next_user
-    end
-
-    nil
-  rescue StandardError => e
-    vprint_error("MONGODB-CR exception: #{e.message}")
-    nil
+    :next_user
   end
 
   def report_cred(opts)
@@ -299,16 +142,5 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_data)
 
     create_credential_login(login_data)
-  end
-
-  def get_nonce
-    cmd = BSON::Document.new({ 'getnonce' => BSON::Int32.new(1) })
-    pkt = mongodb_build_packet("#{datastore['DB']}.$cmd", cmd.to_bson.to_s)
-
-    sock.put(pkt)
-    response = mongodb_read_message(sock, 5)
-
-    doc = mongodb_parse_doc(response)
-    doc && doc['ok'].to_i == 1 ? doc['nonce'].to_s : ''
   end
 end

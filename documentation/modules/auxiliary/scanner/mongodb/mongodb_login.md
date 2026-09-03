@@ -99,7 +99,7 @@ volumes:
 
 ## Options
 
-### DB
+### AUTH_DB
 
 Database to authenticate against. Defaults to `admin`
 
@@ -123,7 +123,7 @@ msf auxiliary(scanner/mongodb/mongodb_login) > set username testuser
 username => testuser
 msf auxiliary(scanner/mongodb/mongodb_login) > set password testpass
 password => testpass
-msf auxiliary(scanner/mongodb/mongodb_login) > set db intranet
+msf auxiliary(scanner/mongodb/mongodb_login) > set auth_db intranet
 db => intranet
 msf auxiliary(scanner/mongodb/mongodb_login) > set verbose true
 verbose => true
