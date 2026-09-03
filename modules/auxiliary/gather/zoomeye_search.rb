@@ -25,9 +25,6 @@ class MetasploitModule < Msf::Auxiliary
           Possible filters values are:
           Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
           Web search: app, header, keywords, desc, title, ip, site, city, country
-
-          When using multiple filters, you must enclose individual filter values in double quotes, separating filters with the '+' symbol as follows:
-          'country:"FR" + os:"Linux"'
         },
         'Author' => [
           'Nixawk', # Original Author
@@ -80,36 +77,127 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
+  require 'base64'
+
   def dork_search(resource, dork, page, facets, api_key)
+    sub_type = resource == 'web' ? 'web' : 'v4'
+    qbase64 = Base64.strict_encode64(dork)
+    page_num = page.to_i > 0 ? page.to_i : 1
+
+    # Correct field names according to ZoomEye API v2 documentation
+    if resource.include?('host')
+      request_fields = 'ip,port,service,product,version,os,banner,country.name,city.name,domain,hostname,protocol'
+    else
+      request_fields = 'ip,domain,site,country.name,city.name,title,product,app,db,webapp'
+    end
+
+    payload = {
+      'qbase64'  => qbase64,
+      'page'     => page_num,
+      'pagesize' => 10,
+      'sub_type' => sub_type,
+      'fields'   => request_fields
+    }
+
+    payload['facets'] = facets unless facets.nil? || facets.to_s.empty?
+
     res = send_request_cgi({
-      'uri' => "/#{resource}/search",
-      'method' => 'GET',
-      'rhost' => "api.zoomeye.#@domain",
-      'rport' => 443,
-      'SSL' => true,
+      'uri'     => '/v2/search',
+      'method'  => 'POST',
+      'rhost'   => 'api.zoomeye.ai',
+      'rport'   => 443,
+      'SSL'     => true,
       'headers' => { 'API-KEY' => api_key },
-      'vars_get' => {
-        'query' => dork,
-        'page' => page.to_s,
-        'facets' => facets
-      }
+      'ctype'   => 'application/json',
+      'data'    => payload.to_json
     })
 
     if res && res.code == 401
       fail_with(Failure::BadConfig, '401 Unauthorized. Your ZOOMEYE_APIKEY is invalid')
     end
-    # Check if we can resolve host, got a response,
-    # then parse the JSON, and return it
+
     if res
-      results = ActiveSupport::JSON.decode(res.body)
-      return results
+      begin
+        raw_results = ActiveSupport::JSON.decode(res.body)
+        parsed_json = raw_results.is_a?(Array) ? raw_results.first : raw_results
+
+        if parsed_json.is_a?(Hash)
+          if parsed_json['code'] == 50000
+            print_error("ZoomEye API returned an internal error (50000). The query might be malformed: #{dork}")
+            return 'server_response_error'
+          end
+
+          if parsed_json['code'] == 60000 || parsed_json.key?('data')
+            v2_data = parsed_json['data'] || []
+
+            mapped_matches = v2_data.map do |item|
+
+              city_name = item['city.name'] || item['city'] || 'Unknown'
+              country_name = item['country.name'] || item['country'] || 'Unknown'
+
+              geoinfo = {
+                'city'    => { 'names' => { 'en' => city_name } },
+                'country' => { 'names' => { 'en' => country_name } }
+              }
+
+              if resource.include?('host')
+                {
+                  'ip'       => item['ip'],
+                  'geoinfo'  => geoinfo,
+                  'protocol' => { 'transport' => item['protocol'] || 'tcp' },
+                  'portinfo' => {
+                    'port'     => item['port'],
+                    'hostname' => item['hostname'] || item['domain'] || '',
+                    'os'       => item['os'] || '',
+                    # Map v2 'product' to Metasploit's expected 'app' key
+                    'app'      => item['product'] || item['app'] || '',
+                    'service'  => item['service'] || 'unknown',
+                    'version'  => item['version'] || '',
+                    'info'     => item['banner'] || ''
+                  }
+                }
+              else
+                ips = item['ip'].is_a?(Array) ? item['ip'] : [item['ip']].compact
+                site_name = item['site'] || item['domain']
+                site_name = ips.first if site_name.to_s.empty?
+
+                db_data = item['db'].is_a?(Array) ? item['db'] : []
+                webapp_data = item['webapp'].is_a?(Array) ? item['webapp'] : []
+
+                if webapp_data.empty? && item['product']
+                  webapp_data = [{'name' => item['product'], 'version' => item['version']}]
+                end
+
+                {
+                  'ip'      => ips,
+                  'site'    => site_name,
+                  'geoinfo' => geoinfo,
+                  'db'      => db_data,
+                  'webapp'  => webapp_data
+                }
+              end
+            end
+
+            return {
+              'matches' => mapped_matches,
+              'facets'  => parsed_json['facets'] || {},
+              'total'   => parsed_json['total'] || 0
+            }
+          end
+        end
+
+        return raw_results
+      rescue JSON::ParserError
+        return 'server_response_error'
+      end
     else
       return 'server_response_error'
     end
   end
 
   def match_records?(records)
-    records && records.key?('matches')
+    # Revert to checking for 'matches', since our dork_search now rebuilds it
+    records && records.is_a?(Hash) && records.key?('matches')
   end
 
   def run
@@ -128,6 +216,7 @@ class MetasploitModule < Msf::Auxiliary
     results = []
     results[0] = dork_search(resource, dork, 1, facets, api_key)
 
+    #puts JSON.pretty_generate(results)
     if results[0]['total'].nil? || results[0]['total'] == 0
       msg = 'No results.'
       if results[first_page]['error'].present?
@@ -138,10 +227,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Determine page count based on total results
-    if results[first_page]['total'] % 20 == 0
-      tpages = results[first_page]['total'] / 20
+    if results[first_page]['total'] % 10 == 0
+      tpages = results[first_page]['total'] / 10
     else
-      tpages = results[first_page]['total'] / 20 + 1
+      tpages = results[first_page]['total'] / 10 + 1
     end
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
@@ -162,14 +251,29 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         "pages. Showing: #{maxpage} page(s)")
-      # If search results greater than 20, loop & get all results
-      if results[first_page]['total'] > 20
+      # If search results greater than 10, loop & get all results
+      if results[0]['total'] > 10 && maxpage > 1
         print_status('Collecting data, please wait...')
         page = 1
+        skipped = 0
+        retrying = 0
+
         while page < maxpage
-          page_result = dork_search(resource, dork, page + 1, facets, api_key)
-          if page_result['matches'].nil?
-            next
+          page_result = dork_search(resource, dork, page + skipped + 1, facets, api_key)
+          if page_result.nil? || page_result['matches'].nil?
+            retrying += 1
+            if retrying < 3
+              next
+            else
+              retrying = 0
+              print_error("Skipping page #{page + skipped + 1}")
+              break if page + skipped >= maxpage
+
+              skipped += 1
+              next
+            end
+          else
+            retrying = 0
           end
 
           results[page] = page_result
