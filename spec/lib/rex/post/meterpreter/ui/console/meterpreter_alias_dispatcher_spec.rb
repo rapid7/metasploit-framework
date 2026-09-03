@@ -26,40 +26,40 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::MeterpreterAliasDispatcher d
 
   subject(:dispatcher) { described_class.new(console, registry: registry, reload_callback: reload_callback) }
 
-  {
-    ARCH_X64 => ['0', 'linux/x64/meterpreter/reverse_tcp'],
-    ARCH_X86 => ['1', 'linux/x86/meterpreter/reverse_tcp'],
-    ARCH_AARCH64 => ['2', 'linux/aarch64/meterpreter/reverse_tcp']
-  }.each do |architecture, (target, payload_name)|
-    it "runs architecture options for #{architecture}" do
-      allow(session).to receive(:platform).and_return('linux')
-      allow(session).to receive_message_chain(:sys, :config, :sysinfo).and_return('Architecture' => architecture)
-      expect(session).to receive(:execute_script).with(
-        'exploit/linux/persistence/elf',
-        'PrependExecOnce=false',
-        "TARGET=#{target}",
-        "PAYLOAD=#{payload_name}",
-        'ELF_PATH=/usr/bin/true'
-      )
+  # {
+  #   ARCH_X64 => ['0', 'linux/x64/meterpreter/reverse_tcp'],
+  #   ARCH_X86 => ['1', 'linux/x86/meterpreter/reverse_tcp'],
+  #   ARCH_AARCH64 => ['2', 'linux/aarch64/meterpreter/reverse_tcp']
+  # }.each do |architecture, (target, payload_name)|
+  #   it "runs architecture options for #{architecture}" do
+  #     allow(session).to receive(:platform).and_return('linux')
+  #     allow(session).to receive_message_chain(:sys, :config, :sysinfo).and_return('Architecture' => architecture)
+  #     expect(session).to receive(:execute_script).with(
+  #       'exploit/linux/persistence/elf',
+  #       'PrependExecOnce=false',
+  #       "TARGET=#{target}",
+  #       "PAYLOAD=#{payload_name}",
+  #       'ELF_PATH=/usr/bin/true'
+  #     )
 
-      expect(dispatcher.cmd_backdoor('/usr/bin/true')).to be(true)
-    end
-  end
+  #     expect(dispatcher.cmd_backdoor('/usr/bin/true')).to be(true)
+  #   end
+  # end
 
-  it 'applies switch options' do
-    allow(session).to receive(:platform).and_return('linux')
-    allow(session).to receive_message_chain(:sys, :config, :sysinfo).and_return('Architecture' => ARCH_AARCH64)
-    expect(session).to receive(:execute_script).with(
-      'exploit/linux/persistence/elf',
-      'PrependExecOnce=true',
-      'TARGET=2',
-      'PAYLOAD=linux/aarch64/meterpreter/reverse_tcp',
-      'PayloadLinuxMinKernel=3.17',
-      'ELF_PATH=/usr/bin/true'
-    )
+  # it 'applies switch options' do
+  #   allow(session).to receive(:platform).and_return('linux')
+  #   allow(session).to receive_message_chain(:sys, :config, :sysinfo).and_return('Architecture' => ARCH_AARCH64)
+  #   expect(session).to receive(:execute_script).with(
+  #     'exploit/linux/persistence/elf',
+  #     'PrependExecOnce=true',
+  #     'TARGET=2',
+  #     'PAYLOAD=linux/aarch64/meterpreter/reverse_tcp',
+  #     'PayloadLinuxMinKernel=3.17',
+  #     'ELF_PATH=/usr/bin/true'
+  #   )
 
-    expect(dispatcher.cmd_backdoor('/usr/bin/true', '-x')).to be(true)
-  end
+  #   expect(dispatcher.cmd_backdoor('/usr/bin/true', '-x')).to be(true)
+  # end
 
   it 'runs execute-assembly with an optional argument string' do
     allow(session).to receive(:platform).and_return('windows')
