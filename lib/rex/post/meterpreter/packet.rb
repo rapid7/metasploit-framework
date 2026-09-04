@@ -109,6 +109,25 @@ TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
 TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
 
 #
+# Async mode
+#
+TLV_TYPE_ASYNC_ENABLED         = TLV_META_TYPE_BOOL   | 700
+TLV_TYPE_ASYNC_POLL_INTERVAL   = TLV_META_TYPE_UINT   | 701
+TLV_TYPE_ASYNC_POLL_JITTER     = TLV_META_TYPE_UINT   | 702
+TLV_TYPE_ASYNC_WORK_START      = TLV_META_TYPE_UINT   | 703
+TLV_TYPE_ASYNC_WORK_END        = TLV_META_TYPE_UINT   | 704
+TLV_TYPE_ASYNC_WORK_DAYS       = TLV_META_TYPE_UINT   | 705
+
+#
+# Target-side wall clock. Sampled at bootstrap and, when async is active,
+# piggybacked onto check-in responses so the framework can compute the
+# target's local time without a fresh roundtrip.
+#
+TLV_TYPE_TARGET_UNIX_TS        = TLV_META_TYPE_QWORD  | 707
+TLV_TYPE_TARGET_LOCAL_UNIX_TS  = TLV_META_TYPE_QWORD  | 708
+TLV_TYPE_ASYNC_LEASE_ENABLED   = TLV_META_TYPE_BOOL   | 709
+TLV_TYPE_ASYNC_LEASE_TTL       = TLV_META_TYPE_UINT   | 710
+
 # Configuration & C2 options
 #
 TLV_TYPE_SESSION_EXPIRY        = TLV_META_TYPE_UINT   | 700 # Session expiration time

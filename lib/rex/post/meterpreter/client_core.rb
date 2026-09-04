@@ -546,6 +546,97 @@ class ClientCore < Extension
   end
 
   #
+  # Sample the target's wall clock. Returns a hash suitable for
+  # {Rex::Post::Meterpreter::Client#target_time_sample=}, or nil if the
+  # payload doesn't support the command.
+  #
+  # @return [Hash{Symbol=>Numeric}, nil]
+  #   * :target_unix_ts     - target's UTC seconds since epoch
+  #   * :target_local_ts    - target's wall-clock seconds since epoch (as if local were UTC)
+  #   * :utc_offset         - target_local_ts - target_unix_ts
+  #   * :sampled_at         - operator-local Time when the sample was taken
+  #
+  def get_target_time
+    request = Packet.create_request(COMMAND_ID_CORE_GET_TARGET_TIME)
+    response = client.send_request(request)
+    utc_ts   = response.get_tlv_value(TLV_TYPE_TARGET_UNIX_TS)
+    local_ts = response.get_tlv_value(TLV_TYPE_TARGET_LOCAL_UNIX_TS)
+    return nil unless utc_ts && local_ts
+
+    {
+      target_unix_ts:  utc_ts,
+      target_local_ts: local_ts,
+      utc_offset:      local_ts - utc_ts,
+      sampled_at:      ::Time.now
+    }
+  end
+
+  #
+  # Enable or disable async mode on the implant.
+  # When enabled, the implant polls at the configured interval
+  # and only during business hours.
+  #
+  # @param opts [Hash] configuration options
+  # @option opts [Boolean] :enabled enable/disable async mode
+  # @option opts [Integer] :poll_interval seconds between check-ins
+  # @option opts [Integer] :jitter jitter percentage (0-99)
+  # @option opts [Integer] :work_start business hours start (0-23)
+  # @option opts [Integer] :work_end business hours end (0-24)
+  # @option opts [Integer] :work_days bitmask of active days (bit0=Sun..bit6=Sat)
+  # @return [Rex::Post::Meterpreter::Packet] response packet
+  #
+  def async_mode(opts = {})
+    if opts[:enabled]
+      poll_interval = opts.fetch(:poll_interval, client.async_config[:poll_interval]).to_i
+      jitter = opts.fetch(:jitter, client.async_config[:jitter]).to_i
+      work_start = opts.fetch(:work_start, client.async_config[:work_start]).to_i
+      work_end = opts.fetch(:work_end, client.async_config[:work_end]).to_i
+      work_days = opts.fetch(:work_days, client.async_config[:work_days]).to_i
+      raise ArgumentError, 'Poll interval must be between 10 and 86400 seconds' unless poll_interval.between?(10, 86400)
+      raise ArgumentError, 'Jitter must be between 0 and 99 percent' unless jitter.between?(0, 99)
+      raise ArgumentError, 'Work start must be between 0 and 23' unless work_start.between?(0, 23)
+      raise ArgumentError, 'Work end must be between 0 and 24' unless work_end.between?(0, 24)
+      raise ArgumentError, 'Work days must select at least one day' unless work_days.between?(1, 0x7F)
+      opts = opts.merge(poll_interval: poll_interval, jitter: jitter, work_start: work_start, work_end: work_end, work_days: work_days)
+    end
+
+    request = Packet.create_request(COMMAND_ID_CORE_ASYNC_MODE)
+    request.add_tlv(TLV_TYPE_ASYNC_ENABLED, opts[:enabled])
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_INTERVAL, opts[:poll_interval]) if opts[:poll_interval]
+    request.add_tlv(TLV_TYPE_ASYNC_POLL_JITTER, opts[:jitter]) if opts[:jitter]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_START, opts[:work_start]) if opts[:work_start]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_END, opts[:work_end]) if opts[:work_end]
+    request.add_tlv(TLV_TYPE_ASYNC_WORK_DAYS, opts[:work_days]) if opts[:work_days]
+    response = client.send_request(request)
+    client.async_mode_enabled = response.get_tlv_value(TLV_TYPE_ASYNC_ENABLED)
+
+    if client.async_mode_enabled
+      client.async_config.merge!(opts.select { |key, value| !value.nil? && key != :enabled })
+    else
+      client.async_lease_enabled = false
+    end
+
+    response
+  end
+
+  # Acquire, renew, or release a rapid-poll lease for one async job.
+  def async_lease(enabled:, ttl:, timeout: client.response_timeout, wait: true)
+    request = Packet.create_request(COMMAND_ID_CORE_ASYNC_LEASE)
+    request.add_tlv(TLV_TYPE_ASYNC_LEASE_ENABLED, enabled)
+    request.add_tlv(TLV_TYPE_ASYNC_LEASE_TTL, ttl)
+    unless wait
+      client.send_packet(request)
+      client.async_lease_enabled = false
+      return false
+    end
+
+    response = client.send_request(request, timeout)
+    lease_enabled = response.get_tlv_value(TLV_TYPE_ASYNC_LEASE_ENABLED)
+    lease_enabled ? client.async_lease_renewed(ttl) : client.async_lease_enabled = false
+    lease_enabled
+  end
+
+  #
   # Change the active transport to the next one in the transport list.
   #
   def transport_next
@@ -754,7 +845,9 @@ class ClientCore < Extension
       # otherwise the session may not receive the command before we
       # kill the handler. This could be improved by the server side
       # sending a reply to shutdown first.
-      self.client.send_packet_wait_response(request, 10)
+      #
+      wait = 10
+      self.client.send_packet_wait_response(request, wait)
     else
       # If this is a standard TCP session, send and forget.
       self.client.send_packet(request)
@@ -1017,4 +1110,3 @@ private
 end
 
 end; end; end
-
