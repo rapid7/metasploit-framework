@@ -12,6 +12,14 @@ GIT
       with_env (= 1.1.0)
       xml-simple (~> 1.1.9)
 
+GIT
+  remote: https://github.com/sjanusz-r7/rex-text.git
+  revision: 0b25056c56d0bea64207d7781364ef08db22313c
+  branch: add-hierarchy-table
+  specs:
+    rex-text (0.2.65)
+      bigdecimal
+
 PATH
   remote: .
   specs:
@@ -559,8 +567,6 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.5)
-    rex-text (0.2.63)
-      bigdecimal
     rex-zip (0.1.6)
       rex-text
     rexml (3.4.1)
@@ -719,6 +725,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-text (= 0.2.65)!
   rspec-rails
   rspec-rerun
   rubocop (= 1.75.7)
