@@ -16,7 +16,7 @@ module Rex
         include Rex::Socket
 
         # @param dns_servers [Array<String>] DNS server IPv6 address(es) to hand out
-        #   (the attacker); defaults to the server's own link address at start time.
+        #   (the attacker). If empty, responses include an empty DNS server list.
         # @param assigned_address [String, nil] address to lease for stateful (IA_NA) requests
         # @param domain_list [Array<String>, nil] optional DNS search domains
         # @param server_mac [String, nil] link-layer address for the server DUID (random if nil)

@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
   def start_dhcpv6_server
     @dhcpv6_server = Rex::Proto::DHCPv6::Server.new(
       dns_servers: [datastore['SPOOF_IP6']],
-      assigned_address: datastore['LEASE_IP6'],
+      assigned_address: datastore['LEASE_IP6'].presence,
       domain_list: [datastore['TARGET_DOMAIN']],
       interface: datastore['DHCPV6_INTERFACE'],
       context: { 'Msf' => framework, 'MsfExploit' => self }

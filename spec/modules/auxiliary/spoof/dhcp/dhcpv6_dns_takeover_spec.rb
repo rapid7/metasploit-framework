@@ -10,7 +10,7 @@ RSpec.describe 'auxiliary/spoof/dhcp/dhcpv6_dns_takeover' do
     )
   end
 
-  let(:cli) { double('cli', peerhost: '10.0.0.5', peerport: 546) }
+  let(:cli) { double('cli', peerhost: '192.0.2.5', peerport: 546) }
   let(:dns_service) { double('service') }
 
   before do
@@ -80,7 +80,7 @@ RSpec.describe 'auxiliary/spoof/dhcp/dhcpv6_dns_takeover' do
 
   describe '#run validation' do
     it 'rejects a non-IPv6 SPOOF_IP6' do
-      mod.datastore['SPOOF_IP6'] = '10.0.0.1'
+      mod.datastore['SPOOF_IP6'] = '192.0.2.1'
       expect { mod.run }.to raise_error(Msf::Auxiliary::Failed, /SPOOF_IP6 must be a valid IPv6/)
     end
   end

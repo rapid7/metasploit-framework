@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'bindata'
 
 module Rex
   module Proto
