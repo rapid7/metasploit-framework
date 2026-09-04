@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         # HttpClient re-registers RHOSTS after the relay server mixin and drops
         # its aliases, so without this SMBHOST and RELAY_TARGETS are accepted
         # but never reach RHOSTS. Module options are applied last, so this wins.
-        OptRhosts.new('RHOSTS', [ true, 'Target address range or CIDR identifier to relay to' ], aliases: ['SMBHOST', 'RELAY_TARGETS'])
+        OptAddressRange.new('RHOSTS', [ true, 'Target address range or CIDR identifier to relay to' ], aliases: ['SMBHOST', 'RELAY_TARGETS'])
       ]
     )
 
