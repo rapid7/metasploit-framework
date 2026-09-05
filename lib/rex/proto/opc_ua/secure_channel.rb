@@ -77,7 +77,7 @@ module Rex::Proto::OpcUa::SecureChannel
 
   # The token an OpenSecureChannel response issues. ChannelId and TokenId are
   # what subsequent messages quote; CreatedAt and RevisedLifetime say when the
-  # server will stop honouring them, the revised lifetime being the server's
+  # server will stop honoring them, the revised lifetime being the server's
   # answer to the lifetime the client asked for rather than the client's request
   # granted.
   #
@@ -93,6 +93,36 @@ module Rex::Proto::OpcUa::SecureChannel
     uint32           :token_id
     opc_ua_date_time :created_at
     uint32           :revised_lifetime
+  end
+
+  # The body of a MSG or CLO message sent on an open channel: the
+  # SecureChannelId and TokenId the server issued, a SequenceHeader, and then
+  # the already encoded request.
+  #
+  # This is the write side of the same framing #parse_open_response walks on the
+  # way in, in its symmetric form: an OPN carries an AsymmetricSecurityHeader
+  # here instead, because the channel it opens does not exist yet. The three
+  # headers come to the 16 bytes Rex::Proto::OpcUa::Tcp::SECURE_MSG_PREFIX_LEN
+  # accounts for when it reassembles a chunked response.
+  #
+  # Under SecurityPolicy None nothing is signed or encrypted, so quoting the
+  # token back is the whole of what the channel asks of a message on it.
+  #
+  # @param token [ChannelSecurityToken] the token the OpenSecureChannel
+  #   response issued.
+  # @param sequence [Integer] the SequenceNumber and RequestId for this message.
+  #   The two are given the same value, which is legal and keeps a response
+  #   pairable with the request that asked for it.
+  # @param request [String] the service TypeId followed by the encoded service
+  #   request.
+  # @return [String] the message body, ready for
+  #   Rex::Proto::OpcUa::Tcp::MessageStream#send_message.
+  def self.symmetric_body(token, sequence, request)
+    body = [token.channel_id.snapshot].pack('V')
+    body << SymmetricSecurityHeader.new(token_id: token.token_id.snapshot).to_binary_s
+    body << SequenceHeader.new(sequence_number: sequence, request_id: sequence).to_binary_s
+    body << request
+    body
   end
 
   # OpenSecureChannelRequest.

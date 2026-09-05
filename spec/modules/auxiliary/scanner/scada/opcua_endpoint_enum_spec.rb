@@ -183,7 +183,7 @@ RSpec.describe 'scanner/scada/opcua_endpoint_enum' do
                                 'over a channel with MessageSecurityMode None'
     end
 
-    # Constraint 3. report_note serialises this into the database and the
+    # Constraint 3. report_note serializes this into the database and the
     # documentation describes its shape, so the keys, their order and the types
     # of their values are all part of the contract.
     describe 'the opcua.endpoints note' do

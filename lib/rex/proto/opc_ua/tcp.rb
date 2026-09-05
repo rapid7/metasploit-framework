@@ -50,7 +50,7 @@ module Rex::Proto::OpcUa::Tcp
 
   # The largest reassembled message, applied cumulatively as the chunks arrive.
   # This is the MaxMessageSize a client advertises in its Hello, so a server
-  # that honours it aborts before reaching the ceiling and one that does not is
+  # that honors it aborts before reaching the ceiling and one that does not is
   # cut off here. See OPC-UA Specification Part 6, section 7.1.2.3.
   MAX_MESSAGE_SIZE = 4 * 1024 * 1024
 
@@ -237,7 +237,7 @@ module Rex::Proto::OpcUa::Tcp
     # client sends rather than what it is sent. That table also requires the
     # server's SendBufferSize not to exceed the ReceiveBufferSize the Hello
     # asked for, so the smaller of the two is taken rather than trusting the
-    # server to have honoured it.
+    # server to have honored it.
     #
     # A value below the specification's minimum is accepted as the server's own
     # tighter limit, since it can only make this client allocate less.

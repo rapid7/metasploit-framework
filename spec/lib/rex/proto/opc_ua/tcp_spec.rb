@@ -477,7 +477,7 @@ RSpec.describe 'Rex::Proto::OpcUa::Tcp::MessageStream#send_message' do
   end
 
   # MessageSize counts the header, so a caller that computed it would have to
-  # know that. Getting it wrong desynchronises the server for every request that
+  # know that. Getting it wrong desynchronizes the server for every request that
   # follows, which is why it is not the caller's to get wrong.
   it 'declares a MessageSize that includes the header' do
     stream.send_message('HEL', 'body')

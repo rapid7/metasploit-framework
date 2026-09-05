@@ -60,6 +60,28 @@ RSpec.describe 'Rex::Proto::OpcUa structured built-in types' do
       it 'is what .four_byte builds' do
         expect(described_class.four_byte(449).to_binary_s).to eq response.byteslice(type_id_offset, 4)
       end
+
+      # The encoded form, which is how a service TypeId is written into a
+      # message body. It exists so that the layer building those bodies does not
+      # have to know that a TypeId is a FourByte NodeId in namespace 0.
+      it 'is what .four_byte_binary encodes' do
+        expect(described_class.four_byte_binary(449)).to eq response.byteslice(type_id_offset, 4)
+      end
+
+      it 'encodes the same bytes .four_byte would' do
+        expect(described_class.four_byte_binary(428)).to eq described_class.four_byte(428).to_binary_s
+      end
+
+      it 'carries a namespace other than the standard one through' do
+        expect(described_class.four_byte_binary(1, namespace_index: 2))
+          .to eq described_class.four_byte(1, namespace_index: 2).to_binary_s
+      end
+
+      # The result is appended to as a service request is built up, so it has to
+      # come back mutable rather than as a frozen literal.
+      it 'returns a string that can be appended to' do
+        expect { described_class.four_byte_binary(449) << 'x' }.not_to raise_error
+      end
     end
 
     describe 'the TwoByte form, against the captured AdditionalHeader TypeId' do

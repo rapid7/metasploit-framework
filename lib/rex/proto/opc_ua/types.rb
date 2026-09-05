@@ -353,6 +353,19 @@ module Rex::Proto::OpcUa::Types
       new(encoding_byte: FOUR_BYTE, body: { namespace_index: namespace_index, identifier: identifier })
     end
 
+    # The encoded FourByte form, which is how a service TypeId appears on the
+    # wire. A message body names the service it carries with a NodeId ahead of
+    # the service structure itself, so this is message encoding rather than part
+    # of any one service; see the note on that at the head of
+    # Rex::Proto::OpcUa::SecureChannel.
+    #
+    # @param identifier [Integer] the numeric identifier.
+    # @param namespace_index [Integer] the namespace, 0 for the standard set.
+    # @return [String] the encoded NodeId.
+    def self.four_byte_binary(identifier, namespace_index: 0)
+      four_byte(identifier, namespace_index: namespace_index).to_binary_s
+    end
+
     # @return [Integer] the NamespaceIndex, which the TwoByte form leaves
     #   implicit at 0.
     def namespace_index
@@ -398,7 +411,7 @@ module Rex::Proto::OpcUa::Types
 
     # The encodings this understands. Anything else is rejected on read rather
     # than being skipped, because the length of an unknown body is unknown and
-    # guessing at it would desynchronise everything that follows.
+    # guessing at it would desynchronize everything that follows.
     ENCODINGS = [NO_BODY, BYTE_STRING_BODY, XML_ELEMENT_BODY].freeze
 
     opc_ua_node_id :type_id

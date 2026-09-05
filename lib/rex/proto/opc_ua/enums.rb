@@ -112,7 +112,7 @@ module Rex::Proto::OpcUa::Enums
   # Reduce a SecurityPolicy URI to the fragment that names the policy, so that
   # http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256 reports as
   # Basic256Sha256. A URI carrying no fragment is returned whole rather than
-  # discarded, since an unrecognised policy is still worth reporting.
+  # discarded, since an unrecognized policy is still worth reporting.
   #
   # @param uri [String, nil] a SecurityPolicyUri.
   # @return [String] the policy name.

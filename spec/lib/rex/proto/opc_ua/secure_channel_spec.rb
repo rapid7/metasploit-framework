@@ -310,4 +310,47 @@ RSpec.describe 'Rex::Proto::OpcUa::SecureChannel' do
         .to raise_error(::IOError)
     end
   end
+
+  # The write side of the framing .parse_open_response walks on the way in, in
+  # the symmetric form a MSG or CLO carries once the channel exists.
+  describe '.symmetric_body' do
+    let(:token) { Rex::Proto::OpcUa::SecureChannel::ChannelSecurityToken.new(channel_id: 6, token_id: 1) }
+    let(:request) { 'REQUEST'.b }
+
+    subject(:body) { Rex::Proto::OpcUa::SecureChannel.symmetric_body(token, 2, request) }
+
+    it 'leads with the SecureChannelId and the TokenId the server issued' do
+      expect(body.byteslice(0, 8).unpack('V2')).to eq [6, 1]
+    end
+
+    it 'gives the SequenceNumber and the RequestId the same value' do
+      header = Rex::Proto::OpcUa::SecureChannel::SequenceHeader.read(body.byteslice(8, 8))
+
+      expect(header.sequence_number.snapshot).to eq 2
+      expect(header.request_id.snapshot).to eq 2
+    end
+
+    # The three headers are exactly what Rex::Proto::OpcUa::Tcp strips by length
+    # off each chunk of a response, so a change to either side that did not
+    # change the other would silently misalign every reassembled payload.
+    it 'writes the prefix the transport strips' do
+      expect(body.bytesize - request.bytesize).to eq Rex::Proto::OpcUa::Tcp::SECURE_MSG_PREFIX_LEN
+    end
+
+    it 'appends the request verbatim' do
+      expect(body.byteslice(Rex::Proto::OpcUa::Tcp::SECURE_MSG_PREFIX_LEN..)).to eq request
+    end
+
+    it 'does not modify the request it was given' do
+      expect { Rex::Proto::OpcUa::SecureChannel.symmetric_body(token, 2, request) }
+        .not_to change(request, :itself)
+    end
+
+    it 'takes the channel and token from the record the server sent' do
+      issued = Rex::Proto::OpcUa::SecureChannel.parse_open_response(message_body).security_token
+
+      expect(Rex::Proto::OpcUa::SecureChannel.symmetric_body(issued, 3, request).byteslice(0, 8).unpack('V2'))
+        .to eq [6, 1]
+    end
+  end
 end
