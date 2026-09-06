@@ -38,6 +38,10 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("postgres login")).to eq({"text"=>[["postgres", "login"], []]}) }
     it { expect(described_class.parse_search_string("platform:android")).to eq({"platform"=>[["android"], []]}) }
     it { expect(described_class.parse_search_string("platform:-android")).to eq({"platform"=>[[], ["android"]]}) }
+    it { expect(described_class.parse_search_string('type:aux')).to eq('type' => [['auxiliary'], []]) }
+    it { expect(described_class.parse_search_string('type:-aux')).to eq('type' => [[], ['auxiliary']]) }
+    it { expect(described_class.parse_search_string('TYPE:-AUX')).to eq('type' => [[], ['auxiliary']]) }
+    it { expect(described_class.parse_search_string('type:-')).to eq('type' => [[], []]) }
     it { expect(described_class.parse_search_string("author:egypt arch:x64")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
     it { expect(described_class.parse_search_string("  author:egypt   arch:x64  ")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
     it { expect(described_class.parse_search_string("postgres:")).to eq({"text"=>[["postgres"], []]}) }
@@ -395,6 +399,24 @@ RSpec.describe Msf::Modules::Metadata::Search do
     end
 
     context 'when filtering by module #type' do
+      context 'when using the auxiliary shorthand' do
+        let(:opts) { { 'type' => Msf::MODULE_AUX } }
+
+        it_should_behave_like 'search_filter', accept: ['type:aux']
+
+        it 'returns no results when the included type is also excluded by its shorthand' do
+          params = described_class.parse_search_string('type:auxiliary type:-aux')
+
+          expect(subject.find(params)).to be_empty
+        end
+      end
+
+      context 'when excluding auxiliary modules from other module types' do
+        let(:opts) { { 'type' => Msf::MODULE_EXPLOIT } }
+
+        it_should_behave_like 'search_filter', reject: ['type:aux']
+      end
+
       all_module_types = Msf::MODULE_TYPES
       all_module_types.each do |mtype|
         context "on a #{mtype} module" do
