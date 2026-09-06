@@ -3,9 +3,12 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'base64'
 require 'openssl'
 require 'json'
+require 'rexml/document'
 require 'shellwords'
+require 'time'
 
 # Binary plist parser ported from bplist.py by Willi Ballenthin
 # https://gist.github.com/williballenthin/ab23abd5eec5bf5a272bfcfb2342ec04
@@ -199,6 +202,46 @@ class MetasploitModule < Msf::Post
     BplistParser.new(data).parse
   end
 
+  # Metadata plists can be XML or binary; decrypted keyed archives remain binary.
+  def parse_plist(data)
+    return parse_binary_plist(data) if data.start_with?('bplist00')
+    raise BplistParser::ParseError, 'Unrecognized plist format' unless data.start_with?('<?xml')
+
+    root = REXML::Document.new(data).root
+    unless root && root.name == 'plist' && root.elements.size == 1
+      raise BplistParser::ParseError, 'Invalid XML plist root'
+    end
+
+    parse_xml_plist_value(root.elements[1])
+  rescue REXML::ParseException, ArgumentError
+    raise BplistParser::ParseError, 'Invalid XML plist'
+  end
+
+  def parse_xml_plist_value(element)
+    case element.name
+    when 'array'
+      element.elements.map { |entry| parse_xml_plist_value(entry) }
+    when 'dict'
+      entries = element.elements.to_a
+      raise BplistParser::ParseError, 'Invalid XML plist dictionary' unless entries.length.even?
+
+      entries.each_slice(2).each_with_object({}) do |(key, value), result|
+        raise BplistParser::ParseError, 'Invalid XML plist dictionary key' unless key.name == 'key'
+
+        result[key.text.to_s] = parse_xml_plist_value(value)
+      end
+    when 'string' then element.text.to_s
+    when 'data' then Base64.strict_decode64(element.text.to_s.delete(" \t\r\n"))
+    when 'integer' then Integer(element.text.to_s, 10)
+    when 'real' then Float(element.text.to_s)
+    when 'date' then Time.iso8601(element.text.to_s)
+    when 'true' then true
+    when 'false' then false
+    else
+      raise BplistParser::ParseError, 'Unsupported XML plist value'
+    end
+  end
+
   def terminal_container_paths(user)
     paths = []
     containers = "/Users/#{user}/Library/Daemon Containers"
@@ -214,7 +257,7 @@ class MetasploitModule < Msf::Post
       next unless file?(mapping_file)
 
       begin
-        mapping = parse_binary_plist(read_file(mapping_file))
+        mapping = parse_plist(read_file(mapping_file))
         next unless mapping.is_a?(Array)
 
         # The flat array alternates an application dictionary and its saved-state UUID.
@@ -433,8 +476,10 @@ class MetasploitModule < Msf::Post
 
       # Odd entries are 16-byte attribute runs, even when a row is also 16 bytes.
       content = rows.each_slice(2).map do |row, _attributes|
-        row.is_a?(String) ? row.dup.force_encoding('UTF-8').scrub : ''
-      end.join
+        # Trim only trailing ASCII spaces, preserving embedded LFs and other whitespace.
+        row.is_a?(String) ? row.dup.force_encoding('UTF-8').scrub.reverse.sub(/\A +/, '').reverse : ''
+      end.join("\n")
+      content << "\n" unless rows.empty? # The reference terminates every row, including the last.
       tabs << { content: content, working_directory: tab['Tab Working Directory URL String'] }
     end
   end
@@ -450,7 +495,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Processing: #{path}")
 
-    windows_meta = parse_binary_plist(read_file(windows_plist))
+    windows_meta = parse_plist(read_file(windows_plist))
     data = read_file(data_file).b
     latest_window_records(windows_meta, data).each do |window_id, record|
       window = record[:window]
