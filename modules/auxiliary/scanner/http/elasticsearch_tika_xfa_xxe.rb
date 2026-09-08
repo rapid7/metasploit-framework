@@ -191,7 +191,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Creating temporary ingest pipeline #{pipeline}")
     begin
       body = {
-        description: 'Temporary Metasploit authorized XFA XXE validation pipeline',
+        description: Faker::Lorem.sentence,
         processors: [
           {
             attachment: {
