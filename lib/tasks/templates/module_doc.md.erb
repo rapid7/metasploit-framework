@@ -1,0 +1,51 @@
+## Vulnerable Application
+
+TODO: Instructions to set up the vulnerable application for testing.
+
+Include:
+- Links to download the vulnerable version
+- Docker setup commands (preferred), e.g.:
+  ```
+  docker run -d -p 8080:8080 vendor/app:vulnerable-version
+  ```
+- Configuration requirements to reach the vulnerable state
+
+## Verification Steps
+
+1. Install the application
+1. Start msfconsole
+1. Do: `use <%= File.join(mod_dir, path) %>`
+<%- if %w[post].include?(type) -%>
+1. Do: `set SESSION [session id]`
+<%- elsif %w[encoder nop payload_single].include?(type) -%>
+<%- else -%>
+1. Do: `set RHOSTS [target ip]`
+<%- end -%>
+1. Do: `run`
+1. You should see [expected result]
+
+<%- unless %w[encoder nop payload_single].include?(type) -%>
+## Options
+
+TODO: Document module-specific options here. Remove this section if there are none
+beyond the standard options.
+
+<%- end -%>
+## Scenarios
+
+### [Version] on [OS]
+
+TODO: Fill in with actual testing output after verifying the module works.
+This section MUST contain real console output from a successful run.
+
+```
+msf6 > use <%= File.join(mod_dir, path) %>
+<%- if %w[post].include?(type) -%>
+msf6 (<%= path.split('/').last %>) > set SESSION 1
+<%- elsif !%w[encoder nop payload_single].include?(type) -%>
+msf6 (<%= path.split('/').last %>) > set RHOSTS 192.0.2.1
+<%- end -%>
+msf6 (<%= path.split('/').last %>) > run
+
+[*] TODO: Paste actual console output here
+```
