@@ -143,12 +143,12 @@ module Msf::Post::SessionUpgrade
     handler_mod.datastore['LPORT'] = lport
     handler_mod.datastore['ExitOnSession'] = true
 
-    handler_mod.exploit_simple(
+    handler_mod.exploit_simple({
       'Payload' => payload_name,
       'LocalInput' => user_input,
       'LocalOutput' => user_output,
       'RunAsJob' => true
-    )
+    })
 
     # Allow handler time to bind; if it fails, the job disappears
     Rex::ThreadSafe.sleep(2)

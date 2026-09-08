@@ -182,15 +182,12 @@ module Msf::Modules::Metadata::Store
     Zlib.crc32(file_crc32s.join(','), 0)
   end
 
-  # Collect all files that need to be checked for checksums
+  # Collect all files that need to be checked for checksums.
   # @return [Array<String>] List of file paths
   def self.collect_files_to_check
-    # Define the directories to scan for files
     modules_dir = File.join(Msf::Config.install_root, 'modules', '**', '*')
     local_modules_dir = File.join(Msf::Config.user_module_directory, '**', '*')
-    lib_dir = File.join(Msf::Config.install_root, 'lib', '**', '*')
-    # Gather all files from the specified directories
-    Dir.glob([modules_dir, lib_dir, local_modules_dir]).select { |f| File.file?(f) }.sort
+    Dir.glob([modules_dir, local_modules_dir]).select { |f| File.file?(f) }.sort
   end
 
   # Calculate checksums for all files, using the cache when possible

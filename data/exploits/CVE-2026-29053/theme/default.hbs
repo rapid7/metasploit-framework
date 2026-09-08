@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="{{@site.locale}}">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{asset "built/index.css"}}" />
+    <script src="{{asset "built/index.js"}}" defer></script>
+
+    <title>{{meta_title}}</title>
+
+    {{ghost_head}}
+    {{!-- Outputs important meta data and settings, should always be in <head> --}}
+
+</head>
+<body class="{{body_class}}">
+<div class="gh-viewport">
+
+<header id="gh-head" class="gh-head">
+    <nav class="gh-head-inner gh-container">
+
+        <div class="gh-head-brand">
+            <a class="gh-head-logo" href="{{@site.url}}">
+                {{#if @site.logo}}
+                    <img src="{{@site.logo}}" alt="{{@site.title}}" />
+                {{else}}
+                    {{@site.title}}
+                {{/if}}
+            </a>
+            <a class="gh-burger" role="button" aria-label="menu">
+                <div class="gh-burger-box">
+                    <div class="gh-burger-inner"></div>
+                </div>
+            </a>
+        </div>
+        <div class="gh-head-menu">
+            {{navigation}}
+        </div>
+        <div class="gh-head-actions">
+            <div class="gh-head-actions-list">
+                {{search}}
+                {{#if @site.members_enabled}}
+                    {{^if @member}}
+                    <a class="gh-button" href="{{@site.signup_url}}">Subscribe</a>
+                    {{else}}
+                    <a class="gh-button" href="#/portal/account">Account</a>
+                    {{/if}}
+                {{/if}}
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="gh-main">
+
+    {{{body}}}
+    {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
+
+</main>
+
+<footer class="gh-foot">
+    <div class="gh-container">
+        <div class="gh-foot-menu">
+            {{navigation type="secondary"}}
+        </div>
+        <div class="gh-foot-meta">
+            Published with <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+        </div>
+    </div>
+</footer>
+
+</div>
+
+{{!-- <foot> --}}
+{{ghost_foot}}
+{{!-- Outputs important scripts - should always be included before closing body tag --}}
+
+</body>
+</html>

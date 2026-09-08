@@ -196,11 +196,8 @@ class Creds
     print_line
   end
 
-  # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
-  # @param username [String]
-  # @param password [String]
-  # @param realm [String]
-  # @param realm_type [String] A key in `Metasploit::Model::Realm::Key::SHORT_NAMES`
+  # @param args [Array<String>] Credential parameters in key:value format.
+  #   Supported keys: private_type, username, password, realm, realm_type, ntlm, ssh-key, hash, address, port, etc.
   def creds_add(*args)
     params = args.inject({}) do |hsh, n|
       opt = n.split(':') # Splitting the string on colons.

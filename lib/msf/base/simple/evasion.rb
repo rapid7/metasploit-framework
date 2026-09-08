@@ -8,6 +8,7 @@ module Evasion
   include Module
 
   def self.run_simple(oevasion, opts, &block)
+    job_listener = opts.delete('JobListener') || Msf::Simple::NoopJobListener.instance
     evasion = oevasion.replicant
     # Trap and print errors here (makes them UI-independent)
     begin
@@ -28,7 +29,7 @@ module Evasion
       evasion.options.validate(evasion.datastore)
 
       # Start it up
-      driver = EvasionDriver.new(evasion.framework)
+      driver = EvasionDriver.new(evasion.framework, job_listener: job_listener)
 
       # Initialize the driver instance
       driver.evasion = evasion
@@ -85,9 +86,11 @@ module Evasion
 
       # Save the job identifier this evasion is running as
       evasion.job_id  = driver.job_id
+      evasion.run_uuid = driver.run_uuid
 
       # Propagate this back to the caller for console mgmt
       oevasion.job_id = evasion.job_id
+      oevasion.run_uuid = evasion.run_uuid
     rescue ::Interrupt
       evasion.error = $!
       raise $!

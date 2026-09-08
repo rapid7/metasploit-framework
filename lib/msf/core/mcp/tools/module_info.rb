@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rex/stopwatch'
+
 module Msf::MCP
   module Tools
     ##
@@ -93,54 +95,41 @@ module Msf::MCP
         # @return [MCP::Tool::Response] Structured response with module details
         #
         def call(type:, name:, server_context:)
-          start_time = Time.now
+          with_tool_context(server_context, 'module_info') do |msf_client|
+            # Validate inputs
+            Msf::MCP::Security::InputValidator.validate_module_type!(type)
+            Msf::MCP::Security::InputValidator.validate_module_name!(name)
 
-          # Extract dependencies from server context
-          msf_client = server_context[:msf_client]
-          rate_limiter = server_context[:rate_limiter]
+            # Call Metasploit API
+            raw_module_info, elapsed = Rex::Stopwatch.elapsed_time do
+              msf_client.module_info(type, name)
+            end
 
-          # Check rate limit
-          rate_limiter.check_rate_limit!('module_info')
+            # Transform response
+            transformed = Metasploit::ResponseTransformer.transform_module_info(raw_module_info)
 
-          # Validate inputs
-          Msf::MCP::Security::InputValidator.validate_module_type!(type)
-          Msf::MCP::Security::InputValidator.validate_module_name!(name)
-
-          # Call Metasploit API
-          raw_module_info = msf_client.module_info(type, name)
-
-          # Transform response
-          transformed = Metasploit::ResponseTransformer.transform_module_info(raw_module_info)
-
-          # Build metadata
-          metadata = {
-            query_time: (Time.now - start_time).round(3)
-          }
-
-          # Return MCP response
-          ::MCP::Tool::Response.new(
-            [
-              {
-                type: 'text',
-                text: JSON.generate(
-                  metadata: metadata,
-                  data: transformed
-                )
-              }
-            ],
-            structured_content: {
-              metadata: metadata,
-              data: transformed
+            # Build metadata
+            metadata = {
+              query_time: elapsed.round(3)
             }
-          )
-        rescue Msf::MCP::Security::RateLimitExceededError => e
-          tool_error_response("Rate limit exceeded: #{e.message}")
-        rescue Msf::MCP::Metasploit::AuthenticationError => e
-          tool_error_response("Authentication failed: #{e.message}")
-        rescue Msf::MCP::Metasploit::APIError => e
-          tool_error_response("Metasploit API error: #{e.message}")
-        rescue Msf::MCP::Security::ValidationError => e
-          tool_error_response(e.message)
+
+            # Return MCP response
+            ::MCP::Tool::Response.new(
+              [
+                {
+                  type: 'text',
+                  text: JSON.generate(
+                    metadata: metadata,
+                    data: transformed
+                  )
+                }
+              ],
+              structured_content: {
+                metadata: metadata,
+                data: transformed
+              }
+            )
+          end
         end
       end
     end

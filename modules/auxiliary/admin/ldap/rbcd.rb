@@ -198,8 +198,9 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    delegate_from_sid = Rex::Proto::MsDtyp::MsDtypSid.read(delegate_from[:objectSid].first)
     aces = security_descriptor.dacl.aces.snapshot
-    aces.delete_if { |ace| ace.body.sid == delegate_from[:objectSid].first }
+    aces.delete_if { |ace| ace.body.sid == delegate_from_sid }
     delta = security_descriptor.dacl.aces.length - aces.length
     if delta == 0
       print_status('No DACL ACEs matched. No changes are necessary.')
@@ -268,8 +269,10 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Old #{ATTRIBUTE}: #{sddl}")
     end
 
+    delegate_from_sid = Rex::Proto::MsDtyp::MsDtypSid.read(delegate_from[:objectSid].first)
+
     if security_descriptor.dacl
-      if security_descriptor.dacl.aces.any? { |ace| ace.body.sid == delegate_from[:objectSid].first }
+      if security_descriptor.dacl.aces.any? { |ace| ace.body.sid == delegate_from_sid }
         print_status("Delegation from #{delegate_from[:sAMAccountName].first} to #{obj[:sAMAccountName].first} is already configured.")
       end
       # clear these fields so they'll be calculated automatically after the update
@@ -281,7 +284,6 @@ class MetasploitModule < Msf::Auxiliary
       security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
     end
 
-    delegate_from_sid = Rex::Proto::MsDtyp::MsDtypSid.read(delegate_from[:objectSid].first)
     security_descriptor.dacl.aces << build_ace(delegate_from_sid)
 
     if (sddl = sd_to_sddl(security_descriptor))

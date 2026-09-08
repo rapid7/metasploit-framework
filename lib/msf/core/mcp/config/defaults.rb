@@ -22,6 +22,12 @@ module Msf::MCP
 
       # Rate limiting
       RATE_LIMIT_REQUESTS_PER_MINUTE = 60
+
+      # MCP feature flags
+      #
+      # When false, destructive MCP tools (module execution, session control)
+      # are gated and return an error. Enable explicitly to allow them.
+      DANGEROUS_ACTIONS = false
     end
   end
 end

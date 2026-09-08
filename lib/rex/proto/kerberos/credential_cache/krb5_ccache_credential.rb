@@ -30,7 +30,7 @@ module Rex::Proto::Kerberos::CredentialCache
     data                :second_ticket
 
     # Return a Rex::Proto::Kerberos::CredentialCache::Krb5Ccache instance that wraps this credential object.
-    # @rtype [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache]
+    # @return [Rex::Proto::Kerberos::CredentialCache::Krb5Ccache]
     # @see Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.from_responses
     def to_ccache
       Rex::Proto::Kerberos::CredentialCache::Krb5Ccache.new(

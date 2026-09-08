@@ -23,8 +23,8 @@ module Msf
     end
 
     # Format an option's conditions as a human readable string
-    # @param [Msf::Module] mod The module module
-    # @param [Msf::OptBase] opt the option which has conditions present
+    # @param _mod [Msf::Module] The module module
+    # @param opt [Msf::OptBase] the option which has conditions present
     # @return [String]
     def self.format_conditions(_mod, opt)
       left_source = opt.conditions[0]

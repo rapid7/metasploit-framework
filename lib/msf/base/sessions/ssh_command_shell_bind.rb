@@ -226,6 +226,7 @@ module Msf::Sessions
     def initialize(ssh_connection, opts = {})
       @ssh_connection = ssh_connection
       @sock = ssh_connection.transport.socket
+      @peer_info = ssh_connection.transport.socket.peerinfo
       @server_channels = {}
 
       initialize_channels
@@ -254,7 +255,7 @@ module Msf::Sessions
       @rstream = Net::SSH::CommandStream.new(ssh_connection, session: self, logger: self).lsock
       super
 
-      @info = "SSH #{username} @ #{@peer_info}"
+      @info = "SSH #{ssh_connection.options[:user]} @ #{@peer_info}"
     end
 
     def desc

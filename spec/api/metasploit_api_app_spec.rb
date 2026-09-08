@@ -39,6 +39,43 @@ RSpec.describe Msf::WebServices::MetasploitApiApp do
     end
   end
 
+  describe 'initial account bootstrap' do
+    # msfdb creates the first web service user by POSTing to /api/v1/users before any
+    # credentials exist, so the API must allow unauthenticated access while no users are
+    # present. Regression test for that flow.
+    # rubocop:disable Style/ClassVars -- the app memoises this in a class variable,
+    # so the test has to reach for it directly to exercise the uninitialized state.
+    before do
+      Mdm::User.delete_all
+      # The app latches this on for the lifetime of the process, so reset it here.
+      described_class.class_variable_set(:@@auth_initialized, false)
+    end
+
+    after do
+      described_class.class_variable_set(:@@auth_initialized, false)
+    end
+    # rubocop:enable Style/ClassVars
+
+    it 'allows the initial user account to be created unauthenticated' do
+      post '/api/v1/users', { username: 'bootstrap_user', password: 'bootstrap_password' }.to_json,
+           { 'CONTENT_TYPE' => 'application/json' }
+      expect(last_response.status).not_to eq(401)
+    end
+
+    # The exemption exists only so that msfdb can create the first account. Anything else
+    # must still be authenticated, otherwise an unexpectedly empty users table - a restored
+    # blank database, a failover onto a fresh instance - exposes the whole API.
+    it 'still requires authentication for other endpoints while no users exist' do
+      get '/api/v1/hosts'
+      expect(last_response.status).to eq(401)
+    end
+
+    it 'still requires authentication to list users while no users exist' do
+      get '/api/v1/users'
+      expect(last_response.status).to eq(401)
+    end
+  end
+
   describe 'response headers' do
     it 'uses lowercase header keys' do
       get '/api/v1/hosts'

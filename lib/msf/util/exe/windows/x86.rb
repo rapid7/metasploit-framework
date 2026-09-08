@@ -8,28 +8,6 @@ module Msf::Util::EXE::Windows::X86
   end
 
   module ClassMethods
-    # # Construct a Windows x86 PE executable with the given shellcode.
-    # # to_win32pe
-    # #
-    # # @param framework [Msf::Framework] The Metasploit framework instance.
-    # # @param code [String] The shellcode to embed in the executable.
-    # # @param opts [Hash] Additional options.
-    # # @return [String] The constructed PE executable as a binary string.
-
-    # def to_win32pe(framework, code, opts = {})
-    #   # Use the standard template if not specified by the user.
-    #   # This helper finds the full path and stores it in opts[:template].
-    #   set_template_default(opts, 'template_x86_windows.exe')
-
-    #   # Read the template directly from the path now stored in the options.
-    #   pe = File.read(opts[:template], mode: 'rb')
-
-    #   # Find the tag and inject the payload
-    #   bo = find_payload_tag(pe, 'Invalid Windows x86 template: missing "PAYLOAD:" tag')
-    #   pe[bo, code.length] = code.dup
-    #   pe
-    # end
-    
     # to_win32pe
     #
     # @param  framework [Msf::Framework]
@@ -41,7 +19,6 @@ module Msf::Util::EXE::Windows::X86
     # @option opts      [Symbol] :arch, Set to :x86 by default
     # @return           [String]
     def to_win32pe(framework, code, opts = {})
-
       # For backward compatibility, this is roughly equivalent to 'exe-small' fmt
       if opts[:sub_method]
         if opts[:inject]
@@ -64,10 +41,10 @@ module Msf::Util::EXE::Windows::X86
       #try to inject code into executable by adding a section without affecting executable behavior
       if opts[:inject]
         injector = Msf::Exe::SegmentInjector.new({
-            :payload  => code,
-            :template => opts[:template],
-            :arch     => :x86,
-            :secname  => opts[:secname]
+            :payload      => code,
+            :template     => opts[:template],
+            :arch         => :x86,
+            :section_name => opts[:section_name] || opts[:secname]
         })
         return injector.generate_pe
       end
@@ -85,13 +62,13 @@ module Msf::Util::EXE::Windows::X86
 
       # If the .text section is too small, append a new section instead
       if text.size < p_length
-        appender = Msf::Exe::SegmentAppender.new({
-            :payload  => code,
-            :template => opts[:template],
-            :arch     => :x86,
-            :secname  => opts[:secname]
+        hijacker = Msf::Exe::SegmentHijacker.new({
+            :payload      => code,
+            :template     => opts[:template],
+            :arch         => :x86,
+            :section_name => opts[:section_name] || opts[:secname]
         })
-        return appender.generate_pe
+        return hijacker.generate_pe
       end
 
       # Store some useful offsets
@@ -193,7 +170,6 @@ module Msf::Util::EXE::Windows::X86
     # @param opts       [Hash]
     # @param arch       [String] Default is "x86"
     def to_winpe_only(framework, code, opts = {}, arch=ARCH_X86)
-
       # Allow the user to specify their own EXE template
       set_template_default(opts, "template_#{arch}_windows.exe")
 
@@ -325,21 +301,19 @@ module Msf::Util::EXE::Windows::X86
     end
 
     # Embeds shellcode within a Windows PE file implementing the Windows
-    # service control methods.
+    # service control methods. The payload is appended as a dedicated PE section,
+    # which the service template locates at runtime.
     #
     # @param  framework   [Object]
     # @param  code        [String] shellcode to be embedded
-    # @option opts        [Boolean] :sub_method use substitution technique with a
-    #                                service template PE
-    # @option opts        [String] :servicename name of the service, not used in
-    #                               substitution technique
+    # @option opts        [String] :servicename name of the service
+    # @option opts        [String] :section_name name of the appended payload section
     #
     # @return [String] Windows Service PE file
     def to_win32pe_service(framework, code, opts = {})
       # Allow the user to specify their own service EXE template
       set_template_default(opts, "template_x86_windows_svc.exe")
-      opts[:exe_type] = :service_exe
-      exe_sub_method(code,opts)
+      to_winpe_service(code, :x86, opts)
     end
     
     # to_win32pe_dll

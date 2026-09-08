@@ -71,8 +71,8 @@ module Msf::Post::Windows::Priv
 
   #
   # Steals a token for a user.
-  # @param String computer_name Computer name.
-  # @param String user_name To token to steal from. If not set, it will try to steal
+  # @param computer_name [String] Computer name.
+  # @param user_name [String] The token to steal from. If not set, it will try to steal
   #                        the current user's token.
   # @return [boolean] TrueClass if successful, otherwise FalseClass.
   # @example steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))

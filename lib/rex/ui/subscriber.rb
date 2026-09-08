@@ -127,6 +127,15 @@ module Subscriber
   # Sets the input and output handles.
   #
   def init_ui(input = nil, output = nil)
+    # Release FDs held by Input::Buffer socket pairs
+    if user_input && user_input != input && user_input.respond_to?(:close)
+      begin
+        user_input.close
+      rescue IOError, Errno::EBADF => e
+        elog("init_ui: failed to close old user_input: #{e}") if defined?(elog)
+      end
+    end
+
     self.user_input  = input
     self.user_output = output
   end
@@ -135,6 +144,15 @@ module Subscriber
   # Disables input/output
   #
   def reset_ui
+    # Release FDs held by Input::Buffer socket pairs
+    if user_input.respond_to?(:close)
+      begin
+        user_input.close
+      rescue IOError, Errno::EBADF => e
+        elog("reset_ui: failed to close user_input: #{e}") if defined?(elog)
+      end
+    end
+
     self.user_input  = nil
     self.user_output = nil
   end

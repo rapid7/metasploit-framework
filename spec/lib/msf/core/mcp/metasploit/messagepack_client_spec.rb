@@ -403,4 +403,82 @@ RSpec.describe Msf::MCP::Metasploit::MessagePackClient do
       expect(call_sequence).to eq([:search_call, :reauth, :search_retry, :hosts_call, :reauth, :hosts_retry])
     end
   end
+
+  describe 'module and session methods' do
+    before do
+      client.instance_variable_set(:@token, 'tok')
+    end
+
+    describe '#module_execute' do
+      it 'calls module.execute with type, name, and options' do
+        expect(client).to receive(:send_request)
+          .with(['module.execute', 'tok', 'exploit', 'multi/handler', { 'RHOSTS' => '192.0.2.10' }])
+          .and_return({ 'job_id' => 1, 'uuid' => 'abc' })
+        client.module_execute('exploit', 'multi/handler', { 'RHOSTS' => '192.0.2.10' })
+      end
+    end
+
+    describe '#module_check' do
+      it 'calls module.check with type, name, and options' do
+        expect(client).to receive(:send_request)
+          .with(['module.check', 'tok', 'exploit', 'multi/handler', {}])
+          .and_return({ 'job_id' => 2, 'uuid' => 'def' })
+        client.module_check('exploit', 'multi/handler', {})
+      end
+    end
+
+    describe '#module_results' do
+      it 'calls module.results with the UUID' do
+        expect(client).to receive(:send_request)
+          .with(['module.results', 'tok', 'abc123'])
+          .and_return({ 'status' => 'completed' })
+        client.module_results('abc123')
+      end
+    end
+
+    describe '#running_stats' do
+      it 'calls module.running_stats with no arguments' do
+        expect(client).to receive(:send_request)
+          .with(['module.running_stats', 'tok'])
+          .and_return({ 'waiting' => [], 'running' => [], 'results' => [] })
+        client.running_stats
+      end
+    end
+
+    describe '#session_list' do
+      it 'calls session.list with no arguments' do
+        expect(client).to receive(:send_request)
+          .with(['session.list', 'tok'])
+          .and_return({})
+        client.session_list
+      end
+    end
+
+    describe '#session_stop' do
+      it 'calls session.stop with the session id' do
+        expect(client).to receive(:send_request)
+          .with(['session.stop', 'tok', 3])
+          .and_return({ 'result' => 'success' })
+        client.session_stop(3)
+      end
+    end
+
+    describe '#session_read' do
+      it 'calls session.interactive_read with the session id' do
+        expect(client).to receive(:send_request)
+          .with(['session.interactive_read', 'tok', 5])
+          .and_return({ 'data' => 'hello' })
+        client.session_read(5)
+      end
+    end
+
+    describe '#session_write' do
+      it 'calls session.interactive_write with the session id and data' do
+        expect(client).to receive(:send_request)
+          .with(['session.interactive_write', 'tok', 5, 'sysinfo'])
+          .and_return({ 'result' => 'success' })
+        client.session_write(5, 'sysinfo')
+      end
+    end
+  end
 end

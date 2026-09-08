@@ -1,0 +1,35 @@
+{{!< ../default}}
+
+<div class="gh-page">
+    <div class="gh-container">
+
+    {{#if @member.paid}}
+
+        {{!-- Logged in, paying member: Show account info --}}
+        <div class="account-box">
+            <h2 class="account-box-title">Nice, you're a subscriber!</h2>
+            <p>Hey! <strong>{{@member.email}}</strong> has an active {{@site.title}} account with access to all areas. You're all set, but if you need any help, get in touch with us and we'd be happy to help.</p>
+        </div>
+
+    {{else if @member}}
+
+        {{!-- Logged in, not paying: Link to checkout --}}
+        <div class="account-box">
+            <h1 class="account-box-title">Currently, you're not a subscriber</h1>
+            <p>Hey there! <strong>{{@member.email}}</strong> is subscribed to free updates from {{@site.title}}, but doesn't have a paid subscription to unlock full access.</p>
+            <div class="authbox-signup">
+                <a class="button primary" href="/signup/">
+                    <span class="button-content">Subscribe now</span>
+                </a>
+            </div>
+        </div>
+
+    {{else}}
+
+        {{!-- Not logged in: Redirect to signin --}}
+        <script>window.location = '{{@site.url}}/signin/';</script>
+
+    {{/if}}
+
+    </div>
+</div>

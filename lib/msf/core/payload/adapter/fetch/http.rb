@@ -21,13 +21,12 @@ module Msf::Payload::Adapter::Fetch::HTTP
   def setup_handler
     unless datastore['FetchHandlerDisable']
       @fetch_service = start_http_fetch_handler(srvname)
-      escaped_uri = ('/' + srvuri).gsub('//', '/')
-      add_resource(@fetch_service, escaped_uri, @srvexe)
-      unless @pipe_uri.nil?
-        uri = ('/' + @pipe_uri).gsub('//', '/')
-        add_resource(@fetch_service, uri, @pipe_cmd)
+      @srv_resources.each do |srv_entry|
+        escaped_uri = ('/' + srv_entry[:uri]).gsub('//', '/')
+        add_resource(@fetch_service, escaped_uri, srv_entry)
       end
     end
     super
   end
+
 end

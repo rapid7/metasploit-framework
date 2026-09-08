@@ -118,6 +118,20 @@ RSpec.describe Msf::MCP::Application do
 
       expect(app.options[:no_auto_start_rpc]).to be_nil
     end
+
+    it 'parses --enable-dangerous-actions argument' do
+      app = described_class.new(['--enable-dangerous-actions'], output: output)
+      app.send(:parse_arguments)
+
+      expect(app.options[:enable_dangerous_actions_cli]).to be true
+    end
+
+    it 'does not set enable_dangerous_actions_cli by default' do
+      app = described_class.new([], output: output)
+      app.send(:parse_arguments)
+
+      expect(app.options[:enable_dangerous_actions_cli]).to be_nil
+    end
   end
 
   describe '#initialize_logger' do
@@ -363,7 +377,8 @@ RSpec.describe Msf::MCP::Application do
 
       expect(Msf::MCP::Server).to receive(:new).with(
         msf_client: mock_client,
-        rate_limiter: mock_rate_limiter
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: false
       ).and_return(mock_mcp_server)
 
       app.send(:initialize_mcp_server)
@@ -371,10 +386,56 @@ RSpec.describe Msf::MCP::Application do
       expect(app.mcp_server).to eq(mock_mcp_server)
       expect(output.string).to include('Initializing MCP server...')
     end
+
+    it 'forwards dangerous_actions: true when the config enables it' do
+      mock_client = instance_double(Msf::MCP::Metasploit::Client)
+      mock_rate_limiter = instance_double(Msf::MCP::Security::RateLimiter)
+      mock_mcp_server = instance_double(Msf::MCP::Server)
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@msf_client, mock_client)
+      app.instance_variable_set(:@rate_limiter, mock_rate_limiter)
+      app.instance_variable_set(:@config, { mcp: { dangerous_actions: true } })
+
+      expect(Msf::MCP::Server).to receive(:new).with(
+        msf_client: mock_client,
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: true
+      ).and_return(mock_mcp_server)
+
+      app.send(:initialize_mcp_server)
+
+      expect(output.string).to include('WARNING: dangerous actions mode is ENABLED')
+    end
+
+    it 'forwards dangerous_actions: false when the config is absent' do
+      mock_client = instance_double(Msf::MCP::Metasploit::Client)
+      mock_rate_limiter = instance_double(Msf::MCP::Security::RateLimiter)
+      mock_mcp_server = instance_double(Msf::MCP::Server)
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@msf_client, mock_client)
+      app.instance_variable_set(:@rate_limiter, mock_rate_limiter)
+      app.instance_variable_set(:@config, { mcp: {} })
+
+      expect(Msf::MCP::Server).to receive(:new).with(
+        msf_client: mock_client,
+        rate_limiter: mock_rate_limiter,
+        dangerous_actions: false
+      ).and_return(mock_mcp_server)
+
+      app.send(:initialize_mcp_server)
+
+      expect(output.string).not_to include('WARNING: dangerous actions mode is ENABLED')
+    end
   end
 
   describe '#start_mcp_server' do
     let(:mock_mcp_server) { instance_double(Msf::MCP::Server) }
+
+    before do
+      allow(mock_mcp_server).to receive(:class).and_return(Msf::MCP::Server)
+    end
 
     it 'starts server with stdio transport by default' do
       app = described_class.new([], output: output)
@@ -406,13 +467,14 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_mcp_server).to receive(:start).with(
         transport: :http, host: '0.0.0.0', port: 3000,
+        auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
         min_threads: 0, max_threads: 5, workers: 0
       )
 
       app.send(:start_mcp_server)
 
       expect(output.string).to include('Starting MCP server on HTTP transport...')
-      expect(output.string).to include('Server listening on http://0.0.0.0:3000')
+      expect(output.string).to include('MCP server listening on http://0.0.0.0:3000')
     end
 
     it 'uses default host and port for HTTP transport' do
@@ -425,6 +487,7 @@ RSpec.describe Msf::MCP::Application do
 
       expect(mock_mcp_server).to receive(:start).with(
         transport: :http, host: 'localhost', port: 3000,
+        auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
         min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
         max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
         workers: Msf::MCP::Server::PUMA_WORKERS

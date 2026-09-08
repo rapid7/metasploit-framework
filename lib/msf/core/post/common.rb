@@ -22,6 +22,15 @@ module Msf::Post::Common
     Gem.win_platform? ? (system "cls") : (system "clear")
   end
 
+  def with_meterpreter_response_timeout(time_out)
+    previous_response_timeout = session.response_timeout
+    session.response_timeout = time_out
+    yield
+  ensure
+    session.response_timeout = previous_response_timeout if defined?(previous_response_timeout)
+  end
+  private :with_meterpreter_response_timeout
+
   def rhost
     return super unless defined?(session) and session
 
@@ -55,7 +64,7 @@ module Msf::Post::Common
   # Create a new process, receiving the program's output
   # @param executable [String] The path to the executable; either absolute or relative to the session's current directory
   # @param args [Array<String>] The arguments to the executable
-  # @time_out [Integer] Number of seconds before the call will time out
+  # @param time_out [Integer] Number of seconds before the call will time out
   # @param opts [Hash] Optional settings to parameterise the process launch
   # @option Hidden [Boolean] Is the process launched without creating a visible window
   # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
@@ -71,38 +80,40 @@ module Msf::Post::Common
   def create_process(executable, args: [], time_out: 15, opts: {})
     case session.type
     when 'meterpreter'
-      session.response_timeout = time_out
-      opts = {
-        'Hidden' => true,
-        'Channelized' => true,
-        # Well-behaving meterpreters will ignore the Subshell flag when using arg arrays.
-        # This is still provided for supporting old meterpreters.
-        'Subshell' => true
-      }.merge(opts)
+      o = with_meterpreter_response_timeout(time_out) do
+        opts = {
+          'Hidden' => true,
+          'Channelized' => true,
+          # Well-behaving meterpreters will ignore the Subshell flag when using arg arrays.
+          # This is still provided for supporting old meterpreters.
+          'Subshell' => true
+        }.merge(opts)
 
-      if session.platform == 'windows'
-        if session.arch == 'php'
-          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(args)
-          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.to_cmd([executable])
-        elsif session.arch == 'python'
-          opts[:legacy_path] = executable
-          # Yes, Unix. Old Python meterp had a bug where it used posix shell splitting
-          # syntax even on Windows. For backwards-compatibility, we can trick it into
-          # doing the right thing by using Unix escaping.
-          opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+        if session.platform == 'windows'
+          if session.arch == 'php'
+            opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(args)
+            opts[:legacy_path] = Msf::Sessions::CommandShellWindows.to_cmd([executable])
+          elsif session.arch == 'python'
+            opts[:legacy_path] = executable
+            # Yes, Unix. Old Python meterp had a bug where it used posix shell splitting
+            # syntax even on Windows. For backwards-compatibility, we can trick it into
+            # doing the right thing by using Unix escaping.
+            opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+          else
+            opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
+            opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
+          end
         else
-          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
-          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
+          opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+          opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd([executable])
         end
-      else
-        opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
-        opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd([executable])
-      end
 
-      if opts['Channelized']
-        o = session.sys.process.capture_output(executable, args, opts, time_out)
-      else
-        session.sys.process.execute(executable, args, opts)
+        if opts['Channelized']
+          session.sys.process.capture_output(executable, args, opts, time_out)
+        else
+          session.sys.process.execute(executable, args, opts)
+          nil
+        end
       end
     when 'powershell'
       cmd = session.to_cmd([executable] + args)
@@ -173,17 +184,19 @@ module Msf::Post::Common
         args = ""
       end
 
-      session.response_timeout = time_out
-      opts = {
-        'Hidden' => true,
-        'Channelized' => true,
-        'Subshell' => true
-      }.merge(opts)
+      o = with_meterpreter_response_timeout(time_out) do
+        opts = {
+          'Hidden' => true,
+          'Channelized' => true,
+          'Subshell' => true
+        }.merge(opts)
 
-      if opts['Channelized']
-        o = session.sys.process.capture_output(cmd, args, opts, time_out)
-      else
-        session.sys.process.execute(cmd, args, opts)
+        if opts['Channelized']
+          session.sys.process.capture_output(cmd, args, opts, time_out)
+        else
+          session.sys.process.execute(cmd, args, opts)
+          nil
+        end
       end
     when 'powershell'
       if args.nil? || args.empty?
@@ -210,12 +223,13 @@ module Msf::Post::Common
         if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
           args = ""
         end
-        session.response_timeout = time_out
-        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
-        process.channel.close
-        pid = process.pid
-        process.close
-        pid
+        with_meterpreter_response_timeout(time_out) do
+          process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
+          process.channel.close
+          pid = process.pid
+          process.close
+          pid
+        end
       else
         print_error "cmd_exec_get_pid is incompatible with non-meterpreter sessions"
     end

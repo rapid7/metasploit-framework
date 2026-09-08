@@ -59,8 +59,13 @@ module Msf::WebServices
       })
     end
 
+    # Raised when an explicitly configured data service cannot be reached.
+    class DataServiceError < StandardError; end
+
     def self.db_connect(framework, app)
-      if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
+      remote_data_service = !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
+
+      if remote_data_service
         options = {
           url: app.settings.data_service_url,
           api_token: app.settings.data_service_api_token,
@@ -72,9 +77,23 @@ module Msf::WebServices
         db_result = Msf::DbConnector.db_connect_from_config(framework)
       end
 
-      if db_result[:error]
-        raise db_result[:error]
+      return unless db_result[:error]
+
+      # A remote data service is only ever used because the operator named it, so a failed
+      # connection is fatal. Continuing would leave the local database that Msf::DbConnector
+      # requires as an Active Record prerequisite registered as the current data service,
+      # silently serving and authenticating against a different backend than the one asked for.
+      if remote_data_service
+        raise DataServiceError, "Failed to connect to the configured data service " \
+                                "#{app.settings.data_service_url}: #{db_result[:error]}"
       end
+
+      # Without a configured data service a database is optional: module search, execution
+      # and result polling are all held in memory, so a failed connection must not stop the
+      # service from starting. Only the db.* RPC methods depend on it.
+      elog("Web service failed to connect to the database: #{db_result[:error]}")
+      warn "[!] Failed to connect to the database: #{db_result[:error]}\n" \
+           '[!] Starting without database support - db.* RPC methods will be unavailable.'
     end
 
     private

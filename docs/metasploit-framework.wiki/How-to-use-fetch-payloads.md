@@ -37,6 +37,22 @@ For example:
 3. Start a served payload handler for the served payload to call back to
 4. Generate a command to execute on a remote host that will download the served payload and run it.
 
+## Fetch Multi
+The Fetch Multi Arch payload (cmd/linux/http[s]/multi/<payload>) is a specific Linux Fetch payload type that identifies
+the architecture of the target host during the execution of the command-based stager. The command-based stager embeds
+the architecture as query strings in the download request so that the fetch server serves the right payload for the
+target architecture. For some architectures like MIPS, the `uname -m` does not confer the endianness of a target, so
+we also have the fetch payload report the endianness of `/bin/sh` to guarantee we send the correct elf architecture.
+Limitations: 
+1. The payload uses a query string to report the target arch, so it only works with HTTP[S] fetch protocol payloads.
+2. We don't support much AARCH64 on Windows, and x86 is well-emulated on Windows hosts, so for now, this only supports
+Linux.
+3. Early implementations of fetch multi only return the `uname -m` value because according to Debian documentation, if
+`uname -m` reported `mips`, the host was `mipsbe` and if it reported `mipsel`, the host was `mipsel`.  It turns out in
+the wild, both `mipsel` and `mipsbe` hosts will report the `uname -m` value as `mips`. `mipsel` is by far the more
+common endian value, so when a payload provides only the `uname -m` value of `mips` and no endian value (like the old
+fetch payloads) we serve a `mipsel` payload.  Previously, when a payload reported only `mips` we served a `mipsbe`
+payload because that's what the documentation suggested the endianness would be.
 
 ## A Simple Stand-Alone Example
 The fastest way to understand Fetch Payloads is to use them and examine the output. For example, let's assume a Linux

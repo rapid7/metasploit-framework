@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       **service_data,
       address: service_data[:host],
-      port: rport,
+      port: service_data[:port],
       protocol: service_data[:proto],
       service_name: service_data[:name],
       workspace_id: myworkspace_id,

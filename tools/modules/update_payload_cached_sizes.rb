@@ -86,6 +86,10 @@ modules.each do |name, mod|
 
   next if mod_inst.is_a?(Msf::Payload::Adapter)
 
+  # Multi-arch payloads such as linux/multi/meterpreter_reverse_tcp don't have a single specific cache size due to their support
+  # for multiple architectures, so we should likely skip them
+  next if mod_inst.is_a?(Msf::Payload::Linux::MultiArch)
+
   mod_dependencies = mod_inst.dependencies
   missing_dependencies = mod_dependencies.reject(&:available?)
   if missing_dependencies.any?

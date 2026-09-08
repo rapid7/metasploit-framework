@@ -24,15 +24,17 @@ module Msf::MCP
     #
     # @param msf_client [Metasploit::Client] Configured and authenticated Metasploit client
     # @param rate_limiter [Security::RateLimiter] Configured rate limiter
+    # @param dangerous_actions [Boolean] Whether dangerous (destructive) tools are permitted
     #
-    def initialize(msf_client:, rate_limiter:)
+    def initialize(msf_client:, rate_limiter:, dangerous_actions: false)
       @msf_client = msf_client
 
       # Create server context (passed to all tool calls)
-      # Tools only need msf_client and rate_limiter
+      # Tools only need msf_client, rate_limiter, and the dangerous_actions gate.
       @server_context = {
         msf_client: @msf_client,
-        rate_limiter: rate_limiter
+        rate_limiter: rate_limiter,
+        dangerous_actions: dangerous_actions == true
       }
 
       # Create MCP configuration with request lifecycle callbacks
@@ -47,12 +49,20 @@ module Msf::MCP
         tools: [
           Tools::SearchModules,
           Tools::ModuleInfo,
+          Tools::ModuleExecute,
+          Tools::ModuleCheck,
+          Tools::ModuleResults,
+          Tools::RunningStats,
           Tools::HostInfo,
           Tools::ServiceInfo,
           Tools::VulnerabilityInfo,
           Tools::NoteInfo,
           Tools::CredentialInfo,
-          Tools::LootInfo
+          Tools::LootInfo,
+          Tools::SessionList,
+          Tools::SessionStop,
+          Tools::SessionRead,
+          Tools::SessionWrite
         ],
         server_context: @server_context,
         configuration: mcp_config
@@ -72,12 +82,12 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified
     #
-    def start(transport: :stdio, host: 'localhost', port: 3000, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       case transport
       when :stdio
         start_stdio
       when :http
-        start_http(host, port, min_threads: min_threads, max_threads: max_threads, workers: workers)
+        start_http(host, port, auth_token, min_threads: min_threads, max_threads: max_threads, workers: workers)
       else
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
@@ -87,15 +97,23 @@ module Msf::MCP
     # Shutdown the MCP server and cleanup resources
     #
     def shutdown
+      @puma_server&.stop(true)
       @puma_launcher&.stop
     rescue StandardError => e
       elog({ message: 'Error stopping Puma', exception: e }, LOG_SOURCE, LOG_ERROR)
     ensure
       @puma_log_io&.close
+      @puma_server = nil
       @puma_launcher = nil
       @puma_log_io = nil
       @msf_client&.shutdown
       @mcp_server = nil
+    end
+
+    # Generate a random authentication token
+    # @return [String]
+    def self.generate_auth_token
+      SecureRandom.hex(32)
     end
 
     private
@@ -120,18 +138,22 @@ module Msf::MCP
     #
     # @param host [String] Host address to bind to
     # @param port [Integer] Port to listen on
+    # @param auth_token [String] An authentication token to require
     # @param min_threads [Integer] Minimum number of Puma threads
     # @param max_threads [Integer] Maximum number of Puma threads
     # @param workers [Integer] Number of Puma worker processes
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
-    def start_http(host, port, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
       require 'rack'
       require 'puma'
       require 'puma/configuration'
-      require 'puma/launcher'
+      require 'puma/server'
       require 'puma/log_writer'
+
+      # Guard against shutdown racing with startup
+      raise Msf::MCP::Error, 'MCP server was shut down before HTTP transport could start' unless @mcp_server
 
       transport = ::MCP::Server::Transports::StreamableHTTPTransport.new(@mcp_server)
 
@@ -139,6 +161,7 @@ module Msf::MCP
       # The transport itself is a Rack app (implements #call).
       rack_app = Rack::Builder.new do
         use Msf::MCP::Middleware::RequestLogger
+        use Msf::MCP::Middleware::BearerAuth, auth_token: auth_token.to_s if auth_token && !auth_token.to_s.empty?
         run transport
       end
 
@@ -146,24 +169,39 @@ module Msf::MCP
       bind_host = host.include?(':') ? "[#{host}]" : host
       @puma_log_io = File.open(File::NULL, 'w')
       begin
-        puma_config = Puma::Configuration.new do |config|
-          config.bind "tcp://#{bind_host}:#{port}"
-          config.threads min_threads, max_threads
-          config.workers workers
-          config.log_requests false
-          config.app rack_app
-        end
-
-        # Suppress Puma's startup banner by providing a silent log writer
         log_writer = Puma::LogWriter.new(@puma_log_io, @puma_log_io)
-        @puma_launcher = Puma::Launcher.new(puma_config, log_writer: log_writer)
-        @puma_launcher.run
+
+        if workers.to_i > 0
+          require 'puma/configuration'
+          require 'puma/launcher'
+
+          puma_config = Puma::Configuration.new do |config|
+            config.bind "tcp://#{bind_host}:#{port}"
+            config.threads min_threads, max_threads
+            config.workers workers
+            config.log_requests false
+            config.app rack_app
+          end
+
+          @puma_launcher = Puma::Launcher.new(puma_config, log_writer: log_writer)
+          @puma_launcher.run
+        else
+          @puma_server = Puma::Server.new(rack_app, nil, {
+            log_writer: log_writer,
+            min_threads: min_threads,
+            max_threads: max_threads
+          })
+          @puma_server.add_tcp_listener(bind_host, port)
+          @puma_server.run.join
+        end
       rescue StandardError
         begin
+          @puma_server&.stop(true)
           @puma_launcher&.stop
         rescue StandardError
           nil
         end
+        @puma_server = nil
         @puma_launcher = nil
         @puma_log_io&.close
         @puma_log_io = nil

@@ -8,6 +8,7 @@ module Msf
 
   autoload :OptAddress, 'msf/core/opt_address'
   autoload :OptAddressLocal, 'msf/core/opt_address_local'
+  autoload :OptAddressOrHostname, 'msf/core/opt_address_or_hostname'
   autoload :OptAddressRange, 'msf/core/opt_address_range'
   autoload :OptAddressRoot, 'msf/core/opt_address_routable'
   autoload :OptBool, 'msf/core/opt_bool'

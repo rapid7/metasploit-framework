@@ -105,7 +105,7 @@ class CommandMapper
   # Returning an array is a solution to having multiple TLV types having the same value, as documented here:
   # https://github.com/rapid7/metasploit-framework/issues/16267
   #
-  # @param Integer value The value of the TLV type to retrieve the TLV type names for.
+  # @param value [Integer] The value of the TLV type to retrieve the TLV type names for.
   # @return [Array<Symbol>] An array of symbols of all TLV types that are defined with the value. Can be empty.
   def self.get_tlv_names(value)
     return @@cached_tlv_types[value] unless @@cached_tlv_types[value].nil? || @@cached_tlv_types[value].empty?

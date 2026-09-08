@@ -107,8 +107,9 @@ module Msf::DBManager::User
 
   # Authenticates the user.
   #
-  # @param opts[:ids] [Integer] ID of the user to authenticate.
-  # @param opts[:password] [String] The user's password.
+  # @param opts [Hash] Options hash.
+  # @option opts [Integer] :id ID of the user to authenticate.
+  # @option opts [String] :password The user's password.
   # @return [Boolean] True if the user is successfully authenticated; otherwise, false.
   def authenticate_user(opts)
     raise ArgumentError.new("The following options are required: :id") if opts[:id].nil?
@@ -124,11 +125,9 @@ module Msf::DBManager::User
 
   # Creates a new API token for the user.
   #
-  # The opts parameter MUST contain:
-  # @param opts[:ids] [Integer] ID for the user.
-  #
-  # The opts parameter can contain:
-  # @param opts[:token_length] [Integer] Token length.
+  # @param opts [Hash] Options hash.
+  # @option opts [Integer] :id ID for the user (required).
+  # @option opts [Integer] :token_length Token length (optional).
   #
   # @return [String] The new API token.
   def create_new_user_token(opts)

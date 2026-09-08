@@ -1,0 +1,122 @@
+# podman build -t pyenv .
+# podman run -it pyenv /bin/bash
+
+FROM docker.io/ubuntu:24.04
+USER root
+
+RUN apt-get update; apt -y install build-essential curl git libbz2-dev libffi-dev liblzma-dev libreadline-dev libsqlite3-dev libssl-dev screen vim wget zlib1g-dev
+RUN curl -fsSL https://pyenv.run | bash
+RUN echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && \
+    echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && \
+    echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
+
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+
+# OpenSSL 1.0.2u Installation for Python 2.5 and 2.6
+RUN cd /tmp && \
+    wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-1.0.2u.tar.gz && \
+    tar xzf openssl-1.0.2u.tar.gz && \
+    cd openssl-1.0.2u && \
+    ./config --prefix=/usr/local/openssl-1.0.2 \
+             --openssldir=/usr/local/openssl-1.0.2 \
+             shared no-ssl2 no-ssl3 && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/openssl-1.0.2u*
+
+# Python 2.5.6 Installation
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 2.5.6
+
+# Python 2.6.9 Installation
+RUN cp "$PYENV_ROOT/plugins/python-build/share/python-build/2.6.9" \
+       "$PYENV_ROOT/plugins/python-build/share/python-build/2.6.9-no-pip" && \
+    sed -i 's/ ensurepip$//' /root/.pyenv/plugins/python-build/share/python-build/2.6.9-no-pip
+
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 2.6.9-no-pip
+
+# Python 2.7.18 Installation
+RUN eval "$(pyenv init -)" && pyenv install -v 2.7.18
+
+# Python 3.1.5 Installation
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include -fno-strict-aliasing" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 3.1.5
+
+# Python 3.2.6 Installation
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include -fno-strict-aliasing" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 3.2.6
+
+# Python 3.3.7 Installation
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include -fno-strict-aliasing" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 3.3.7
+
+# Python 3.4.10 Installation
+RUN eval "$(pyenv init -)" && \
+    export OPENSSL_DIR=/usr/local/openssl-1.0.2 && \
+    CPPFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    CFLAGS="-I${OPENSSL_DIR}/include -I/usr/include" \
+    LDFLAGS="-L${OPENSSL_DIR}/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -Wl,-rpath,${OPENSSL_DIR}/lib" \
+    LD_LIBRARY_PATH="${OPENSSL_DIR}/lib" \
+    CONFIGURE_OPTS="--with-openssl=${OPENSSL_DIR}" \
+    pyenv install -v 3.4.10
+
+# Python 3.5.10 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.5.10
+
+# Python 3.6.15 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.6.15
+
+# Python 3.7.17 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.7.17
+
+# Python 3.8.20 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.8.20
+
+# Python 3.9.23 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.9.25
+
+# Python 3.10.18 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.10.20
+
+# Python 3.11.13 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.11.15
+
+# Python 3.12.11 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.12.13
+
+# Python 3.13.7 Installation
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.13.13
+
+RUN eval "$(pyenv init -)" &&  pyenv install -v 3.14.5

@@ -4,9 +4,9 @@ require 'rex/post/postgresql'
 
 class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
 
-  # @param[Rex::IO::Stream] rstream
-  # @param [Hash] opts
-  # @param opts [Msf::Db::PostgresPR::Connection] :client
+  # @param rstream [Rex::IO::Stream]
+  # @param opts [Hash] Options hash.
+  # @option opts [Msf::Db::PostgresPR::Connection] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
     self.platform = opts.fetch(:platform)

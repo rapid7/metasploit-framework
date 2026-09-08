@@ -7,13 +7,14 @@ class EvasionDriver
   #
   # Initializes the evasion driver using the supplied framework instance.
   #
-  def initialize(framework)
+  def initialize(framework, job_listener: Msf::Simple::NoopJobListener.instance)
     self.payload                = nil
     self.evasion                = nil
     self.use_job                = false
     self.job_id                 = nil
     self.force_wait_for_session = false
     self.semaphore              = Mutex.new
+    self.job_listener           = job_listener
   end
 
   def target_idx=(target_idx)
@@ -80,15 +81,20 @@ class EvasionDriver
     # evasion module instance
     evasion.generate_payload(payload)
 
+    self.run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    evasion.run_uuid = self.run_uuid
+    self.job_listener.waiting self.run_uuid
+
     # No need to copy since we aren't creating a job.  We wait until
     # they're finished running to do anything else with them, so
     # nothing should be able to modify their datastore or other
     # settings until after they're done.
-    ctx = [ evasion, payload ]
+    ctx = [ evasion, payload, self.run_uuid, self.job_listener ]
 
     job_run_proc(ctx)
     job_cleanup_proc(ctx)
 
+    nil
   end
 
   attr_accessor :evasion # :nodoc:
@@ -99,11 +105,19 @@ class EvasionDriver
   # job.
   #
   attr_accessor :job_id
+  #
+  # The run UUID generated for the most recent #run invocation. Used by the
+  # job listener and reported back to RPC clients via the module attribute of
+  # the same name.
+  #
+  attr_accessor :run_uuid
   attr_accessor :force_wait_for_session # :nodoc:
   attr_accessor :session # :nodoc:
 
   # To synchronize threads cleaning up the evasion
   attr_accessor :semaphore
+
+  attr_accessor :job_listener
 
 protected
 
@@ -111,12 +125,20 @@ protected
   # Job run proc, sets up the eevasion and kicks it off.
   #
   def job_run_proc(ctx)
-    evasion, payload = ctx
-    evasion.setup
-    evasion.framework.events.on_module_run(evasion)
+    evasion, payload, run_uuid, job_listener = ctx
+    job_listener ||= self.job_listener
+    begin
+      job_listener.start run_uuid
+      evasion.setup
+      evasion.framework.events.on_module_run(evasion)
 
-    # Launch the evasion module
-    evasion.run
+      # Launch the evasion module
+      result = evasion.run
+      job_listener.completed(run_uuid, result, evasion)
+    rescue ::Exception => e
+      job_listener.failed(run_uuid, e, evasion)
+      raise
+    end
   end
 
   #

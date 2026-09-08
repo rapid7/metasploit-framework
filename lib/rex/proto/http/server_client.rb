@@ -38,7 +38,7 @@ module ServerClient
     response['Connection'] = (keepalive) ? 'Keep-Alive' : 'close'
 
     # Add any other standard response headers.
-    server.add_response_headers(response)
+    server.add_response_headers(self.request, response)
 
     # Send it off.
     put(response.to_s)

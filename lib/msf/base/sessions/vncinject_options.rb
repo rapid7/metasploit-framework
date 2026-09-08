@@ -67,6 +67,27 @@ module VncInjectOptions
   # viewer.
   #
   def on_session(session)
+    # Taken from: https://github.com/rapid7/metasploit-framework/blob/73a0914c4ac1d4c01919fb3b7dc1260c72ad6122/lib/msf/base/sessions/command_shell_options.rb#L35
+    platform = nil
+    if self.platform and self.platform.kind_of? Msf::Module::PlatformList
+      platform = self.platform.platforms.first.realname.downcase
+    end
+    if self.platform and self.platform.kind_of? Msf::Module::Platform
+      platform = self.platform.realname.downcase
+    end
+
+    # a blank platform is *all* platforms and used by the generic modules, in that case only set this instance if it was
+    # not previously set to a more specific value through some means
+    session.platform = platform unless platform.blank? && !session.platform.blank?
+
+    if self.arch
+      if self.arch.kind_of?(Array)
+        session.arch = self.arch.join('')
+      else
+        session.arch = self.arch
+      end
+    end
+
     # Calculate the flags to send to the DLL
     flags = 0
 

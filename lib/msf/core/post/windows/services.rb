@@ -287,7 +287,7 @@ module Msf
         #
         # Check if the specified Windows service exists.
         #
-        # @param name [String] The target service's name (not to be confused
+        # @param service [String] The target service's name (not to be confused
         #   with Display Name). Case sensitive.
         #
         # @return [Boolean]
@@ -669,7 +669,7 @@ module Msf
         #
         # Start a service using sc.exe.
         #
-        # @param name [String] Service name (not display name)
+        # @param service_name [String] Service name (not display name)
         # @param server [String,nil] A hostname or IP address. Default is the
         #   remote localhost.
         #
@@ -712,7 +712,7 @@ module Msf
         #
         # Stop a service using sc.exe.
         #
-        # @param name [String] Service name (not display name)
+        # @param service_name [String] Service name (not display name)
         # @param server [String,nil] A hostname or IP address. Default is the
         #   remote localhost.
         #

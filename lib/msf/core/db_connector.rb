@@ -47,7 +47,7 @@ module DbConnector
 
   # Connect to the required database
   #
-  # @Example Connect to a remote http service
+  # @example Connect to a remote http service
   #   db_connect(
   #     framework,
   #     {

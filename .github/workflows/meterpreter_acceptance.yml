@@ -47,6 +47,7 @@ on:
       - 'lib/msf/base/sessions/**'
       - 'lib/msf/core/payload/**'
       - 'lib/msf/core/**'
+      - 'lib/rex/post/**'
       - 'test/modules/**'
       - 'tools/dev/**'
       - 'spec/acceptance/**'

@@ -64,9 +64,9 @@ RSpec.describe Msf::MCP::Tools::NoteInfo do
   end
 
   describe 'Input Schema Validation' do
-    it 'defines workspace as required parameter' do
+    it 'does not require workspace (defaults to "default")' do
       input_schema = described_class.input_schema
-      expect(input_schema.schema[:required]).to include('workspace')
+      expect(Array(input_schema.schema[:required])).not_to include('workspace')
     end
   end
 
@@ -77,7 +77,7 @@ RSpec.describe Msf::MCP::Tools::NoteInfo do
       expect(data_items[:host]).to eq({ type: 'string' })
       expect(data_items[:service_name_or_port]).to eq({ type: 'string' })
       expect(data_items[:note_type]).to eq({ type: 'string' })
-      expect(data_items[:data]).to eq({ type: 'string' })
+      expect(data_items[:data]).to eq({ type: ['object', 'string', 'null'] })
       expect(data_items[:created_at]).to eq({ type: 'string' })
     end
   end

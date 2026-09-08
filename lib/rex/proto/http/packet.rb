@@ -68,6 +68,23 @@ class Packet
   end
 
   #
+  # The `body` attribute was overridden by subclasses, causing quirky behaviour issues,
+  # such as when a POST request contained query string parameters resulting in the query
+  # string being prepended to the data that was contained in the body. To avoid this
+  # utterly ridiculous behaviour while maintaning the status-quo of having the request
+  # class shoe-horn query strings into POST bodies, we're using `body_bytes` as an internal
+  # buffer to collect the request's body, rather than using the attribute, which prevents
+  # this insanity from happening.
+  #
+  def body=(val)
+    @body_bytes = val
+  end
+
+  def body
+    @body_bytes
+  end
+
+  #
   # Parses the supplied buffer.  Returns one of the two parser processing
   # codes (Completed, Partial, or Error).
   #
@@ -116,7 +133,7 @@ class Packet
     self.inside_chunk     = false
     self.headers.reset
     self.bufq  = ''
-    self.body  = ''
+    @body_bytes  = ''
   end
 
   #
@@ -127,7 +144,7 @@ class Packet
     self.transfer_chunked = false
     self.inside_chunk     = false
     self.headers.reset
-    self.body  = ''
+    @body_bytes  = ''
   end
 
   #
@@ -254,7 +271,6 @@ class Packet
   attr_accessor :error
   attr_accessor :state
   attr_accessor :bufq
-  attr_accessor :body
   attr_accessor :auto_cl
   attr_accessor :max_data
   attr_accessor :transfer_chunked
@@ -409,11 +425,11 @@ protected
     # to our body state.
     if (self.body_bytes_left > 0)
       part = self.bufq.slice!(0, self.body_bytes_left)
-      self.body += part
+      @body_bytes += part
       self.body_bytes_left -= part.length
     # Otherwise, just read it all.
     else
-      self.body += self.bufq
+      @body_bytes += self.bufq
       self.bufq  = ''
     end
 

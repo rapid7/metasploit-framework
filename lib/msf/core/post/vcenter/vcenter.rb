@@ -102,7 +102,7 @@ module Msf
 
         #
         # Function to validate an x509 private key
-        # @param cert [String] the string to determine if its a valid x509 private key
+        # @param private_key [String] the string to determine if its a valid x509 private key
         # @return [OpenSSL::PKey::RSA] or nil on error
         #
         def validate_pkey(private_key)

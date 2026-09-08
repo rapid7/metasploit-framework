@@ -51,7 +51,7 @@ module Metasploit
           # Modifies an else-if block.
           #
           # @param s [Metasm::C::Declaration]
-          # @param [void]
+          # @return [void]
           def modify_else_if(s)
             # There could be multiple else if blocks,
             # this gives the current else if block

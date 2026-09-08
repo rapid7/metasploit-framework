@@ -209,7 +209,7 @@ module DNS
     # @param nameservers [Array<[String,Hash]>] List of nameservers to use for this request, and their associated socket options
     # @param prox [String] Proxy configuration for TCP socket
     #
-    # @return ans [String] Raw DNS reply
+    # @return [String] Raw DNS reply
     def send_tcp(packet, packet_data, nameservers, prox = @config[:proxies])
       ans = nil
       length = [packet_data.size].pack("n")
@@ -309,7 +309,7 @@ module DNS
     # @param packet_data [String] Data segment of DNS request packet
     # @param nameservers [Array<[String,Hash]>] List of nameservers to use for this request, and their associated socket options
     #
-    # @return ans [String] Raw DNS reply
+    # @return [String] Raw DNS reply
     def send_udp(packet,packet_data, nameservers)
       ans = nil
       nameservers.each do |ns, socket_options|
@@ -361,7 +361,7 @@ module DNS
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
-    # @return ans [Dnsruby::Message] DNS Response
+    # @return [Dnsruby::Message] DNS Response
     def search(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       return query(name,type,cls) if name.class == IPAddr
       # If the name contains at least one dot then try it as is first.
@@ -391,7 +391,7 @@ module DNS
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
     #
-    # @return ans [Dnsruby::Message] DNS Response
+    # @return [Dnsruby::Message] DNS Response
     def query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       name, type, cls = preprocess_query_arguments(name, type, cls)
       @logger.debug "Query(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"

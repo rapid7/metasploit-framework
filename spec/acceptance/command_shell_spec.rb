@@ -10,6 +10,7 @@ RSpec.describe 'CommandShell' do
       powershell:      Acceptance::Session::POWERSHELL,
       cmd:             Acceptance::Session::CMD,
       linux:           Acceptance::Session::LINUX,
+      python:          Acceptance::Session::PYTHON,
       python_ssl_2_6:  Acceptance::Session::PYTHON_SSL_2_6,
       python_ssl_2_7:  Acceptance::Session::PYTHON_SSL_2_7,
       python_ssl_3_4:  Acceptance::Session::PYTHON_SSL_3_4,
@@ -137,7 +138,7 @@ RSpec.describe 'CommandShell' do
             end
 
             console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
-            console.recvuntil(/Started reverse (?:TCP|SSL) handler[^\n]*\n/)
+            console.recvuntil(/Started (?:reverse|bind) (?:TCP|SSL|UDP) handler[^\n]*\n/)
             payload_process = executed_payload
             session_id = nil
 

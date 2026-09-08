@@ -84,8 +84,8 @@ class Service
       res.body = process_exception(e).to_msgpack
       res.code = e.code
       res.message = e.http_msg
-    rescue ::StandardError => e
-      elog('Unknown Exception', error: e)
+    rescue ::StandardError, ::ScriptError => e
+      elog('Unhandled Exception', error: e)
       res.body = process_exception(e).to_msgpack
       res.code = 500
       res.message = 'Internal Server Error'

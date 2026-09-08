@@ -205,6 +205,23 @@ module Common
     path.gsub(regexp, '')
   end
 
+  # Import payload option definitions into a module's datastore so that
+  # typed validation (e.g. OptPort, OptAddressLocal) fires immediately
+  # on subsequent set calls rather than being deferred until show options
+  # triggers share_datastore.
+  #
+  # @param mod [Msf::Module] the exploit or evasion module
+  # @param payload_name [String, nil] the payload reference name to import from
+  def import_payload_options(mod, payload_name = nil)
+    payload_name ||= mod.datastore['PAYLOAD']
+    return unless payload_name
+
+    p = mod.framework.payloads.create(payload_name)
+    return unless p
+
+    mod.datastore.import_options(p.options)
+  end
+
 end
 
 end

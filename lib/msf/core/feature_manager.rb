@@ -19,6 +19,7 @@ module Msf
     MANAGER_COMMANDS = 'manager_commands'
     METASPLOIT_PAYLOAD_WARNINGS = 'metasploit_payload_warnings'
     DEFER_MODULE_LOADS = 'defer_module_loads'
+    SKIP_CHECKSUM_VALIDATION = 'skip_checksum_validation'
     DNS = 'dns'
     HIERARCHICAL_SEARCH_TABLE = 'hierarchical_search_table'
     SMB_SESSION_TYPE = 'smb_session_type'
@@ -61,6 +62,13 @@ module Msf
         requires_restart: true,
         default_value: true,
         developer_notes: 'Enabled in Metasploit 6.4.x'
+      }.freeze,
+      {
+        name: SKIP_CHECKSUM_VALIDATION,
+        description: 'When enabled skips module file checksum validation at boot, improving startup time. Use reload_all to refresh modules after changes.',
+        requires_restart: true,
+        default_value: false,
+        developer_notes: 'Useful for developers who want faster boot and can reload_all manually when modules change'
       }.freeze,
       {
         name: SMB_SESSION_TYPE,

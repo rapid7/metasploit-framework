@@ -60,8 +60,7 @@ module DNS
     #
     # @param [String] hostname The hostname to retrieve an address for.
     # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
-    # @return Returns the IP address if it was found, otherwise nil.
-    # @rtype [IPAddr, nil]
+    # @return [IPAddr, nil] Returns the IP address if it was found, otherwise nil.
     def get1(hostname, type = TYPE_A)
       get(hostname, type).first
     end
@@ -70,8 +69,7 @@ module DNS
     #
     # @param [String] hostname The hostname to retrieve an address for.
     # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
-    # @return Returns an array of IP addresses.
-    # @rtype [Array<IPAddr>]
+    # @return [Array<IPAddr>] Returns an array of IP addresses.
     def get(hostname, type = TYPE_A)
       hostname = hostname.downcase
       @hostnames.fetch(hostname, {}).fetch(type, []).dup

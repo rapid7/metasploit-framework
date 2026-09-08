@@ -193,6 +193,17 @@ RSpec.describe Msf::MCP::Logging::Sinks::Sanitizing do
       expect(items[1]).not_to include('secret')
       expect(items[2]).to eq('also safe')
     end
+
+    it 'handles hashes with non-symbolizable keys (e.g. Integer keys from session.list)' do
+      msg = { message: 'response', context: { body: { 1 => { 'type' => 'meterpreter' }, 2 => { 'type' => 'shell' } } } }
+      expect {
+        sink.log(:info, 'mcp', 0, msg)
+      }.not_to raise_error
+
+      body = last_log_entry['context']['body']
+      expect(body['1']['type']).to eq('meterpreter')
+      expect(body['2']['type']).to eq('shell')
+    end
   end
 
   describe 'exception handling' do

@@ -110,7 +110,7 @@ Root path of the URI, which is different than `TARGETURI` as its ownCloud specif
 
 ### ENDFILE
 
-The file path to add to the end of hte URL, which is used to bypass filtering. Defaults to `all` which will try `/.css`, `/.js`, `/.svg`,
+The file path to add to the end of the URL, which is used to bypass filtering. Defaults to `all` which will try `/.css`, `/.js`, `/.svg`,
 `/.gif`, `/.png`, `/.html`, `/.ttf`, `/.woff`, `/.ico`, `/.jpg`, `/.jpeg`, `/.json`, `/.properties`, `/.min.map`, `/.js.map`, `/.auto.map`
 
 ## Scenarios

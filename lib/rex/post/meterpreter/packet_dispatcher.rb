@@ -710,16 +710,18 @@ protected
 end
 
 module HttpPacketDispatcher
+  def connection_uuid
+    self.conn_id.to_s.split('?')[0].split('/').compact.last.gsub(/(^\/|\/$)/, '')
+  end
+
   def initialize_passive_dispatcher
     super
 
-    # Ensure that there is only one leading and trailing slash on the URI
-    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource(resource_uri)
-    self.passive_service.add_resource(resource_uri,
+    self.passive_service.remove_resource(self.connection_uuid)
+    self.passive_service.add_resource(self.connection_uuid,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
-      'VirtualDirectory' => true
+      'VirtualDirectory' => true,
     )
 
     # Add a reference count to the handler
@@ -728,9 +730,7 @@ module HttpPacketDispatcher
 
   def shutdown_passive_dispatcher
     if self.passive_service
-      # Ensure that there is only one leading and trailing slash on the URI
-      resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
-      self.passive_service.remove_resource(resource_uri) if self.passive_service
+      self.passive_service.remove_resource(self.connection_uuid) if self.passive_service
 
       self.passive_service.deref
       self.passive_service = nil
@@ -749,8 +749,9 @@ module HttpPacketDispatcher
     self.last_checkin = ::Time.now
 
     if req.method == 'GET'
-      rpkt = send_queue.shift
-      resp.body = rpkt || ''
+      rpkt = send_queue.shift || ''
+      rpkt = self.wrap_packet(rpkt) if self.respond_to?(:wrap_packet)
+      resp.body = rpkt
       begin
         cli.send_response(resp)
       rescue ::Exception => e
@@ -759,9 +760,11 @@ module HttpPacketDispatcher
       end
     else
       resp.body = ""
-      if req.body and req.body.length > 0
+      body = req.body
+      if body && body.length > 0
+        body = self.unwrap_packet(body) if self.respond_to?(:unwrap_packet)
         packet = Packet.new(0)
-        packet.add_raw(req.body)
+        packet.add_raw(body)
         packet.parse_header!
         packet = decrypt_inbound_packet(packet)
         dispatch_inbound_packet(packet)

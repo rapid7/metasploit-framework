@@ -123,6 +123,14 @@ RSpec.describe Msf::Plugin::MCP do
         expect { plugin.send(:validate_options!, { 'RpcSSL' => 'false' }) }.not_to raise_error
       end
 
+      it 'accepts "TRUE" case-insensitively' do
+        expect { plugin.send(:validate_options!, { 'RpcSSL' => 'TRUE' }) }.not_to raise_error
+      end
+
+      it 'accepts "False" case-insensitively' do
+        expect { plugin.send(:validate_options!, { 'RpcSSL' => 'False' }) }.not_to raise_error
+      end
+
       it 'rejects "yes"' do
         expect { plugin.send(:validate_options!, { 'RpcSSL' => 'yes' }) }.to raise_error(Msf::MCP::Config::ValidationError, /RpcSSL/)
       end
@@ -133,6 +141,28 @@ RSpec.describe Msf::Plugin::MCP do
 
       it 'rejects empty string' do
         expect { plugin.send(:validate_options!, { 'RpcSSL' => '' }) }.to raise_error(Msf::MCP::Config::ValidationError, /RpcSSL/)
+      end
+    end
+
+    describe 'DangerousActions' do
+      it 'accepts "true"' do
+        expect { plugin.send(:validate_options!, { 'DangerousActions' => 'true' }) }.not_to raise_error
+      end
+
+      it 'accepts "false"' do
+        expect { plugin.send(:validate_options!, { 'DangerousActions' => 'false' }) }.not_to raise_error
+      end
+
+      it 'accepts "TRUE" case-insensitively' do
+        expect { plugin.send(:validate_options!, { 'DangerousActions' => 'TRUE' }) }.not_to raise_error
+      end
+
+      it 'accepts "False" case-insensitively' do
+        expect { plugin.send(:validate_options!, { 'DangerousActions' => 'False' }) }.not_to raise_error
+      end
+
+      it 'rejects "yes"' do
+        expect { plugin.send(:validate_options!, { 'DangerousActions' => 'yes' }) }.to raise_error(Msf::MCP::Config::ValidationError, /DangerousActions/)
       end
     end
 

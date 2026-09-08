@@ -11,17 +11,22 @@ Note that both the messagepack and JSON RPC services provide very similar operat
 
 ## Starting the JSON API Server
 
-The pre-requisite to running the JSON API Server is to run your Metasploit database. This can be initialized with `msfdb`.
-Note that `msfdb` will ask if you wish to run the JSON RPC web service - but it is not required for this guide which
-shows how to run the JSON service directly with [thin](https://github.com/macournoyer/thin) or [Puma](https://github.com/puma/puma): 
+A Metasploit database is recommended but not required. Without one, module search, execution and result
+polling all work and only the `db.*` methods are unavailable.
 
-First run the Metasploit database:
+Authentication is required either way, and is covered under [Authentication](#authentication). Without a
+database there are no user accounts to authenticate against, so `MSF_WS_JSON_RPC_API_TOKEN` has to be set.
+Setting it does not disable the database - the service still connects to whatever is configured, and `db.*`
+stays available.
+
+If you do want database support, initialize it with `msfdb`. Note that `msfdb` will ask if you wish to run
+the JSON RPC web service - but it is not required for this guide:
 
 ```
 msfdb init
 ```
 
-After configuring the database the JSON RPC service can be initialized with the [thin](https://github.com/macournoyer/thin) Ruby web server:
+The JSON RPC service can then be initialized with the [thin](https://github.com/macournoyer/thin) Ruby web server:
 
 ```
 bundle exec thin --rackup msf-json-rpc.ru --address 0.0.0.0 --port 8081 --environment production --tag msf-json-rpc start
@@ -32,6 +37,73 @@ Or with [Puma](https://github.com/puma/puma):
 ```
 bundle exec puma msf-json-rpc.ru --port 8081 --environment production --tag msf-json-rpc start
 ```
+
+### Authentication
+
+Authentication is mandatory. Every request must carry an API token in an `Authorization: Bearer <token>`
+header. Tokens are not accepted from the query string, as query strings end up in access logs.
+
+There are two ways to configure the token, and the service refuses to start if neither is available.
+
+#### Option 1: a static token
+
+Set `MSF_WS_JSON_RPC_API_TOKEN` to a token of at least 16 characters. No database is needed to validate it,
+and it takes precedence - while it is set, database user tokens are not accepted:
+
+```sh
+export MSF_WS_JSON_RPC_API_TOKEN=$(ruby -rsecurerandom -e 'puts SecureRandom.hex(32)')
+echo "Auth token: $MSF_WS_JSON_RPC_API_TOKEN"
+bundle exec thin --rackup msf-json-rpc.ru --address 0.0.0.0 --port 8081 --environment production --tag msf-json-rpc start
+```
+
+#### Option 2: a database user's token
+
+This needs a reachable database holding at least one user. `msfdb init` sets one up as part of configuring
+the web service, and tokens can then be reissued via `POST /api/v1/auth/generate-token`.
+
+To create a user and issue a token directly, without running the web service:
+
+```sh
+bundle exec msfconsole -qx 'irb -e "pass = SecureRandom.base64(32); u = framework.db.report_user(username: %q{jsonrpc_test}, password: pass, admin: true); puts %q{username: } + u.username; puts %q{password: } + pass; puts %q{token:    } + framework.db.create_new_user_token(id: u.id, token_length: 40)"; exit'
+```
+
+```
+username: jsonrpc_test
+password: ...a 44 character random password...
+token:    ...an 80 character hex token...
+```
+
+Only the token is needed for JSON-RPC. The password is there for signing in to the account page at
+`/api/v1/auth/account` on the data service, so it is generated randomly rather than being a value worth
+reusing - copy it now if you want it, as only its bcrypt hash is stored.
+
+Start the service with `MSF_WS_JSON_RPC_API_TOKEN` unset, otherwise the static token takes precedence and
+this token is rejected:
+
+```sh
+unset MSF_WS_JSON_RPC_API_TOKEN
+bundle exec thin --rackup msf-json-rpc.ru --address 0.0.0.0 --port 8081 --environment production --tag msf-json-rpc start
+```
+
+Remove the user once you are finished with it:
+
+```sh
+bundle exec msfconsole -qx 'irb -e "u = framework.db.users(username: %q{jsonrpc_test}).first; framework.db.delete_user(ids: [u.id]) if u; puts %q{remaining: } + framework.db.users(username: %q{jsonrpc_test}).count.to_s"; exit'
+```
+
+Note that removing the last remaining user means the service will refuse to start unless a static token is
+configured instead.
+
+Every `curl` example below sends `Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN`, so export your token
+in the same shell you run them from:
+
+```sh
+export MSF_WS_JSON_RPC_API_TOKEN='...add your token here...'
+```
+
+If that variable is empty the header is sent with no token and the service replies `401` with
+`Invalid API token. Authenticate to access this resource.` - check the variable is set before looking
+anywhere else.
 
 ### Development
 
@@ -48,7 +120,7 @@ bundle exec ruby ./msfdb --component webservice --no-daemon start
 
 ### RPC Logging
 
-You can configure the RPC service logging with the `MSF_WS_DATA_SERVICE_LOGGER` environment variable. 
+You can configure the RPC service logging with the `MSF_WS_DATA_SERVICE_LOGGER` environment variable.
 
 The list of supported loggers is viewable with `msfconsole --help`. The list at the time of writing is:
 
@@ -79,9 +151,17 @@ The Metasploit RPC aims to follow the [jsonrpc specification](https://www.jsonrp
 - Each JSON RPC request should provide a unique message ID which the client and server can use to correlate requests and responses
 - Metasploit may return the following [error codes](https://github.com/rapid7/metasploit-framework/blob/87b1f3b602753e39226a475a5d737fb50200957d/lib/msf/core/rpc/json/error.rb#L3-L13).
 
-## Examples 
+## Examples
 
-First ensure you are running the Metasploit database, and are running the JSON service before running these examples
+First ensure the JSON service is running before running these examples. The `db.*` examples additionally
+need a Metasploit database; the rest work without one.
+
+Each example authenticates with the token described under [Authentication](#authentication), so export it
+in the shell you run them from:
+
+```sh
+export MSF_WS_JSON_RPC_API_TOKEN='...add your token here...'
+```
 
 ### Querying
 
@@ -92,6 +172,7 @@ Request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
         "jsonrpc": "2.0",
@@ -121,6 +202,7 @@ Request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
         "jsonrpc": "2.0",
@@ -158,6 +240,7 @@ Request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'content-type: application/json' \
   --data '{ "jsonrpc": "2.0", "method": "module.search", "id": 1, "params": ["psexec author:egypt arch:x64"] }'
 ```
@@ -188,6 +271,7 @@ auxiliary module against a target. For instance, with an Auxiliary module check 
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -208,6 +292,7 @@ Or an Exploit module check request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'content-type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -243,6 +328,7 @@ Request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -255,7 +341,7 @@ curl --request POST \
 The response will include the following keys:
 - waiting - modules that are queued up, but have not started to run yet
 - running - currently running modules
-- results - the module has completed or failed, and the results can be retrieved and acknowledged 
+- results - the module has completed or failed, and the results can be retrieved and acknowledged
 
 Response:
 
@@ -265,7 +351,7 @@ Response:
   "result": {
     "waiting": [
       "NkJvf4kp4JxcuFCz7rjSuHL1",
-      "wRnMQuJ8gzMTp5CaHu18bHdV"      
+      "wRnMQuJ8gzMTp5CaHu18bHdV"
     ],
     "running": [
       "b7hIX6G4ZtwvRVRDOXk5ylSx",
@@ -291,6 +377,7 @@ Request:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -306,7 +393,7 @@ Example response when the module is has not yet complete:
 {
   "jsonrpc": "2.0",
   "result": {
-    "status": "running"  
+    "status": "running"
   },
   "id": 1
 }
@@ -349,13 +436,14 @@ Example success response:
 #### acknowledge module results
 
 This command will also allow Metasploit to remove the result resources from memory. Not acknowledging module results will lead to a memory leak,
-but the memory is limited to 35mb as the memory datastore used is implemented by [`ActiveSupport::Cache::MemoryStore`](https://github.com/rapid7/metasploit-framework/pull/13036/files#diff-6e31832215e40b17a184a7f7b82d2aabfbaa8d98fabb3c43033dd8579ad3caaeR102) 
+but the memory is limited to 35mb as the memory datastore used is implemented by [`ActiveSupport::Cache::MemoryStore`](https://github.com/rapid7/metasploit-framework/pull/13036/files#diff-6e31832215e40b17a184a7f7b82d2aabfbaa8d98fabb3c43033dd8579ad3caaeR102)
 
 Request:
 
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -385,7 +473,7 @@ First report a host:
 ```bash
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
-  --header 'Authorization: Bearer ' \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -404,7 +492,7 @@ curl --request POST \
             "mac": "97-42-51-F2-A7-A7",
             "scope": "eth2",
             "virtual_host": "VMWare"
-        }    
+        }
     ]
 }'
 
@@ -416,7 +504,7 @@ Report the host vulnerabilities:
 ```bash
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
-  --header 'Authorization: Bearer ' \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -448,7 +536,7 @@ Run the analyze command:
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
-  --header 'Authorization: Bearer ' \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",
@@ -494,7 +582,7 @@ When analyzing a host, it is also possible to specify payload requirements for a
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/json-rpc \
-  --header 'Authorization: Bearer ' \
+  --header "Authorization: Bearer $MSF_WS_JSON_RPC_API_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "jsonrpc": "2.0",

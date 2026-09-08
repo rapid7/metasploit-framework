@@ -15,10 +15,18 @@ mcp:
   # MCP server network configuration (for HTTP transport only)
   host: 127.0.0.1  # Host to bind to (default: localhost)
   port: 3000       # Port to listen on (default: 3000)
+  # auth_token: ... # Bearer token for authentication (default: randomly generated, one-time token)
   # Puma server tuning (for HTTP transport only)
   # min_threads: 0   # Minimum thread pool size (default: 0)
   # max_threads: 5   # Maximum thread pool size (default: 5)
   # workers: 0       # Number of worker processes (default: 0, single-process mode)
+
+  # Dangerous actions gate (default: false)
+  # When false, destructive tools (msf_module_execute, msf_module_check,
+  # msf_session_stop, msf_session_write) return an error. Override at runtime
+  # with the --enable-dangerous-actions CLI flag or by setting the
+  # MSF_MCP_DANGEROUS_ACTIONS=true environment variable.
+  dangerous_actions: false
 
 # Rate limiting (optional - defaults shown)
 rate_limit:

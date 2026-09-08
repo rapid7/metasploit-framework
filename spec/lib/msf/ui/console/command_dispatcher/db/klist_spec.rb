@@ -48,6 +48,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
               -d, --delete      Delete *all* matching kerberos entries
               -h, --help        Help banner
               -i, --index       Kerberos entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`
+              -t, --trace       Show trace output for a single Kerberos ticket by ID or path
               -v, --verbose     Verbose output
 
         TABLE
@@ -284,6 +285,33 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
                       Cipher:
                         #{expected_cipher}
           TABLE
+        end
+      end
+
+      context 'when the --trace option is provided' do
+        it 'shows a single ticket selected by ID using Kerberos credential trace formatting' do
+          subject.cmd_klist '--trace', valid_ccache_id.to_s
+
+          output = @output.join("\n")
+          expect(output).to include('Kerberos Cache')
+          expect(output).to include('####################')
+          expect(output).to include("# Kerberos Credential: Cache[0] id=#{valid_ccache_id}")
+          expect(output).to include('Creds: 1')
+          expect(output).to include('Credential[0]:')
+          expect(output).to include('Server: krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL')
+          expect(output).to include('Ticket Length: 977')
+          expect(output).to include('Cipher:')
+          expect(output).not_to include('Server: krbtgt/ADF3.LOCAL@ADF3.LOCAL')
+        end
+
+        it 'supports -t and shows a single ticket selected by path' do
+          subject.cmd_klist '-t', expired_ccache_path
+
+          output = @output.join("\n")
+          expect(output).to include('Kerberos Cache')
+          expect(output).to include("# Kerberos Credential: Cache[0] id=#{expired_ccache_id}")
+          expect(output).to include('Server: krbtgt/ADF3.LOCAL@ADF3.LOCAL')
+          expect(output).not_to include('Server: krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL')
         end
       end
 

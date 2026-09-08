@@ -72,14 +72,18 @@ class Driver < Msf::Ui::Driver
       elog(e)
     end
 
-    # Check if files have been modified and force immediate loading if so
-    has_modified_metasploit_files = !Msf::Modules::Metadata::Store.valid_checksum?
+    # Check if files have been modified and force immediate loading if so.
+    # Can be skipped via feature flag for faster dev boots (use reload_all to refresh).
+    has_modified_metasploit_files = false
+    unless Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::SKIP_CHECKSUM_VALIDATION)
+      has_modified_metasploit_files = !Msf::Modules::Metadata::Store.valid_checksum?
 
-    if has_modified_metasploit_files
-      current_checksum = Msf::Modules::Metadata::Store.get_current_checksum
-      Msf::Modules::Metadata::Store.update_cache_checksum(current_checksum)
-      # Force immediate module loading when files have changed
-      opts['DeferModuleLoads'] = false
+      if has_modified_metasploit_files
+        current_checksum = Msf::Modules::Metadata::Store.get_current_checksum
+        Msf::Modules::Metadata::Store.update_cache_checksum(current_checksum)
+        # Force immediate module loading when files have changed
+        opts['DeferModuleLoads'] = false
+      end
     end
 
     if opts['DeferModuleLoads'].nil?

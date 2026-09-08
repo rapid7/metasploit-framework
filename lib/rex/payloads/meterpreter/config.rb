@@ -1,18 +1,18 @@
 # -*- coding: binary -*-
 require 'rex/socket/x509_certificate'
 require 'rex/post/meterpreter/extension_mapper'
+require 'rex/post/meterpreter/packet'
+require 'msf/core/payload/malleable_c2'
+require 'rex/payloads/meterpreter/uri_checksum'
 require 'securerandom'
+
 class Rex::Payloads::Meterpreter::Config
 
+  include Msf::Payload::UUID::Options
   include Msf::ReflectiveDLLLoader
+  include Rex::Payloads::Meterpreter::UriChecksum
 
-  URL_SIZE = 512
-  UA_SIZE = 256
-  PROXY_HOST_SIZE = 128
-  PROXY_USER_SIZE = 64
-  PROXY_PASS_SIZE = 64
-  CERT_HASH_SIZE = 20
-  LOG_PATH_SIZE = 260 # https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
+  MET = Rex::Post::Meterpreter
 
   def initialize(opts={})
     @opts = opts
@@ -49,7 +49,7 @@ private
     item.to_s.ljust(size, "\x00")
   end
 
-  def session_block(opts)
+  def add_session_tlv(tlv, opts)
     uuid = opts[:uuid].to_raw
     exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
@@ -60,118 +60,125 @@ private
     else
       session_guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     end
-    session_data = [
-      0,                  # comms socket, patched in by the stager
-      exit_func,          # exit function identifier
-      opts[:expiration],  # Session expiry
-      uuid,               # the UUID
-      session_guid,        # the Session GUID
-    ]
-    pack_string = 'QVVA*A*'
-    if opts[:debug_build]
-      session_data << to_str(opts[:log_path] || '', LOG_PATH_SIZE) # Path to log file on remote target
-      pack_string << 'A*'
+
+    tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func) if exit_func
+    tlv.add_tlv(MET::TLV_TYPE_SESSION_EXPIRY, opts[:expiration])
+    tlv.add_tlv(MET::TLV_TYPE_UUID, uuid)
+    tlv.add_tlv(MET::TLV_TYPE_SESSION_GUID, session_guid)
+
+    if opts[:debug_build] && opts[:log_path]
+      tlv.add_tlv(MET::TLV_TYPE_DEBUG_LOG, opts[:log_path])
     end
 
-    session_data.pack(pack_string)
+    if opts[:flags] && opts[:flags] != 0
+      tlv.add_tlv(MET::TLV_TYPE_SESSION_FLAGS, opts[:flags])
+    end
   end
 
-  def transport_block(opts)
-    # Build the URL from the given parameters, and pad it out to the
-    # correct size
+  def add_c2_tlv(tlv, opts)
     lhost = opts[:lhost]
     if lhost && opts[:scheme].start_with?('http') && Rex::Socket.is_ipv6?(lhost)
       lhost = "[#{lhost}]"
     end
 
-    url = "#{opts[:scheme]}://#{lhost}"
-    url << ":#{opts[:lport]}" if opts[:lport]
-    url << "#{opts[:uri]}/" if opts[:uri]
-    url << "?#{opts[:scope_id]}" if opts[:scope_id]
-
-    # if the transport URI is for a HTTP payload we need to add a stack
-    # of other stuff
-    pack = 'A*VVV'
-    transport_data = [
-      to_str(url, URL_SIZE),     # transport URL
-      opts[:comm_timeout],       # communications timeout
-      opts[:retry_total],        # retry total time
-      opts[:retry_wait]          # retry wait time
-    ]
-
-    if url.start_with?('http')
-      proxy_host = ''
-      if opts[:proxy_host] && opts[:proxy_port]
-        prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
-        proxy_host = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-      end
-      proxy_host = to_str(proxy_host || '', PROXY_HOST_SIZE)
-      proxy_user = to_str(opts[:proxy_user] || '', PROXY_USER_SIZE)
-      proxy_pass = to_str(opts[:proxy_pass] || '', PROXY_PASS_SIZE)
-      ua = to_str(opts[:ua] || '', UA_SIZE)
-
-      cert_hash = "\x00" * CERT_HASH_SIZE
-      cert_hash = opts[:ssl_cert_hash] if opts[:ssl_cert_hash]
-
-      custom_headers = opts[:custom_headers] || ''
-      custom_headers = to_str(custom_headers, custom_headers.length + 1)
-
-      # add the HTTP specific stuff
-      transport_data << proxy_host      # Proxy host name
-      transport_data << proxy_user      # Proxy user name
-      transport_data << proxy_pass      # Proxy password
-      transport_data << ua              # HTTP user agent
-      transport_data << cert_hash       # SSL cert hash for verification
-      transport_data << custom_headers  # any custom headers that the client needs
-
-      # update the packing spec
-      pack << 'A*A*A*A*A*A*'
+    unless (opts[:c2_profile] || '').empty?
+      parser = Msf::Payload::MalleableC2::Parser.new
+      profile = parser.parse(opts[:c2_profile])
+      c2_tlv = profile.to_tlv
+    else
+      c2_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
     end
 
-    # return the packed transport information
-    transport_data.pack(pack)
+    # Fall back to the datastore UA when the profile didn't `set useragent`
+    # (or there's no profile at all).
+    unless (opts[:ua] || '').empty? || c2_tlv.tlvs.any? { |t| t.type == MET::TLV_TYPE_C2_UA }
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua])
+    end
+
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
+
+    # Only build a C2 URL when we actually have a host. Staged payloads
+    # inherit the stager's socket and carry no host; guard so a nil lhost
+    # cannot reach Rex::Socket.to_authority (which requires a String).
+    if lhost && !lhost.to_s.empty?
+      url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
+      url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
+      url << "?#{opts[:scope_id]}" if opts[:scope_id]
+
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
+
+      # if the transport URI is for a HTTP payload we need to add a stack
+      # of other stuff that can only be set in MSF, not in the C2 profile
+      if url.start_with?('http')
+        proxy_url = ''
+        if opts[:proxy_host] && opts[:proxy_port]
+          prefix = 'http://'
+          prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
+          proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        end
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
+
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_CERT_HASH, opts[:ssl_cert_hash]) unless (opts[:ssl_cert_hash] || '').empty?
+        c2_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, opts[:custom_headers]) unless (opts[:custom_headers] || '').empty?
+      end
+    end
+
+    tlv.tlvs << c2_tlv
   end
 
-  def extension_block(ext_name, file_extension, debug_build: false)
+  def add_extension_tlv(tlv, ext_name, ext_init_path, file_extension, debug_build: false)
     ext_name = ext_name.strip.downcase
-    ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
-                                                              file_extension, debug: debug_build))
+    # Windows DLLs go through Reflective DLL Injection prep; mettle bins
+    # come per-platform from the mettle gem; jar/py/php ship as-is.
+    case file_extension.to_s
+    when /\.dll$/
+      ext_path = MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+                                                     file_extension, debug: debug_build)
+      ext, _ = load_rdi_dll(ext_path)
+    when 'bin'
+      begin
+        ext = MetasploitPayloads::Mettle.load_extension(@opts[:mettle_platform], ext_name, 'bin')
+      rescue MetasploitPayloads::Mettle::NotFoundError
+        # Mettle bakes some extensions (e.g. stdapi) directly into the
+        # binary, so there's no separate <name>.bin to ship. Silently
+        # skip and let the runtime use whatever's already registered.
+        $stderr.puts("[!] EXTENSIONS=#{ext_name}: no separate '#{ext_name}.bin' for #{@opts[:mettle_platform]} (already built in?), skipping")
+        return
+      end
+    else
+      ext = MetasploitPayloads.read('meterpreter', "ext_server_#{ext_name}.#{file_extension}".downcase)
+    end
 
-    [ ext.length, ext ].pack('VA*')
-  end
-
-  def extension_init_block(name, value)
-    ext_id = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(name)
-
-    # for now, we're going to blindly assume that the value is a path to a file
-    # which contains the data that gets passed to the extension
-    content = ::File.read(value, mode: 'rb') + "\x00\x00"
-    data = [
-      ext_id,
-      content.length,
-      content
-    ]
-
-    data.pack('VVA*')
+    ext_tlv = MET::GroupTlv.new(MET::TLV_TYPE_EXTENSION)
+    ext_tlv.add_tlv(MET::TLV_TYPE_DATA, ext)
+    unless (ext_init_path || '').empty?
+      ext_id = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(ext_name)
+      init_data = ::File.read(ext_init_path, mode: 'rb')
+      ext_tlv.add_tlv(MET::TLV_TYPE_STRING, init_data) unless (init_data || '').empty?
+      ext_tlv.add_tlv(MET::TLV_META_TYPE_UINT, ext_id)
+    end
+    tlv.tlvs << ext_tlv
   end
 
   def config_block
     # start with the session information
-    config = session_block(@opts)
+    config_packet = MET::Packet.create_config()
+    add_session_tlv(config_packet, @opts)
 
     # then load up the transport configurations
     (@opts[:transports] || []).each do |t|
-      config << transport_block(t)
+      add_c2_tlv(config_packet, t)
     end
 
-    # terminate the transports with NULL (wchar)
-    config << "\x00\x00"
-
-    # configure the extensions - this will have to change when posix comes
-    # into play.
-    file_extension = 'x86.dll'
-    file_extension = 'x64.dll' unless is_x86?
+    # Each runtime tells us which on-disk extension file matches the
+    # payload (e.g. 'x86.dll', 'x64.dll', 'py', 'php', 'jar'); skip the
+    # extension TLV emission when the caller didn't supply one.
+    file_extension = @opts[:ext_format]
 
     @opts[:extensions] = [] if @opts[:extensions].blank?
     prev_length = @opts[:extensions].length
@@ -185,23 +192,14 @@ private
       )
     end
 
-    (@opts[:extensions] || []).each do |e|
-      config << extension_block(e, file_extension, debug_build: @opts[:debug_build])
+    ext_inits = (@opts[:ext_init] || '').split(':').map{|v| v.split(',')}.to_h{|l| l}
+
+    if file_extension
+      (@opts[:extensions] || []).each do |e|
+        add_extension_tlv(config_packet, e, ext_inits[e], file_extension, debug_build: @opts[:debug_build])
+      end
     end
 
-    # terminate the extensions with a 0 size
-    config << [0].pack('V')
-
-    # wire in the extension init data
-    (@opts[:ext_init] || '').split(':').each do |cfg|
-      name, value = cfg.split(',')
-      config << extension_init_block(name, value)
-    end
-
-    # terminate the ext init config with -1
-    config << "\xFF\xFF\xFF\xFF"
-
-    # and we're done
-    config
+    config_packet.to_r
   end
 end

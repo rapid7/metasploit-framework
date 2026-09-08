@@ -30,7 +30,7 @@ module Metasploit
         #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
 
-        # @returns [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
+        # @return [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 

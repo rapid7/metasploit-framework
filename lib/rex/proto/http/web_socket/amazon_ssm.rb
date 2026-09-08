@@ -326,8 +326,8 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
   #
   # Initiates a WebSocket session based on the params of SSM::Client#start_session
   #
-  # @param [Aws::SSM::Types::StartSessionResponse] :session_init Parameters returned by #start_session
-  # @param [Integer] :timeout
+  # @param session_init [Aws::SSM::Types::StartSessionResponse] Parameters returned by #start_session
+  # @param timeout [Integer] Connection timeout in seconds
   #
   # @return [Socket] Socket representing the authenticates SSM WebSocket connection
   def connect_ssm_ws(session_init, timeout = 20)

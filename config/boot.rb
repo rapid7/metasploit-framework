@@ -85,7 +85,7 @@ begin
     ignore_directories: [],
     development_mode: development_mode,
     load_path_cache: true, # Optimize the LOAD_PATH with a cache
-    compile_cache_iseq: false, # Don't compile Ruby code into ISeq cache, breaks coverage reporting.
+    compile_cache_iseq: true, # If coverage reports are inaccurate, disable this (ISeq caching bypasses Coverage tracing).
     compile_cache_yaml: false, # Don't compile YAML into a cache
     readonly: false, # Update caches - https://github.com/Shopify/bootsnap/commit/b51397f96c33aa421fd5c29484fb9574df9eb451
   }

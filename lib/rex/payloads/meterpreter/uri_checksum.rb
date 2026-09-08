@@ -13,6 +13,7 @@ module Rex
         URI_CHECKSUM_INITN      = 92 # Native (same as Windows)
         URI_CHECKSUM_INITP      = 80 # Python
         URI_CHECKSUM_INITJ      = 88 # Java
+        URI_CHECKSUM_INITPH     = 84 # PHP
         URI_CHECKSUM_CONN       = 98 # Existing session
         URI_CHECKSUM_INIT_CONN  = 95 # New stageless session
 
@@ -21,6 +22,7 @@ module Rex
           URI_CHECKSUM_INITN,      :init_native,
           URI_CHECKSUM_INITP,      :init_python,
           URI_CHECKSUM_INITJ,      :init_java,
+          URI_CHECKSUM_INITPH,     :init_php,
           URI_CHECKSUM_INIT_CONN,  :init_connect,
           URI_CHECKSUM_CONN,       :connect
         ]
@@ -33,16 +35,7 @@ module Rex
 
         URI_CHECKSUM_UUID_MIN_LEN = URI_CHECKSUM_MIN_LEN + Msf::Payload::UUID::UriLength
 
-        # Map "random" URIs to static strings, allowing us to randomize
-        # the URI sent in the first request.
-        #
-        # @param uri [String] The URI string from the HTTP request
-        # @return [Hash] The attributes extracted from the URI
-        def process_uri_resource(uri)
-
-          # Ignore non-base64url characters in the URL
-          uri_bare = uri.gsub(/[^a-zA-Z0-9_\-]/, '')
-
+        def process_uuid_string(uri_bare)
           # Figure out the mode based on the checksum
           uri_csum = Rex::Text.checksum8(uri_bare)
 
@@ -56,6 +49,40 @@ module Rex
 
           # Return a hash of URI attributes
           { uri: uri_bare, sum: uri_csum, uuid: uri_uuid, mode: uri_mode }
+        end
+
+        # Map "random" URIs to static strings, allowing us to randomize
+        # the URI sent in the first request.
+        #
+        # @param uri [String] The URI string from the HTTP request
+        # @return [Hash] The attributes extracted from the URI
+        def process_uri_resource(uri)
+          # look for the UUID anywhere in the given URI, excluding the query string
+          uri.split('?')[0].split('/').each {|u|
+            # Ignore non-base64url characters in the URL
+            uri_bare = u.gsub(/[^a-zA-Z0-9_\-]/, '')
+            h = process_uuid_string(uri_bare)
+            return h if h[:uuid]
+          }
+
+          # No embedded UUID was found in any URI segment; fall back to a
+          # checksum-based mode lookup against the whole URI, e.g. for the
+          # INITW/INITJ/CONN handshake requests which don't carry a UUID yet.
+          process_uuid_string(uri.gsub(/[^a-zA-Z0-9_\-]/, ''))
+        end
+
+        # Map "random" get params to static strings.
+        #
+        # @param  [String] The query string from the HTTP request.
+        # @return [Hash] The attributes extracted from the URI
+        def process_query_string_resource(query_string)
+        end
+
+        # Map "random" cookies to static strings.
+        #
+        # @param cookie [String] The Cookie header string from the HTTP request.
+        # @return [Hash] The attributes extracted from the URI
+        def process_cookie_resource(cookie)
         end
 
         # Create a URI that matches the specified checksum and payload uuid

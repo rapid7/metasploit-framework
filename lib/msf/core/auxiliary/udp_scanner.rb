@@ -148,7 +148,7 @@ module Auxiliary::UDPScanner
 
       retry
 
-    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
+    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET
       # This fires for host unreachable, net unreachable, and broadcast sends
       # We can safely ignore all of these for UDP sends
     end
@@ -175,9 +175,9 @@ module Auxiliary::UDPScanner
         for sock in readable
           begin
             res = sock.recvfrom(65535)
-          rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
-            # A connected UDP socket surfaces ICMP port-unreachable as ECONNREFUSED
-            # on recvfrom; skip this socket and keep processing the others.
+          rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ECONNRESET
+            # A connected UDP socket surfaces ICMP port-unreachable differently
+            # by platform; skip this socket and keep processing the others.
             next
           end
 

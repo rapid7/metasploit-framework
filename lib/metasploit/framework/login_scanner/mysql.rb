@@ -15,7 +15,7 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        # @returns [Boolean] If a login is successful and this attribute is true - a MySQL::Client instance is used as proof,
+        # @return [Boolean] If a login is successful and this attribute is true - a MySQL::Client instance is used as proof,
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 

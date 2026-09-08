@@ -119,7 +119,7 @@ module Rex::Proto::MsAdts
 
     # Find the entry with the given identifier
     # @param struct [MsAdtsKeyCredentialStruct] Structure containing entries to search through
-    # @param struct [Integer] Identifier to search for, from https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a99409ea-4982-4f72-b7ef-8596013a36c7
+    # @param identifier [Integer] Identifier to search for, from https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a99409ea-4982-4f72-b7ef-8596013a36c7
     # @return [String] The data associated with this identifier, or nil if not found
     def self.get_entry(struct, identifier)
       struct.credential_entries.each do |entry|
@@ -130,7 +130,7 @@ module Rex::Proto::MsAdts
     end
 
     # Parse the object's raw key material field into a OpenSSL::PKey::RSA object
-    # @param obj [KeyCredential] The object for which to parse the key
+    # @return [OpenSSL::PKey::RSA, nil]
     def public_key
       case key_usage
       when KEY_USAGE_NGC

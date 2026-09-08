@@ -1,15 +1,33 @@
-## Usage
+## Setup
 
-Building:
+This contains a custom Docker image used for LDAP acceptance testing.
 
-```
+## Credentials
+
+| Username                  | Password     | Domain   |
+|---------------------------|--------------|----------|
+| `DEV-AD\Administrator`    | `admin123!`  | `DEV-AD` |
+
+The server is available on `127.0.0.1:389` (LDAP) and `127.0.0.1:636` (LDAPS).
+
+## Running
+
+- Build:
+```shell
 docker compose build
-docker compose up
 ```
 
-The system should be available on `127.0.0.1:389` and `127.0.0.1:636` - with the creds `Administrator:admin123!` and `DEV-AD` as the domain.
+- Run:
+```shell
+docker compose up -d --wait
+```
 
-Example of running a wih a Metasploit module:
+- Shut down:
+```shell
+docker compose down
+```
+
+## Example
 
 ```msf
 msf auxiliary(scanner/ldap/ldap_login) > run rhost=127.0.0.1 username=DEV-AD\\Administrator password=admin123! CreateSession=true
@@ -17,5 +35,5 @@ msf auxiliary(scanner/ldap/ldap_login) > run rhost=127.0.0.1 username=DEV-AD\\Ad
 msf auxiliary(scanner/ldap/ldap_login) > sessions -i -1
 [*] Starting interaction with 1...
 
-LDAP (127.0.0.1) > 
+LDAP (127.0.0.1) >
 ```

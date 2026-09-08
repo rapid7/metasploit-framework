@@ -396,6 +396,10 @@ NAVIGATION_CONFIG = [
                 title: without_prefix('Meterpreter ')
               },
               {
+                path: 'Meterpreter-Malleable-C2-Profiles.md',
+                title: without_prefix('Meterpreter ')
+              },
+              {
                 path: 'How-to-get-started-with-writing-a-Meterpreter-script.md'
               },
               {
@@ -403,7 +407,7 @@ NAVIGATION_CONFIG = [
               },
               {
                 path: 'Python-Extension.md'
-              },
+              }
             ]
           },
           {

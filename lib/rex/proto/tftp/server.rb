@@ -25,6 +25,14 @@ end
 ##
 class Server
 
+  def self.hardcore_alias(port, host, *_rest)
+    "#{host}-#{port}"
+  end
+
+  def alias
+    @alias || "TFTP Server"
+  end
+
   def initialize(port = 69, listen_host = '0.0.0.0', context = {})
     self.listen_host = listen_host
     self.listen_port = port
@@ -85,6 +93,14 @@ class Server
       :data => content,
       :once => once
     }
+  end
+
+
+  #
+  # Remove a previously registered file by name
+  #
+  def deregister_file(fn)
+    self.files.delete_if { |f| f[:name] == fn }
   end
 
 

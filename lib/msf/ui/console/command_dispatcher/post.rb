@@ -85,14 +85,14 @@ class Post
     end
 
     begin
-      mod.run_simple(
+      mod.run_simple({
         'Action'         => args[:action],
         'Options'      => args[:datastore_options],
         'LocalInput'     => driver.input,
         'LocalOutput'    => driver.output,
         'RunAsJob'       => jobify,
         'Quiet'          => args[:quiet]
-      )
+      })
     rescue ::Timeout::Error
       print_error("Post triggered a timeout exception")
     rescue ::Interrupt
