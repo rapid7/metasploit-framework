@@ -73641,6 +73641,69 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/cisco_fmc_auth_bypass_rce": {
+    "name": "Cisco Secure Firewall Management Center Authentication Bypass RCE",
+    "fullname": "exploit/linux/http/cisco_fmc_auth_bypass_rce",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-03-04",
+    "type": "exploit",
+    "author": [
+      "Brandon Sakai",
+      "Cale Black",
+      "Arian Eidizadeh"
+    ],
+    "description": "This module exploits CVE-2026-20079, an authentication bypass in the\n          web interface of Cisco Secure Firewall Management Center (FMC). It\n          upgrades a boot-created machine session, obtains its session-specific\n          action token, writes a Makeself-compatible shell script, and executes\n          the selected command payload as root.\n\n          Exploitation requires the transient csm_processes startup session to\n          still exist. Normal authenticated activity or session cleanup may\n          remove that session, so an affected appliance may not be exploitable\n          at the time of testing. The underlying request sequence and\n          FIFO/netcat payload were tested against Cisco Secure FMC 10.0.1-1.",
+    "references": [
+      "CVE-2026-20079",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-onprem-fmc-authbypass-5JPp45V2",
+      "URL-https://www.vulncheck.com/blog/cisco-fmc-auth-bypass-cve-2026-20079",
+      "URL-https://github.com/CyberAuth/CVE-2026-20079",
+      "URL-https://banks.tools/writeups/cve-2026-20079-cisco-secure-fmc"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix/Linux Command"
+    ],
+    "mod_time": "2026-09-08 12:58:07 +0000",
+    "path": "/modules/exploits/linux/http/cisco_fmc_auth_bypass_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/cisco_fmc_auth_bypass_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "unreliable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_linux/http/cisco_hyperflex_file_upload_rce": {
     "name": "Cisco HyperFlex HX Data Platform unauthenticated file upload to RCE (CVE-2021-1499)",
     "fullname": "exploit/linux/http/cisco_hyperflex_file_upload_rce",
