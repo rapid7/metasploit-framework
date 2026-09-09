@@ -28,6 +28,8 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - Multiline block comments are acceptable for embedded code snippets/payloads
 - Don't use `get_`/`set_` prefixes for accessor-style methods in new code (Ruby convention: use the attribute name directly, e.g. `def version` not `def get_version`)
 - Method parameter names must be at least 2 characters (exception for well-known crypto abbreviations)
+- Keep method return contracts consistent. A method should return the same type and data shape on every successful path, including cached and uncached paths. Use a documented exception or unambiguous sentinel for failure, and ensure every caller handles it; don't return a `String` on one path and a `Hash` on another
+- Remove unused variables, options, mixins, methods, unreachable statements, obsolete branches, and debugging remnants. Before removing apparently dead library code, confirm it is not a public API or used by an external consumer
 
 ## Reuse Before Implementing
 
@@ -40,6 +42,12 @@ Before writing anything from scratch, confirm the functionality doesn't already 
 5. **Implement it yourself.** Only when nothing above matches. Prefer putting reusable logic in a library under `lib/` (separate from the module code) when it's feasible and makes sense, rather than embedding it directly in a module.
 
 This applies to both module and library work. For modules specifically, also check that no existing module or open pull request already covers the same functionality before starting.
+
+Keep shared defaults, ports, addresses, protocol values, and duplicated behavior in one authoritative constant or helper owned by the relevant component. All consumers should reference that source rather than copying values or lookup tables that can drift apart.
+
+## Backward Compatibility
+
+Treat public library methods, module names and options, option aliases, and documented return shapes as compatibility surfaces. Before renaming, removing, or changing them, search the repository and known external consumers such as Metasploit Pro. Prefer aliases, compatibility wrappers, module deprecation/replacement metadata, and backward-compatible defaults. When a breaking change is unavoidable, document the impact and migration path explicitly.
 
 ## Module Structure Templates
 
@@ -256,6 +264,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - Exploits require a `DisclosureDate` field
 - Exploits, auxiliary, and post modules require `Notes` with `Stability`, `SideEffects`, and `Reliability`
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
+- Define `Rank` only on exploit modules. Rank describes exploit reliability; auxiliary, post, login-scanner, and other non-exploit modules must not declare it
 - Credit everyone listed in the module's `Author` field with an inline comment describing their contribution, such as `# Metasploit module`, `# Vulnerability discovery`, `# Vulnerability research`, or `# PoC`. Distinguish implementation from discovery rather than implying that every listed author performed the same role
 - Determine the affected and fixed version ranges when possible, and keep them consistent across the module description, version-specific targets, `check` logic, and module documentation. Account for products that publish different fixed builds for separate release branches
 - Module descriptions should only use ASCII characters
@@ -284,6 +293,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 
 - When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
 - When a module creates files or directories on the target, include `Msf::Exploit::FileDropper` and call `register_file_for_cleanup` or `register_dir_for_cleanup` after each artifact has been created successfully. Let the mixin perform session cleanup instead of duplicating it manually unless the target requires special removal logic
+- For non-file state, or when cleanup must work even if no session opens, implement a guarded `cleanup` method and retain only the state needed for removal in instance variables. Prefer removal through the target API or vulnerability when that is more reliable than session cleanup. Report cleanup failures and continue the cleanup chain; don't call `fail_with` from `cleanup`
 - When opening a file, make sure the file exists first
 - When you deliberately print a host and port (e.g. a callback address or a secondary host), format it with `#{Rex::Socket.to_authority(ip, port)}` rather than `#{ip}:#{port}`, which doesn't handle IPv6 addresses. This is about correctly formatting a host you intentionally include — it is separate from the Console Output rule against prefixing every message with the target host:port
 - Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios
@@ -294,13 +304,19 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - Failure and error messages should identify the operation that failed, not only the returned status or exception. When useful, tell the operator which prerequisite, target state, or datastore option can resolve the problem. Do not silently discard rescued cleanup or disconnect errors; report them at an appropriate verbosity
 - Call `report_service` when a service can be reported
 - Call `report_vuln` when a vulnerability can be reported
+- Persist credentials that a module discovers, validates, or creates using `store_valid_credential` or the appropriate credential-reporting API. Include the relevant service, origin, status, and proof context rather than only printing the credential
 - When creating a fake account / username use the `Faker` gem (e.g. `Faker::Internet.username`) not `Rex::Text.rand_text_alphanumeric`
+
+### Module Error Handling
+
+- Rescue only the specific exceptions an operation is expected to raise. Convert expected module failures into an appropriate `CheckCode` from `check`, or `fail_with` from `run`/`exploit`; keep operator output concise and preserve exception details for developers with `elog('Context', error: e)`. Do not print raw backtraces or silently discard an exception by returning `nil`
 
 ### Session and Post-Exploitation
 
 - Use `create_process(executable, args: [], time_out: 15, opts: {})` instead of the deprecated `cmd_exec` with separate arguments
 - Use `Msf::OptionalSession` for modules that work both with and without an existing session (e.g. local exploits that can also run standalone)
 - Use the module mixin APIs — don't reinvent the wheel (see the Reuse Before Implementing section)
+- Declare only session types the module actually supports, and test every declared `SessionTypes` value. Meterpreter, command shell, and PowerShell sessions expose different APIs, quoting behavior, and output; payload compatibility alone does not prove post-module compatibility
 
 ### Internationalization Considerations
 
@@ -378,12 +394,14 @@ register_advanced_options([
 
 - Use `SCREAMING_SNAKE_CASE` for standard option names and `CamelCase` for advanced option names
 - Access options via `datastore['OPTION_NAME']`
+- Model each value with the most specific option type: use `OptEnum` for a fixed set, `OptInt`/`OptPort` for numeric values, `OptBool` for booleans, `OptPath` for local paths, and `OptAddress` for addresses. Requiredness and defaults must reflect actual runtime behavior; add validation for constrained strings and use `conditions:` for action- or mode-specific options. Put specialist or rarely changed controls in advanced options
 - Do not re-register an option already owned by a mixin solely to change its default. Set the default through `DefaultOptions` or the module info hash; re-register only when intentionally providing a more specific description, validation, or constraint
 
 ### Console Output
 
 - Use `print_status`, `print_good`, `print_error`, `print_warning` for console output
 - Use `vprint_*` variants for verbose-only output (shown when user sets `VERBOSE true`)
+- Use `vprint_*` for routine per-target or per-credential attempts, expected negative results, and diagnostic details. Reserve normal errors and warnings for conditions the operator should act on
 - Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` when the `Tcp` mixin or a scanner mixin is included — those mixins override `print_prefix` to auto-prepend host:port, so a manual prefix is redundant
 - Note: `Msf::Exploit::Remote::HttpClient` does NOT include `Tcp` and does not auto-prepend host:port on its own. In an `HttpClient`-only module, `print_prefix` resolves to `Msf::Module::UI::Message#print_prefix` (timestamp/module-name only, both off by default), so a manual `#{peer}`/`#{rhost}:#{rport}` prefix is NOT redundant there. Many modules still omit it for consistency, but it is not a correctness issue.
 
@@ -411,6 +429,7 @@ version = html.at_css('meta[name="version"]')&.[]('content')
 - Use `res.get_html_document` with CSS selectors for HTML parsing
 - Check `res` for nil (target didn't respond) before accessing `.code` or `.body`
 - Use `fail_with(Failure::*, 'reason')` for error conditions in `exploit`/`run`
+- Join request-path components with `normalize_uri` rather than manual string concatenation. Use `full_uri` when generating an absolute URL so the scheme, non-default port, virtual host, and IPv6 authority are formatted correctly; keep query parameters in `vars_get`/`vars_post` instead of embedding them in path components
 - `send_request_cgi` uses a 20-second timeout by default, and users can adjust the mixin's `HttpClientTimeout`. Omit per-request timeout values unless the operation requires different behavior; if it does, make the distinct timeout user-configurable and explain why it differs
 
 ### Network Operations
@@ -418,6 +437,7 @@ version = html.at_css('meta[name="version"]')&.[]('content')
 - Use `send_request_cgi` for HTTP requests in modules
 - Use `connect` / `disconnect` for TCP socket operations
 - Use the `srvhost` method to access the server host — don't use `datastore['SRVHOST']` directly (enforced by `Lint/DatastoreSrvhostUsage` cop)
+- For eventually consistent operations, use `Msf::Exploit::Retry.retry_until_truthy` or the appropriate bounded polling helper with incremental backoff. Avoid unconditional sleeps and hand-written attempt loops so fast targets continue immediately while slow targets retain sufficient time
 
 ## Legacy Patterns (Migration Guidance)
 
