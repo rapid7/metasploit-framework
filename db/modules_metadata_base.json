@@ -63765,6 +63765,66 @@
       }
     ]
   },
+  "auxiliary_server/relay/esc8_kerberos": {
+    "name": "ESC8 Relay: SMB to HTTP(S) via Kerberos",
+    "fullname": "auxiliary/server/relay/esc8_kerberos",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Pushpender Rathore"
+    ],
+    "description": "This module creates an SMB server and relays the Kerberos AP-REQ passed to it\n        (for example from a coerced host, CVE-2026-20929) to an AD CS Web Enrollment\n        HTTP endpoint to gain an authenticated connection. Once that connection is\n        established, the module makes an authenticated request for a certificate based\n        on a given template.\n\n        Unlike NTLM, a Kerberos AP-REQ is a complete, self-contained credential bound\n        to the SPN the victim was coerced into requesting, so there is no\n        challenge/response and the relay is a single request. The captured AP-REQ can\n        only be relayed to the service matching that SPN.",
+    "references": [
+      "CVE-2026-20929",
+      "ATT&CK-T1557",
+      "ATT&CK-T1649"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-04 19:03:24 +0000",
+    "path": "/modules/auxiliary/server/relay/esc8_kerberos.rb",
+    "is_install_path": true,
+    "ref_name": "server/relay/esc8_kerberos",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "Relay",
+        "description": "Run SMB ESC8 Kerberos relay server"
+      }
+    ]
+  },
   "auxiliary_server/relay/http_to_ldap": {
     "name": "Microsoft Windows HTTP to LDAP Relay",
     "fullname": "auxiliary/server/relay/http_to_ldap",
