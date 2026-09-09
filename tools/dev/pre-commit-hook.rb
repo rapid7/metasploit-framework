@@ -75,10 +75,24 @@ if files_to_check.empty?
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
 
-  command = %w[bundle exec ruby ./tools/dev/msftidy.rb] + files_to_check
-  msftidy_output, status = ::Open3.capture2(*command)
+  # When RVM is present and the project declares a Ruby version/gemset,
+  # prefix the command with `rvm <target> do` so bundle resolves gems
+  # from the correct gemset rather than the system Ruby's paths.
+  rvm_bin = File.expand_path('~/.rvm/bin/rvm')
+  if File.executable?(rvm_bin) && (File.exist?('.ruby-version') || File.exist?('.ruby-gemset'))
+    ruby_ver = (File.read('.ruby-version').strip rescue nil)
+    gemset   = (File.read('.ruby-gemset').strip   rescue nil)
+    prefix   = [rvm_bin, [ruby_ver, gemset].compact.join('@'), 'do']
+  else
+    prefix   = []
+  end
+
+  gemfile_env = File.exist?('Gemfile.local') ? { 'BUNDLE_GEMFILE' => 'Gemfile.local' } : {}
+
+  command = prefix + %w[bundle exec ruby ./tools/dev/msftidy.rb] + files_to_check
+  msftidy_output, status = ::Open3.capture2(gemfile_env, *command)
   valid = false unless status.success?
-  puts "#{fname} - msftidy check passed" if msftidy_output.empty?
+  puts "msftidy check passed" if msftidy_output.empty? && status.success?
   msftidy_output.each_line do |line|
     puts line
   end
