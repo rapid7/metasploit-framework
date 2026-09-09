@@ -36318,6 +36318,65 @@
       }
     ]
   },
+  "auxiliary_scanner/http/elasticsearch_tika_xfa_xxe": {
+    "name": "Elasticsearch ingest-attachment Apache Tika XFA XXE Local File Read",
+    "fullname": "auxiliary/scanner/http/elasticsearch_tika_xfa_xxe",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2025-08-20",
+    "type": "auxiliary",
+    "author": [
+      "Jean-Marie Bourbon",
+      "Bourbon Offensive Security Services"
+    ],
+    "description": "This module validates CVE-2025-54988 / CVE-2025-66516 through an\n          Elasticsearch ingest pipeline using the attachment processor. It creates\n          a temporary pipeline, submits an in-memory PDF containing crafted XFA data\n          to the _simulate API, extracts a caller-selected local file, and removes\n          the pipeline in an ensure block.\n\n          The target must permit pipeline creation, simulation, and deletion. The\n          default proof file is /etc/hostname. No index or document is created.",
+    "references": [
+      "CVE-2025-54988",
+      "CVE-2025-66516",
+      "URL-https://discuss.elastic.co/t/381427"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 9200,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-08 21:22:11 +0000",
+    "path": "/modules/auxiliary/scanner/http/elasticsearch_tika_xfa_xxe.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/elasticsearch_tika_xfa_xxe",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/elasticsearch_traversal": {
     "name": "ElasticSearch Snapshot API Directory Traversal",
     "fullname": "auxiliary/scanner/http/elasticsearch_traversal",
