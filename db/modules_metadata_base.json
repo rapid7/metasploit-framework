@@ -188089,6 +188089,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_windows/http/nextjs_unauth_rce_cve_2026_75604": {
+    "name": "Next.js Unauthenticated RCE on Windows Servers",
+    "fullname": "exploit/windows/http/nextjs_unauth_rce_cve_2026_75604",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-26",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov",
+      "Bogyeom Lee",
+      "Avishek Sarkar"
+    ],
+    "description": "This module exploits a Remote Code Execution (RCE) vulnerability in Next.js applications\n          hosted on Windows servers. Specifically crafted requests can execute arbitrary code on the target server.\n\n          The affected versions include releases from 13.4.0 up to 15.5.24, and 16.0.0 up to 16.3.3,\n          utilizing both Pages and App Routers without Cache Components.",
+    "references": [
+      "CVE-2026-75604",
+      "URL-https://nextjs.org/blog/august-2026-security-release",
+      "URL-https://github.com/vercel/next.js/security/advisories/GHSA-p293-qw3h-jr36",
+      "URL-https://sybr1d.xyz/posts/nextjs-path-traversal-rce-windows/"
+    ],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Next.js >=13.4 <15.5.24, >=16.0 <16.3.3 / Windows payload"
+    ],
+    "mod_time": "2026-09-09 09:33:06 +0000",
+    "path": "/modules/exploits/windows/http/nextjs_unauth_rce_cve_2026_75604.rb",
+    "is_install_path": true,
+    "ref_name": "windows/http/nextjs_unauth_rce_cve_2026_75604",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "unreliable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_windows/http/northstar_c2_xss_to_agent_rce": {
     "name": "NorthStar C2 XSS to Agent RCE",
     "fullname": "exploit/windows/http/northstar_c2_xss_to_agent_rce",
