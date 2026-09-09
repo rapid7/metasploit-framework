@@ -116,4 +116,52 @@ module Acceptance::Session
       value
     end
   end
+
+  # Output signatures produced when a live session's transport stalls mid-run
+  # (the send never gets a response and the post module is aborted) rather than
+  # when an assertion genuinely fails. These are transient/environmental — a
+  # fresh session on retry typically succeeds — so a run whose ONLY errors match
+  # these is eligible to be re-run instead of failed.
+  # Rex::TimeoutError originates at lib/rex/post/meterpreter/packet_dispatcher.rb.
+  TRANSIENT_SESSION_ERROR_SIGNATURES = [
+    'Rex::TimeoutError: Send timed out',
+    'Post interrupted by the console user'
+  ].freeze
+
+  # A genuine test failure, as emitted by the post/test modules
+  # (test/lib/module_test.rb): every failing assertion calls
+  # `print_error("FAILED: #{msg}")` inside an `it` block, so the line is emitted
+  # WITH the current test-name prefix ("[-] [test name] FAILED: ...") — a plain
+  # '[-] FAILED' substring would miss it. Match the '[-]' error glyph followed by
+  # the 'FAILED:' token allowing any prefix between them, so both the prefixed and
+  # the bare forms are caught. If any of these appear alongside the transient
+  # signatures, the run is NOT a clean transient — it must fail, never be retried.
+  GENUINE_FAILURE_SIGNATURES = [
+    /^\[-\].*FAILED:/
+  ].freeze
+
+  # @param [String] text A line, or block of console output, from a module test run
+  # @return [TrueClass, FalseClass] True if the text contains a known transient
+  #   session-transport timeout signature, false otherwise.
+  def self.transient_session_error?(text)
+    TRANSIENT_SESSION_ERROR_SIGNATURES.any? { |sig| text.to_s.include?(sig) }
+  end
+
+  # Classifies a completed module-test run for retry eligibility. A run is only
+  # retryable when it exhibited a transient session error AND produced no genuine
+  # failure line — i.e. the transport stalled, it was not a real assertion failure.
+  #
+  # @param [String] test_result The full captured console output of the run
+  # @return [TrueClass, FalseClass] True if the run may be retried on a fresh session.
+  def self.retryable_transient_failure?(test_result)
+    text = test_result.to_s
+    # Match per line: the '[-] ... FAILED:' signature is line-anchored, and a
+    # genuine failure on any line disqualifies the whole run from retry.
+    genuine = text.each_line.any? do |line|
+      GENUINE_FAILURE_SIGNATURES.any? { |sig| line.match?(sig) }
+    end
+    return false if genuine
+
+    transient_session_error?(text)
+  end
 end
