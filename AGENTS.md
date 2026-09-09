@@ -26,8 +26,20 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - No enforced line length limit, but keep code readable
 - Use `%q{}` for long multi-line strings (curly braces preferred for module descriptions)
 - Multiline block comments are acceptable for embedded code snippets/payloads
-- Don't use `get_`/`set_` prefixes for accessor methods in new code
+- Don't use `get_`/`set_` prefixes for accessor-style methods in new code (Ruby convention: use the attribute name directly, e.g. `def version` not `def get_version`)
 - Method parameter names must be at least 2 characters (exception for well-known crypto abbreviations)
+
+## Reuse Before Implementing
+
+Before writing anything from scratch, confirm the functionality doesn't already exist. Work through these options in order and stop at the first one that fits:
+
+1. **Reuse Framework code.** Search the code base for an existing library, class, mixin, or helper that already provides the functionality (`lib/msf/`, `lib/rex/`, `lib/metasploit/`, and the existing module mixins). Prefer the framework mixin APIs over hand-rolled equivalents.
+2. **Enhance existing Framework code.** If something close exists but is incomplete, extend the existing library/mixin rather than duplicating it.
+3. **Reuse an existing dependency.** Check whether a gem already listed as a dependency (see `Gemfile` / `metasploit-framework.gemspec`) can do the job.
+4. **Add a new gem.** If no current dependency fits, evaluate whether a new, well-maintained gem covers the requirement.
+5. **Implement it yourself.** Only when nothing above matches. Prefer putting reusable logic in a library under `lib/` (separate from the module code) when it's feasible and makes sense, rather than embedding it directly in a module.
+
+This applies to both module and library work. For modules specifically, also check that no existing module or open pull request already covers the same functionality before starting.
 
 ## Module Structure Templates
 
@@ -213,7 +225,7 @@ The same `Stability`, `SideEffects`, and `Reliability` constants apply uniformly
 
 The inline comments in the templates above list common values but are **not exhaustive**. Consult these source files for the full set:
 
-| Field | Source File | Notes |
+| Field | Source File | Details |
 |-------|------------|-------|
 | Platform | [`lib/msf/core/module/platform.rb`](lib/msf/core/module/platform.rb) | Class hierarchy — use the lowercase short name (e.g. `'linux'`, `'win'`, `'osx'`) |
 | Arch | [`rex-arch` gem](https://github.com/rapid7/rex-arch/blob/master/lib/rex/arch.rb) | Constants like `ARCH_CMD`, `ARCH_X86`, `ARCH_X64`, `ARCH_PHP` etc. |
@@ -233,9 +245,9 @@ Follow this order for includes and prepends in module classes:
 
 AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedError` if included). It wraps the `exploit`/`run` method to automatically call `check` before exploitation.
 
-### Module Development
+## Module Development
 
-#### Metadata and Structure
+### Metadata and Structure
 
 - Prefer writing modules in Ruby. Go and Python modules are accepted, but their external runtimes don't support the full framework API (e.g. network pivoting). Ruby modules do not have this limitation
 - Prefer using hash over an array for return values, and use kwargs for reusable APIs for future extensions
@@ -249,9 +261,9 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. If a Dockerfile or docker-compose file is used for the test environment, include the setup commands in the markdown rather than committing separate Docker files. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
 - If there's only one `ACTION` in the exploit, it can likely be omitted
 
-#### Payloads and Targets
+### Payloads and Targets
 
-- When possible don't set a default payload (`DefaultOptions` with `'PAYLOAD'`) in modules — let the framework choose the most appropriate payload automatically
+- When possible don't set a default payload (`DefaultOptions` with `'PAYLOAD'`) in modules — let the framework choose the most appropriate payload automatically; only hardcode one when the module genuinely works with a single specific payload
 - Define bad characters instead of explicitly base-64 encoding payloads
 - Don't check the number of sessions at the end of an exploit and report success based on that — not all payloads open sessions
 - Don't submit any kind of opaque binary blob — everything must include source code and build instructions
@@ -265,78 +277,77 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 | File write possible on target | Use dropper/EXE payload (`Msf::Exploit::EXE`) |
 | Full command stager needed (multi-step upload) | Use `Msf::Exploit::CmdStager` — but prefer fetch when only download mechanisms are available |
 
-#### File and Network Operations
+### File and Network Operations
 
 - When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
 - When opening a file, make sure the file exists first
-- Don't print host information like `#{ip}:#{port}` because it doesn't handle IPv6 addresses — use `#{Rex::Socket.to_authority(ip, port)}`
+- When you deliberately print a host and port (e.g. a callback address or a secondary host), format it with `#{Rex::Socket.to_authority(ip, port)}` rather than `#{ip}:#{port}`, which doesn't handle IPv6 addresses. This is about correctly formatting a host you intentionally include — it is separate from the Console Output rule against prefixing every message with the target host:port
 - Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios
 
-#### Output and Reporting
+### Output and Reporting
 
 - All `print_*` calls should start with a capital letter
 - Call `report_service` when a service can be reported
 - Call `report_vuln` when a vulnerability can be reported
 - When creating a fake account / username use the `Faker` gem (e.g. `Faker::Internet.username`) not `Rex::Text.rand_text_alphanumeric`
 
-#### Session and Post-Exploitation
+### Session and Post-Exploitation
 
 - Use `create_process(executable, args: [], time_out: 15, opts: {})` instead of the deprecated `cmd_exec` with separate arguments
 - Use `Msf::OptionalSession` for modules that work both with and without an existing session (e.g. local exploits that can also run standalone)
-- Use the module mixin APIs — don't reinvent the wheel
+- Use the module mixin APIs — don't reinvent the wheel (see the Reuse Before Implementing section)
 
-#### Internationalisation Considerations
+### Internationalization Considerations
 
 - When checking for a string in a response — will it always be in English?
 - Ensure hardcoded strings being regex'ed will be consistent across multiple versions
 
-### Check Methods
+## Check Methods
 
 - `check` methods must only return `CheckCode` values (e.g. `CheckCode::Vulnerable`, `CheckCode::Safe`) — never raise exceptions or call `fail_with`
 - When writing a `check` method, verify it does not produce false positives when run against unrelated software or services
 - Prefer using `Rex::Version` for version checks
 - Use `fail_with(Failure::UnexpectedReply, '...')` (and other `Failure::*` constants) to bail out of `exploit`/`run` methods — don't use `raise` or bare `return` for error conditions
-- `get_version` methods should return a REX version
-- `CheckCode::Vulnerable` is only used when the vulnerability has been exploited
-- `CheckCode::Appears` is only used when the application's version has been checked
+- Any method that returns, gathers, or compares version numbers must use a REX version (`Rex::Version`)
+- `CheckCode::Vulnerable` is only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability.
+- `CheckCode::Appears` is only used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnerable.
 - Always provide a human-readable reason string when returning a CheckCode, e.g. `CheckCode::Safe("Target is running patched version #{version}")` — never return a bare constant or empty call
 - Use specific regular expressions or `res.get_html_document` for version extraction with CSS selectors. Don't use generic selectors like `href .*` to grab the version — be more precise
 - Catch exceptions that may be raised and ensure a valid CheckCode is returned
 - Research and determine a minimum version where the application is vulnerable; mark prior versions as safe
 - Check helper methods used by both `#check` and `#exploit` (or `#run`) — ensure there is no condition (exception, return, etc.) where `#check` could return something other than a CheckCode
-- Prefer `prepend Msf::Exploit::Remote::AutoCheck` over manually calling `check` inside `exploit` — this lets the framework handle check-before-exploit automatically
+- Prefer `prepend Msf::Exploit::Remote::AutoCheck` over manually calling `check` inside `exploit` (see the Mixin Ordering section)
 
-### Library Code
+## Library Code
 
 When writing or modifying code in `lib/`:
 
-#### Error Handling
+### Error Handling
 - Use specific error classes (`Rex::RuntimeError`, `Rex::ConnectionError`, `ArgumentError`, `Rex::TimeoutError`) — never `raise "bare string"` which makes targeted rescue impossible
 - Use `rescue StandardError => e` or a more specific class — never bare `rescue` (it discards the exception object, making debugging impossible) and never `rescue Exception` (it catches `SignalException` and `SystemExit`, hiding Ctrl-C and kill signals)
 - Propagate errors with context: `raise Rex::ConnectionError, "Failed to connect to #{host}: #{e.message}"`
 
-#### Documentation and Style
+### Documentation and Style
 - Add YARD `@param` and `@return` tags to all public methods
-- Add `# frozen_string_literal: true` to new library files
-- Avoid `get_`/`set_` prefixes for accessor-style methods in new code (Ruby convention: use the attribute name directly, e.g. `def version` not `def get_version`)
 - Link to the specification or RFC when implementing binary/protocol parsers
+- Note: new library files also need `# frozen_string_literal: true`, and the no-`get_`/`set_` accessor convention applies here too (see Coding Conventions)
 
-#### Quality
-- Write RSpec tests for any library changes — tests live in `spec/` mirroring the `lib/` structure
+### Quality
+- Write RSpec tests for any library changes (see the Testing section)
 - Follow [Better Specs](https://www.betterspecs.org/) conventions
 - Keep PRs focused — small fixes are easier to review
 - Any new hash cracking implementations require adding a test hash to `tools/dev/hash_cracker_validator.rb` and ensuring that passes without error
 
-### Testing
+## Testing
 
 - Tests live in `spec/` mirroring the `lib/` structure
 - Run a single spec file: `bundle exec rspec spec/path/to/spec.rb`
 - Run a single example by line: `bundle exec rspec spec/path/to/spec.rb:42`
 - Run the full suite: `bundle exec rake spec` (slow — prefer targeted runs during development)
-- Module functional tests live under `spec/modules/` and test end-to-end behaviour
+- Module functional tests live under `spec/modules/` and test end-to-end behavior
 - Always run specs relevant to your change before submitting
 
-### Preferred Libraries
+## Preferred Libraries
 
 - Use the `RubySMB` library for SMB modules
 - Use `Rex::Stopwatch.elapsed_time` to track elapsed time
@@ -367,7 +378,9 @@ register_advanced_options([
 
 - Use `print_status`, `print_good`, `print_error`, `print_warning` for console output
 - Use `vprint_*` variants for verbose-only output (shown when user sets `VERBOSE true`)
-- Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` — the framework auto-prepends host:port via `print_prefix` when the `Tcp` mixin (or `HttpClient`) is included
+- Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` when the `Tcp` mixin or a scanner mixin is included — those mixins override `print_prefix` to auto-prepend host:port, so a manual prefix is redundant
+- Note: `Msf::Exploit::Remote::HttpClient` does NOT include `Tcp` and does not auto-prepend host:port on its own. In an `HttpClient`-only module, `print_prefix` resolves to `Msf::Module::UI::Message#print_prefix` (timestamp/module-name only, both off by default), so a manual `#{peer}`/`#{rhost}:#{rport}` prefix is NOT redundant there. Many modules still omit it for consistency, but it is not a correctness issue.
+
 
 ### HTTP Response Handling
 
@@ -405,10 +418,9 @@ These patterns exist in older code but should not be used in new modules or libr
 
 | Legacy Pattern | Modern Replacement | Notes |
 |---------------|-------------------|-------|
-| `print_status("#{peer} - message")` | `print_status("message")` | The framework auto-prepends host:port via `print_prefix`; also applies to `#{rhost}:#{rport}`, `#{ip}:#{rport}`, `#{Rex::Socket.to_authority(...)}` at message start. Enforced by `Lint/RedundantPeerInPrint` cop |
+| `print_status("#{peer} - message")` | `print_status("message")` | When the `Tcp` mixin or a scanner mixin is included, `print_prefix` auto-prepends host:port; also applies to `#{rhost}:#{rport}`, `#{ip}:#{rport}`, `#{Rex::Socket.to_authority(...)}` at message start. Enforced by `Lint/RedundantPeerInPrint` cop. NOTE: the cop is syntactic and does not inspect the mixin chain, so it may false-positive on `HttpClient`-only modules, which do not auto-prepend host:port |
 | `HttpFingerprint = { :pattern => [...] }` | Implement a `check` method + `prepend AutoCheck` | HttpFingerprint is a passive fingerprinting mechanism that predates the check API |
-| `cmd_exec("command #{user_input}")` | `create_process("command", args: [user_input])` | String interpolation in cmd_exec is a command injection risk; create_process separates executable from arguments by design |
-| `cmd_exec(cmd, args_string, timeout)` | `create_process(cmd, args: args_array, time_out: timeout)` | Enforced by `Lint/DetectOutdatedCmdExecApi` rubocop cop |
+| `cmd_exec("command #{user_input}")` or `cmd_exec(cmd, args_string, timeout)` | `create_process("command", args: [user_input], time_out: timeout)` | String interpolation in `cmd_exec` is a command injection risk; `create_process` separates the executable from its arguments by design. The multi-arg `cmd_exec` form is also flagged by the `Lint/DetectOutdatedCmdExecApi` cop |
 | `DefaultOptions => { 'PAYLOAD' => '...' }` | Remove — let the framework choose automatically | Only acceptable when the module genuinely only works with a single specific payload |
 | `include Msf::Exploit::Remote::AutoCheck` | `prepend Msf::Exploit::Remote::AutoCheck` | Include raises NotImplementedError; prepend is required |
 | Bare `rescue` in library code | `rescue StandardError => e` | Bare rescue discards the exception object; `rescue Exception` is worse — it catches signals/exits |
