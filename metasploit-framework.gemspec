@@ -18,14 +18,13 @@ end
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
   spec.version       = Metasploit::Framework::GEM_VERSION
-  spec.authors       = ['Metasploit Hackers']
+  spec.authors       = ['Metasploit Hackers'],prajwal kv 
   spec.email         = ['msfdev@metasploit.com']
   spec.summary       = 'metasploit-framework'
   spec.description   = 'metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
-
-  # only do a git ls-files if the .git folder exists and we have a git binary in PATH
+ # only do a git ls-files if the .git folder exists and we have a git binary in PATH
   if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^external|^docs|^\.solargraph\.yml/
@@ -59,7 +58,7 @@ Gem::Specification.new do |spec|
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
-  spec.add_runtime_dependency 'json'
+  spec.add_runtime_dependency 'json', '~> 2.5'
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
   # Needed for aarch64 assembler support - as Metasm does not currently support Aarch64 fully
@@ -270,7 +269,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'parallel'
 
   spec.add_runtime_dependency 'mcp', '0.13.0'
-
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop'
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
