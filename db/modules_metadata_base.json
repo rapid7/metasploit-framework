@@ -88076,6 +88076,71 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/sonicwall_sma1000_couchdb_rce": {
+    "name": "SonicWall SMA1000 WorkPlace SSRF to Root Remote Code Execution",
+    "fullname": "exploit/linux/http/sonicwall_sma1000_couchdb_rce",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-09-01",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7",
+      "William Perry",
+      "Adam Babis"
+    ],
+    "description": "This module chains three issues in SonicWall SMA1000 appliances. An\n          unauthenticated, absolute-form OPTIONS request makes the WorkPlace\n          listener act as an unintended forward proxy (CVE-2026-83548). The\n          module uses this access and a vendor-installed CouchDB update handler\n          to obtain read and write access to loopback CouchDB (SMA1000-9427),\n          then enables CouchDB's native Erlang query server and executes one\n          command as the couchdb service account.\n\n          That command derives the appliance-local ctrl-service credential and\n          invokes sysCtrl.execCmsSnmpTrap. A command injection in the SNMP trap\n          script (CVE-2026-83549) executes the selected command as root.\n\n          The module attempts to restore the original CouchDB logger\n          configuration, remove its injected INI data, disable the Erlang query\n          server, and delete its randomized CouchDB documents. SonicWall fixed\n          the issues in platform hotfixes 12.4.3-03526 and 12.5.0-02952.",
+    "references": [
+      "CVE-2026-83548",
+      "CVE-2026-83549",
+      "URL-https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2026-0016",
+      "URL-https://www.sonicwall.com/support/notices/product-notice-sma-1000-series-affected-by-multiple-vulnerabilities-snwlid-2026-0016/kA1VN000002AXmQ0AW",
+      "URL-https://software.sonicwall.com/PFORMSMAHOTFIX/Documentation/TechNotepform-hotfix-12.5.0-02952.txt",
+      "URL-https://www.rapid7.com/blog/post/etr-critical-sonicwall-sma1000-vulnerabilities-cve-2026-83548-cve-2026-83549-exploited-in-the-wild/"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-09 15:07:31 +0000",
+    "path": "/modules/exploits/linux/http/sonicwall_sma1000_couchdb_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/sonicwall_sma1000_couchdb_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/sonicwall_sma1000_wsproxy_rce": {
     "name": "SonicWall SMA1000 WorkPlace wsproxy SSRF Remote Command Execution",
     "fullname": "exploit/linux/http/sonicwall_sma1000_wsproxy_rce",
