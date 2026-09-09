@@ -20,6 +20,27 @@ module Rex
         def on_credential(credential, source: nil)
           nil
         end
+
+        # @param metadata [Hash] Structured AP-REQ construction trace context.
+        def on_ap_req(metadata)
+          nil
+        end
+
+        # @param metadata [Hash] Structured GSS-Kerberos token wrapping trace context.
+        def on_gss_token(metadata)
+          nil
+        end
+
+        # @param metadata [Hash] Structured SPNEGO token wrapping trace context.
+        def on_spnego_token(metadata)
+          nil
+        end
+
+        # @param metadata [Hash] Structured service-authentication response token trace context.
+        def on_response_token(metadata)
+          nil
+        end
+
       end
     end
   end
