@@ -256,15 +256,18 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - Exploits require a `DisclosureDate` field
 - Exploits, auxiliary, and post modules require `Notes` with `Stability`, `SideEffects`, and `Reliability`
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
-- Module descriptions or documentation should list the range of vulnerable versions and the fixed version of the affected software, when known
+- Credit everyone listed in the module's `Author` field with an inline comment describing their contribution, such as `# Metasploit module`, `# Vulnerability discovery`, `# Vulnerability research`, or `# PoC`. Distinguish implementation from discovery rather than implying that every listed author performed the same role
+- Determine the affected and fixed version ranges when possible, and keep them consistent across the module description, version-specific targets, `check` logic, and module documentation. Account for products that publish different fixed builds for separate release branches
 - Module descriptions should only use ASCII characters
 - New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. If a Dockerfile or docker-compose file is used for the test environment, include the setup commands in the markdown rather than committing separate Docker files. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
+- Add a nearby comment for non-obvious application-specific constants, salts, offsets, fixed names or paths, double encoding, compatibility workarounds, and intentional hardcoding. Explain why the value or workaround is required and link to its source when available; don't merely restate obvious code
 - If there's only one `ACTION` in the exploit, it can likely be omitted
 
 ### Payloads and Targets
 
 - When possible don't set a default payload (`DefaultOptions` with `'PAYLOAD'`) in modules — let the framework choose the most appropriate payload automatically; only hardcode one when the module genuinely works with a single specific payload
 - Define bad characters instead of explicitly base-64 encoding payloads
+- Randomize application-visible names, labels, and identifiers when practical to reduce exploit signatures. Use `Faker` for realistic values and `Rex::RandomIdentifier::Generator` with the correct runtime language for identifiers embedded in generated code; don't generate identifiers that can be language keywords
 - Don't check the number of sessions at the end of an exploit and report success based on that — not all payloads open sessions
 - Don't submit any kind of opaque binary blob — everything must include source code and build instructions
 
@@ -280,6 +283,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 ### File and Network Operations
 
 - When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
+- When a module creates files or directories on the target, include `Msf::Exploit::FileDropper` and call `register_file_for_cleanup` or `register_dir_for_cleanup` after each artifact has been created successfully. Let the mixin perform session cleanup instead of duplicating it manually unless the target requires special removal logic
 - When opening a file, make sure the file exists first
 - When you deliberately print a host and port (e.g. a callback address or a secondary host), format it with `#{Rex::Socket.to_authority(ip, port)}` rather than `#{ip}:#{port}`, which doesn't handle IPv6 addresses. This is about correctly formatting a host you intentionally include — it is separate from the Console Output rule against prefixing every message with the target host:port
 - Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios
@@ -287,6 +291,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 ### Output and Reporting
 
 - All `print_*` calls should start with a capital letter
+- Failure and error messages should identify the operation that failed, not only the returned status or exception. When useful, tell the operator which prerequisite, target state, or datastore option can resolve the problem. Do not silently discard rescued cleanup or disconnect errors; report them at an appropriate verbosity
 - Call `report_service` when a service can be reported
 - Call `report_vuln` when a vulnerability can be reported
 - When creating a fake account / username use the `Faker` gem (e.g. `Faker::Internet.username`) not `Rex::Text.rand_text_alphanumeric`
@@ -373,6 +378,7 @@ register_advanced_options([
 
 - Use `SCREAMING_SNAKE_CASE` for standard option names and `CamelCase` for advanced option names
 - Access options via `datastore['OPTION_NAME']`
+- Do not re-register an option already owned by a mixin solely to change its default. Set the default through `DefaultOptions` or the module info hash; re-register only when intentionally providing a more specific description, validation, or constraint
 
 ### Console Output
 
@@ -405,6 +411,7 @@ version = html.at_css('meta[name="version"]')&.[]('content')
 - Use `res.get_html_document` with CSS selectors for HTML parsing
 - Check `res` for nil (target didn't respond) before accessing `.code` or `.body`
 - Use `fail_with(Failure::*, 'reason')` for error conditions in `exploit`/`run`
+- `send_request_cgi` uses a 20-second timeout by default, and users can adjust the mixin's `HttpClientTimeout`. Omit per-request timeout values unless the operation requires different behavior; if it does, make the distinct timeout user-configurable and explain why it differs
 
 ### Network Operations
 
