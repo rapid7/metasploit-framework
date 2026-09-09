@@ -1671,14 +1671,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/jjs_reverse_tcp'
   end
 
-  context 'cmd/windows/smb/aarch64' do
-    it_should_behave_like 'payload is not cached',
-                          ancestor_reference_names: [
-                            'adapters/cmd/windows/smb/aarch64'
-                          ],
-                          reference_name: 'cmd/windows/smb/aarch64'
-  end
-
   context 'cmd/windows/smb/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
