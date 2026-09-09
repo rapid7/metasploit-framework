@@ -32,34 +32,6 @@ blank lines, tabs, and other whitespace are preserved.
 6. Do: `run`
 7. You should get decrypted terminal sessions
 
-### Synthetic regression test
-
-Run the accompanying standalone test with Ruby and macOS `plutil` from the repository root:
-
-```sh
-ruby terminal_save_state_test.rb --seed 21446
-```
-
-The test generates synthetic XML and binary plists and AES-128-CBC records and stubs the framework's session,
-file access, logging, and loot storage. It exercises the module's container mapping, legacy paths,
-UID resolution, tab rows, UTF-8 replacement, working directories, and newest-record selection.
-XML mapping tests cover shell and Meterpreter discovery, malformed inputs, and continued discovery
-after an invalid mapping. Row-rendering tests cover ASCII-space trimming, an LF per row, embedded LFs,
-blank rows, and preservation of other whitespace. Generated fixtures use temporary directories.
-Two complete records for one window, with an oversized embedded plist length in the newer `_NSWindow`
-record, must produce a warning and skip that window without exporting its older snapshot.
-A torn final record instead warns and stops while retaining the preceding complete state.
-The test should report zero failures and zero errors; it does not verify live macOS 15+ artifacts,
-Full Disk Access permissions, or execution inside Metasploit.
-
-### Real saved-state fixture validation
-
-Offline validation against a copied macOS 26.4.1 Terminal fixture resolved the real XML mapping
-in both shell and Meterpreter stubs. Recovered tab text matched the reference extractor for
-326/326 real windows by normalized SHA256 and byte length, with per-tab agreement required.
-This validates discovery and parsing through filesystem stubs, not a live Metasploit session,
-Full Disk Access behavior, iTerm2, other macOS versions, or bitmap recovery.
-
 ## Options
 
 ### USER

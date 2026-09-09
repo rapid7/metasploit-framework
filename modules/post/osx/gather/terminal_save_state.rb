@@ -169,6 +169,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [
           'h00die',                                        # msf module
+          'willmcginnis',                                  # macOS 15+ saved-state recovery
           'Willi Ballenthin <willi.ballenthin@gmail.com>', # PoC
           'kshitij Kumar <kshitij.kumar@crowdstrike.com>'  # PoC
         ],
