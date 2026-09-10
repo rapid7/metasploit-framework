@@ -2243,6 +2243,18 @@ class Core
     # Set PAYLOAD from TARGET
     if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
       active_module.import_target_defaults
+
+      # When switching targets, always try to select the best payload for the new target.
+      # This ensures we upgrade from generic payloads to target-specific ones, and switch
+      # from incompatible payloads to compatible ones.
+      current_payload = active_module.datastore['PAYLOAD']
+      if current_payload
+        chosen_payload = Msf::Payload.choose_payload(active_module)
+        new_payload = active_module.datastore['PAYLOAD']
+        if chosen_payload && new_payload == chosen_payload && new_payload != current_payload
+          print_status("Switching from #{current_payload} to #{chosen_payload}")
+        end
+      end
     end
 
     # If the new SSL value already set in datastore[name] is different from the old value, warn the user

@@ -23,6 +23,11 @@ RSpec.shared_context 'Msf::Simple::Framework' do
   end
 
   after(:example) do
+    # Prevent orphan ThreadManager monitor threads from leaking into later specs.
+    # Framework.new sets Rex::ThreadFactory.provider globally but nothing ever
+    # unsets it, so a later spec calling Rex::ThreadFactory.spawn would lazily
+    # create a new ThreadManager whose monitor thread outlives the example.
+    Rex::ThreadFactory.provider = nil
     FileUtils.rm_rf(dummy_pathname)
   end
 end

@@ -19,7 +19,7 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 ## Coding Conventions
 
-- Ruby (see `.ruby-version` for the current version). Minimum supported: 3.1+
+- Ruby (see `.ruby-version` for the current version). Minimum supported: 3.2+
 - Follow the project's `.rubocop.yml` configuration — run `rubocop` on changed files before submitting
 - Run `ruby tools/dev/msftidy.rb <module_file_path>` to catch common module issues
 - `# frozen_string_literal: true` — add to new **library** files (`lib/`); use `String.new` where a mutable string is needed. Do NOT add to module files or spec files (the framework extensively mutates string buffers via instance variables, and the RuboCop cop `Style/FrozenStringLiteralComment` is disabled project-wide). Existing files that already have it are fine to leave
@@ -367,6 +367,7 @@ register_advanced_options([
 
 - Use `print_status`, `print_good`, `print_error`, `print_warning` for console output
 - Use `vprint_*` variants for verbose-only output (shown when user sets `VERBOSE true`)
+- Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` — the framework auto-prepends host:port via `print_prefix` when the `Tcp` mixin (or `HttpClient`) is included
 
 ### HTTP Response Handling
 
@@ -404,6 +405,7 @@ These patterns exist in older code but should not be used in new modules or libr
 
 | Legacy Pattern | Modern Replacement | Notes |
 |---------------|-------------------|-------|
+| `print_status("#{peer} - message")` | `print_status("message")` | The framework auto-prepends host:port via `print_prefix`; also applies to `#{rhost}:#{rport}`, `#{ip}:#{rport}`, `#{Rex::Socket.to_authority(...)}` at message start. Enforced by `Lint/RedundantPeerInPrint` cop |
 | `HttpFingerprint = { :pattern => [...] }` | Implement a `check` method + `prepend AutoCheck` | HttpFingerprint is a passive fingerprinting mechanism that predates the check API |
 | `cmd_exec("command #{user_input}")` | `create_process("command", args: [user_input])` | String interpolation in cmd_exec is a command injection risk; create_process separates executable from arguments by design |
 | `cmd_exec(cmd, args_string, timeout)` | `create_process(cmd, args: args_array, time_out: timeout)` | Enforced by `Lint/DetectOutdatedCmdExecApi` rubocop cop |
