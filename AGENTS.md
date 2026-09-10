@@ -29,6 +29,10 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 - Don't use `get_`/`set_` prefixes for accessor-style methods in new code (Ruby convention: use the attribute name directly, e.g. `def version` not `def get_version`)
 - Method parameter names must be at least 2 characters (exception for well-known crypto abbreviations)
 - Keep method return contracts consistent. A method should return the same type and data shape on every successful path, including cached and uncached paths. Use a documented exception or unambiguous sentinel for failure, and ensure every caller handles it; don't return a `String` on one path and a `Hash` on another
+- Use `String#include?`, `start_with?`, or `end_with?` for literal substring, prefix, and suffix checks. Reserve regular expressions for pattern matching
+- Use a non-capturing regular expression group (`(?:...)`) when the captured result is not consumed
+- Prefer guard clauses and extracted helpers over deeply nested Ruby conditionals. Split combined checks when each failure needs a distinct reason
+- Avoid mutable global and class variables in modules and libraries. Keep cross-callback execution state in instance variables and method-local state in local variables
 - Remove unused variables, options, mixins, methods, unreachable statements, obsolete branches, and debugging remnants. Before removing apparently dead library code, confirm it is not a public API or used by an external consumer
 
 ## Reuse Before Implementing
@@ -266,9 +270,12 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
 - Define `Rank` only on exploit modules. Rank describes exploit reliability; auxiliary, post, login-scanner, and other non-exploit modules must not declare it
 - Credit everyone listed in the module's `Author` field with an inline comment describing their contribution, such as `# Metasploit module`, `# Vulnerability discovery`, `# Vulnerability research`, or `# PoC`. Distinguish implementation from discovery rather than implying that every listed author performed the same role
+- Include authoritative security advisory and public PoC URLs that informed the module implementation in `References`
 - Determine the affected and fixed version ranges when possible, and keep them consistent across the module description, version-specific targets, `check` logic, and module documentation. Account for products that publish different fixed builds for separate release branches
 - Module descriptions should only use ASCII characters
 - New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. If a Dockerfile or docker-compose file is used for the test environment, include the setup commands in the markdown rather than committing separate Docker files. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
+- Document only module-specific options under `###` headings. Write `No specific options` when the module has no specialist options to document
+- Keep console output in `Scenarios` synchronized with the current module behavior. Use `run verbose=true` when the verbose trace helps operators reproduce or diagnose execution
 - Add a nearby comment for non-obvious application-specific constants, salts, offsets, fixed names or paths, double encoding, compatibility workarounds, and intentional hardcoding. Explain why the value or workaround is required and link to its source when available; don't merely restate obvious code
 - If there's only one `ACTION` in the exploit, it can likely be omitted
 
@@ -310,6 +317,8 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 ### Module Error Handling
 
 - Rescue only the specific exceptions an operation is expected to raise. Convert expected module failures into an appropriate `CheckCode` from `check`, or `fail_with` from `run`/`exploit`; keep operator output concise and preserve exception details for developers with `elog('Context', error: e)`. Do not print raw backtraces or silently discard an exception by returning `nil`
+- Treat helper, parser, and dependency returns as nullable unless their contract guarantees a value. Handle a failure sentinel before dereferencing or otherwise consuming the result
+- Choose the narrowest applicable `Failure::*` value. Reserve `Failure::Unknown` for failures without a more useful root cause
 
 ### Session and Post-Exploitation
 
@@ -317,6 +326,8 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - Use `Msf::OptionalSession` for modules that work both with and without an existing session (e.g. local exploits that can also run standalone)
 - Use the module mixin APIs — don't reinvent the wheel (see the Reuse Before Implementing section)
 - Declare only session types the module actually supports, and test every declared `SessionTypes` value. Meterpreter, command shell, and PowerShell sessions expose different APIs, quoting behavior, and output; payload compatibility alone does not prove post-module compatibility
+- Test every target, action, supported platform, payload delivery family, and optional authentication mode that reaches a distinct Ruby execution path
+- Run state-changing modules at least twice against the same target to verify that per-run state resets and cleanup permit a second execution
 
 ### Internationalization Considerations
 
@@ -329,14 +340,16 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - When writing a `check` method, verify it does not produce false positives when run against unrelated software or services
 - Prefer using `Rex::Version` for version checks
 - Use `fail_with(Failure::UnexpectedReply, '...')` (and other `Failure::*` constants) to bail out of `exploit`/`run` methods — don't use `raise` or bare `return` for error conditions
-- Any method that returns, gathers, or compares version numbers must use a REX version (`Rex::Version`)
-- `CheckCode::Vulnerable` is only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability.
+- Any method that returns, gathers, or compares version numbers of a type supported by REX version (`Rex::Version`) must use a REX version
+- `CheckCode::Vulnerable` is only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output or evidence of a sleep for the required time from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability.
 - `CheckCode::Appears` is only used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnerable.
 - Always provide a human-readable reason string when returning a CheckCode, e.g. `CheckCode::Safe("Target is running patched version #{version}")` — never return a bare constant or empty call
 - Use specific regular expressions or `res.get_html_document` for version extraction with CSS selectors. Don't use generic selectors like `href .*` to grab the version — be more precise
 - Catch exceptions that may be raised and ensure a valid CheckCode is returned
 - Research and determine a minimum version where the application is vulnerable; mark prior versions as safe
 - Check helper methods used by both `#check` and `#exploit` (or `#run`) — ensure there is no condition (exception, return, etc.) where `#check` could return something other than a CheckCode
+- Share stable discovery and authentication used by both `#check` and `#exploit` (or `#run`) through one helper. Cache the result within the module instance when this prevents duplicate target operations
+- Keep `#exploit` and `#run` functional when AutoCheck is disabled. Populate required state without assuming that `#check` already ran
 - Prefer `prepend Msf::Exploit::Remote::AutoCheck` over manually calling `check` inside `exploit` (see the Mixin Ordering section)
 
 ## Library Code
@@ -394,6 +407,7 @@ register_advanced_options([
 
 - Use `SCREAMING_SNAKE_CASE` for standard option names and `CamelCase` for advanced option names
 - Access options via `datastore['OPTION_NAME']`
+- Do not modify datastore options during module execution. Keep normalized, derived, or runtime values in separate local or instance variables so retries and cleanup preserve the operator's configuration
 - Model each value with the most specific option type: use `OptEnum` for a fixed set, `OptInt`/`OptPort` for numeric values, `OptBool` for booleans, `OptPath` for local paths, and `OptAddress` for addresses. Requiredness and defaults must reflect actual runtime behavior; add validation for constrained strings and use `conditions:` for action- or mode-specific options. Put specialist or rarely changed controls in advanced options
 - Do not re-register an option already owned by a mixin solely to change its default. Set the default through `DefaultOptions` or the module info hash; re-register only when intentionally providing a more specific description, validation, or constraint
 
