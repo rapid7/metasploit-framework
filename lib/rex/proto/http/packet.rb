@@ -105,6 +105,11 @@ class Packet
 
       # Continue on to the body if the header was processed
       if(self.state == ParseState::ProcessingBody)
+        max_body_size = opts[:max_body_size]
+        if max_body_size && !transfer_chunked && body_bytes_left > max_body_size
+          raise ArgumentError, "HTTP body is too large (maximum #{max_body_size} bytes)"
+        end
+
         # Chunked encoding sets the parsing state on its own.
         # HEAD requests can return immediately.
         orig_method = opts.fetch(:orig_method) { '' }
@@ -112,6 +117,9 @@ class Packet
           self.state = ParseState::Completed
         else
           parse_body
+          if max_body_size && body.bytesize > max_body_size
+            raise ArgumentError, "HTTP body is too large (maximum #{max_body_size} bytes)"
+          end
         end
       end
     rescue
