@@ -47,7 +47,7 @@ Keep shared defaults, ports, addresses, protocol values, and duplicated behavior
 
 ## Backward Compatibility
 
-Treat public library methods, module names and options, option aliases, and documented return shapes as compatibility surfaces. Before renaming, removing, or changing them, search the repository and known external consumers such as Metasploit Pro. Prefer aliases, compatibility wrappers, module deprecation/replacement metadata, and backward-compatible defaults. When a breaking change is unavoidable, document the impact and migration path explicitly.
+Treat public library methods, module names and options, option aliases, and documented return shapes as compatibility surfaces. Before renaming, removing, or changing them, search the repository and known external consumers. Prefer aliases, compatibility wrappers, module deprecation/replacement metadata, and backward-compatible defaults. When a breaking change is unavoidable, document the impact and migration path explicitly.
 
 ## Module Structure Templates
 
