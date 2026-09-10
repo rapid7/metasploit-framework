@@ -1,0 +1,49 @@
+version: 1
+aliases:
+#  backdoor:
+#    description: Inject a staged Meterpreter payload into a Linux ELF
+#    platforms:
+#      - linux
+#    module: exploit/linux/persistence/elf
+#    positional:
+#      - option: ELF_PATH
+#        required: true
+#    defaults:
+#      PrependExecOnce: false
+#    switches:
+#      "-x":
+#        description: Run the injected payload once per boot
+#        options:
+#          PrependExecOnce: true
+#          PayloadLinuxMinKernel: "3.17"
+#    architecture_options:
+#      source: sysinfo
+#      values:
+#        x64:
+#          TARGET: 0
+#          PAYLOAD: linux/x64/meterpreter/reverse_tcp
+#        x86:
+#          TARGET: 1
+#          PAYLOAD: linux/x86/meterpreter/reverse_tcp
+#        aarch64:
+#          TARGET: 2
+#          PAYLOAD: linux/aarch64/meterpreter/reverse_tcp
+#
+  execute-assembly:
+    description: Execute a .NET assembly in memory
+    platforms:
+      - windows
+    module: post/windows/manage/execute_dotnet_assembly
+    positional:
+      - option: DOTNET_EXE
+        required: true
+      - option: ARGUMENTS
+        required: false
+
+  enum_persistence:
+    description: Suggest persistence modules for the current session
+    platforms:
+      - linux
+      - osx
+      - windows
+    module: post/multi/recon/persistence_suggester
