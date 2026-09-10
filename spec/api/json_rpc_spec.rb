@@ -731,7 +731,7 @@ RSpec.describe "Metasploit's json-rpc" do
       #   end
       # end
       
-            context 'when payloads requirements are specified' do
+      context 'when payloads requirements are specified' do
         it 'returns the list of known modules associated with a reported host' do
           report_host(host)
           expect(last_response).to be_ok
