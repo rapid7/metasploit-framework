@@ -730,70 +730,72 @@ RSpec.describe "Metasploit's json-rpc" do
       #     expect(last_json_response).to include(expected_response)
       #   end
       # end
-      context 'when payloads requirements are specified' do
-  it 'returns the list of known modules associated with a reported host' do
-    report_host(host)
-    expect(last_response).to be_ok
+      
+            context 'when payloads requirements are specified' do
+        it 'returns the list of known modules associated with a reported host' do
+          report_host(host)
+          expect(last_response).to be_ok
 
-    report_vuln(vuln)
-    expect(last_response).to be_ok
+          report_vuln(vuln)
+          expect(last_response).to be_ok
 
-    expected_response = {
-      jsonrpc: '2.0',
-      result: {
-        host: {
-          address: host_ip,  # Use the generated host_ip, not a hard-coded address
-          modules: [
-            {
-              mname: "exploit/windows/smb/ms17_010_eternalblue",
-              mtype: "exploit",
-              options: {
-                invalid: [],
-                missing: [ "payload_match" ],
-              },
-              state: "MISSING_PAYLOAD",
-              description: "none of the requested payloads match"
+          expected_response = {
+            jsonrpc: '2.0',
+            result: {
+              host: {
+                address: host_ip,
+                modules: [
+                  {
+                    mname: "exploit/windows/smb/ms17_010_eternalblue",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: ["payload_match"]
+                    },
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/ms17_010_psexec",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: ["credential", "payload_match"]
+                    },
+                    state: "REQUIRES_CRED",
+                    description: "credentials are required, none of the requested payloads match"
+                  },
+                  {
+                    mname: "exploit/windows/smb/smb_doublepulsar_rce",
+                    mtype: "exploit",
+                    options: {
+                      invalid: [],
+                      missing: ["payload_match"]
+                    },
+                    state: "MISSING_PAYLOAD",
+                    description: "none of the requested payloads match"
+                  }
+                ]
+              }
             },
+            id: 1
+          }
+
+          analyze_host(
             {
-              mname: "exploit/windows/smb/ms17_010_psexec",
-              mtype: "exploit",
-              options: {
-                invalid: [],
-                missing: [ "credential", "payload_match" ],
-              },
-              state: "REQUIRES_CRED",
-              description: "credentials are required, none of the requested payloads match"
-            },
-            {
-              mname: "exploit/windows/smb/smb_doublepulsar_rce",
-              mtype: "exploit",
-              options: {
-                invalid: [],
-                missing: ["payload_match"],
-              },
-              state: "MISSING_PAYLOAD",
-              description: "none of the requested payloads match"
+              workspace: 'default',
+              host: host_ip,
+              analyze_options: {
+                payloads: [
+                  'windows/meterpreter_reverse_http'
+                ]
+              }
             }
-          ]
-        }
-      },
-      id: 1
-    }
+          )
 
-    analyze_host(
-      {
-        workspace: 'default',
-        host: host_ip,
-        analyze_options: {
-          payloads: [
-            'windows/meterpreter_reverse_http'
-          ]
-        }
-      }
-    )
-    expect(last_json_response).to include(expected_response)
-  end
-end
+          expect(last_json_response).to include(expected_response)
+        end
+      end
     end
 
     context 'when there are no modules found' do
