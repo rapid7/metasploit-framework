@@ -258,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
               host: ip,
               name: hostname,
               os_name: os,
-              comments: 'Added from ZoomEye'
+              comments: dork
             )
 
             report_service(
