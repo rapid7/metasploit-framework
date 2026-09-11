@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::SMB::Server::Share
-  include Msf::Exploit::Remote::SMB::Server::HashCapture
   prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
