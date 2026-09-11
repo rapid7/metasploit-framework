@@ -17,6 +17,13 @@ RSpec.describe 'Meterpreter' do
 
   allure_test_environment = AllureRspec.configuration.environment_properties
 
+  # Maximum attempts for a single module-test run before a transient session
+  # timeout is treated as terminal. 2 = one retry: a wedged transport rarely
+  # recovers, so we keep this small to bound added run time (worst case one extra
+  # `recvuntil` window per affected test, only on the rare transient path — the
+  # common green path runs exactly once and adds nothing).
+  MODULE_TEST_MAX_ATTEMPTS = 2
+
   let_it_be(:current_platform) { Acceptance::Session::current_platform }
 
   # @!attribute [r] port_allocator
@@ -105,6 +112,13 @@ RSpec.describe 'Meterpreter' do
           end
 
           let(:executed_payload) do
+            run_payload_process
+          end
+
+          # Spawns a fresh payload process each time it is called (unlike the
+          # memoized `executed_payload` let). The retry loop needs a NEW process per
+          # attempt, so `establish_session!` runs this directly rather than the let.
+          def run_payload_process
             file = File.open(payload_stdout_and_stderr_file.path, 'w')
             driver.run_payload(
               payload,
@@ -118,6 +132,17 @@ RSpec.describe 'Meterpreter' do
           # The shared payload process and session instance that will be reused across the test run
           #
           let(:payload_process_and_session_id) do
+            establish_session!
+          end
+
+          # Establishes a fresh payload + Meterpreter session on the shared console
+          # and returns [payload_process, session_id]. Unlike the memoized
+          # `payload_process_and_session_id` let, this can be called more than once
+          # per example — the transient-timeout retry loop calls it to obtain a NEW
+          # session on each attempt, since a wedged transport never recovers on the
+          # same session. Callers are responsible for tearing down any prior
+          # session/process before re-establishing (see `close_payload_process`).
+          def establish_session!
             console.sendline "use #{payload.name}"
             console.recvuntil(Acceptance::Console.prompt)
 
@@ -137,7 +162,7 @@ RSpec.describe 'Meterpreter' do
 
             console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
             console.recvuntil(/Started (?:reverse TCP|HTTPS? reverse) handler[^\n]*\n/)
-            payload_process = executed_payload
+            payload_process = run_payload_process
             session_id = nil
 
             # Wait for the session to open, or break early if the payload is detected as dead
@@ -159,6 +184,17 @@ RSpec.describe 'Meterpreter' do
             end
 
             [payload_process, session_id]
+          end
+
+          # Best-effort teardown of a payload process between retry attempts, so a
+          # retry does not leak the prior (wedged) session's process. Swallows
+          # errors — the process may already be dead, which is fine.
+          def close_payload_process(payload_process)
+            return if payload_process.blank?
+
+            payload_process.close if payload_process.alive?
+          rescue StandardError
+            # noop — teardown is best-effort; a dead/unresponsive process is expected here
           end
 
           # @param [String] path The file path to read the content of
@@ -383,20 +419,45 @@ RSpec.describe 'Meterpreter' do
                     end)
 
                     use_module = "use #{module_test[:name]}"
-                    run_module = "run session=#{session_id} AddEntropy=true Verbose=true"
-
                     replication_commands << use_module
-                    console.sendline(use_module)
-                    console.recvuntil(Acceptance::Console.prompt)
 
-                    replication_commands << run_module
-                    console.sendline(run_module)
+                    # Run the module test, retrying on a transient session-transport timeout.
+                    #
+                    # Transient-timeout retry (see CI history 2026-08): a stalled session transport
+                    # makes every command raise `Rex::TimeoutError: Send timed out` and the module is
+                    # aborted with `Post interrupted by the console user`. That is environmental, not a
+                    # real assertion failure. A wedged transport never recovers on the SAME session, so
+                    # each retry tears down the dead session/process and establishes a FRESH one before
+                    # re-running (up to MODULE_TEST_MAX_ATTEMPTS). We do NOT lengthen any timeout — the
+                    # recovery is a new session, not a longer wait. A run that produced any genuine
+                    # failure line (`[-] ... FAILED:`, prefixed with the test name) is never retried.
+                    module_test_attempt = 0
+                    test_result = ''
+                    loop do
+                      module_test_attempt += 1
 
-                    # XXX: When debugging failed tests, you can enter into an interactive msfconsole prompt with:
-                    # console.interact
+                      run_module = "run session=#{session_id} AddEntropy=true Verbose=true"
+                      replication_commands << run_module
 
-                    # Expect the test module to complete
-                    test_result = console.recvuntil('Post module execution completed')
+                      console.sendline(use_module)
+                      console.recvuntil(Acceptance::Console.prompt)
+
+                      # XXX: When debugging failed tests, you can enter into an interactive msfconsole prompt with:
+                      # console.interact
+
+                      console.sendline(run_module)
+                      test_result = console.recvuntil('Post module execution completed')
+
+                      break unless Acceptance::Session.retryable_transient_failure?(test_result)
+                      break if module_test_attempt >= MODULE_TEST_MAX_ATTEMPTS
+
+                      # Transient session stall — tear down the wedged session/process and
+                      # re-establish a fresh one before the next attempt so we do not leak it.
+                      warn("[transient-retry] #{module_test[:name]} attempt #{module_test_attempt} hit a transient session timeout; establishing a fresh session and retrying")
+                      close_payload_process(payload_process)
+                      console.reset
+                      payload_process, session_id = establish_session!
+                    end
 
                     # Ensure there are no failures, and assert tests are complete
                     aggregate_failures("#{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests") do

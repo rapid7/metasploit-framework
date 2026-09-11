@@ -121,12 +121,51 @@ jobs:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
 
-      - name: Use setup-php@2.37.0 to install PHP for non-Windows runners
-        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f
+      - name: (DIAG) Pre-setup environment snapshot
+        if: ${{ matrix.meterpreter.name == 'php' && runner.os == 'macOS' }}
+        run: |
+          set -x
+          sw_vers; uname -a; arch
+          echo "PATH=$PATH"
+          which brew php || true
+          brew --version || true
+          brew config || true
+          brew tap || true
+          brew doctor || true
+          echo "--- network reachability (setup-php's brew sources) ---"
+          curl -sS -m 20 -o /dev/null -w '%{http_code} %{time_total}s formulae.brew.sh\n' https://formulae.brew.sh/ || true
+          curl -sS -m 20 -o /dev/null -w '%{http_code} %{time_total}s ghcr.io\n' https://ghcr.io/ || true
+
+      # TEMP DEBUG: verbose tag to capture the internal failure point of the macos-15-intel PHP setup hang.
+      # Restore the SHA pin once diagnosed: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 (2.37.2)
+      - name: Use setup-php@verbose to install PHP for non-Windows runners
+        id: setup_php_nonwin
+        continue-on-error: true
+        uses: shivammathur/setup-php@verbose
         if: ${{ matrix.meterpreter.name == 'php' && runner.os != 'Windows' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
+
+      - name: (DIAG) Post-setup diagnostics
+        if: ${{ always() && matrix.meterpreter.name == 'php' && runner.os == 'macOS' }}
+        run: |
+          set -x
+          which php || true; php -v || true
+          brew list --versions | grep -i php || true
+          ls -la "$(brew --prefix)/opt" 2>/dev/null | grep -i php || true
+          echo "--- setup-php cache / logs ---"
+          ls -la "$RUNNER_TOOL_CACHE" 2>/dev/null || true
+          cat /Users/runner/work/_temp/setup-php*.log 2>/dev/null || echo "no setup-php temp log"
+          echo "--- recent brew logs ---"
+          ls -lat ~/Library/Logs/Homebrew 2>/dev/null | head || true
+          tail -n 200 ~/Library/Logs/Homebrew/*/[0-9]* 2>/dev/null || true
+
+      - name: (DIAG) Fail if PHP setup failed
+        if: ${{ always() && steps.setup_php_nonwin.outcome == 'failure' }}
+        run: |
+          echo "PHP setup failed — see verbose + post-mortem above"
+          exit 1
 
       - name: Set up Python
         if: ${{ matrix.meterpreter.name == 'python' }}
