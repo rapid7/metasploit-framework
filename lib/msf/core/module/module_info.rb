@@ -42,6 +42,15 @@ module Msf::Module::ModuleInfo
     module_info['Name']
   end
 
+  #
+  # Return the module's supported software runtime versions.
+  # For example:
+  # - Windows -> XP_SP1
+  # - Python -> 3.4
+  #
+  def supported_versions
+    module_info['SupportedVersions']
+  end
 
   #
   # Return the module's notes (including AKA and NOCVE descriptors).
