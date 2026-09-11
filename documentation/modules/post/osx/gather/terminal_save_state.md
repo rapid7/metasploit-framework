@@ -1,13 +1,26 @@
 ## Vulnerable Application
 
 This module enumerates the saved state files for the Terminal and iTerm2
-applications on macOS 10.7–12 (Lion through Monterey).
+applications on macOS 10.7-14, and Terminal's daemon-container saved state on macOS 15 and later.
 These files are encrypted with AES-128-CBC, but
 the key is stored in plaintext in the accompanying windows.plist file.
 The decrypted files contain a copy of what was sent to and from the
 terminal, which may include sensitive information.
 
 Tested against macOS 11.7.11.
+
+On macOS 15+, Terminal's saved state is also discovered under
+`~/Library/Daemon Containers/<container UUID>/Data/Library/Saved Application State/`.
+The module reads XML or binary `ApplicationMapping.plist` files to locate Terminal's mapped
+saved-state directory. XML is parsed with Ruby's REXML library; no additional gem is required.
+The same format detection applies to `windows.plist`; decrypted window archives use the binary parser.
+Malformed or unrecognized mapping files produce a verbose warning and are skipped so discovery can continue.
+The process providing the session must have Full Disk Access to read this container path.
+The legacy Terminal and iTerm2 saved-state paths are still checked first.
+
+Recovered tab text trims trailing ASCII spaces from each stored row and adds one LF per row,
+including the final row, to match the reference extractor's rendering. Embedded LFs, internal
+blank lines, tabs, and other whitespace are preserved.
 
 ## Verification Steps
 
