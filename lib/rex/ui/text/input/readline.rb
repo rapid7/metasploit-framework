@@ -24,6 +24,15 @@ begin
 
       self.extend(::Readline)
 
+      if defined?(RbReadline)
+        begin
+          RbReadline.rl_parse_and_bind('"\e[1;5D": backward-word')
+          RbReadline.rl_parse_and_bind('"\e[1;5C": forward-word')
+          RbReadline.rl_parse_and_bind('"\e[3;5~": kill-word')
+        rescue Exception
+        end
+      end
+
       if tab_complete_proc
         ::Readline.basic_word_break_characters = ""
         @rl_saved_proc = with_error_handling(tab_complete_proc)
