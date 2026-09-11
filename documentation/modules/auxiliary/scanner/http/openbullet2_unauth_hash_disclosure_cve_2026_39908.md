@@ -2,15 +2,20 @@
 
 This Metasploit module exploits a Credential Disclosure vulnerability in OpenBullet2 on Windows.
 
-An attacker can force the application to disclose the NTLMv2 hash of the process user by configuring a job proxy source with a malicious UNC path. When the job starts, the application attempts to load proxies from the specified path via SMB, allowing the hash to be captured for offline cracking or relaying.
+An attacker can force the application to disclose the NTLMv2 hash of the
+process user by configuring a job proxy source with a malicious UNC path.
+When the job starts, the application attempts to load proxies from the
+specified path via SMB, allowing the hash to be captured for offline
+cracking or relaying.
 
 The affected versions include releases from 0.2.5.
 
-## Setup
+## Verification Steps
 
 ### Windows
 
-1. Download [OpenBullet2.Web-win-x64.zip](https://github.com/openbullet/OpenBullet2/releases/download/0.3.3.3093/OpenBullet2.Web-win-x64.zip) and unpack
+1. Download [OpenBullet2.Web-win-x64.zip][ob2-win-release]
+and unpack
 2. Run
 ```
 .\OpenBullet2.Web.exe --urls "http://0.0.0.0:5000"
@@ -26,7 +31,11 @@ You need to set it to check bypass.
 3. Turn "Require admin login" on
 4. Save
 
-## Scenario
+## Options
+
+No non-standard options are required to run this module.
+
+## Scenarios
 
 ```
 msf > use scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908
@@ -51,3 +60,5 @@ msf auxiliary(scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908) > 
 [*] Server stopped.
 [*] Auxiliary module execution completed
 ```
+
+[ob2-win-release]: https://github.com/openbullet/OpenBullet2/releases/download/0.3.3.3093/OpenBullet2.Web-win-x64.zip
