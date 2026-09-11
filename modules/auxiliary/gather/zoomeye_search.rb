@@ -258,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
               host: ip,
               name: hostname,
               os_name: os,
-              comments: dork
+              comments: "Zoomeye dork: #{dork}".strip
             )
 
             report_service(
