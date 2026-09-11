@@ -216,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
               :host => ip,
               :name => hostname,
               :os_name => os,
-              :comments => 'Added from Shodan',
+              :comments => query,
               :info => host.dig('info')
             )
             report_service(
