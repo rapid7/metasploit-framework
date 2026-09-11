@@ -1541,6 +1541,8 @@ module Msf
       @@runtime = nil
       @@registry = nil
 
+      MAX_VERIFY_ATTEMPTS = 3
+
       def self.registry=(registry)
         @@registry = registry
       end
@@ -2446,7 +2448,7 @@ end
           end
         end
 
-        # Some modules (notably this ActiveMQ one, which fires its Spring
+        # Some modules (notably the ActiveMQ one, which fires its Spring
         # XML payload multiple times) can leave more than one session -
         # some real, some stale/half-connected duplicates. The most
         # recent SID is not reliably the working one (observed directly:
@@ -2475,7 +2477,7 @@ end
               attempts += 1
               result = run_verification_command(candidate)
             rescue => e
-              if attempts < 3
+              if attempts < MAX_VERIFY_ATTEMPTS 
                 print_status("Session #{candidate.sid}: verification command failed on attempt #{attempts}/3 (#{e.message}), retrying...")
                 sleep 3
                 retry

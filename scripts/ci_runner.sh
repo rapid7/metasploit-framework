@@ -88,7 +88,7 @@ fi
 # ---------------------------------------------------------------------
 # Cleanup and report
 # ---------------------------------------------------------------------
-rm -f "$RC_FILE"
+rm "$RC_FILE"
 echo ">>> Full log preserved at: $LOG_FILE"
 echo ">>> CI Runner Finished"
 

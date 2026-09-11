@@ -278,8 +278,7 @@ msf exploit(multi/http/jenkins_script_console) > test_env remove-all
 
 ## Notes for Implementers
 
-- All output prefixes (`[*]`, `[+]`, `[-]`) must use `print_status`, `print_good`, `print_error` respectively
-- Table output must use `Rex::Ui::Text::Table` for consistency with built-in commands like `sessions`, `jobs`
+> This plugin follows standard Metasploit UI conventions (`print_status`/`print_good`/`print_error` for output prefixes, `Rex::Ui::Text::Table` for tabular data).
 - The `test_env` command must be available regardless of whether a database is connected (Phase 1 is in-memory only)
 - Container labels must be applied on every `run` so that orphaned containers can be identified even if the registry is lost
 - `test_env build` must detect if the active module requires a payload. If so, it auto-selects a compatible default payload and sets `LHOST` to `127.0.0.1` with an available `LPORT`. These values are stored in the registry alongside the environment metadata. `test_env exec` then applies the complete stored datastore (including payload options) before running the exploit.
