@@ -567,6 +567,22 @@ RSpec.describe "Metasploit's json-rpc" do
 
   describe 'analyze' do
     let(:host_ip) { Faker::Internet.private_ip_v4_address }
+
+    before(:each) do
+      framework.modules.add_module_path('./modules')
+      # Ensure the default workspace exists in the database
+      framework.db.workspace = framework.db.add_workspace('default')
+    end
+
+    after(:each) do
+      # report_host and report_vuln go through the Rack app and therefore a
+      # separate DB connection that is NOT wrapped by the transactional fixture.
+      # We must manually clean up to avoid leaking data into subsequent specs.
+      ::ApplicationRecord.connection_pool.with_connection do
+        Mdm::Vuln.delete_all
+        Mdm::Host.delete_all
+      end
+    end
     let(:host) do
       {
         workspace: 'default',
