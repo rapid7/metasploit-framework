@@ -121,8 +121,8 @@ jobs:
           php-version: ${{ matrix.meterpreter.runtime_version }}
           tools: none
 
-      - name: Use setup-php@2.37.0 to install PHP for non-Windows runners
-        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f
+      - name: Use setup-php to install PHP for non-Windows runners
+        uses: shivammathur/setup-php@v2
         if: ${{ matrix.meterpreter.name == 'php' && runner.os != 'Windows' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
