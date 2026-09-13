@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::HTTP::Wordpress
   require 'json'
 
   def initialize(info = {})
