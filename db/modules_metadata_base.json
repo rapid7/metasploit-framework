@@ -208785,6 +208785,56 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_windows/persistence/print_processor": {
+    "name": "Windows Print Processor Persistence",
+    "fullname": "exploit/windows/persistence/print_processor",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2020-10-05",
+    "type": "exploit",
+    "author": [
+      "Emanuele Cervelli"
+    ],
+    "description": "This module establishes persistence by registering a malicious Print Processor DLL\n          under HKLM\\SYSTEM\\CurrentControlSet\\Control\\Print\\Environments\\<arch>\\Print Processors.\n          The Print Spooler service loads configured processor DLLs at startup, causing payload\n          execution when the spooler service starts (for example, on boot).\n\n          This module implements the manual registry method (not the AddMonitor API method).\n          It writes the payload DLL to the print processor directory and requires SYSTEM or admin\n          privileges to write to that directory and modify HKLM. The spooler service is briefly\n          stopped and restarted to activate the registered processor.",
+    "references": [
+      "ATT&CK-T1547.012",
+      "URL-https://hadess.io/the-art-of-windows-persistence/"
+    ],
+    "platform": "Windows",
+    "arch": "x64, x86",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-09-13 01:45:42 +0000",
+    "path": "/modules/exploits/windows/persistence/print_processor.rb",
+    "is_install_path": true,
+    "ref_name": "windows/persistence/print_processor",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "event-dependent",
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
   "exploit_windows/persistence/registry": {
     "name": "Windows Registry Only Persistence",
     "fullname": "exploit/windows/persistence/registry",
