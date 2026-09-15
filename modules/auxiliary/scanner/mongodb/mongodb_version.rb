@@ -17,9 +17,13 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'MongoDB Version Detector',
         'Description' => %q{
           This module connects to a MongoDB instance and retrieves the server version
-          using the buildInfo command. No authentication is required for this command.
+          using the buildInfo command. Through MongoDB 8.0 this command requires no
+          authentication; MongoDB 8.1+ requires authentication for buildInfo, so the
+          module reports '8.1+' unless USERNAME is set, in which case it authenticates
+          and retrieves the actual version string.
 
-          Tested against MongoDB 3.6.23
+          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11
+          with and without authentication
         },
         'References' => [
           [ 'URL', 'https://docs.mongodb.com/manual/reference/command/buildInfo/' ]
@@ -36,7 +40,6 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    deregister_options('AUTH_DB', 'USERNAME', 'PASSWORD')
   end
 
   def run_host(_ip)
@@ -52,29 +55,5 @@ class MetasploitModule < Msf::Auxiliary
     print_error("Connection failed: #{e}")
   ensure
     disconnect
-  end
-
-  def get_version
-    cmd = BSON::Document.new({ 'buildInfo' => BSON::Int32.new(1) })
-    pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
-
-    sock.put(pkt)
-    resp = mongodb_read_message(sock, 5)
-
-    doc = mongodb_parse_doc(resp)
-    return nil unless doc && doc['version']
-
-    version_str = doc['version']
-    report_service(
-      host: rhost,
-      port: rport,
-      name: 'mongodb',
-      proto: 'tcp',
-      info: "MongoDB #{version_str}"
-    )
-    version_str
-  rescue StandardError => e
-    vprint_error("Failed to parse version: #{e.message}")
-    nil
   end
 end

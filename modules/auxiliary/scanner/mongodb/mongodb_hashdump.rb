@@ -32,7 +32,9 @@ class MetasploitModule < Msf::Auxiliary
           and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's
           auxiliary/analyze cracking modules -- use hashcat directly against the
           exported hash, or 'creds -o' to export it, for now.
-          Successfully tested against MongoDB 3.6 with and without authentication
+
+          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11
+          with and without authentication
         },
         'References' => [
           [ 'URL', 'https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/' ],
@@ -54,7 +56,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(27017),
         OptString.new('DB', [ true, 'Database to query', 'admin']),
         OptString.new('COLLECTION', [ false, 'Custom collection to dump (if empty, dumps system.users)', '']),
         OptString.new('USER_FIELD', [ false, 'Username field name for custom collection', 'username']),

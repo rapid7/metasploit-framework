@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
           databases and collections via wire protocol, samples documents, and dumps
           the inferred schema structure.
 
-          Successfully tested against MongoDB 3.6 with and without authentication
+          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11
+          with and without authentication
         },
         'Author' => [
           'h00die',
@@ -198,11 +199,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_query_multi(full_coll_name, bson_payload, number_to_return = 5)
-    pkt = mongodb_build_packet(full_coll_name, bson_payload, number_to_return: number_to_return)
-
-    sock.put(pkt)
-    response_raw = mongodb_read_message(sock, 5)
-
-    mongodb_parse_docs(response_raw)
+    # Delegate to the mixin's negotiated query path so OP_MSG (MongoDB
+    # 3.6+, mandatory beyond the 6.0 OP_QUERY allowlist) is used where the
+    # server supports it; cursors are drained beyond the first batch too.
+    mongodb_query_all(sock, full_coll_name, bson_payload, timeout: 5, number_to_return: number_to_return)
   end
 end

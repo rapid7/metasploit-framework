@@ -22,6 +22,9 @@ class MetasploitModule < Msf::Auxiliary
           This module attempts to brute force authentication credentials for MongoDB.
           It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy
           MONGODB-CR authentication if SCRAM is unsupported by the target server.
+
+          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11
+          with and without authentication
         },
         'References' => [
           [ 'URL', 'https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/' ],
@@ -47,15 +50,15 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
 
+      # Probe for enforced authentication before fetching the version:
+      # get_version authenticates when a username is configured (MongoDB
+      # 8.1+ gates buildInfo behind auth), which would leave this
+      # connection authenticated and skew the auth-state probes.
+      auth_state = mongodb_auth_state
       version = get_version
       ver_info = version ? " (version #{version})" : ''
 
-      if require_auth?
-        print_status("Mongo server#{ver_info} requires authentication")
-        each_user_pass do |user, pass|
-          do_login(user, pass)
-        end
-      else
+      if auth_state == :absent
         report_vuln(
           host: rhost,
           port: rport,
@@ -65,38 +68,22 @@ class MetasploitModule < Msf::Auxiliary
           info: "Mongo server has no authentication.#{ver_info}"
         )
         print_good("Mongo server #{ip}#{ver_info} doesn't use authentication")
+      else
+        if auth_state == :unknown
+          print_status("Mongo server#{ver_info} authentication state is not detectable over the legacy wire protocol (MongoDB 6.0-8.0); attempting credentials anyway")
+        else
+          print_status("Mongo server#{ver_info} requires authentication")
+        end
+        each_user_pass do |user, pass|
+          do_login(user, pass)
+        end
       end
       disconnect
     rescue StandardError => e
       print_error "Unable to connect: #{e}"
     ensure
       disconnect
-      return
     end
-  end
-
-  def get_version
-    cmd = BSON::Document.new({ 'buildInfo' => BSON::Int32.new(1) })
-    pkt = mongodb_build_packet('admin.$cmd', cmd.to_bson.to_s)
-
-    sock.put(pkt)
-    resp = mongodb_read_message(sock, 5)
-
-    doc = mongodb_parse_doc(resp)
-    return nil unless doc && doc['version']
-
-    version_str = doc['version']
-    report_service(
-      host: rhost,
-      port: rport,
-      name: 'mongodb',
-      proto: 'tcp',
-      info: "MongoDB #{version_str}"
-    )
-    version_str
-  rescue StandardError => e
-    vprint_error("Failed to parse version from buildInfo: #{e.message}")
-    nil
   end
 
   def do_login(user, password)
