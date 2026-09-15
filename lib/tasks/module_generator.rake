@@ -2,6 +2,7 @@
 
 require 'erb'
 require 'fileutils'
+require 'rex/arch'
 
 # Helpers namespaced to avoid polluting top-level scope
 module MsfModuleGenerator
@@ -50,24 +51,28 @@ module MsfModuleGenerator
     nil
   end
 
+  # The complete set of architecture names the generator will accept. Derived from the
+  # authoritative Rex::Arch::ARCH_TYPES (so it cannot drift from the framework as new
+  # arches land) plus 'generic', which is not an ARCH_TYPES member but is a real module
+  # path prefix (modules/encoders/generic, modules/payloads/singles/generic) that maps to
+  # ARCH_ALL. ARCH_ANY ('_any_') is intentionally excluded -- it is a matcher sentinel, not
+  # an arch a module is scaffolded for.
+  KNOWN_ARCHES = (Rex::Arch::ARCH_TYPES + %w[generic]).freeze
+
   # Check if a string matches a known architecture name
   def self.known_arch?(name)
-    %w[
-      x86 x64 cmd php ppc sparc mipsbe mipsle mips64 armle armbe aarch64
-      riscv32le riscv64le loongarch64 ruby generic tty python java
-    ].include?(name)
+    KNOWN_ARCHES.include?(name)
   end
 
   # Map user-provided arch string to framework constant name.
-  # Known archs (see known_arch?) map to ARCH_<UPCASE>, which is the framework's
-  # naming rule for every arch constant (verified against lib/rex/arch.rb and real
-  # modules). Exceptions to the <UPCASE> rule are mapped explicitly in ARCH_CONST_OVERRIDES
-  # (e.g. 'generic' -> ARCH_ALL, since ARCH_GENERIC does not exist). An UNKNOWN arch
-  # returns nil rather than manufacturing an invalid ARCH_* constant: nil flows through
-  # the generator's existing fail-loud path (the template emits 'Arch' => nil/[nil], which
-  # fails module load with a clear message), so there is a single fail-loud mechanism, not
-  # two. Adding a brand-new arch requires adding it to known_arch? first -- an accepted
-  # limitation, since new arches are rare and not something a newcomer scaffolds.
+  # Known archs (see known_arch?, derived from Rex::Arch::ARCH_TYPES) map to ARCH_<UPCASE>,
+  # which is the framework's naming rule for every arch constant (every ARCH_TYPES member
+  # has a matching ARCH_<UPCASE>). Exceptions to the <UPCASE> rule are mapped explicitly in
+  # ARCH_CONST_OVERRIDES (e.g. 'generic' -> ARCH_ALL, since ARCH_GENERIC does not exist). An
+  # UNKNOWN arch returns nil rather than manufacturing an invalid ARCH_* constant: nil flows
+  # through the generator's existing fail-loud path (the template emits 'Arch' => nil/[nil],
+  # which fails module load with a clear message), so there is a single fail-loud mechanism,
+  # not two.
 
   # Known archs whose constant name is NOT ARCH_<UPCASE>. Keep in sync with lib/rex/arch.rb.
   ARCH_CONST_OVERRIDES = {
@@ -259,7 +264,7 @@ namespace :msf do
     # placeholders -- keep them in sync when adding/removing a Platform/Arch/Rank field
     # in the corresponding *.rb.erb template.
     load_blockers = []
-    types_with_platform = %w[exploit evasion payload_single]
+    types_with_platform = %w[exploit evasion payload_single post]
     types_with_arch = %w[exploit evasion payload_single encoder nop]
     types_with_rank = %w[exploit]
     if types_with_platform.include?(type) && platform.nil?
