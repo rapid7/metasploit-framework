@@ -12,18 +12,16 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => '<%= mod_name %>',
+        'Name' => <%= MsfModuleGenerator.ruby_str(mod_name) %>,
         'Description' => %q{
           TODO: Describe what this post module does on the target.
         },
         'Author' => [
-          '<%= author %>'
+          <%= MsfModuleGenerator.ruby_str(author) %>
         ],
         'License' => MSF_LICENSE,
-<%- if platform_meta.is_a?(Array) -%>
-        'Platform' => <%= platform_meta.inspect %>,
-<%- elsif platform_meta -%>
-        'Platform' => ['<%= platform_meta %>'],
+<%- if platform_meta -%>
+        'Platform' => [<%= MsfModuleGenerator.ruby_str(platform_meta) %>],
 <%- else -%>
         'Platform' => [], # TODO: Set platform(s) (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']); a post module tolerates an empty [] at load, so fill this in before shipping
 <%- end -%>

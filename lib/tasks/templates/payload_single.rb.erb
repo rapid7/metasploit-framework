@@ -15,16 +15,16 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name' => '<%= mod_name %>',
+        'Name' => <%= MsfModuleGenerator.ruby_str(mod_name) %>,
         'Description' => %q{
           TODO: Describe what this payload does.
         },
         'Author' => [
-          '<%= author %>'
+          <%= MsfModuleGenerator.ruby_str(author) %>
         ],
         'License' => MSF_LICENSE,
 <%- if platform -%>
-        'Platform' => '<%= platform %>',
+        'Platform' => <%= MsfModuleGenerator.ruby_str(platform) %>,
 <%- else -%>
         'Platform' => nil, # PLACEHOLDER: replace nil with a real platform (e.g., 'linux', 'win', 'osx') -- nil is invalid on purpose so the module fails to load until you set it
 <%- end -%>

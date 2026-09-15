@@ -17,17 +17,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => '<%= mod_name %>',
+        'Name' => <%= MsfModuleGenerator.ruby_str(mod_name) %>,
         'Description' => %q{
           TODO: Describe what this module discovers or does.
         },
         'Author' => [
-          '<%= author %>'
+          <%= MsfModuleGenerator.ruby_str(author) %>
         ],
         'License' => MSF_LICENSE,
         'References' => [
 <%- if cve -%>
-          ['CVE', '<%= cve %>']
+          ['CVE', <%= MsfModuleGenerator.ruby_str(cve) %>]
 <%- else -%>
           # TODO: Add references (e.g., CVE, URL, EDB)
 <%- end -%>
