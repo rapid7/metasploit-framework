@@ -8,10 +8,13 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  prepend Msf::Exploit::Remote::AutoCheck
 
   # TODO: Include mixins appropriate for your module, e.g.:
   # include Msf::Exploit::Remote::HttpClient
+
+  # Keep this prepend LAST, after every include (see Mixin Ordering in AGENTS.md /
+  # CONTRIBUTING.md): AutoCheck wraps exploit/run to call check first.
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(

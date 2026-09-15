@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
 <%- if platform_meta -%>
         'Platform' => [<%= MsfModuleGenerator.ruby_str(platform_meta) %>],
 <%- else -%>
-        'Platform' => [], # TODO: Set platform(s) (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']); a post module tolerates an empty [] at load, so fill this in before shipping
+        'Platform' => [nil], # PLACEHOLDER: replace [nil] with a real platform (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']) -- [nil] is invalid on purpose so the module fails to load until you set it
 <%- end -%>
         'SessionTypes' => ['meterpreter', 'shell'],
         'Notes' => {

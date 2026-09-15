@@ -3,6 +3,8 @@
 require 'spec_helper'
 require 'erb'
 require 'open3'
+require 'rake'
+require 'tmpdir'
 
 # Load ONLY the `module MsfModuleGenerator ... end` helper block from the rake file
 # into the top-level namespace, without invoking Rake. Done at file-load time (not in
@@ -95,6 +97,26 @@ RSpec.describe 'msf:generate module generator' do
         expect(described_class.map_arch_const('generic')).to eq('ARCH_ALL')
       end
 
+      it 'maps archs that the old hand-list omitted (now derived from Rex::Arch::ARCH_TYPES)' do
+        # These are valid framework arches (used by real modules) that the previous
+        # narrow allow-list rejected -> nil -> unusable scaffold.
+        expect(described_class.map_arch_const('zarch')).to eq('ARCH_ZARCH')
+        expect(described_class.map_arch_const('ppc64')).to eq('ARCH_PPC64')
+        expect(described_class.map_arch_const('dalvik')).to eq('ARCH_DALVIK')
+        expect(described_class.map_arch_const('r')).to eq('ARCH_R')
+        expect(described_class.map_arch_const('nodejs')).to eq('ARCH_NODEJS')
+      end
+
+      it 'covers the complete Rex::Arch::ARCH_TYPES set' do
+        # Guard against future drift: every authoritative arch string maps to an
+        # existing ARCH_<UPCASE> constant (no nils, no manufactured constants).
+        Rex::Arch::ARCH_TYPES.each do |arch|
+          const_name = described_class.map_arch_const(arch)
+          expect(const_name).not_to be_nil, "#{arch} should be a known arch"
+          expect(Rex::Arch.const_defined?(const_name)).to be(true), "#{const_name} should exist"
+        end
+      end
+
       it 'returns nil for a nil arch' do
         expect(described_class.map_arch_const(nil)).to be_nil
       end
@@ -177,6 +199,14 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).not_to include("'Platform' => '',")
     end
 
+    it 'post emits fail-loud [nil] Platform when un-inferred (not a loadable [])' do
+      # A post module tolerates [] at load, which would let an unresolved platform ship;
+      # emit [nil] so the module fails to load until the author sets a real platform.
+      source = render('post.rb.erb', type: 'post', mod_dir: 'post', platform_meta: nil)
+      expect(source).to include("'Platform' => [nil],")
+      expect(source).not_to include("'Platform' => [],")
+    end
+
     it 'encoder and nop emit nil Arch when un-inferred' do
       %w[encoder nop].each do |t|
         source = render("#{t}.rb.erb", type: t, mod_dir: "#{t}s")
@@ -241,6 +271,125 @@ RSpec.describe 'msf:generate module generator' do
       source = render('encoder.rb.erb', type: 'encoder', mod_dir: 'encoders')
       expect(source).not_to match(/^\s*Rank\s*=/)
       expect(source).not_to match(/Rank/)
+    end
+  end
+
+  # AGENTS.md / CONTRIBUTING.md Mixin Ordering: `prepend AutoCheck` must be LAST,
+  # after every include, so a contributor uncommenting the include slot keeps the order.
+  describe 'AutoCheck prepend ordering' do
+    %w[exploit auxiliary].each do |t|
+      it "#{t} template places the AutoCheck prepend after the include TODO slot" do
+        source = render("#{t}.rb.erb", type: t, mod_dir: (t == 'exploit' ? 'exploits' : 'auxiliary'))
+        include_slot = source.index('# include Msf::Exploit::Remote::HttpClient')
+        prepend_line = source.index('prepend Msf::Exploit::Remote::AutoCheck')
+        expect(include_slot).not_to be_nil
+        expect(prepend_line).not_to be_nil
+        expect(prepend_line).to be > include_slot
+      end
+    end
+  end
+
+  # Target Type cannot be inferred from the requested path, so the exploit template
+  # must emit a fail-loud placeholder + TODO rather than silently guessing :dropper.
+  describe 'exploit target Type is a placeholder, not a guess' do
+    it 'emits Type => nil with a TODO and never a hardcoded :dropper guess' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits')
+      expect(source).to include("'Type' => nil")
+      expect(source).to match(/TODO.*Type/)
+      expect(source).not_to include("'Type' => :dropper")
+    end
+  end
+
+  # Task-level coverage: exercises the public msf:generate workflow (arg/path validation,
+  # source/doc destination mapping, collision handling, dry-run, and real writes) that the
+  # helper/render specs above do not reach. Runs in an isolated temp CWD because the task
+  # writes to CWD-relative modules/ and documentation/ trees.
+  describe 'msf:generate rake task (task-level workflow)' do
+    before(:all) do
+      # Load the task definitions once. The rake file's MsfModuleGenerator module is
+      # already loaded above; loading the file also defines the namespace :msf tasks.
+      Rake.application = Rake::Application.new
+      rake_file = Metasploit::Framework.root.join('lib', 'tasks', 'module_generator.rake').to_path
+      Rake.load_rakefile(rake_file)
+    end
+
+    # Invoke the generate task with args in an isolated CWD, capturing stdout.
+    # Returns [stdout, tmpdir]; raises SystemExit (from abort) propagate to the caller.
+    def run_generate(type, path, platform = nil, arch = nil, env: {})
+      tmpdir = Dir.mktmpdir('msfgen')
+      out = +''
+      old_env = env.to_h { |k, _v| [k, ENV.fetch(k, nil)] }
+      env.each { |k, v| ENV[k] = v }
+      begin
+        Dir.chdir(tmpdir) do
+          task = Rake::Task['msf:generate']
+          task.reenable
+          orig = $stdout
+          $stdout = StringIO.new
+          begin
+            task.invoke(type, path, platform, arch)
+            out = $stdout.string
+          ensure
+            $stdout = orig
+          end
+        end
+      ensure
+        old_env.each { |k, v| v.nil? ? ENV.delete(k) : ENV[k] = v }
+      end
+      [out, tmpdir]
+    end
+
+    it 'rejects a path with .. traversal segments' do
+      expect { run_generate('exploit', '../../outside/evil', 'linux', 'x64') }
+        .to raise_error(SystemExit)
+    end
+
+    it 'rejects an absolute path' do
+      expect { run_generate('exploit', '/etc/evil', 'linux', 'x64') }
+        .to raise_error(SystemExit)
+    end
+
+    it 'rejects an invalid module type' do
+      expect { run_generate('notatype', 'linux/http/x', 'linux', 'x64') }
+        .to raise_error(SystemExit)
+    end
+
+    it 'writes the module and doc to the correct source (plural) and doc (singular) trees' do
+      _out, dir = run_generate('exploit', 'linux/http/tasktest', 'linux', 'x64',
+                               env: { 'MSF_MOD_AUTHOR' => 'Jane Tester' })
+      expect(File).to exist(File.join(dir, 'modules', 'exploits', 'linux', 'http', 'tasktest.rb'))
+      expect(File).to exist(File.join(dir, 'documentation', 'modules', 'exploit', 'linux', 'http', 'tasktest.md'))
+    ensure
+      FileUtils.remove_entry(dir) if dir
+    end
+
+    it 'aborts when the documentation file already exists (dual-destination collision)' do
+      dir = Dir.mktmpdir('msfgen')
+      doc = File.join(dir, 'documentation', 'modules', 'exploit', 'linux', 'http', 'collide.md')
+      FileUtils.mkdir_p(File.dirname(doc))
+      File.write(doc, 'HANDWRITTEN')
+      Rake::Task['msf:generate'].reenable
+      orig = $stdout
+      $stdout = StringIO.new
+      begin
+        expect { Dir.chdir(dir) { Rake::Task['msf:generate'].invoke('exploit', 'linux/http/collide', 'linux', 'x64') } }
+          .to raise_error(SystemExit)
+      ensure
+        $stdout = orig
+      end
+      # The pre-existing hand-written doc must be untouched.
+      expect(File.read(doc)).to eq('HANDWRITTEN')
+    ensure
+      FileUtils.remove_entry(dir) if dir
+    end
+
+    it 'writes nothing in dry-run mode' do
+      _out, dir = run_generate('exploit', 'linux/http/drytest', 'linux', 'x64',
+                               env: { 'MSF_DRY_RUN' => '1' })
+      expect(Dir.glob(File.join(dir, '**', '*.rb'))).to be_empty
+      expect(Dir.glob(File.join(dir, '**', '*.md'))).to be_empty
+    ensure
+      FileUtils.remove_entry(dir) if dir
     end
   end
 end
