@@ -270,9 +270,6 @@ msf post(linux/gather/nessus_secrets) > run
  Service  Auth      Username                   Password                   Domain
  -------  ----      --------                   --------                   ------
  SNMPv3   password  example_snmp_username
- SSH      password  garbage-selfread-e2db5f27  garbage-selfread-e2db5f27
- SSH      password  garbage-selfread-de379915  garbage-selfread-de379915
- SSH      password  garbage-selfread-ba363f55  garbage-selfread-ba363f55
  SSH      password  example_username           example_password
  Windows  Password  example_username           example_password           example_domain
 
