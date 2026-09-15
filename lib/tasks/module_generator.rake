@@ -14,8 +14,10 @@ module MsfModuleGenerator
       'win'
     when 'linux'
       'linux'
-    when 'osx', 'apple_ios'
+    when 'osx'
       'osx'
+    when 'apple_ios'
+      'apple_ios'
     when 'unix'
       'unix'
     when 'multi'
@@ -59,19 +61,26 @@ module MsfModuleGenerator
   # Map user-provided arch string to framework constant name.
   # Known archs (see known_arch?) map to ARCH_<UPCASE>, which is the framework's
   # naming rule for every arch constant (verified against lib/rex/arch.rb and real
-  # modules). An UNKNOWN arch returns nil rather than manufacturing an invalid
-  # ARCH_* constant: nil flows through the generator's existing fail-loud path
-  # (the template emits 'Arch' => nil/[nil], which fails module load with a clear
-  # message), so there is a single fail-loud mechanism, not two. Adding a brand-new
-  # arch requires adding it to known_arch? first -- an accepted limitation, since
-  # new arches are rare and not something a newcomer scaffolds.
+  # modules). Exceptions to the <UPCASE> rule are mapped explicitly in ARCH_CONST_OVERRIDES
+  # (e.g. 'generic' -> ARCH_ALL, since ARCH_GENERIC does not exist). An UNKNOWN arch
+  # returns nil rather than manufacturing an invalid ARCH_* constant: nil flows through
+  # the generator's existing fail-loud path (the template emits 'Arch' => nil/[nil], which
+  # fails module load with a clear message), so there is a single fail-loud mechanism, not
+  # two. Adding a brand-new arch requires adding it to known_arch? first -- an accepted
+  # limitation, since new arches are rare and not something a newcomer scaffolds.
+
+  # Known archs whose constant name is NOT ARCH_<UPCASE>. Keep in sync with lib/rex/arch.rb.
+  ARCH_CONST_OVERRIDES = {
+    'generic' => 'ARCH_ALL' # the generic/ tree (encoders, payloads) uses ARCH_ALL; ARCH_GENERIC does not exist
+  }.freeze
+
   def self.map_arch_const(arch)
     return nil if arch.nil?
 
     normalized = arch.downcase
     return nil unless known_arch?(normalized)
 
-    "ARCH_#{normalized.upcase}"
+    ARCH_CONST_OVERRIDES.fetch(normalized) { "ARCH_#{normalized.upcase}" }
   end
 
   # Map platform string to the canonical metadata form expected by each module type
@@ -90,6 +99,19 @@ module MsfModuleGenerator
       # Exploits/payloads use short form
       platform
     end
+  end
+
+  # Render a value as a valid Ruby string literal for interpolation into a template.
+  # Prefers a single-quoted literal (the framework's Style/StringLiterals convention)
+  # and only falls back to an escaped double-quoted literal (via inspect) when the
+  # value contains a single quote or backslash -- so an ordinary author like
+  # "Jane Tester" stays single-quoted and rubocop-clean, while "O'Connor" is escaped
+  # instead of producing the syntactically broken 'O'Connor'.
+  def self.ruby_str(value)
+    str = value.to_s
+    return "'#{str}'" unless str.include?("'") || str.include?('\\')
+
+    str.inspect
   end
 end
 
@@ -137,6 +159,17 @@ namespace :msf do
       abort 'Error: path is required (e.g., linux/http/my_exploit)'
     end
 
+    # Reject absolute paths and traversal/empty segments before the path is
+    # interpolated into File.join/File.write destinations -- otherwise a path like
+    # '../../outside' or '/etc/foo' would create or overwrite files outside the
+    # modules/ and documentation/ trees.
+    if path.start_with?('/') || path.include?('\\')
+      abort "Error: path must be relative (e.g., linux/http/my_exploit), not absolute: '#{path}'"
+    end
+    if path.split('/').any? { |seg| seg.empty? || seg == '.' || seg == '..' }
+      abort "Error: path must not contain empty, '.', or '..' segments: '#{path}'"
+    end
+
     dry_run = ENV['MSF_DRY_RUN'] == '1'
 
     # Infer platform from path prefix when not explicitly provided
@@ -145,7 +178,8 @@ namespace :msf do
     # Infer arch from path convention when not explicitly provided
     arch ||= MsfModuleGenerator.infer_arch(path, type)
 
-    # Map type to module directory
+    # Map type to the physical source directory under modules/ (plural, matches the
+    # on-disk layout: modules/exploits, modules/payloads/singles, ...).
     mod_dir = case type
               when 'payload_single' then 'payloads/singles'
               when 'auxiliary' then 'auxiliary'
@@ -154,15 +188,35 @@ namespace :msf do
               else "#{type}s"
               end
 
-    module_file = File.join('modules', mod_dir, "#{path}.rb")
-    doc_file = File.join('documentation', 'modules', mod_dir, "#{path}.md")
+    # Map type to its SINGULAR form, used for BOTH the documentation directory
+    # (documentation/modules/exploit, .../payload/singles) and the msfconsole fullname
+    # in `use ...` commands (exploit/..., payload/...). Both are singular and identical,
+    # distinct from the plural source dir above, so mod_dir cannot be reused for them.
+    singular_dir = case type
+                   when 'payload_single' then 'payload/singles'
+                   when 'auxiliary' then 'auxiliary'
+                   when 'post' then 'post'
+                   when 'evasion' then 'evasion'
+                   else type # exploit, encoder, nop
+                   end
 
+    module_file = File.join('modules', mod_dir, "#{path}.rb")
+    doc_file = File.join('documentation', 'modules', singular_dir, "#{path}.md")
+
+    # Full module name as msfconsole would load it (used in the generated doc's
+    # `use ...` verification steps).
+    console_name = File.join(singular_dir, path)
+
+    # Collision check covers BOTH destinations: a doc file can pre-exist independently
+    # of its module file, and writing it unconditionally would silently destroy a
+    # hand-written document.
+    existing = [module_file, doc_file].select { |f| File.exist?(f) }
     if dry_run
-      if File.exist?(module_file)
-        puts "Note: #{module_file} already exists (would not overwrite in real run)"
+      existing.each do |f|
+        puts "Note: #{f} already exists (would not overwrite in real run)"
       end
-    elsif File.exist?(module_file)
-      abort "Error: #{module_file} already exists. Use a different path or remove the existing file."
+    elsif existing.any?
+      abort "Error: #{existing.join(', ')} already exist(s). Use a different path or remove the existing file(s)."
     end
 
     # Template variables
@@ -252,9 +306,14 @@ namespace :msf do
         puts "Created: #{doc_file}"
       end
 
-      # Syntax check
+      # Syntax check. argv-form system (no shell) so a path with shell metacharacters
+      # cannot execute anything, and the exit status is surfaced rather than ignored --
+      # a template that renders invalid Ruby must not report success.
       puts "\nVerifying syntax..."
-      system("ruby -c #{module_file}")
+      unless system('ruby', '-c', module_file)
+        puts "⚠ Syntax check failed for #{module_file} -- the generated file is not valid Ruby. " \
+             'This is a generator bug; please report it.'
+      end
 
       print_generation_warning.call
 

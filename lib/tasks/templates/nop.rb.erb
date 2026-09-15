@@ -9,11 +9,11 @@
 class MetasploitModule < Msf::Nop
   def initialize
     super(
-      'Name' => '<%= mod_name %>',
+      'Name' => <%= MsfModuleGenerator.ruby_str(mod_name) %>,
       'Description' => %q{
         TODO: Describe what this NOP generator does.
       },
-      'Author' => '<%= author %>',
+      'Author' => <%= MsfModuleGenerator.ruby_str(author) %>,
       'License' => MSF_LICENSE,
 <%- if arch_const -%>
       'Arch' => <%= arch_const %>

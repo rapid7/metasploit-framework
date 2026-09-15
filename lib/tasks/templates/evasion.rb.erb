@@ -12,16 +12,16 @@ class MetasploitModule < Msf::Evasion
     super(
       update_info(
         info,
-        'Name' => '<%= mod_name %>',
+        'Name' => <%= MsfModuleGenerator.ruby_str(mod_name) %>,
         'Description' => %q{
           TODO: Describe what this evasion module does.
         },
         'Author' => [
-          '<%= author %>'
+          <%= MsfModuleGenerator.ruby_str(author) %>
         ],
         'License' => MSF_LICENSE,
 <%- if platform -%>
-        'Platform' => '<%= platform %>',
+        'Platform' => <%= MsfModuleGenerator.ruby_str(platform) %>,
 <%- else -%>
         'Platform' => nil, # PLACEHOLDER: replace nil with a real platform (e.g., 'win', 'linux') -- nil is invalid on purpose so the module fails to load until you set it
 <%- end -%>
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Evasion
 <%- end -%>
         'References' => [
 <%- if cve -%>
-          ['CVE', '<%= cve %>']
+          ['CVE', <%= MsfModuleGenerator.ruby_str(cve) %>]
 <%- else -%>
           # TODO: Add references (e.g., CVE, URL, EDB)
 <%- end -%>

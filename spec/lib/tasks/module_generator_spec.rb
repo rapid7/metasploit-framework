@@ -47,7 +47,10 @@ RSpec.describe 'msf:generate module generator' do
         expect(described_class.infer_platform('linux/http/x')).to eq('linux')
         expect(described_class.infer_platform('unix/misc/x')).to eq('unix')
         expect(described_class.infer_platform('osx/gather/x')).to eq('osx')
-        expect(described_class.infer_platform('apple_ios/gather/x')).to eq('osx')
+      end
+
+      it 'preserves apple_ios as its own platform (not collapsed to osx)' do
+        expect(described_class.infer_platform('apple_ios/gather/x')).to eq('apple_ios')
       end
 
       it 'returns nil for multi (cannot pick one) and unknown prefixes' do
@@ -86,12 +89,37 @@ RSpec.describe 'msf:generate module generator' do
         expect(described_class.map_arch_const('mipsbe')).to eq('ARCH_MIPSBE')
       end
 
+      it 'maps generic to ARCH_ALL, not the nonexistent ARCH_GENERIC' do
+        # ARCH_ALL is the real constant (lib/rex/arch.rb); ARCH_GENERIC does not exist,
+        # so an ARCH_<UPCASE> rule would emit an unloadable module for the generic/ tree.
+        expect(described_class.map_arch_const('generic')).to eq('ARCH_ALL')
+      end
+
       it 'returns nil for a nil arch' do
         expect(described_class.map_arch_const(nil)).to be_nil
       end
 
       it 'returns nil for an unknown arch (routed through the fail-loud nil path, not a manufactured ARCH_* constant)' do
         expect(described_class.map_arch_const('foo')).to be_nil
+      end
+    end
+
+    describe '.ruby_str' do
+      it 'emits a single-quoted literal for an ordinary value (Style/StringLiterals convention)' do
+        expect(described_class.ruby_str('Jane Tester')).to eq("'Jane Tester'")
+        expect(described_class.ruby_str('linux')).to eq("'linux'")
+      end
+
+      it 'escapes (double-quoted) a value containing a single quote, not producing broken Ruby' do
+        expect(described_class.ruby_str("O'Connor")).to eq('"O\'Connor"')
+      end
+
+      it 'escapes a value containing a backslash' do
+        expect(described_class.ruby_str('a\\b')).to eq('"a\\\\b"')
+      end
+
+      it 'renders nil as an empty single-quoted literal' do
+        expect(described_class.ruby_str(nil)).to eq("''")
       end
     end
   end
@@ -162,6 +190,22 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).to include("'Platform' => ['linux']")
       expect(source).to include('ARCH_X64')
       expect(source).not_to include('[nil]')
+    end
+
+    it 'post emits Platform as a quoted array element when inferred (not raw/unescaped)' do
+      # Regression guard: map_platform_meta returns a scalar string for post, so the
+      # reached template branch must still wrap it as ['<platform>'] via ruby_str.
+      source = render('post.rb.erb', type: 'post', mod_dir: 'post', platform_meta: 'windows')
+      expect(source).to include("'Platform' => ['windows'],")
+    end
+
+    it 'escapes an author containing an apostrophe instead of emitting broken Ruby' do
+      # Regression guard for ruby_str: "O'Connor" must become a valid escaped literal,
+      # never the syntactically broken 'O'Connor'.
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits', author: "O'Connor")
+      expect(source).to include('"O\'Connor"')
+      expect(source).not_to include("'O'Connor'")
+      expect(ruby_syntax_ok?(source).first).to be(true)
     end
 
     # Notes default to UNKNOWN_* sentinels (which Lint/ModuleEnforceNotes flags) so the
