@@ -8,7 +8,9 @@
 #
 
 require 'snmp/varbind'
+require 'snmp/python_literal_parser'
 require 'fileutils'
+require 'open3'
 require 'yaml'
 
 module SNMP
@@ -24,6 +26,10 @@ class MIB
     MODULE_EXT = 'yaml'
     
     class ModuleNotLoadedError < RuntimeError; end
+    class InvalidMIBError < RuntimeError; end
+
+    MAX_CONVERTER_OUTPUT_SIZE = 10 * 1024 * 1024
+    MODULE_NAME_PATTERN = /\A[A-Za-z][A-Za-z0-9-]*\z/
     
     class << self
         ##
@@ -55,11 +61,18 @@ class MIB
         def import_module(module_file, mib_dir=DEFAULT_MIB_PATH)
             raise "smidump tool must be installed" unless import_supported?
             FileUtils.makedirs mib_dir
-            mib_hash = `smidump -f python #{module_file}`
+            mib_hash, error, status = capture_command('smidump', '-f', 'python', module_file.to_s)
+            unless status.success?
+                warn "*** Import failed for: #{module_file}: #{error.strip} ***"
+                return nil
+            end
             mib = eval_mib_data(mib_hash)
             if mib
                 module_name = mib["moduleName"]
                 raise "#{module_file}: invalid file format; no module name" unless module_name
+                unless module_name.is_a?(String) && MODULE_NAME_PATTERN.match?(module_name)
+                    raise InvalidMIBError, "#{module_file}: invalid module name"
+                end
                 if mib["nodes"]
                     oid_hash = {}
                     mib["nodes"].each { |key, value| oid_hash[key] = value["oid"] }
@@ -118,14 +131,45 @@ class MIB
         private 
         
         def eval_mib_data(mib_hash)
-            ruby_hash = mib_hash.
-                gsub(':', '=>').                  # fix hash syntax
-                gsub('(', '[').gsub(')', ']').    # fix tuple syntax
-                sub('FILENAME =', 'filename =').  # get rid of constants
-                sub('MIB =', 'mib =')
-            mib = nil
-            eval(ruby_hash)
-            mib
+            raise InvalidMIBError, 'MIB converter output is too large' if mib_hash.bytesize > MAX_CONVERTER_OUTPUT_SIZE
+
+            assignment = mib_hash.match(/(?:\A|\n)\s*MIB\s*=\s*/)
+            raise InvalidMIBError, 'MIB converter output does not contain a MIB assignment' unless assignment
+
+            SNMP::PythonLiteralParser.new(mib_hash, offset: assignment.end(0)).parse
+        rescue SNMP::PythonLiteralParser::ParseError => e
+            raise InvalidMIBError, e.message
+        end
+
+        def capture_command(*command)
+            output = String.new
+            error = String.new
+            status = nil
+
+            Open3.popen3(*command) do |stdin, stdout, stderr, wait_thread|
+                stdin.close
+                streams = { stdout => [output, MAX_CONVERTER_OUTPUT_SIZE], stderr => [error, 65_536] }
+
+                until streams.empty?
+                    IO.select(streams.keys)&.first&.each do |stream|
+                        begin
+                            chunk = stream.read_nonblock(16_384)
+                            buffer, limit = streams.fetch(stream)
+                            if buffer.bytesize + chunk.bytesize > limit
+                                Process.kill('KILL', wait_thread.pid)
+                                raise InvalidMIBError, 'MIB converter output is too large'
+                            end
+                            buffer << chunk
+                        rescue EOFError
+                            streams.delete(stream)
+                            stream.close
+                        end
+                    end
+                end
+                status = wait_thread.value
+            end
+
+            [output, error, status]
         end
     end # class methods
     
