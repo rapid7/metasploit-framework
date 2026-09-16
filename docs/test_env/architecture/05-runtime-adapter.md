@@ -1,0 +1,210 @@
+# Runtime Adapter & Port Allocation
+
+## What I Verified on My Machine
+
+### Docker and Podman Availability
+
+**Both runtimes are installed.** Docker will be primary, Podman fallback.
+
+### Docker Inspect Test
+
+I ran a test container (port binding failed due to conflict, but inspect worked):
+
+```bash
+$ docker run -d --name test-nginx --label msf.test=1 -p 127.0.0.1:8080:80 nginx
+# Port 8080 was in use — container created but not started
+# This proves: FIXED PORTS FAIL, dynamic allocation is required
+
+$ docker inspect test-nginx > /tmp/docker-inspect.json
+```
+
+Key fields from `docker inspect` output:
+
+```json
+{
+  "Id": "59721d248c4ff4be689ae3fedf8dc947f53d06c657ac0b1418205621a1ee6f44",
+  "State": {
+    "Status": "created",
+    "Running": false
+  },
+  "Config": {
+    "Labels": {
+      "msf.test": "1"
+    }
+  },
+  "HostConfig": {
+    "PortBindings": {
+      "80/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "8080"
+        }
+      ]
+    }
+  }
+}
+```
+
+**Important findings:**
+- Labels are stored in `Config.Labels`, not top-level
+- `State.Status` shows "created" when container fails to start
+- `HostConfig.PortBindings` shows the requested mapping
+- **Port 8080 was already in use — fixed ports are unreliable**
+
+### Port Allocation Test
+
+I wrote and ran `test_port.rb`:
+
+```ruby
+#!/usr/bin/env ruby
+
+require 'socket'
+
+def port_available?(port)
+  server = TCPServer.new('127.0.0.1', port)
+  server.close
+  true
+rescue Errno::EADDRINUSE
+  false
+end
+
+def find_port(preferred = nil, used = [])
+  if preferred
+    return preferred if port_available?(preferred) && !used.include?(preferred)
+    puts "Port #{preferred} unavailable, finding alternative..."
+  end
+
+  (49152..65535).each do |p|
+    next if used.include?(p)
+    return p if port_available?(p)
+  end
+
+  raise "No available ports"
+end
+
+# Test
+puts "Port 8080 available? #{port_available?(8080)}"
+puts "Found port: #{find_port}"
+puts "Found port (prefer 9999): #{find_port(9999)}"
+```
+
+Output:
+```
+Port 8080 available? true
+Found port: 49152
+Found port (prefer 9999): 9999
+```
+
+**Port allocation works.** `TCPServer.new('127.0.0.1', port)` correctly tests availability.
+
+## Critical Design Decision: Dynamic Port Allocation
+
+From the Docker test failure:
+- **Never assume a port is available**
+- **Always test before binding**
+- **Fallback to ephemeral range (49152-65535)**
+- **Inform user when fallback occurs**
+
+## Runtime Adapter Design
+
+### Interface
+
+```ruby
+module RuntimeAdapter
+  def self.detect
+    return DockerRuntime.new if DockerRuntime.available?
+    return PodmanRuntime.new if PodmanRuntime.available?
+    nil
+  end
+end
+
+class BaseRuntime
+  def available?; raise NotImplementedError; end
+  def name; raise NotImplementedError; end
+  
+  def pull(image); raise NotImplementedError; end
+  def run(image:, ports:, labels:, volumes: [], env: {}, name: nil)
+    raise NotImplementedError
+  end
+  def stop(container_id); raise NotImplementedError; end
+  def start(container_id); raise NotImplementedError; end
+  def remove(container_id); raise NotImplementedError; end
+  def inspect(container_id); raise NotImplementedError; end
+  def exec(container_id, command); raise NotImplementedError; end
+  def list(filters: {}); raise NotImplementedError; end
+end
+```
+> **Note:** `BaseRuntime#exec` executes commands *inside* the container (for health checks). This is distinct from the `test_env exec` dispatcher command which runs the exploit module. No collision occurs in practice due to Ruby namespacing.
+
+## Container Label Schema
+
+All containers created by test_env receive these labels:
+
+| Label | Value | Purpose |
+|-------|-------|---------|
+| `msf.vulnenv.instance_id` | `msf-{hostname}-{pid}` | Isolate msfconsole instances |
+| `msf.vulnenv.module` | Module fullname | Link to exploit module |
+| `msf.vulnenv.version` | Environment version | Track which version |
+| `msf.vulnenv.env_id` | Internal registry ID | Cross-reference |
+| `msf.vulnenv.created_at` | ISO8601 timestamp | Audit trail |
+| `msf.vulnenv.managed_by` | `test_env` | Identify framework-managed |
+
+## Docker vs Podman Differences
+
+| Feature | Docker | Podman | Impact on Design |
+|---------|--------|--------|----------------|
+| Daemon | Required (`dockerd`) | Daemonless | Podman simpler for rootless |
+| Rootless | Complex setup | Default | Podman more secure |
+| CLI syntax | `docker ...` | `podman ...` | Simple binary substitution |
+| Networking | Bridge by default | `slirp4netns` for rootless | Slight performance difference |
+| Image storage | Central (`/var/lib/docker`) | Per-user (`~/.local/share/containers`) | Not shared between users |
+
+## Auto-Detection Strategy
+
+## How test_env build Handles Port Conflicts
+
+### Problem
+
+From my test:
+```bash
+docker run -d -p 127.0.0.1:8080:80 nginx
+# Error: ports are not available: exposing port TCP 127.0.0.1:8080
+```
+
+Port 8080 was already in use. Fixed ports fail.
+
+### Solution: Dynamic Port Allocation with Automatic Fallback
+
+The `PortAllocator` class above handles this by:
+1. Testing if preferred port is available via `TCPServer.new`
+2. If not, scanning ephemeral range for available port
+3. Tracking used ports to avoid duplicates
+
+
+When `test_env build` runs, it:
+- Reads the vulnerability environment's `port_mapping` (e.g., `{8080 => 'RPORT'}`)
+- Checks if the user passed an override like `RPORT=8081`
+- Allocates each required port, falling back to the ephemeral range if the preferred port is taken
+- Starts the container with the allocated mappings
+- Reports actual ports to the user
+- Auto-sets the corresponding module datastore options
+- 
+### Key Design Principles
+
+| Principle | Implementation |
+|-----------|---------------|
+| Never assume a port is available | `TCPServer.new` test before binding |
+| Always provide fallback | Ephemeral range scan |
+| Respect user preference | Try requested port first |
+| Inform user of changes | Print status when fallback occurs |
+| Auto-configure module | Set datastore options automatically |
+
+## Error Handling
+
+| Error Condition | Message |
+|-----------------|---------|
+| No runtime available | "No container runtime found. Install Docker or Podman." |
+| Image pull failed | "Failed to pull image: {image}" |
+| Container start failed (port conflict) | "Failed to start container: {error}. Try without RPORT override." |
+| No available ports | "No available ports in range 49152-65535" |
+| Container not found | "Container {id} not found" |

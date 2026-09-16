@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'HTTP Version Detection',
       'Description' => 'Display version information about each system.',
       'Author' => 'hdm',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'VulnerableEnvironment' => {
+        'definition'      => 'httpd',
+        'default_variant' => '2.4.57',
+        'port_mapping'    => {80 => 'RPORT'}
+      }
     )
 
     register_wmap_options({
