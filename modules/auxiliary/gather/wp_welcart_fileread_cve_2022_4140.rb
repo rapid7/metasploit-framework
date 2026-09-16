@@ -20,8 +20,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'sinn3r', # Used sinn3r's yaws_traversal exploit module as a skeleton
-          'Balachandar Gowrisankar'
+          'Takeshi Suzuki', # CVE author
+          'sinn3r', # Exploit author, used sinn3r's yaws_traversal exploit module as a skeleton
+          'Balachandar Gowrisankar' # Exploit author
         ],
         'References' => [
           ['CVE', '2022-4140']
@@ -37,8 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'The name of the file to download', '/etc/passwd']),
         OptString.new('TARGETURI', [true, 'Base path to WordPress installation', '/'])
       ]
     )
