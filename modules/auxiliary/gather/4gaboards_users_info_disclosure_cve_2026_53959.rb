@@ -24,7 +24,9 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Balachandar Gowrisankar'
+          'lucquach (GitHub)', # CVE author
+          'de3erve (GitHub)', # CVE author
+          'Balachandar Gowrisankar' # Module author
         ],
         'References' => [
           ['CVE', '2026-53959'],
@@ -34,14 +36,16 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Reliability' => [REPEATABLE_SESSION],
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES]
+        },
+        'DefaultOptions' => {
+          'RPORT' => 3000
         }
       )
     )
 
     register_options(
       [
-        Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'Base path to the 4gaBoards installation', '/']),
         OptString.new('EMAIL', [false, 'Email for account creation', 'test@test.com']),
         OptString.new('ADMIN_USERNAME', [false, 'Administrator username for cleanup', 'demo']),
