@@ -7,10 +7,12 @@
 # verify with msftidy and rubocop before opening a PR (see CONTRIBUTING.md).
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Report
-
-  # TODO: Include mixins appropriate for your module, e.g.:
+  # TODO: Include protocol mixins appropriate for your module, e.g.:
   # include Msf::Exploit::Remote::HttpClient
+
+  # Reporting mixin comes after protocol mixins (see Mixin Ordering in AGENTS.md /
+  # CONTRIBUTING.md).
+  include Msf::Auxiliary::Report
 
   # Keep this prepend LAST, after every include (see Mixin Ordering in AGENTS.md /
   # CONTRIBUTING.md): AutoCheck wraps exploit/run to call check first.

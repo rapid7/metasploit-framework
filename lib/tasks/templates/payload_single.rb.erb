@@ -7,7 +7,11 @@
 # verify with msftidy and rubocop before opening a PR (see CONTRIBUTING.md).
 
 module MetasploitModule
-  CachedSize = 0
+  # PLACEHOLDER: :dynamic recomputes the size from generate() every load, which is always
+  # correct but slower. Once generate() is stable, replace it with the real byte size so the
+  # cached value is used -- run `ruby tools/modules/update_payload_cached_sizes.rb` to compute
+  # and write it. A stale hardcoded size is flagged by Msf::Util::PayloadCachedSize.
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
 
@@ -26,7 +30,7 @@ module MetasploitModule
 <%- if platform -%>
         'Platform' => <%= MsfModuleGenerator.ruby_str(platform) %>,
 <%- else -%>
-        'Platform' => nil, # PLACEHOLDER: replace nil with a real platform (e.g., 'linux', 'win', 'osx') -- nil is invalid on purpose so the module fails to load until you set it
+        'Platform' => [nil], # PLACEHOLDER: replace [nil] with a real platform (e.g., 'linux', 'win', 'osx'). A scalar nil collapses to an empty PlatformList (loads silently); [nil] does not resolve to a usable platform, forcing you to set one.
 <%- end -%>
 <%- if arch_const -%>
         'Arch' => <%= arch_const %>

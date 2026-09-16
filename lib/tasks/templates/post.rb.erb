@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
 <%- if platform_meta -%>
         'Platform' => [<%= MsfModuleGenerator.ruby_str(platform_meta) %>],
 <%- else -%>
-        'Platform' => [nil], # PLACEHOLDER: replace [nil] with a real platform (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']) -- [nil] is invalid on purpose so the module fails to load until you set it
+        'Platform' => [nil], # PLACEHOLDER: replace [nil] with a real platform (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']). PlatformList accepts nil (it does not fail load), so [nil] is an invalid placeholder that does not resolve to a usable platform -- set a real one before shipping.
 <%- end -%>
         'SessionTypes' => ['meterpreter', 'shell'],
         'Notes' => {

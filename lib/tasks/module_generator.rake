@@ -194,11 +194,14 @@ namespace :msf do
               end
 
     # Map type to its SINGULAR form, used for BOTH the documentation directory
-    # (documentation/modules/exploit, .../payload/singles) and the msfconsole fullname
-    # in `use ...` commands (exploit/..., payload/...). Both are singular and identical,
-    # distinct from the plural source dir above, so mod_dir cannot be reused for them.
+    # (documentation/modules/exploit, .../payload/...) and the msfconsole fullname in
+    # `use ...` commands. Payloads are special: the loader strips the singles/stagers/
+    # stages/adapters segment (payload_set.rb), so a single payload's runtime fullname is
+    # `payload/<path>` (NOT payload/singles/<path>). Doc lookup uses mod.fullname
+    # (document_generator.rb), so the doc must live at documentation/modules/payload/<path>.
+    # Only the physical source dir (mod_dir) keeps the payloads/singles segment.
     singular_dir = case type
-                   when 'payload_single' then 'payload/singles'
+                   when 'payload_single' then 'payload'
                    when 'auxiliary' then 'auxiliary'
                    when 'post' then 'post'
                    when 'evasion' then 'evasion'
@@ -268,7 +271,7 @@ namespace :msf do
     types_with_arch = %w[exploit evasion payload_single encoder nop]
     types_with_rank = %w[exploit]
     if types_with_platform.include?(type) && platform.nil?
-      load_blockers << 'Platform (emitted as nil/[nil]) -- the module will not load until you set a real platform'
+      load_blockers << 'Platform (emitted as nil/[nil]) -- an invalid placeholder that does not resolve to a usable platform; set a real one before shipping'
     end
     if types_with_arch.include?(type) && arch_const.nil?
       load_blockers << 'Arch (emitted as nil/[nil]) -- the module will not load until you set a real architecture'
