@@ -47,12 +47,22 @@ module RuboCop
           class_node.identifier.short_name == :MetasploitModule
         end
 
-        # Search the class body for a `Rank = ...` constant assignment
+        # Search the class body for a `Rank = ...` constant assignment declared directly
+        # in THIS class -- not inside a nested class/module, whose Rank belongs to that
+        # inner scope and does not set the outer MetasploitModule's rank.
         def rank_declared?(class_node)
           class_node.each_descendant(:casgn).any? do |casgn_node|
             # casgn children: [namespace, :ConstName, value]
-            casgn_node.children[1] == :Rank
+            next false unless casgn_node.children[0].nil? # unqualified (no A::Rank = ...)
+            next false unless casgn_node.children[1] == :Rank
+
+            nearest_scope(casgn_node).equal?(class_node)
           end
+        end
+
+        # The nearest enclosing class/module node for a given node, or nil at the top level.
+        def nearest_scope(node)
+          node.each_ancestor(:class, :module).first
         end
       end
     end

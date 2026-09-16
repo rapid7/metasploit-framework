@@ -75,6 +75,13 @@ RSpec.describe 'msf:generate module generator' do
         expect(described_class.infer_arch('cmd/test', 'payload_single')).to eq('cmd')
       end
 
+      it 'infers generic as the single-segment arch for a generic/ payload (maps to ARCH_ALL)' do
+        # generic/ single payloads exist and use ARCH_ALL; the fallback must recognize it
+        # instead of emitting a nil-arch blocker for a deterministically inferable arch.
+        expect(described_class.infer_arch('generic/mypayload', 'payload_single')).to eq('generic')
+        expect(described_class.map_arch_const('generic')).to eq('ARCH_ALL')
+      end
+
       it 'returns nil for exploit/auxiliary/evasion (never guesses from platform)' do
         expect(described_class.infer_arch('windows/http/x', 'exploit')).to be_nil
         expect(described_class.infer_arch('scanner/http/x', 'auxiliary')).to be_nil
@@ -333,6 +340,28 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).not_to match(/^\s*CachedSize\s*=\s*0\s*$/)
     end
   end
+
+  # DisclosureDate cannot be inferred from the path. It must be a fail-loud placeholder
+  # that msftidy's format check rejects, not the (plausible-but-usually-wrong) generation
+  # date, which passes tooling silently.
+  describe 'exploit DisclosureDate is a fail-loud placeholder, not the generation date' do
+    it "emits 'TODO-YYYY-MM-DD' (which msftidy rejects) and not a real YYYY-MM-DD date" do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits', date: '2026-09-16')
+      expect(source).to include("'DisclosureDate' => 'TODO-YYYY-MM-DD'")
+      expect(source).not_to include("'DisclosureDate' => '2026-09-16'")
+    end
+  end
+
+  # SessionTypes is a compatibility claim the scaffold cannot verify. Default to an empty
+  # list with a TODO forcing an explicit choice, not both meterpreter and shell.
+  describe 'post SessionTypes is an explicit choice, not both by default' do
+    it 'emits an empty SessionTypes with a TODO, never a hardcoded [meterpreter, shell]' do
+      source = render('post.rb.erb', type: 'post', mod_dir: 'post')
+      expect(source).to include("'SessionTypes' => []")
+      expect(source).to match(/TODO.*[Ss]ession/)
+      expect(source).not_to include("'SessionTypes' => ['meterpreter', 'shell']")
+    end
+  end
 end
 
 # Task-level coverage: exercises the public msf:generate workflow (arg/path validation,
@@ -377,6 +406,29 @@ RSpec.describe 'msf:generate rake task (task-level workflow)' do
   it 'rejects a path with .. traversal segments' do
     expect { run_generate('exploit', '../../outside/evil', 'linux', 'x64') }
       .to raise_error(SystemExit)
+  end
+
+  it 'generates an encoder doc with a msfvenom verification step, not a console `run`' do
+    # encoder/nop/payload modules are generated/selected, not driven by `use`+`run`;
+    # the doc's verification steps and Scenarios transcript must be type-specific.
+    _out, dir = run_generate('encoder', 'x86/etask', nil, 'x86',
+                             env: { 'MSF_MOD_AUTHOR' => 'Jane Tester' })
+    doc = File.read(File.join(dir, 'documentation', 'modules', 'encoder', 'x86', 'etask.md'))
+    expect(doc).to include('msfvenom')
+    expect(doc).not_to include('Do: `run`')
+    expect(doc).not_to match(/^msf6 .*> run$/)
+  ensure
+    FileUtils.remove_entry(dir) if dir
+  end
+
+  it 'generates an exploit doc that still uses the console `use` + `run` flow' do
+    _out, dir = run_generate('exploit', 'linux/http/etask2', 'linux', 'x64',
+                             env: { 'MSF_MOD_AUTHOR' => 'Jane Tester' })
+    doc = File.read(File.join(dir, 'documentation', 'modules', 'exploit', 'linux', 'http', 'etask2.md'))
+    expect(doc).to include('Do: `run`')
+    expect(doc).not_to include('msfvenom')
+  ensure
+    FileUtils.remove_entry(dir) if dir
   end
 
   it 'rejects an absolute path' do

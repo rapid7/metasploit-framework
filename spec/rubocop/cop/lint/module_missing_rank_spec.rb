@@ -81,4 +81,22 @@ RSpec.describe RuboCop::Cop::Lint::ModuleMissingRank do
       end
     RUBY
   end
+
+  it 'flags the outer module when the only Rank is inside a nested class' do
+    # A Rank inside a nested helper class belongs to that inner scope; the outer
+    # MetasploitModule still defaults to NormalRanking, so it must still be flagged.
+    source = <<~RUBY
+      class MetasploitModule < Msf::Exploit::Remote
+        class Helper
+          Rank = GreatRanking
+        end
+
+        def exploit
+        end
+      end
+    RUBY
+    offenses = offenses_from(_investigate(cop, parse_source(source, 'test.rb')))
+    expect(offenses.size).to eq(1)
+    expect(offenses.first.message).to eq(msg)
+  end
 end
