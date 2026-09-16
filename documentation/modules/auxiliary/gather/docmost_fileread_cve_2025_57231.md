@@ -1,7 +1,8 @@
 ## Vulnerable Application
 
-Docmost from versions 0.2.1 until 0.21.0, fails to validate file paths sent to the publicly accessible /api/attachments/img/avatar endpoint.
+Docmost from versions 0.2.1 to 0.21.0, fails to validate file paths sent to the publicly accessible `/api/attachments/img/avatar` endpoint.
 This leads to an arbitrary file read vulnerability allowing unauthenticated attackers to retrieve local sensitive files.
+The vulnerability has been patched in version 0.22.0.
 
 This module uses this vulnerability to retrieve the contents of arbitrary local files by performing directory traversal via avatar endpoint.
 
@@ -38,7 +39,7 @@ Navigate to http://localhost:3000/ and enter dummy details for workspace name, n
 ```
 msfconsole
 ```
-2. **Load the Planyo LFI scanner**
+2. **Load the Docmost file read scanner**
 ```
 use auxiliary/gather/docmost_fileread_cve_2025_57231
 set RHOSTS 127.0.0.1
