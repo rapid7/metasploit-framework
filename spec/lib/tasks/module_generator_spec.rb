@@ -151,6 +151,22 @@ RSpec.describe 'msf:generate module generator' do
         expect(described_class.ruby_str(nil)).to eq("''")
       end
     end
+
+    # The rake file can be loaded more than once in one process (this suite loads the
+    # module block, then the task-level block loads the whole rakefile). The arch
+    # constants are guarded so the second load is a no-op instead of a
+    # 'already initialized constant' warning.
+    describe 'constant re-definition safety' do
+      it 'guards KNOWN_ARCHES and ARCH_CONST_OVERRIDES against re-definition' do
+        expect(defined?(MsfModuleGenerator::KNOWN_ARCHES)).to eq('constant')
+        expect(defined?(MsfModuleGenerator::ARCH_CONST_OVERRIDES)).to eq('constant')
+        # Re-evaluating the module block a second time must not raise (the `unless
+        # defined?` guards make the re-assignment a no-op).
+        rake_path = Metasploit::Framework.root.join('lib', 'tasks', 'module_generator.rake').to_path
+        mod_source = File.read(rake_path)[/^module MsfModuleGenerator$.*?^end$/m]
+        expect { Object.class_eval(mod_source, rake_path) }.not_to raise_error
+      end
+    end
   end
 
   # Every template must render to syntactically valid Ruby whether or not the
@@ -289,6 +305,30 @@ RSpec.describe 'msf:generate module generator' do
       source = render('encoder.rb.erb', type: 'encoder', mod_dir: 'encoders')
       expect(source).not_to match(/^\s*Rank\s*=/)
       expect(source).not_to match(/Rank/)
+    end
+  end
+
+  # cgranleese-r7 review: placeholder comments should carry BOTH the source-file
+  # reference (useful to agents, always in sync with the branch) AND a docs-site link
+  # (useful to humans, explains what the values mean). Additive, not a replacement.
+  describe 'placeholder comments link the docs alongside the source path' do
+    it 'exploit Rank TODO links the exploit-ranking docs and keeps the constants.rb path' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits')
+      expect(source).to include('docs.metasploit.com/docs/using-metasploit/intermediate/exploit-ranking.html')
+      expect(source).to include('lib/msf/core/constants.rb')
+    end
+
+    it 'exploit check comment links the how-to-write-a-check-method docs' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits')
+      expect(source).to include('docs.metasploit.com/docs/development/developing-modules/guides/how-to-write-a-check-method.html')
+    end
+
+    %w[exploit auxiliary post].each do |t|
+      it "#{t} Notes comment links the metadata-definitions docs and keeps the constants.rb path" do
+        source = render("#{t}.rb.erb", type: t, mod_dir: (t == 'exploit' ? 'exploits' : t))
+        expect(source).to include('definition-of-module-reliability-side-effects-and-stability.html')
+        expect(source).to include('lib/msf/core/constants.rb')
+      end
     end
   end
 

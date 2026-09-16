@@ -57,7 +57,10 @@ module MsfModuleGenerator
   # path prefix (modules/encoders/generic, modules/payloads/singles/generic) that maps to
   # ARCH_ALL. ARCH_ANY ('_any_') is intentionally excluded -- it is a matcher sentinel, not
   # an arch a module is scaffolded for.
-  KNOWN_ARCHES = (Rex::Arch::ARCH_TYPES + %w[generic]).freeze
+  # Guarded against re-definition: the rake file can be loaded more than once in one
+  # process (e.g. the spec suite loads the module block, then loads the whole rakefile),
+  # and a bare re-assignment of a frozen constant warns.
+  KNOWN_ARCHES = (Rex::Arch::ARCH_TYPES + %w[generic]).freeze unless defined?(KNOWN_ARCHES)
 
   # Check if a string matches a known architecture name
   def self.known_arch?(name)
@@ -75,9 +78,12 @@ module MsfModuleGenerator
   # not two.
 
   # Known archs whose constant name is NOT ARCH_<UPCASE>. Keep in sync with lib/rex/arch.rb.
-  ARCH_CONST_OVERRIDES = {
-    'generic' => 'ARCH_ALL' # the generic/ tree (encoders, payloads) uses ARCH_ALL; ARCH_GENERIC does not exist
-  }.freeze
+  # Guarded against re-definition (see KNOWN_ARCHES above).
+  unless defined?(ARCH_CONST_OVERRIDES)
+    ARCH_CONST_OVERRIDES = {
+      'generic' => 'ARCH_ALL' # the generic/ tree (encoders, payloads) uses ARCH_ALL; ARCH_GENERIC does not exist
+    }.freeze
+  end
 
   def self.map_arch_const(arch)
     return nil if arch.nil?
