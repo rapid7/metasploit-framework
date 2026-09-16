@@ -25,7 +25,10 @@ class MetasploitModule < Msf::Post
 <%- else -%>
         'Platform' => [nil], # PLACEHOLDER: replace [nil] with a real platform (e.g., ['windows'], ['linux'], ['linux', 'windows', 'osx']). PlatformList accepts nil (it does not fail load), so [nil] is an invalid placeholder that does not resolve to a usable platform -- set a real one before shipping.
 <%- end -%>
-        'SessionTypes' => ['meterpreter', 'shell'],
+        # TODO: Set the session type(s) this module actually supports -- session
+        # compatibility depends on your implementation. Use ['meterpreter'], ['shell'],
+        # or ['meterpreter', 'shell'] only if it genuinely works on both.
+        'SessionTypes' => [],
         'Notes' => {
           # PLACEHOLDER: the UNKNOWN_* sentinels below are NOT valid metadata -- the
           # Lint/ModuleEnforceNotes cop flags them until you replace each one. Choose real

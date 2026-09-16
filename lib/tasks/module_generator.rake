@@ -43,7 +43,7 @@ module MsfModuleGenerator
       end
       # Single-segment arch payloads: the first segment IS the arch
       first = segments.first.downcase
-      return first if %w[cmd java php python ruby].include?(first)
+      return first if %w[cmd java php python ruby generic].include?(first)
     end
 
     # For other types, arch cannot be reliably inferred from the path --
@@ -270,6 +270,9 @@ namespace :msf do
     types_with_platform = %w[exploit evasion payload_single post]
     types_with_arch = %w[exploit evasion payload_single encoder nop]
     types_with_rank = %w[exploit]
+    types_with_notes = %w[exploit auxiliary post] # emit UNKNOWN_* Notes sentinels
+    types_with_type = %w[exploit] # exploit Targets emit 'Type' => nil
+    types_with_disclosure = %w[exploit] # exploit emits a placeholder DisclosureDate
     if types_with_platform.include?(type) && platform.nil?
       load_blockers << 'Platform (emitted as nil/[nil]) -- an invalid placeholder that does not resolve to a usable platform; set a real one before shipping'
     end
@@ -278,6 +281,15 @@ namespace :msf do
     end
     if types_with_rank.include?(type)
       load_blockers << 'Rank (no explicit Rank emitted) -- msftidy flags this (INFO) until you set one (ManualRanking to ExcellentRanking)'
+    end
+    if types_with_notes.include?(type)
+      load_blockers << 'Notes (Stability/SideEffects/Reliability emitted as UNKNOWN_* sentinels) -- Lint/ModuleEnforceNotes flags these until you set real values'
+    end
+    if types_with_type.include?(type)
+      load_blockers << 'Target Type (emitted as nil) -- cannot be inferred from the path; set a real type (e.g. :dropper, :cmd) before shipping'
+    end
+    if types_with_disclosure.include?(type)
+      load_blockers << 'DisclosureDate (emitted as TODO-YYYY-MM-DD) -- cannot be inferred from the path; msftidy rejects the format until you set a real date'
     end
 
     print_generation_warning = lambda do
@@ -319,8 +331,8 @@ namespace :msf do
       # a template that renders invalid Ruby must not report success.
       puts "\nVerifying syntax..."
       unless system('ruby', '-c', module_file)
-        puts "⚠ Syntax check failed for #{module_file} -- the generated file is not valid Ruby. " \
-             'This is a generator bug; please report it.'
+        abort "Error: syntax check failed for #{module_file} -- the generated file is not valid Ruby. " \
+              'This is a generator bug; please report it (the file was written but is malformed).'
       end
 
       print_generation_warning.call
