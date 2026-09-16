@@ -1,12 +1,17 @@
 ## Vulnerable Application
 
-4gaBoards in versions 3.3.8 or less, does not enforce authorization checks for /api/users REST API endpoint.
+4gaBoards versions 3.3.8 and earlier do not enforce required authorization checks on the `/api/users` REST API endpoint.
+Version 3.3.9 fixes the disclosure by sanitizing its response.
+
+### Introduction
+
+This module exploits CVE-2026-53959 to disclose user profile information through the authenticated `/api/users` endpoint.
 Any authenticated user can query the endpoint to retrieve information of all users using the application.
 Disclosed information includes sensitive fields like name, email, phone, organization and SSO emails.
 
-The registration endpoint /api/register is open by default and returns an access token even if email verification is enabled.
-So the module first registers a new user account via /api/register and obtains an access token.
-The access token is then used to retrieve all users' information via /api/users.
+The registration endpoint `/api/register` is open by default and returns an access token even if email verification is enabled.
+So the module first registers a new user account via `/api/register` and obtains an access token.
+The access token is then used to retrieve all users' information via `/api/users`.
 If given valid administrator credentials, the module also performs cleanup by deleting the newly registered account.
 
 ### Pre-requisites
@@ -41,7 +46,7 @@ msfconsole
 ```
 2. **Load the 4gaBoards User Information Disclosure module**
 ```
-use auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959.rb
+use auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959
 set RHOSTS 127.0.0.1
 set RPORT 3000
 set TARGETURI /
@@ -57,7 +62,7 @@ run
 
 The module should:
 - Create a new user with the supplied email and obtain an access token
-- Use the access token to dump the information of all users on the application 
+- Use the access token to dump the information of all users on the application
 - Delete the newly created user using the supplied admin credentials
 
 ## Options
@@ -65,7 +70,7 @@ The module should:
 - **TARGETURI**(`/`): Base path to 4gaBoards installation
 - **EMAIL**(`test@test.com`): Email for account creation
 - **ADMIN_USERNAME**(`demo`): Administrator username for cleanup
-- **ADMIN_PASSWORD**(`demo`): Administrator password for cleanup 
+- **ADMIN_PASSWORD**(`demo`): Administrator password for cleanup
 
 ## Scenarios
 ```
