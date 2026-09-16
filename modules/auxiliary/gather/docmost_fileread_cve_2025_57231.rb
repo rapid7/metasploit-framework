@@ -17,10 +17,12 @@ class MetasploitModule < Msf::Auxiliary
           This module exploits an arbitrary file read vulnerability in Docmost versions from 0.2.1 to 0.21.0.
           Docmost does not validate file paths sent to the /api/attachments/img/avatar endpoint. This endpoint is publicly accessible without any authentication.
           This allows unauthenticated attackers to access the vulnerable endpoint directly and read arbitrary files on the server.
+
+          The vulnerability has been patched in version 0.22.0.
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'Balachandar Gowrisankar'
+          'Balachandar Gowrisankar' # Exploit author
         ],
         'References' => [
           ['CVE', '2025-57231'],
@@ -32,14 +34,16 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [REPEATABLE_SESSION],
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
+        },
+        'DefaultOptions' => {
+          'RPORT' => 3000
         }
       )
     )
 
     register_options(
       [
-        Opt::RPORT(80),
-        OptString.new('FILEPATH', [false, 'Name of the file to download', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'Name of the file to download', '/etc/passwd']),
         OptString.new('TARGETURI', [true, 'Base path to Docmost installation', '/'])
       ]
     )
