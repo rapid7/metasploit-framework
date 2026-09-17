@@ -268,7 +268,7 @@ jobs:
           ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
           bundle config unset deployment
           bundle update metasploit_payloads-mettle
-          bundle install
+          bundle install --deployment
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
@@ -350,7 +350,7 @@ jobs:
         run: |
           bundle config unset deployment
           bundle update metasploit-payloads
-          bundle install
+          bundle install --deployment
         working-directory: metasploit-framework
 
       - name: Acceptance
