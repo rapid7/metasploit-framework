@@ -251,6 +251,14 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   end
 
   def is_child_of?(target_dir, target)
-    target.downcase.start_with?(target_dir.downcase)
+    target_dir = File.expand_path(target_dir)
+    target = File.expand_path(target)
+
+    if Gem.win_platform?
+      target_dir = target_dir.downcase
+      target = target.downcase
+    end
+
+    target == target_dir || target.start_with?("#{target_dir}#{File::SEPARATOR}")
   end
 end

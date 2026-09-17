@@ -14,6 +14,8 @@ module Http
 ###
 class Server
 
+  attr_accessor :max_request_body_size
+
   include Proto
 
   #
@@ -247,7 +249,7 @@ protected
       raise ::EOFError if not data
       raise ::EOFError if data.empty?
 
-      case cli.request.parse(data)
+      case cli.request.parse(data, max_body_size: max_request_body_size)
         when Packet::ParseCode::Completed
           dispatch_request(cli, cli.request)
           cli.reset_cli
