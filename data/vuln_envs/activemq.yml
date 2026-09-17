@@ -1,0 +1,64 @@
+name: activemq
+description: Apache ActiveMQ Classic with Jolokia API
+
+variants:
+  #Used by exploit/multi/http/apache_activemq_jolokia_rce
+  - name: "5.18.6"
+    version: "5.18.6"
+    image: docker.io/apache/activemq-classic:5.18.6
+    default: true
+
+  #Used by exploit/multi/misc/apache_activemq_rce_cve_2023_46604
+  - name: "5.18.2"
+    version: "5.18.2"
+    image: docker.io/dinifarb/activemq:5.18.2
+
+shared:
+  ports:
+    web: 8161
+    broker: 61616
+
+  credentials:
+    default:
+      username: admin
+      password: admin
+
+  datastore_defaults:
+    TARGETURI: /
+
+  health_check:
+    type: http
+    path: /api/jolokia/
+    expected_status: 200
+    interval: 5
+    timeout: 2
+    retries: 12
+    credentials:
+      username: admin
+      password: admin
+
+  ci:
+    exploit:
+      # The module's own auto-default (cmd/linux/ftp/x64/meterpreter/reverse_tcp)
+      # does not work: FTP isn't one of Metasploit's supported fetch-payload
+      # server protocols (only HTTP, HTTPS, SMB, TFTP), so it fails with
+      # "bad-config: Unsupported Binary Selected" every time. http works.
+      payload: cmd/linux/http/x64/meterpreter/reverse_tcp
+      options:
+        LPORT: 4444
+    validation:
+      expected_session: true
+      session_type: meterpreter
+      expected_output: "uid="
+      timeout: 120
+
+profiles:
+  default:
+    description: Standard ActiveMQ; web console reachable via HTTP/Jolokia.
+  broker-only:
+    description: Web console not assumed reachable; only the broker port is health-checked
+    health_check:
+      type: tcp
+    ci:
+      exploit:
+        force_exploit: true 
