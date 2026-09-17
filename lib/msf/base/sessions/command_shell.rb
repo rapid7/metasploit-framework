@@ -814,17 +814,59 @@ protected
 
     run_single('')
 
-    while self.interacting
-      sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
-      next unless sd
+    if !user_input.respond_to?(:pgets)
+      while self.interacting
+        sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
+        next unless sd
 
-      if sd[0].include? rstream.fd
-        user_output.print(shell_read)
+        if sd[0].include? rstream.fd
+          user_output.print(shell_read)
+        end
+        if sd[0].include? user_input.fd
+          run_single((user_input.gets || '').chomp("\n"))
+        end
+        Thread.pass
       end
-      if sd[0].include? user_input.fd
-        run_single((user_input.gets || '').chomp("\n"))
+    else
+      old_prompt = user_input.prompt
+      user_input.prompt = ''
+
+      while self.interacting
+        data = ''
+        while self.interacting
+          sd = Rex::ThreadSafe.select([rstream.fd], nil, nil, 0.1)
+          break unless sd
+          begin
+            chunk = shell_read(-1, 0.01)
+            break if chunk.nil? || chunk.empty?
+            data << chunk
+          rescue Exception
+            break
+          end
+        end
+
+        if data.length > 0
+          lines = data.split("\n", -1)
+          prompt_part = lines.pop || ''
+
+          if lines.length > 0
+            user_output.print(lines.join("\n") + "\n")
+          end
+
+          user_input.prompt = prompt_part
+        end
+
+        begin
+          line = user_input.pgets
+          break unless line
+          run_single(line)
+        rescue Exception
+          break
+        end
       end
       Thread.pass
+
+      user_input.prompt = old_prompt if old_prompt
     end
   end
 
