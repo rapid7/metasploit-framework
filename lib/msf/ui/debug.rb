@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: binary -*-
 # frozen_string_literal: true
 
 module Msf
