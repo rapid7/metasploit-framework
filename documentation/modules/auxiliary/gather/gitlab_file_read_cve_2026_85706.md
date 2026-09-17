@@ -55,7 +55,6 @@ by two hexadecimal characters for its contents to be returned.
 
 The project ID placed in the API route. The default value is sufficient because the files endpoint reads the local file before
 checking whether the project exists.
-rub
 ## Scenarios
 
 ### GitLab CE 19.3.1
