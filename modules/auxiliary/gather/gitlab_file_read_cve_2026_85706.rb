@@ -1,4 +1,3 @@
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -141,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi(
         'method' => route[:method],
         'uri' => uri,
-'ctype' => 'application/x-www-form-urlencoded',
+        'ctype' => 'application/x-www-form-urlencoded',
         'vars_post' => {
           'file' => '',
           'file.path' => file_path,
