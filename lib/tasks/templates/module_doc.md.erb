@@ -14,18 +14,19 @@ Include:
 
 1. Install the application
 1. Start msfconsole
-1. Do: `use <%= console_name %>`
 <%- if %w[post].include?(type) -%>
+1. Do: `use <%= console_name %>`
 1. Do: `set SESSION [session id]`
 1. Do: `run`
 <%- elsif %w[encoder].include?(type) -%>
 1. Generate a payload through this encoder, e.g.: `msfvenom -p <payload> -e <%= console_name %> -f <format>`
 <%- elsif %w[nop].include?(type) -%>
-1. Generate a payload using this NOP generator, e.g.: `msfvenom -p <payload> -n <length> --nopsled-generator <%= console_name %> -f <format>`
+1. NOP generators are driven through the framework, not a msfvenom flag. In msfconsole: `use <%= console_name %>`, then `generate <length>`. Confirm the emitted bytes are valid no-ops for the target arch.
 <%- elsif %w[payload_single].include?(type) -%>
-1. Generate the payload, e.g.: `msfvenom -p <%= console_name %> LHOST=[ip] LPORT=[port] -f <format>`
+1. Generate the payload with msfvenom, e.g.: `msfvenom -p <%= console_name %> -f <format>`. Add any datastore options this payload needs (run `msfvenom -p <%= console_name %> --list-options`; reverse payloads need `LHOST`/`LPORT`, bind/cmd payloads may need none).
 <%- else -%>
-1. Do: `set RHOSTS [target ip]`
+1. Do: `use <%= console_name %>`
+1. Do: `show options`, then `set` the module's required options (e.g. `RHOSTS` for most remote modules; a local exploit or session-based module needs different options)
 1. Do: `run`
 <%- end -%>
 1. You should see [expected result]
@@ -49,17 +50,19 @@ This section MUST contain real console output from a successful run.
 $ msfvenom -p <payload> -e <%= console_name %> -f <format>
 [*] TODO: Paste actual msfvenom output here
 <%- elsif %w[nop].include?(type) -%>
-$ msfvenom -p <payload> -n <length> --nopsled-generator <%= console_name %> -f <format>
-[*] TODO: Paste actual msfvenom output here
+msf6 > use <%= console_name %>
+msf6 (<%= path.split('/').last %>) > generate <length>
+[*] TODO: Paste actual generated NOP sled here
 <%- elsif %w[payload_single].include?(type) -%>
-$ msfvenom -p <%= console_name %> LHOST=192.0.2.1 LPORT=4444 -f <format>
-[*] TODO: Paste actual msfvenom output here
+$ msfvenom -p <%= console_name %> -f <format>
+[*] TODO: add any required datastore options (see --list-options), then paste actual msfvenom output here
 <%- else -%>
 msf6 > use <%= console_name %>
 <%- if %w[post].include?(type) -%>
 msf6 (<%= path.split('/').last %>) > set SESSION 1
 <%- else -%>
-msf6 (<%= path.split('/').last %>) > set RHOSTS 192.0.2.1
+msf6 (<%= path.split('/').last %>) > show options
+msf6 (<%= path.split('/').last %>) > set <required options>
 <%- end -%>
 msf6 (<%= path.split('/').last %>) > run
 
