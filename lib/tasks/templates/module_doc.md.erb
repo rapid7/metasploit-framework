@@ -1,0 +1,71 @@
+## Vulnerable Application
+
+TODO: Instructions to set up the vulnerable application for testing.
+
+Include:
+- Links to download the vulnerable version
+- Docker setup commands (preferred), e.g.:
+  ```
+  docker run -d -p 8080:8080 vendor/app:vulnerable-version
+  ```
+- Configuration requirements to reach the vulnerable state
+
+## Verification Steps
+
+1. Install the application
+1. Start msfconsole
+<%- if %w[post].include?(type) -%>
+1. Do: `use <%= console_name %>`
+1. Do: `set SESSION [session id]`
+1. Do: `run`
+<%- elsif %w[encoder].include?(type) -%>
+1. Generate a payload through this encoder, e.g.: `msfvenom -p <payload> -e <%= console_name %> -f <format>`
+<%- elsif %w[nop].include?(type) -%>
+1. NOP generators are driven through the framework, not a msfvenom flag. In msfconsole: `use <%= console_name %>`, then `generate <length>`. Confirm the emitted bytes are valid no-ops for the target arch.
+<%- elsif %w[payload_single].include?(type) -%>
+1. Generate the payload with msfvenom, e.g.: `msfvenom -p <%= console_name %> -f <format>`. Add any datastore options this payload needs (run `msfvenom -p <%= console_name %> --list-options`; reverse payloads need `LHOST`/`LPORT`, bind/cmd payloads may need none).
+<%- else -%>
+1. Do: `use <%= console_name %>`
+1. Do: `show options`, then `set` the module's required options (e.g. `RHOSTS` for most remote modules; a local exploit or session-based module needs different options)
+1. Do: `run`
+<%- end -%>
+1. You should see [expected result]
+
+<%- unless %w[encoder nop payload_single].include?(type) -%>
+## Options
+
+TODO: Document module-specific options here. Remove this section if there are none
+beyond the standard options.
+
+<%- end -%>
+## Scenarios
+
+### [Version] on [OS]
+
+TODO: Fill in with actual testing output after verifying the module works.
+This section MUST contain real console output from a successful run.
+
+```
+<%- if %w[encoder].include?(type) -%>
+$ msfvenom -p <payload> -e <%= console_name %> -f <format>
+[*] TODO: Paste actual msfvenom output here
+<%- elsif %w[nop].include?(type) -%>
+msf6 > use <%= console_name %>
+msf6 (<%= path.split('/').last %>) > generate <length>
+[*] TODO: Paste actual generated NOP sled here
+<%- elsif %w[payload_single].include?(type) -%>
+$ msfvenom -p <%= console_name %> -f <format>
+[*] TODO: add any required datastore options (see --list-options), then paste actual msfvenom output here
+<%- else -%>
+msf6 > use <%= console_name %>
+<%- if %w[post].include?(type) -%>
+msf6 (<%= path.split('/').last %>) > set SESSION 1
+<%- else -%>
+msf6 (<%= path.split('/').last %>) > show options
+msf6 (<%= path.split('/').last %>) > set <required options>
+<%- end -%>
+msf6 (<%= path.split('/').last %>) > run
+
+[*] TODO: Paste actual console output here
+<%- end -%>
+```

@@ -237,6 +237,8 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 
 #### Metadata and Structure
 
+- Use `bundle exec rake 'msf:generate[TYPE,PATH]'` to scaffold new modules with correct structure and documentation (e.g., `rake 'msf:generate[exploit,linux/http/my_vuln,linux,x64]'`). Set `MSF_MOD_AUTHOR` and `MSF_MOD_CVE` environment variables for metadata. Use `MSF_DRY_RUN=1` to preview output without writing files. Run `bundle exec rake msf:generate:types` to list available module types.
+- After scaffolding or completing a module, verify no placeholder comments remain (`TODO:`, `PLACEHOLDER:`, empty arrays in Notes, placeholder description text). All generated `TODO:` and `PLACEHOLDER:` markers must be resolved before submitting.
 - Prefer writing modules in Ruby. Go and Python modules are accepted, but their external runtimes don't support the full framework API (e.g. network pivoting). Ruby modules do not have this limitation
 - Prefer using hash over an array for return values, and use kwargs for reusable APIs for future extensions
 - Before writing a new module, check that there is not an existing module or open pull request that already covers the same functionality
