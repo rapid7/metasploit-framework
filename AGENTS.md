@@ -444,7 +444,7 @@ version = html.at_css('meta[name="version"]')&.[]('content')
 - Check `res` for nil (target didn't respond) before accessing `.code` or `.body`
 - Use `fail_with(Failure::*, 'reason')` for error conditions in `exploit`/`run`
 - Join request-path components with `normalize_uri` rather than manual string concatenation. Use `full_uri` when generating an absolute URL so the scheme, non-default port, virtual host, and IPv6 authority are formatted correctly; keep query parameters in `vars_get`/`vars_post` instead of embedding them in path components
-- `send_request_cgi` uses a 20-second timeout by default, and users can adjust the mixin's `HttpClientTimeout`. Omit per-request timeout values unless the operation requires different behavior; if it does, make the distinct timeout user-configurable and explain why it differs
+- Users can override the `send_request_cgi` default timeout through the mixin's `HttpClientTimeout`. Omit per-request timeout values unless the operation requires different behavior. When it does, the distinct timeout must be user-configurable and its purpose must be explained
 
 ### Network Operations
 
