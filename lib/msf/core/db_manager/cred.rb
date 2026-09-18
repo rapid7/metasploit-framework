@@ -1,4 +1,16 @@
 module Msf::DBManager::Cred
+  # List of allow-listed option keys, when performing operations on credentials. Only these can be modified by the caller.
+  PERMITTED_CORE_UPDATE_ATTRIBUTES = %i[workspace public private origin created_at updated_at].freeze
+
+  # Returns a copy of +opts+ containing only the keys in {PERMITTED_CORE_UPDATE_ATTRIBUTES}, to limit what values can be assigned/modified.
+  #
+  # @param opts [Hash] the caller-supplied opts hash
+  # @return [Hash] the subset of +opts+ that is safe to mass assign
+  def permitted_core_update_attributes(opts)
+    opts.slice(*PERMITTED_CORE_UPDATE_ATTRIBUTES)
+  end
+  private :permitted_core_update_attributes
+
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
@@ -240,7 +252,12 @@ module Msf::DBManager::Cred
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts = opts.clone()
       opts.delete(:workspace)
-      opts[:workspace] = wspace if wspace
+
+      id = opts.delete(:id)
+      cred = Metasploit::Credential::Core.find(id)
+
+      update_attrs = permitted_core_update_attributes(opts)
+      update_attrs[:workspace] = wspace if wspace
 
       if opts[:public]
         if opts[:public][:id]
@@ -250,7 +267,7 @@ module Msf::DBManager::Cred
         else
           public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
         end
-        opts[:public] = public
+        update_attrs[:public] = public
       end
       if opts[:private]
         if opts[:private][:id]
@@ -260,7 +277,7 @@ module Msf::DBManager::Cred
         else
           private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
         end
-        opts[:private] = private
+        update_attrs[:private] = private
       end
       if opts[:origin]
         if opts[:origin][:id]
@@ -270,12 +287,10 @@ module Msf::DBManager::Cred
         else
           origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
         end
-        opts[:origin] = origin
+        update_attrs[:origin] = origin
       end
 
-      id = opts.delete(:id)
-      cred = Metasploit::Credential::Core.find(id)
-      cred.update!(opts)
+      cred.update!(update_attrs)
       return cred
     }
   end
