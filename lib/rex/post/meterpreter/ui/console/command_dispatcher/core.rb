@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
 require 'set'
+require 'yaml'
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/micro_helper'
+require 'rex/post/meterpreter/ui/console/command_dispatcher/micro_alias'
 require 'rex'
 
 module Rex
@@ -28,6 +31,11 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
+    @micro_dispatchers = {}
+    @micro_helpers = {}
+    @micro_manifest_commands = {}
+    @micro_command_aliases = {}
+    @micro_alias_dispatcher = nil
 
     # keep a lookup table to refer to transports by index
     @transport_map = {}
@@ -70,6 +78,7 @@ class Console::CommandDispatcher::Core
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
       'disable_unicode_encoding' => 'Disables encoding of unicode strings',
       'migrate'                  => 'Migrate the server to another process',
+      'micro'                    => 'Manage Meterpreter microextensions',
       'pivot'                    => 'Manage pivot listeners',
       # transport related commands
       'detach'                   => 'Detach the meterpreter session (for http/https)',
@@ -83,7 +92,6 @@ class Console::CommandDispatcher::Core
     if msf_loaded?
       cmds['info'] = 'Displays information about a Post module'
     end
-
     reqs = {
       'load'         => [COMMAND_ID_CORE_LOADLIB],
       'machine_id'   => [COMMAND_ID_CORE_MACHINE_ID],
@@ -114,6 +122,7 @@ class Console::CommandDispatcher::Core
     # filtering for Windows which supports all the filtered commands anyways. This is not the only instance of this
     # workaround.
     reqs.clear if client.base_platform == 'windows'
+    reqs['micro'] = [COMMAND_ID_CORE_MICRO_HAS_COMMAND, COMMAND_ID_CORE_MICRO_LOAD, COMMAND_ID_CORE_MICRO_ENUM, COMMAND_ID_CORE_MICRO_UNLOAD]
 
     filter_commands(cmds, reqs)
   end
@@ -1285,6 +1294,711 @@ class Console::CommandDispatcher::Core
     return tabs.to_a
   end
 
+  def cmd_micro_help
+    print_line('Usage: micro alias <profile|object|command> [alias]')
+    print_line('       micro load <manifest.yaml>')
+    print_line('       micro load <name> <object.o>')
+    print_line('       micro list')
+    print_line('       micro has <command-id|command-name> [...]')
+    print_line('       micro unload <name|handle>')
+    print_line('       micro run <manifest-command> [arguments]')
+    print_line
+    print_line('Manages resident COFF objects that provide Meterpreter commands and channels.')
+    return if @micro_manifest_commands.empty?
+
+    print_line
+    print_line('Manifest commands:')
+    @micro_manifest_commands.each_value do |command|
+      print_line("    #{command[:name].ljust(20)} #{command[:description]}")
+    end
+  end
+
+  def cmd_micro(*args)
+    operation = args.shift
+    case operation
+    when 'alias'
+      return micro_alias_arguments(args)
+    when 'load'
+      return micro_load_arguments(args)
+    when 'list'
+      return micro_list if args.empty?
+    when 'has'
+      return micro_has_arguments(args) if args.any?
+    when 'unload'
+      return micro_unload_argument(args.first) if args.length == 1
+    when 'run'
+      return micro_invoke_manifest_command(args.shift, args) if @micro_manifest_commands.key?(args.first)
+    end
+
+    cmd_micro_help
+    false
+  end
+
+  def cmd_micro_tabs(_str, words)
+    return %w[alias load list has run unload] if words.length == 1
+    return micro_alias_targets(words.last) if words.first == 'alias'
+    return @micro_manifest_commands.keys.sort if words.first == 'run'
+    return CommandMapper.get_command_names.select { |name| name.start_with?(words.last) } if words.first == 'has'
+
+    []
+  end
+
+  def micro_alias_arguments(args)
+    if args.empty?
+      if @micro_command_aliases.empty?
+        print_line('No microextension command aliases active.')
+      else
+        @micro_command_aliases.each { |alias_name, command_name| print_line("#{alias_name} -> micro run #{command_name}") }
+      end
+      return true
+    end
+
+    scope, alias_name = args
+    unless args.length <= 2
+      cmd_micro_help
+      return false
+    end
+
+    candidates = if alias_name
+                   command = @micro_manifest_commands[scope]
+                   command ? [[alias_name, command[:name]]] : []
+                 else
+                   micro_alias_commands(scope).map { |command| [command[:name], command[:name]] }
+                 end
+    if candidates.empty?
+      print_error("No loaded YAML command scope named #{scope}")
+      return false
+    end
+    unless candidates.all? { |candidate_alias, _command_name| candidate_alias.match?(/\A[a-z][a-z0-9_]*\z/) }
+      print_error('Microextension aliases must be lowercase command names')
+      return false
+    end
+
+    conflict = candidates.find do |candidate_alias, command_name|
+      @micro_command_aliases[candidate_alias] != command_name && shell.dispatcher_stack.any? { |dispatcher| dispatcher.commands.key?(candidate_alias) }
+    end
+    if conflict
+      print_error("Cannot alias #{conflict.first}: a command with that name is already active")
+      return false
+    end
+
+    candidates.each { |candidate_alias, command_name| @micro_command_aliases[candidate_alias] = command_name }
+    micro_alias_dispatcher
+    print_good("Aliased #{candidates.map(&:first).join(', ')}")
+    true
+  end
+
+  def micro_alias_commands(scope)
+    commands = @micro_manifest_commands.values.select { |command| command[:profile] == scope || command[:object] == scope }
+    commands = [@micro_manifest_commands[scope]] if commands.empty? && @micro_manifest_commands.key?(scope)
+    commands
+  end
+
+  def micro_alias_targets(prefix)
+    targets = @micro_manifest_commands.values.flat_map { |command| [command[:profile], command[:object], command[:name]] }
+    targets.uniq.grep(/\A#{Regexp.escape(prefix)}/).sort
+  end
+
+  def micro_alias_dispatcher_commands
+    @micro_command_aliases.to_h do |alias_name, command_name|
+      [alias_name, @micro_manifest_commands.fetch(command_name)[:description]]
+    end
+  end
+
+  def micro_invoke_alias(alias_name, arguments)
+    micro_invoke_manifest_command(@micro_command_aliases.fetch(alias_name), arguments)
+  end
+
+  def micro_alias_dispatcher
+    return @micro_alias_dispatcher if @micro_alias_dispatcher && shell.dispatcher_stack.include?(@micro_alias_dispatcher)
+
+    core_index = shell.dispatcher_stack.index(self) || shell.dispatcher_stack.length
+    @micro_alias_dispatcher = Console::CommandDispatcher::MicroAlias.new(shell)
+    shell.dispatcher_stack.insert(core_index, @micro_alias_dispatcher)
+  end
+
+  def micro_remove_alias_dispatcher
+    shell.dispatcher_stack.delete(@micro_alias_dispatcher) if @micro_alias_dispatcher
+    @micro_alias_dispatcher = nil
+  end
+
+  def micro_load_arguments(args)
+    loaded = []
+    objects = if args.length == 1
+                micro_manifest_objects(args.first)
+              elsif args.length == 2
+                [{ name: args[0], path: ::File.expand_path(args[1]), commands: nil, channels: nil, adapter: nil, exposed_commands: [], ui_commands: [] }]
+              else
+                cmd_micro_help
+                return false
+              end
+
+    objects.each do |object|
+      unless ::File.file?(object[:path])
+        raise Rex::RuntimeError, "Microextension object does not exist: #{object[:path]}"
+      end
+
+      image = ::File.binread(object[:path])
+      object_architecture = micro_object_architecture(image)
+      if object_architecture != micro_session_architecture
+        raise Rex::RuntimeError, "#{object[:name]} is #{object_architecture || 'an unknown architecture'}, but this Meterpreter is #{micro_session_architecture}"
+      end
+
+      result = client.core.micro_load(object[:name], image)
+      if (object[:commands] && object[:commands].sort != result[:commands].sort) || (object[:channels] && object[:channels].sort != result[:channels].sort)
+        client.core.micro_unload(result[:handle])
+        raise Rex::RuntimeError, "Manifest features do not match #{object[:name]}"
+      end
+
+      loaded << result.merge(object)
+      print_good("Loaded #{object[:name]} as #{result[:handle]}: #{micro_extension_features(result)}")
+    end
+
+    loaded.each { |entry| micro_load_client_helper(entry) if entry[:helper] }
+
+    loaded.reject { |entry| entry[:adapter].nil? }.group_by { |entry| entry[:adapter] }.each do |adapter, entries|
+      ui_commands = entries.flat_map { |entry| entry[:ui_commands] }.select { |command| command[:delegate_adapter] }
+      exposed_features = entries.each_with_object(Hash.new { |features, command| features[command] = [] }) do |entry, features|
+        entry[:exposed_commands].each { |command| features[command] << { commands: entry[:commands], channels: entry[:channels] } }
+      end
+      micro_wire_commands(entries.flat_map { |entry| entry[:commands] }, entries.flat_map { |entry| entry[:channels] }, adapter, entries.flat_map { |entry| entry[:exposed_commands] }.uniq, ui_commands, ui_commands.map { |command| command[:delegate_command] }, exposed_features)
+    end
+    ui_commands = loaded.flat_map { |entry| entry[:ui_commands] }.reject { |command| command[:delegate_adapter] }
+    micro_wire_commands([], [], nil, [], ui_commands) unless ui_commands.empty?
+    true
+  rescue StandardError => error
+    loaded.reverse_each do |entry|
+      removed = client.core.micro_unload(entry[:handle])
+      micro_unwire_commands(removed)
+    rescue StandardError => rollback_error
+      elog(rollback_error)
+    end
+    print_error("Microextension load failed: #{error.message}")
+    false
+  end
+
+  def micro_manifest_objects(path)
+    expanded_path = ::File.expand_path(path)
+    raise Rex::RuntimeError, "Microextension manifest does not exist: #{expanded_path}" unless ::File.file?(expanded_path)
+
+    manifest = YAML.safe_load(::File.read(expanded_path), permitted_classes: [], aliases: false)
+    unless manifest.is_a?(Hash) && manifest['schema'] == 'meterpreter-micro/v1' && manifest['objects'].is_a?(Array)
+      raise Rex::RuntimeError, 'Expected a meterpreter-micro/v1 manifest with an objects list'
+    end
+    profile = manifest['profile']
+    unless profile.is_a?(String) && profile.match?(/\A[a-z][a-z0-9_-]*\z/)
+      raise Rex::RuntimeError, 'The manifest requires a valid profile name'
+    end
+    unless manifest['platform'] == 'windows'
+      raise Rex::RuntimeError, 'This implementation only supports Windows microextensions'
+    end
+
+    architectures = Array(manifest['architecture'])
+    unless architectures.all? { |architecture| architecture.is_a?(String) } && architectures.include?(micro_session_architecture)
+      raise Rex::RuntimeError, "The manifest does not support this Meterpreter architecture (#{micro_session_architecture})"
+    end
+
+    manifest['objects'].map do |object|
+      name = object['name'] if object.is_a?(Hash)
+      files = object['file'] if object.is_a?(Hash)
+      file = files[micro_session_architecture] if files.is_a?(Hash)
+      file ||= files if files.is_a?(String)
+      commands = object['commands'] if object.is_a?(Hash)
+      channels = object['channels'] if object.is_a?(Hash)
+      channels ||= []
+      unless name.is_a?(String) && !name.empty? && file.is_a?(String) && commands.is_a?(Array)
+        raise Rex::RuntimeError, 'Each manifest object requires name, file, and commands'
+      end
+
+      command_ids = commands.map { |command| command['id'] if command.is_a?(Hash) }
+      raise Rex::RuntimeError, "Invalid command list for #{name}" unless command_ids.all? { |command_id| command_id.is_a?(Integer) }
+      unless channels.is_a?(Array) && channels.all? { |type| type.is_a?(String) && !type.empty? }
+        raise Rex::RuntimeError, "Invalid channel provider list for #{name}"
+      end
+
+      client_definition = object['client']
+      adapter = client_definition['adapter'] if client_definition.is_a?(Hash)
+      exposed_commands = client_definition['expose'] if client_definition.is_a?(Hash)
+      helper_definition = client_definition['helper'] if client_definition.is_a?(Hash)
+      helper = micro_manifest_client_helper(helper_definition, expanded_path, name)
+      exposed_commands ||= []
+      unless adapter.nil? || (adapter.is_a?(String) && !adapter.empty?)
+        raise Rex::RuntimeError, "Invalid client adapter for #{name}"
+      end
+      unless exposed_commands.is_a?(Array) && exposed_commands.all? { |command| command.is_a?(String) && !command.empty? }
+        raise Rex::RuntimeError, "Invalid exposed command list for #{name}"
+      end
+      if adapter.nil? && !exposed_commands.empty?
+        raise Rex::RuntimeError, "Exposed commands for #{name} require a client adapter"
+      end
+      if helper && (adapter || exposed_commands.any?)
+        raise Rex::RuntimeError, "Ruby helper for #{name} cannot be combined with a built-in client adapter"
+      end
+
+      ui_commands = micro_manifest_ui_commands(object['ui'], profile, name, command_ids, adapter, channels)
+      { name: name, profile: profile, path: ::File.expand_path(file, ::File.dirname(expanded_path)), commands: command_ids, channels: channels, adapter: adapter, exposed_commands: exposed_commands, helper: helper, ui_commands: ui_commands }
+    end
+  rescue Psych::SyntaxError => error
+    raise Rex::RuntimeError, "Invalid microextension manifest: #{error.message}"
+  end
+
+  def micro_manifest_client_helper(helper, manifest_path, object_name)
+    return nil if helper.nil?
+    unless helper.is_a?(Hash) && (helper.keys - %w[alias file source]).empty?
+      raise Rex::RuntimeError, "Invalid Ruby helper for #{object_name}"
+    end
+
+    file = helper['file']
+    embedded_source = helper['source']
+    unless [file, embedded_source].count { |value| value.is_a?(String) && !value.empty? } == 1
+      raise Rex::RuntimeError, "Ruby helper for #{object_name} requires exactly one file or source"
+    end
+
+    client_alias = helper['alias']
+    unless client_alias.nil? || (client_alias.is_a?(String) && client_alias.match?(/\A[a-z][a-z0-9_]*\z/))
+      raise Rex::RuntimeError, "Invalid Ruby helper alias for #{object_name}"
+    end
+
+    {
+      path: file && ::File.expand_path(file, ::File.dirname(manifest_path)),
+      source: embedded_source,
+      alias: client_alias
+    }
+  end
+
+  def micro_load_client_helper(entry)
+    definition = entry[:helper]
+    source_path = definition[:path]
+    if source_path && !::File.file?(source_path)
+      raise Rex::RuntimeError, "Ruby helper does not exist: #{source_path}"
+    end
+
+    source = definition[:source] || ::File.binread(source_path)
+    raise Rex::RuntimeError, "Ruby helper for #{entry[:name]} exceeds 1 MiB" if source.bytesize > 1_048_576
+
+    helper_class = Rex::Post::Meterpreter::MicroHelper.compile(source, source_path || "#{entry[:profile]}:#{entry[:name]}:inline")
+    command_definitions = helper_class.command_definitions || {}
+    command_definitions.each do |name, command|
+      unless name.match?(/\A[a-z][a-z0-9_]*\z/) && !%w[has help list load run unload].include?(name) && command[:description].is_a?(String)
+        raise Rex::RuntimeError, "Invalid Ruby helper command for #{entry[:name]}: #{name}"
+      end
+      raise Rex::RuntimeError, "Helper command #{name} is already loaded" if @micro_manifest_commands.key?(name)
+    end
+    if command_definitions.empty? && definition[:alias].nil?
+      raise Rex::RuntimeError, "Ruby helper for #{entry[:name]} defines no commands or client alias"
+    end
+    if definition[:alias] && client.respond_to?(definition[:alias], true)
+      raise Rex::RuntimeError, "Client alias #{definition[:alias]} is already active"
+    end
+
+    helper = helper_class.new(shell, profile: entry[:profile], object_name: entry[:name], channel_types: entry[:channels])
+    key = "#{entry[:profile]}:#{entry[:name]}"
+    client.register_extension_alias(definition[:alias], helper) if definition[:alias]
+    @micro_helpers[key] = {
+      instance: helper,
+      client_alias: definition[:alias],
+      command_ids: entry[:commands],
+      channel_types: entry[:channels]
+    }
+    command_definitions.each do |name, command|
+      @micro_manifest_commands[name] = {
+        name: name,
+        profile: entry[:profile],
+        object: entry[:name],
+        description: command[:description],
+        helper_key: key
+      }
+    end
+  rescue SyntaxError, LoadError => error
+    raise Rex::RuntimeError, "Unable to load Ruby helper for #{entry[:name]}: #{error.message}"
+  rescue StandardError
+    helper&.cleanup
+    client.deregister_extension_alias(definition[:alias]) if definition[:alias] && helper
+    raise
+  end
+
+  def micro_session_architecture
+    client.arch.to_s
+  end
+
+  def micro_object_architecture(image)
+    { 0x014c => 'x86', 0x8664 => 'x64' }[image.unpack1('v')]
+  end
+
+  def micro_has_arguments(args)
+    commands = args.map do |argument|
+      command_id = argument.match?(/\A\d+\z/) ? argument.to_i : CommandMapper.get_command_id(argument)
+      command_id ||= @micro_manifest_commands.dig(argument, :command_id)
+      unless command_id
+        print_error("Unknown Meterpreter command: #{argument}")
+        return false
+      end
+
+      [argument, command_id]
+    end
+
+    availability = client.core.micro_has_commands(commands.map(&:last))
+    commands.each do |argument, command_id|
+      state = availability[command_id] ? 'Present' : 'Absent'
+      print_line("#{state}: #{argument} (#{command_id})")
+    end
+    true
+  end
+
+  def micro_list
+    entries = client.core.micro_extensions
+    if entries.empty?
+      print_line('No microextensions loaded.')
+    else
+      entries.each do |entry|
+        print_line("#{entry[:handle]}: #{entry[:name]} (ABI #{entry[:abi]}) - #{micro_extension_features(entry)}")
+      end
+    end
+    true
+  end
+
+  def micro_unload_argument(identifier)
+    handle = identifier.match?(/\A\d+\z/) ? identifier.to_i : identifier
+    removed = client.core.micro_unload(handle)
+    micro_unwire_commands(removed)
+    print_good("Unloaded #{identifier}: #{micro_extension_features(removed)}")
+    true
+  rescue StandardError => error
+    print_error("Microextension unload failed: #{error.message}")
+    false
+  end
+
+  def micro_command_names(command_ids)
+    command_ids.map { |command_id| CommandMapper.get_command_name(command_id) || command_id }.join(', ')
+  end
+
+  def micro_extension_features(entry)
+    features = micro_command_names(entry[:commands])
+    features = 'no packet commands' if features.empty?
+    channels = entry[:channels]
+    channels.empty? ? features : "#{features}; channels: #{channels.join(', ')}"
+  end
+
+  def micro_manifest_ui_commands(ui, profile, object_name, command_ids, adapter, channel_types)
+    return [] if ui.nil?
+
+    definitions = ui['commands'] if ui.is_a?(Hash)
+    unless definitions.is_a?(Array)
+      raise Rex::RuntimeError, "Invalid YAML UI for #{object_name}"
+    end
+
+    definitions.map do |definition|
+      unless definition.is_a?(Hash) && definition['name'].is_a?(String) && definition['name'].match?(/\A[a-z][a-z0-9_]*\z/) && !%w[has help list load run unload].include?(definition['name']) && definition['description'].is_a?(String)
+        raise Rex::RuntimeError, "Invalid YAML UI command for #{object_name}"
+      end
+
+      delegate = definition['delegate']
+      if delegate
+        unless delegate.is_a?(Hash) && delegate['adapter'] == adapter && delegate['command'].is_a?(String) && !delegate['command'].empty? && channel_types.any?
+          raise Rex::RuntimeError, "Invalid YAML UI delegate for #{definition['name']}"
+        end
+        next({
+          name: definition['name'],
+          profile: profile,
+          object: object_name,
+          description: definition['description'],
+          delegate_adapter: adapter,
+          delegate_command: delegate['command'],
+          channel_types: channel_types
+        })
+      end
+
+      request = definition['request']
+      response = definition['response']
+      output = definition['output']
+      arguments = request['arguments'] if request.is_a?(Hash)
+      fields = response['fields'] if response.is_a?(Hash)
+      rows = response['rows'] if response.is_a?(Hash)
+      command_id = request['command'] if request.is_a?(Hash)
+      arguments ||= []
+      fields ||= []
+      rows ||= []
+      unless command_ids.include?(command_id) && micro_ui_tlvs_valid?(arguments, arguments: true) && micro_ui_tlvs_valid?(fields) && micro_ui_rows_valid?(rows) && micro_ui_output_valid?(output, fields, rows)
+        raise Rex::RuntimeError, "Invalid YAML UI definition for #{definition['name']}"
+      end
+
+      {
+        name: definition['name'],
+        profile: profile,
+        object: object_name,
+        description: definition['description'],
+        command_id: command_id,
+        arguments: micro_ui_tlvs(arguments),
+        fields: micro_ui_tlvs(fields),
+        rows: micro_ui_rows(rows),
+        output: micro_ui_output(output),
+        channel_types: []
+      }
+    end
+  end
+
+  def micro_ui_tlvs_valid?(definitions, arguments: false)
+    definitions.is_a?(Array) && definitions.all? do |definition|
+      definition.is_a?(Hash) && definition['name'].is_a?(String) && definition['name'].match?(/\A[a-z][a-z0-9_]*\z/) && (arguments ? %w[bool qword string uint] : %w[bool qword raw string uint]).include?(definition['type']) && definition['tlv'].is_a?(Integer) && definition['tlv'].between?(0, 0xffff) && (!arguments || micro_ui_argument_valid?(definition))
+    end
+  end
+
+  def micro_ui_argument_valid?(definition)
+    required = definition.fetch('required', true)
+    (required == true || required == false) && (required || definition.key?('default'))
+  end
+
+  def micro_ui_rows_valid?(rows)
+    rows.is_a?(Array) && rows.all? do |definition|
+      next false unless definition.is_a?(Hash)
+      next micro_ui_tlvs_valid?([definition]) unless %w[group raw].include?(definition['type'])
+
+      name_and_type_valid = micro_ui_tlvs_valid?([{ 'name' => definition['name'], 'type' => 'string', 'tlv' => definition['tlv'] }])
+      if definition['type'] == 'group'
+        next name_and_type_valid && micro_ui_tlvs_valid?(definition['fields'])
+      end
+
+      name_and_type_valid && definition['extract'].is_a?(Array) && definition['extract'].all? do |extract|
+        extract.is_a?(Hash) && extract['name'].is_a?(String) && extract['name'].match?(/\A[a-z][a-z0-9_]*\z/) && %w[qword uint].include?(extract['type']) && extract['offset'].is_a?(Integer) && extract['offset'] >= 0
+      end
+    end
+  end
+
+  def micro_ui_output_valid?(output, fields, rows)
+    return false unless output.is_a?(Hash)
+
+    if rows.empty?
+      formats = output['lines'] || [output['format']]
+      return micro_ui_tlvs_valid?(fields) && formats.is_a?(Array) && formats.all? { |format| format.is_a?(String) }
+    end
+
+    columns = output['columns']
+    output['type'] == 'table' && output['header'].is_a?(String) && columns.is_a?(Array) && columns.all? do |column|
+      column.is_a?(Hash) && column['label'].is_a?(String) && column['name'].is_a?(String) && %w[octal raw unix_time].include?(column.fetch('display', 'raw'))
+    end
+  end
+
+  def micro_ui_tlvs(definitions)
+    definitions.map do |definition|
+      { name: definition['name'], type: definition['type'], tlv: micro_ui_tlv_type(definition['type'], definition['tlv']), required: definition.fetch('required', true), default: definition['default'] }
+    end
+  end
+
+  def micro_ui_rows(definitions)
+    definitions.map do |definition|
+      if definition['type'] == 'raw'
+        { name: definition['name'], tlv: TLV_META_TYPE_COMPLEX | definition['tlv'], fields: [], extract: definition['extract'].map { |extract| extract.transform_keys(&:to_sym) } }
+      elsif definition['type'] == 'group'
+        { name: definition['name'], tlv: TLV_META_TYPE_GROUP | definition['tlv'], fields: micro_ui_tlvs(definition['fields']), extract: [] }
+      else
+        { name: definition['name'], tlv: micro_ui_tlv_type(definition['type'], definition['tlv']), fields: [], extract: [] }
+      end
+    end
+  end
+
+  def micro_ui_output(output)
+    return { type: :lines, formats: output['lines'] || [output['format']] } unless output['type'] == 'table'
+
+    { type: :table, header: output['header'], columns: output['columns'].map { |column| column.transform_keys(&:to_sym) } }
+  end
+
+  def micro_ui_tlv_type(type, number)
+    {
+      'bool' => TLV_META_TYPE_BOOL,
+      'qword' => TLV_META_TYPE_QWORD,
+      'raw' => TLV_META_TYPE_RAW,
+      'string' => TLV_META_TYPE_STRING,
+      'uint' => TLV_META_TYPE_UINT
+    }.fetch(type) | number
+  end
+
+  def micro_wire_commands(command_ids, channel_types, adapter, exposed_commands, ui_commands, hidden_commands = [], exposed_features = {})
+    duplicate_command = ui_commands.find { |command| @micro_manifest_commands.key?(command[:name]) }
+    raise Rex::RuntimeError, "YAML UI command #{duplicate_command[:name]} is already loaded" if duplicate_command
+
+    micro_refresh_commands
+    if adapter
+      raise Rex::RuntimeError, "Client adapter #{adapter} is already active" if extensions.include?(adapter) || @micro_dispatchers.key?(adapter)
+
+      client.add_extension(adapter, [])
+      dispatchers = []
+      unless exposed_commands.empty?
+        previous_dispatchers = shell.dispatcher_stack.dup
+        dispatcher = add_extension_client(adapter)
+        raise Rex::RuntimeError, "Failed to initialize #{adapter}" unless dispatcher
+
+        dispatchers = shell.dispatcher_stack.reject { |entry| previous_dispatchers.include?(entry) }
+        available_commands = dispatchers.flat_map { |entry| entry.commands.keys }
+        missing_commands = requested_commands - available_commands
+        unless missing_commands.empty?
+          dispatchers.each { |entry| shell.dispatcher_stack.delete(entry) }
+          extensions.delete(adapter)
+          client.deregister_extension(adapter)
+          raise Rex::RuntimeError, "Client adapter #{adapter} does not provide: #{missing_commands.join(', ')}"
+        end
+
+        dispatchers.each { |entry| entry.micro_ui_commands = exposed_commands }
+        dispatchers.each { |entry| shell.dispatcher_stack.delete(entry) } if exposed_commands.empty?
+      end
+
+      @micro_dispatchers[adapter] = { command_ids: command_ids, channel_types: channel_types, dispatchers: dispatchers, exposed_features: exposed_features }
+    end
+
+    ui_commands.each { |command| @micro_manifest_commands[command[:name]] = command }
+  end
+
+  def micro_invoke_manifest_command(name, arguments)
+    command = @micro_manifest_commands.fetch(name)
+    if command[:helper_key]
+      begin
+        return @micro_helpers.fetch(command[:helper_key])[:instance].invoke_command(name, arguments)
+      rescue StandardError => error
+        print_error("Microextension helper failed: #{error.message}")
+        return false
+      end
+    end
+    if command[:delegate_command]
+      dispatchers = @micro_dispatchers.dig(command[:delegate_adapter], :dispatchers) || []
+      dispatcher = dispatchers.find { |entry| entry.respond_to?("cmd_#{command[:delegate_command]}", true) }
+      raise Rex::RuntimeError, "Client delegate #{command[:delegate_adapter]}.#{command[:delegate_command]} is not active" unless dispatcher
+
+      dispatcher.__send__("cmd_#{command[:delegate_command]}", *arguments)
+      return true
+    end
+
+    required_count = command[:arguments].count { |argument| argument[:required] }
+    if arguments.length < required_count || arguments.length > command[:arguments].length
+      usage = command[:arguments].map { |argument| argument[:required] ? "<#{argument[:name]}>" : "[#{argument[:name]}]" }.join(' ')
+      print_error("Usage: micro run #{name} #{usage}".rstrip)
+      return false
+    end
+
+    request = Packet.create_request(command[:command_id])
+    command[:arguments].each_with_index do |argument, index|
+      value = arguments[index] || argument[:default]
+      request.add_tlv(argument[:tlv], micro_ui_value(argument[:type], value))
+    end
+    response = client.send_request(request)
+    micro_render_manifest_response(command, response)
+    true
+  rescue ArgumentError, KeyError, RangeError, RequestError, Rex::RuntimeError => error
+    print_error("Microextension command failed: #{error.message}")
+    false
+  end
+
+  def micro_render_manifest_response(command, response)
+    if command[:output][:type] == :lines
+      values = command[:fields].to_h { |field| [field[:name].to_sym, micro_ui_response_value(response.get_tlv_value(field[:tlv]), field[:type])] }
+      command[:output][:formats].each { |format| print_line(format % values) }
+      return
+    end
+
+    row_values = command[:rows].to_h { |row| [row, response.get_tlvs(row[:tlv])] }
+    row_count = row_values.values.map(&:length).max || 0
+    table = Rex::Text::Table.new('Header' => command[:output][:header], 'Columns' => command[:output][:columns].map { |column| column[:label] })
+    row_count.times do |index|
+      values = micro_ui_row(row_values, index)
+      table << command[:output][:columns].map { |column| micro_ui_display(values[column[:name]], column[:display]) }
+    end
+    print_line(table.to_s)
+  end
+
+  def micro_ui_row(row_values, index)
+    row_values.each_with_object({}) do |(row, values), result|
+      tlv = values[index]
+      if row[:fields].any?
+        row[:fields].each { |field| result[field[:name]] = micro_ui_response_value(tlv&.get_tlv_value(field[:tlv]), field[:type]) }
+      elsif row[:extract].empty?
+        result[row[:name]] = tlv&.value
+      else
+        row[:extract].each { |extract| result[extract[:name]] = micro_ui_extract(tlv&.value, extract) }
+      end
+    end
+  end
+
+  def micro_ui_extract(value, extract)
+    size = extract[:type] == 'uint' ? 4 : 8
+    raise ArgumentError, "Invalid #{extract[:name]} field" unless value.is_a?(String) && value.bytesize >= extract[:offset] + size
+
+    value.unpack1(extract[:type] == 'uint' ? 'V' : 'Q<', offset: extract[:offset])
+  end
+
+  def micro_ui_response_value(value, type)
+    type == 'raw' && value.is_a?(String) ? value.unpack1('H*') : value
+  end
+
+  def micro_ui_display(value, display)
+    return format('%06o', value) if display == 'octal'
+    return ::Time.at(value).strftime('%Y-%m-%d %H:%M:%S') if display == 'unix_time'
+
+    value
+  end
+
+  def micro_ui_value(type, value)
+    return value if type == 'string'
+    return true if type == 'bool' && value == 'true'
+    return false if type == 'bool' && value == 'false'
+
+    integer = Integer(value, 0)
+    return integer if type == 'uint' && integer.between?(0, 0xffffffff)
+    return integer if type == 'qword' && integer.between?(0, 0xffffffffffffffff)
+
+    raise ArgumentError, "Invalid #{type} value: #{value}"
+  end
+
+  def micro_unwire_commands(_features)
+    micro_refresh_commands
+    @micro_helpers.delete_if do |_key, wiring|
+      next false if (wiring[:command_ids] - client.micro_commands).empty? && (wiring[:channel_types] - client.micro_channels).empty?
+
+      begin
+        wiring[:instance].cleanup
+      rescue StandardError => error
+        elog(error)
+      end
+      client.deregister_extension_alias(wiring[:client_alias]) if wiring[:client_alias]
+      true
+    end
+    @micro_manifest_commands.delete_if do |_name, command|
+      if command[:helper_key]
+        !@micro_helpers.key?(command[:helper_key])
+      elsif command[:command_id]
+        !client.micro_commands.include?(command[:command_id])
+      else
+        (command[:channel_types] - client.micro_channels).any?
+      end
+    end
+    @micro_command_aliases.delete_if { |_alias_name, command_name| !@micro_manifest_commands.key?(command_name) }
+    micro_remove_alias_dispatcher if @micro_command_aliases.empty?
+    @micro_dispatchers.delete_if do |adapter, wiring|
+      if (wiring[:command_ids] & client.micro_commands).any? || (wiring[:channel_types] & client.micro_channels).any?
+        exposed_commands = wiring[:exposed_features].select do |_command, requirements|
+          requirements.any? { |requirement| (requirement[:commands] - client.micro_commands).empty? && (requirement[:channels] - client.micro_channels).empty? }
+        end.keys
+        wiring[:dispatchers].each { |dispatcher| dispatcher.micro_ui_commands = exposed_commands }
+        next false
+      end
+
+      extensions.delete(adapter)
+      wiring[:dispatchers].each { |dispatcher| shell.dispatcher_stack.delete(dispatcher) }
+      client.deregister_extension(adapter)
+      true
+    end
+  end
+
+  def micro_refresh_commands
+    remote_extensions = client.core.micro_extensions
+    remote_commands = remote_extensions.flat_map { |extension| extension[:commands] }.uniq
+    remote_channels = remote_extensions.flat_map { |extension| extension[:channels] }.uniq
+    removed_commands = client.micro_commands - remote_commands
+    new_commands = remote_commands - client.micro_commands
+
+    removed_commands.each { |command_id| client.commands.delete(command_id) }
+    client.commands.concat(new_commands)
+    client.micro_commands.replace(remote_commands)
+    client.micro_channels.replace(remote_channels)
+  end
+
   def cmd_use(*args)
     #print_error("Warning: The 'use' command is deprecated in favor of 'load'")
     cmd_load(*args)
@@ -1675,10 +2389,12 @@ protected
     end
 
     # Enstack the dispatcher
-    self.shell.enstack_dispatcher(klass)
+    dispatcher = self.shell.enstack_dispatcher(klass)
 
     # Insert the module into the list of extensions
     self.extensions << mod
+
+    dispatcher
   end
 
   def get_extension_client_class(mod)
