@@ -16,6 +16,11 @@
 #   ...run scans / exploits...
 #   network_map_stop
 #
+# Every request - page, JSON, websocket - requires a password (HTTP Basic;
+# the browser prompts for it).  A three-word passphrase is generated at
+# startup and printed; pass --password to network_map_start, rotate it with
+# network_map_password, and see the current one in network_map_status.
+#
 # The Ruby stdlib has no websocket server and MSF does not ship one, so a
 # minimal RFC 6455 implementation (handshake + frame codec) is included below.
 # Only text frames are sent to clients; client frames are only used for
@@ -27,6 +32,7 @@ require 'ipaddr'
 require 'digest/sha1'
 require 'base64'
 require 'json'
+require 'securerandom'
 
 module Msf
   # Live-updating network topology web server.  Serves the network_graph
@@ -58,7 +64,7 @@ module Msf
         super
       end
 
-      alias_method :print_bad, :print_error
+      alias print_bad print_error
 
       def print_good(msg = '')
         @network_map_tap&.call("%bld%grn[+]%clr #{msg}")
@@ -86,10 +92,37 @@ module Msf
     # One instance lives for the plugin's lifetime; start/stop toggle it.
     #
     class LiveServer
-      attr_reader :framework, :plugin, :host, :port, :interval, :limits
+      attr_reader :framework, :plugin, :host, :port, :interval, :limits, :password
 
       WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
       MSF_NODE_ID = '__msf__'
+
+      # Word pool for generated browser passwords - short lowercase words
+      # composed into passphrases like "harbor_lynx_gravel".  Memorable by
+      # design; operators wanting more entropy can pass --password.
+      PASSWORD_WORDS = %w[
+        amber anchor apple arbor arrow aspen atlas aurora azure bacon badger banjo basil beacon
+        birch bison blade blossom bogey bolt bonus bottle brace bravo brick bronze brush bunker
+        cabin cable cactus candle canoe canvas canyon cargo carrot cascade cedar cinder circle
+        citrus clover cobalt comet copper coral cosmic cotton crane cricket crimson cyber dagger
+        dahlia dawn delta denim desert diamond diesel dolphin domino dragon drift dune eagle echo
+        eclipse elder elk ember emerald engine falcon fable fern finch flame flare fleet flint
+        forest fossil fox frost gadget garnet gecko ghost giant ginger glacier granite grape
+        gravel grotto harbor harp hatch haven hazel heron hollow honey hornet hunter indigo iris
+        ivory jaguar jasper jetty jigsaw jolly kayak kelp kestrel kettle kiwi koala lagoon
+        lantern lapis lattice lemon lever lilac linen llama lobster locket lotus lunar lynx
+        magnet mango maple marble marlin meadow mesa meteor mint mirage monsoon mortar nebula
+        nickel noble nomad oasis obsidian ocean olive onyx opal orbit orchid osprey otter owl
+        oxide paddle panda papaya parka parsley peach pecan penguin pepper perch petal phoenix
+        pigment pilot pine planet plaza plum pollen poppy prairie prize pulse pumice python
+        quasar quill quiver rabbit raccoon radar raven reef relic ribbon ridge river robin
+        rocket rotor rustic saffron sage salmon sapphire satin savanna scarf shadow shore
+        signal silver sketch slate solar sonnet spiral spruce squid stellar stereo summit
+        sunset surge swamp talon tango teal temple thicket thunder tiger timber topaz torch
+        tornado tortoise totem trail trellis trove tulip tundra urchin valley vanilla velvet
+        vertex vessel vial violet vista vortex walnut warbler wasp whale willow window winter
+        wolf wren xenon yacht yak zebra zenith zephyr zinc zodiac
+      ].freeze
 
       # Places a local copy of d3 may live, so the page can render offline.
       # The PR's data dir is checked first; the page falls back to the CDN
@@ -112,6 +145,8 @@ module Msf
         @last_json = nil
         @last_push_mono = 0.0
         @warned = {}
+        @password_digest = nil
+        @allowed_hosts = nil
       end
 
       def running?
@@ -139,7 +174,18 @@ module Msf
         @clients_mutex.synchronize { @clients.length }
       end
 
-      def start(host: DEFAULT_HOST, port: DEFAULT_PORT, interval: DEFAULT_INTERVAL, limits: {})
+      # Snapshot of connected browsers for network_map_clients: where they
+      # came from, when they connected, and when they were last active.
+      def clients_info
+        @clients_mutex.synchronize do
+          @clients.map do |c|
+            { addr: c[:addr], port: c[:port],
+              connected_at: c[:connected_at], last_seen: c[:last_seen] }
+          end
+        end
+      end
+
+      def start(host: DEFAULT_HOST, port: DEFAULT_PORT, interval: DEFAULT_INTERVAL, limits: {}, password: nil)
         raise 'server already running' if @running
 
         @host = host || DEFAULT_HOST
@@ -149,9 +195,16 @@ module Msf
         @last_json = nil
         @dirty = true
         @running = true
+        password = set_password(password)
+        # DNS-rebinding defense: only the loopback names and the address we
+        # actually bound may appear in the Host header.  Bound to 0.0.0.0 the
+        # interface addresses cannot be enumerated here, so any Host is
+        # accepted (the password still gates everything).
+        @allowed_hosts = @host == '0.0.0.0' ? nil : (%w[127.0.0.1 localhost ::1 [::1]] + [@host]).uniq
 
-        @tcp_server = TCPServer.new(@host, @port)
         begin
+          @tcp_server = TCPServer.new(@host, @port)
+          @port = @tcp_server.addr[1] # actual port when 0 (ephemeral) was requested
           @accept_thread = thread_named('network_map:accept') { accept_loop }
           @poll_thread = thread_named('network_map:poll') { poll_loop }
         rescue StandardError
@@ -168,6 +221,19 @@ module Msf
         # sure the sockets close and the threads unwind before the
         # interpreter waits on them.  stop is idempotent.
         at_exit { begin; stop; rescue StandardError; nil; end }
+        password
+      end
+
+      # Sets (or, given nil/blank, generates) the browser password and
+      # returns the effective password so the caller can print it.  The
+      # plaintext is kept in memory for network_map_status; comparisons
+      # always run against the SHA-256 digest in constant time.  Takes
+      # effect immediately.
+      def set_password(pw)
+        pw = pw.nil? || pw.strip.empty? ? generate_password : pw.strip
+        @password = pw
+        @password_digest = ::Digest::SHA256.digest(pw)
+        pw
       end
 
       def stop
@@ -239,11 +305,63 @@ module Msf
         {
           running: @running, host: @host, port: @port, interval: @interval,
           clients: client_count, db_active: db_active, workspace: ws_name,
-          counts: counts
+          auth_required: !@password_digest.nil?, password: @password, counts: counts
         }
       end
 
       private
+
+      # ------------------------------------------------------------------
+      # Browser authentication (HTTP Basic).  The map exposes engagement
+      # data, so every request - page, JSON, websocket - requires the
+      # operator's password.  Only a SHA-256 digest is kept in memory and
+      # digest comparisons run in constant time.
+      # ------------------------------------------------------------------
+
+      # Memorable three-word passphrase (e.g. "harbor_lynx_gravel").  Chosen
+      # for operator ergonomics over raw entropy; pass --password to
+      # network_map_start for something stronger when the map is exposed.
+      def generate_password
+        Array.new(3) { PASSWORD_WORDS[::SecureRandom.random_number(PASSWORD_WORDS.length)] }.join('_')
+      end
+
+      def authorized?(headers)
+        return false if @password_digest.nil?
+
+        supplied = ::Base64.decode64(headers['authorization'].to_s[/\ABasic (.+)\z/, 1].to_s)
+        # Username is ignored; everything after the first colon is the secret.
+        candidate = ::Digest::SHA256.digest(supplied.split(':', 2)[1].to_s)
+        secure_compare(candidate, @password_digest)
+      end
+
+      def secure_compare(digest_a, digest_b)
+        return false unless digest_a.bytesize == digest_b.bytesize
+
+        diff = 0
+        digest_a.bytes.zip(digest_b.bytes) { |x, y| diff |= x ^ y }
+        diff.zero?
+      end
+
+      def host_allowed?(headers)
+        return true if @allowed_hosts.nil? # bound to 0.0.0.0
+
+        hostname = headers['host'].to_s.sub(/:\d+\z/, '')
+        !hostname.empty? && @allowed_hosts.include?(hostname)
+      end
+
+      # Cross-site websocket hijacking defense: browsers must originate from
+      # a host the page could have been served from.  Non-browser clients
+      # (no Origin header) still had to pass auth to get here; 'null'
+      # origins (sandboxed/frame contexts) are rejected.
+      def origin_allowed?(headers)
+        origin = headers['origin'].to_s
+        return true if origin.empty?
+
+        origin_host = origin[%r{\Ahttps?://([^/]+)}, 1].to_s.sub(/:\d+\z/, '')
+        return false if origin_host.empty?
+
+        @allowed_hosts.nil? || @allowed_hosts.include?(origin_host)
+      end
 
       def thread_named(name)
         t = ::Thread.new do
@@ -284,11 +402,11 @@ module Msf
         false
       end
 
-      def with_db_connection(&)
-        return yield unless db_active?
+      def with_db_connection(&block)
+        return block.call unless db_active?
 
         begin
-          ::ApplicationRecord.connection_pool.with_connection(&)
+          ::ApplicationRecord.connection_pool.with_connection(&block)
         rescue ActiveRecord::ConnectionNotEstablished, ActiveRecord::ConnectionTimeoutError => e
           warn_once("pool:#{e.class}", "database connection pool hiccup: #{e.class}")
           nil
@@ -671,6 +789,8 @@ module Msf
       def find_pivot_for_host(host, subnet_to_pivot)
         ip = IPAddr.new(host.address.to_s)
         subnet_to_pivot.each do |cidr, pivot_host_id|
+          next if pivot_host_id == host.id # a pivot never routes behind itself
+
           subnet_ip, netmask = cidr.split('/')
           net = IPAddr.new("#{subnet_ip}/#{netmask}")
           return pivot_host_id if net.include?(ip)
@@ -839,7 +959,24 @@ module Msf
         end
         path = target.to_s.split('?').first
 
+        # Nothing is served without the password - page, assets, JSON,
+        # websocket upgrade, everything.
+        unless authorized?(headers)
+          write_http(sock, 401, 'Unauthorized', 'text/plain', "401 Unauthorized\n",
+                     extra: ['WWW-Authenticate: Basic realm="network_map", charset="UTF-8"'])
+          return
+        end
+        unless host_allowed?(headers)
+          write_http(sock, 403, 'Forbidden', 'text/plain', "403 Forbidden\n")
+          return
+        end
+
         if path == '/ws' && headers['upgrade'].to_s.downcase == 'websocket'
+          unless origin_allowed?(headers)
+            write_http(sock, 403, 'Forbidden', 'text/plain', "403 Forbidden\n")
+            return
+          end
+
           ws_client_loop(sock, headers)
           return
         end
@@ -877,13 +1014,38 @@ module Msf
         warn_console("request handling error: #{e.class}: #{e.message}")
       end
 
-      def write_http(sock, code, reason, ctype, body, head_only: false)
+      CSP = "default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " \
+            "style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; " \
+            "base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+
+      PERMISSIONS_POLICY = 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), ' \
+                           'magnetometer=(), microphone=(), payment=(), usb=()'
+
+      def write_http(sock, code, reason, ctype, body, head_only: false, extra: [])
+        # Per the OWASP HTML5 Security Cheat Sheet: DENY framing (XFO plus
+        # CSP frame-ancestors - framebusting scripts are explicitly not
+        # recommended), no referrer leakage, no MIME sniffing, no caching of
+        # sensitive responses, and powerful browser features denied outright.
+        # No Access-Control-Allow-* header is ever emitted, so browsers deny
+        # every cross-origin read of this data by default.
         head = +"HTTP/1.1 #{code} #{reason}\r\n" \
                "Content-Type: #{ctype}\r\n" \
-               "Content-Length: #{body.bytesize}\r\n" \
-               "Connection: close\r\n" \
-               "Cache-Control: no-store\r\n" \
-               "\r\n"
+               "X-Content-Type-Options: nosniff\r\n" \
+               "X-Frame-Options: DENY\r\n" \
+               "Referrer-Policy: no-referrer\r\n" \
+               "Cross-Origin-Resource-Policy: same-origin\r\n"
+        if ctype.start_with?('text/html')
+          # Defense in depth behind the escaping in the page: it only needs
+          # its own scripts/styles, the d3 CDN fallback, and blob/data images
+          # for the PNG export - nothing else may load or connect anywhere.
+          head << "Content-Security-Policy: #{CSP}\r\n"
+          head << "Permissions-Policy: #{PERMISSIONS_POLICY}\r\n"
+        end
+        extra.each { |h| head << "#{h}\r\n" }
+        head << "Content-Length: #{body.bytesize}\r\n" \
+                "Connection: close\r\n" \
+                "Cache-Control: no-store\r\n" \
+                "\r\n"
         sock.write(head)
         sock.write(body) unless head_only
       end
@@ -903,7 +1065,16 @@ module Msf
           "\r\n"
         )
 
-        client = { sock: sock, write_lock: ::Mutex.new }
+        peer = begin
+          sock.peeraddr
+        rescue StandardError
+          nil
+        end
+        client = {
+          sock: sock, write_lock: ::Mutex.new,
+          addr: peer ? peer[3] : 'unknown', port: peer ? peer[1] : 0,
+          connected_at: ::Time.now, last_seen: ::Time.now
+        }
         @clients_mutex.synchronize { @clients << client }
         info_console("browser connected (#{client_count} watching)")
 
@@ -925,6 +1096,7 @@ module Msf
           frame = ws_read_frame(sock)
           break if frame.nil? # EOF / dead socket
 
+          client[:last_seen] = ::Time.now
           case frame[:opcode]
           when 0x8 # close
             ws_send_frame(client, frame[:payload][0, 2] || '', 0x8)
@@ -1118,7 +1290,8 @@ module Msf
         ['--interval'] => [true, 'Database poll interval in seconds (default 2.0)'],
         ['--limit-session'] => [true, 'Max sessions included per host (0 = unlimited, default 0)'],
         ['--limit-loot'] => [true, 'Max loot items included per host (0 = unlimited, default 0)'],
-        ['--limit-cred'] => [true, 'Max credentials included per host (0 = unlimited, default 0)']
+        ['--limit-cred'] => [true, 'Max credentials included per host (0 = unlimited, default 0)'],
+        ['--password'] => [true, 'Browser password (default: generated three-word passphrase, e.g. harbor_lynx_gravel)']
       )
 
       def name
@@ -1129,7 +1302,9 @@ module Msf
         {
           'network_map_start' => 'Start the live network graph web server (usage: network_map_start [port])',
           'network_map_stop' => 'Stop the live network graph web server',
-          'network_map_status' => 'Show live network map server status'
+          'network_map_status' => 'Show live network map server status',
+          'network_map_password' => 'Set or rotate the browser password (usage: network_map_password [password])',
+          'network_map_clients' => 'Show browsers watching the live map and when they connected'
         }
       end
 
@@ -1145,6 +1320,10 @@ module Msf
         print_line 'Open the printed URL in a browser; it updates over a websocket as hosts,'
         print_line 'services, sessions, loot, vulns, creds and module runs hit the database.'
         print_line
+        print_line 'A password (HTTP Basic) is required for every request.  A three-word'
+        print_line 'passphrase is generated and printed at startup, or supply your own with'
+        print_line '--password; rotate it later with network_map_password.'
+        print_line
         print_line @@start_opts.usage
       end
 
@@ -1153,6 +1332,8 @@ module Msf
         port = Plugin::NetworkMapLive::DEFAULT_PORT
         interval = Plugin::NetworkMapLive::DEFAULT_INTERVAL
         limits = DEFAULT_LIMITS.dup
+        password = nil
+        consumed = []
 
         @@start_opts.parse(args) do |opt, _idx, val|
           case opt
@@ -1173,10 +1354,13 @@ module Msf
             limits[:loot] = val.to_i
           when '--limit-cred'
             limits[:cred] = val.to_i
+          when '--password'
+            password = val
+            consumed << val
           end
         end
 
-        port_arg = args.find { |a| a =~ /\A\d+\z/ }
+        port_arg = args.find { |a| a =~ /\A\d+\z/ && !consumed.include?(a) }
         if port_arg
           port = port_arg.to_i
         end
@@ -1200,7 +1384,7 @@ module Msf
         end
 
         begin
-          svr.start(host: host, port: port, interval: interval, limits: limits)
+          password = svr.start(host: host, port: port, interval: interval, limits: limits, password: password)
         rescue Errno::EADDRINUSE
           print_error("Port #{port} is already in use on #{host}")
           return
@@ -1215,6 +1399,7 @@ module Msf
           print_warning("Serving live network graph at #{svr.url} bound to #{host}")
           print_warning('Anyone who can reach this port can watch your engagement data - bind 127.0.0.1 unless you mean it')
         end
+        print_status("Browser password: #{password} (no username)")
         print_status("Polling the database every #{interval}s and pushing changes to browsers over websockets")
         unless framework.db.active
           print_warning('No database connected yet - the map will stay empty until db_connect and data exists')
@@ -1232,6 +1417,54 @@ module Msf
         print_good('Live network map server stopped')
       end
 
+      # Set or rotate the browser password for the running server.  Called
+      # with no argument a fresh three-word passphrase is generated.  Takes
+      # effect immediately for all subsequent requests.
+      def cmd_network_map_password(*args)
+        svr = server
+        if svr.nil? || !svr.running?
+          print_error('Live network map server is not running - start it first, or pass --password to network_map_start')
+          return
+        end
+
+        pw = svr.set_password(args.first)
+        print_good("Network map browser password set to: #{pw}")
+        print_status('Reload the page and enter the new password when prompted')
+      end
+
+      def cmd_network_map_clients
+        svr = server
+        if svr.nil? || !svr.running?
+          print_error('Live network map server is not running')
+          return
+        end
+
+        clients = svr.clients_info
+        if clients.empty?
+          print_status('No browsers connected - open the URL from network_map_status')
+          return
+        end
+
+        print_status("#{clients.length} browser(s) connected:")
+        now = ::Time.now
+        clients.each do |c|
+          print_line(format('  %-22s connected %s (%s ago), last activity %s (%s ago)',
+                            "#{c[:addr]}:#{c[:port]}",
+                            c[:connected_at].strftime('%H:%M:%S'),
+                            fmt_age(now - c[:connected_at]),
+                            c[:last_seen].strftime('%H:%M:%S'),
+                            fmt_age(now - c[:last_seen])))
+        end
+      end
+
+      def fmt_age(seconds)
+        total = seconds.to_i
+        return "#{total}s" if total < 60
+        return "#{total / 60}m #{total % 60}s" if total < 3600
+
+        "#{total / 3600}h #{(total % 3600) / 60}m"
+      end
+
       def cmd_network_map_status
         svr = server
         if svr.nil?
@@ -1243,6 +1476,7 @@ module Msf
           print_line 'Status:    running'
           print_line "URL:       http://#{st[:host]}:#{st[:port]}/"
           print_line "Clients:   #{st[:clients]} browser(s) connected"
+          print_line "Password:  #{st[:password]} (no username)"
           print_line "Interval:  #{st[:interval]}s poll"
           print_line "Database:  #{st[:db_active] ? "active (workspace #{st[:workspace]})" : 'not connected'}"
           if st[:db_active] && st[:counts]
@@ -1377,6 +1611,7 @@ class Msf::Plugin::NetworkMapLive
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>MSF Network Graph - Live</title>
+      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'">
       <script src="/d3.js"></script>
       <script>
         if (typeof d3 === 'undefined') {
@@ -2357,11 +2592,8 @@ class Msf::Plugin::NetworkMapLive
                   <circle cx="1.8" cy="8.5" r="1.2" fill="#e95420"/>`,
         macos:   `<path d="M9 3.5 C8 2 6.5 2 5.5 2.5 C5.5 4 6.5 4.5 7 4.5 C6 4.5 4 4.5 3 6.5 C2 8.5 3 11 5.5 11 C6.5 11 7 10.5 8 10.5 C9 10.5 9.5 11 10.5 11 C13 11 14 8.5 13 6.5 C12 4.5 10 4.5 9 4.5 C9.5 4 10 3 9 2 Z" fill="#999"/>
                   <line x1="9" y1="1" x2="9.5" y2="2.5" stroke="#999" stroke-width="1" stroke-linecap="round"/>`,
-        vmware:  `<rect x="0.5" y="8.5" width="11" height="3" rx="1" fill="#1d428a"/>
-                  <rect x="0.5" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
-                  <rect x="1.2" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>
-                  <rect x="7" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
-                  <rect x="7.7" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>`,
+        vmware:  `<rect x="0.6" y="1.4" width="6" height="6" rx="1.3" fill="none" stroke="#4c8dff" stroke-width="1.5"/>
+                  <rect x="5.4" y="4.6" width="6" height="6" rx="1.3" fill="none" stroke="#b0bec5" stroke-width="1.5"/>`,
         android: `<rect x="3" y="5" width="6" height="4.5" rx="0.8" fill="#3ddc84"/>
                   <path d="M3.5 5 C3.5 2.8 8.5 2.8 8.5 5" fill="none" stroke="#3ddc84" stroke-width="1.1"/>
                   <circle cx="4.8" cy="4" r="0.45" fill="#fff"/>
@@ -2493,7 +2725,10 @@ class Msf::Plugin::NetworkMapLive
         return String(s).replace(/\u001b\[[0-9;]*[A-Za-z]/g, '');
       }
 
-      // console output and commands can contain markup-significant chars
+      // Everything the graph renders comes from the workspace database
+      // (hostnames, service/loot/vuln/cred text, SNMP strings, console
+      // output), all of which targets influence directly - never interpolate
+      // any of it into HTML or attribute context unescaped.
       function esc(s) {
         return ansiStrip(String(s))
           .replace(/&/g, '&amp;')
@@ -2767,8 +3002,8 @@ class Msf::Plugin::NetworkMapLive
         grp
           .on('mouseenter', (event, d) => {
             tooltip.style.display = 'block';
-            tooltip.innerHTML = `<strong>${d.label}</strong><br>${d.address}` +
-              (d.os_name ? `<br><span class="session-meta">${d.os_name}${d.os_flavor ? ' ' + d.os_flavor : ''}</span>` : '');
+            tooltip.innerHTML = `<strong>${esc(d.label)}</strong><br>${esc(d.address)}` +
+              (d.os_name ? `<br><span class="session-meta">${esc(d.os_name)}${d.os_flavor ? ' ' + esc(d.os_flavor) : ''}</span>` : '');
           })
           .on('mousemove', (event) => {
             tooltip.style.left = (event.clientX + 14) + 'px';
@@ -3090,24 +3325,24 @@ class Msf::Plugin::NetworkMapLive
         const osIconHtml = osKey ? `<svg width="16" height="16" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;flex-shrink:0;display:inline-block"><use href="#os-${osKey}" width="12" height="12"/></svg>` : '';
         const sessionsBadges = [...d.sessions].sort((a, b) => b.active - a.active).map(s =>
           `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}"
-                data-exploit="${s.via_exploit}" data-payload="${s.via_payload}"
-                data-lhost="${s.lhost}" data-lport="${s.lport}" data-rhost="${d.address}" data-rport="${s.rport}">
+                data-exploit="${esc(s.via_exploit)}" data-payload="${esc(s.via_payload)}"
+                data-lhost="${esc(s.lhost)}" data-lport="${esc(s.lport)}" data-rhost="${esc(d.address)}" data-rport="${esc(s.rport)}">
             <div class="session-header">
               <div>
                 <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
-                <strong>#${s.id}</strong> ${s.type}
+                <strong>#${s.id}</strong> ${esc(s.type)}
               </div>
               <button class="copy-session-btn" onclick="copySessionSetup(this)" title="Copy recreation commands">&#x2398;</button>
             </div>
-            <span class="session-meta">${s.via_exploit || 'unknown exploit'}</span><br>
-            ${s.via_payload ? `<span class="session-meta">${s.via_payload}</span><br>` : ''}
-            <span class="session-meta">Opened: ${s.opened_at || 'unknown'}</span>
-            ${!s.active ? `<br><span class="session-meta">Closed: ${s.closed_at}</span>` : ''}
+            <span class="session-meta">${esc(s.via_exploit || 'unknown exploit')}</span><br>
+            ${s.via_payload ? `<span class="session-meta">${esc(s.via_payload)}</span><br>` : ''}
+            <span class="session-meta">Opened: ${esc(s.opened_at || 'unknown')}</span>
+            ${!s.active ? `<br><span class="session-meta">Closed: ${esc(s.closed_at)}</span>` : ''}
           </div>`
         ).join('');
 
         const servicesBadges = d.services.slice(0, 30).map(s =>
-          `<span class="badge badge-port">${s.port}/${s.proto}${s.name ? ' ' + s.name : ''}</span>`
+          `<span class="badge badge-port">${s.port}/${esc(s.proto)}${s.name ? ' ' + esc(s.name) : ''}</span>`
         ).join('');
 
         let routeHtml = '';
@@ -3129,8 +3364,8 @@ class Msf::Plugin::NetworkMapLive
                   const rttStr = h.rtt > 0 ? `<span class="rtt-label">(${Number(h.rtt).toFixed(2)}ms)</span>` : '';
                   const totalStr = i === 0 && totalRtt > 0 ? ` <span class="rtt-label rtt-total">total: ${totalRtt.toFixed(2)}ms</span>` : '';
                   return i === 0
-                    ? `<div class="route-entry-first">${h.label}${totalStr}</div>`
-                    : `<div class="route-entry-hop">${h.label}${rttStr}</div>`;
+                    ? `<div class="route-entry-first">${esc(h.label)}${totalStr}</div>`
+                    : `<div class="route-entry-hop">${esc(h.label)}${rttStr}</div>`;
                 }).join('')}
               </div>
             </div>
@@ -3140,28 +3375,28 @@ class Msf::Plugin::NetworkMapLive
         let html = `
           <div class="detail-group">
             <div class="detail-label">IP Address</div>
-            <div class="detail-value">${d.address || '&mdash;'}</div>
+            <div class="detail-value">${d.address ? esc(d.address) : '&mdash;'}</div>
           </div>
           ${routeHtml}
           ${d.name ? `<div class="detail-group">
             <div class="detail-label">Hostname</div>
-            <div class="detail-value">${d.name}</div>
+            <div class="detail-value">${esc(d.name)}</div>
           </div>` : ''}
           ${d.mac ? `<div class="detail-group">
             <div class="detail-label">MAC Address</div>
-            <div class="detail-value">${d.mac}</div>
+            <div class="detail-value">${esc(d.mac)}</div>
           </div>` : ''}
           ${osStr ? `<div class="detail-group">
             <div class="detail-label">Operating System</div>
-            <div class="detail-value" style="display:flex;align-items:center">${osIconHtml}${osStr}</div>
+            <div class="detail-value" style="display:flex;align-items:center">${osIconHtml}${esc(osStr)}</div>
           </div>` : ''}
           ${d.arch ? `<div class="detail-group">
             <div class="detail-label">Architecture</div>
-            <div class="detail-value">${d.arch}</div>
+            <div class="detail-value">${esc(d.arch)}</div>
           </div>` : ''}
           ${d.purpose ? `<div class="detail-group">
             <div class="detail-label">Purpose</div>
-            <div class="detail-value">${d.purpose}</div>
+            <div class="detail-value">${esc(d.purpose)}</div>
           </div>` : ''}
           <div class="detail-group">
             <div class="detail-label">Status</div>
@@ -3178,7 +3413,7 @@ class Msf::Plugin::NetworkMapLive
           html += `<div class="detail-group">
             <div class="detail-label">Jobs (${jobs.length})</div>
             ${jobs.length
-              ? jobs.map(j => `<div class="job-entry"><span class="job-id">#${j.id}</span> ${esc(j.name)}${j.started ? `<div class="session-meta">started ${j.started}</div>` : ''}</div>`).join('')
+              ? jobs.map(j => `<div class="job-entry"><span class="job-id">#${j.id}</span> ${esc(j.name)}${j.started ? `<div class="session-meta">started ${esc(j.started)}</div>` : ''}</div>`).join('')
               : '<div class="session-meta">no background jobs running</div>'}
           </div>`;
         }
@@ -3207,7 +3442,7 @@ class Msf::Plugin::NetworkMapLive
                 <button class="section-toggle">&#x25ba;</button>
               </div>
               <div class="collapsible-body collapsed">
-                ${modules.map(m => `<div class="module-entry">${m}</div>`).join('')}
+                ${modules.map(m => `<div class="module-entry">${esc(m)}</div>`).join('')}
               </div>
             </div>`;
           }
@@ -3215,11 +3450,11 @@ class Msf::Plugin::NetworkMapLive
 
         if (d.vulns && d.vulns.length > 0) {
           const vulnHtml = d.vulns.map(v => {
-            const refs = (v.refs || []).map(r => `<span class="vuln-ref">${r}</span>`).join('');
-            const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${v.exploited_at}</div>` : '';
+            const refs = (v.refs || []).map(r => `<span class="vuln-ref">${esc(r)}</span>`).join('');
+            const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${esc(v.exploited_at)}</div>` : '';
             return `<div class="vuln-entry">
-              <div class="vuln-name">${v.name}</div>
-              ${v.info ? `<div class="vuln-info">${v.info}</div>` : ''}
+              <div class="vuln-name">${esc(v.name)}</div>
+              ${v.info ? `<div class="vuln-info">${esc(v.info)}</div>` : ''}
               ${refs ? `<div class="vuln-refs">${refs}</div>` : ''}
               ${exploited}
             </div>`;
@@ -3244,10 +3479,10 @@ class Msf::Plugin::NetworkMapLive
           const lootEntries = d.loots.map(l => {
             const filename = l.name || (l.path || '').split('/').pop() || 'loot';
             const fileUrl = 'file://' + l.path;
-            return `<a class="loot-entry" href="${fileUrl}" target="_blank" title="Click to open ${fileUrl}">
-              ${l.info ? `<div class="loot-info">${l.info}</div>` : ''}
-              ${l.ltype ? `<div class="loot-meta">${l.ltype}</div>` : ''}
-              <div class="loot-name">${filename}</div>
+            return `<a class="loot-entry" href="${esc(fileUrl)}" target="_blank" rel="noopener noreferrer" title="Click to open ${esc(fileUrl)}">
+              ${l.info ? `<div class="loot-info">${esc(l.info)}</div>` : ''}
+              ${l.ltype ? `<div class="loot-meta">${esc(l.ltype)}</div>` : ''}
+              <div class="loot-name">${esc(filename)}</div>
             </a>`;
           }).join('');
           html += `<div class="detail-group">
@@ -3262,10 +3497,10 @@ class Msf::Plugin::NetworkMapLive
         if (d.creds && d.creds.length > 0) {
           const credEntries = d.creds.map(c => {
             const statusKey = (c.status || '').toLowerCase().replace(/\s+/g, '-');
-            const statusBadge = c.status ? `<span class="cred-status cred-status-${statusKey}">${c.status}</span>` : '';
+            const statusBadge = c.status ? `<span class="cred-status cred-status-${esc(statusKey)}">${esc(c.status)}</span>` : '';
             return `<div class="cred-entry">
-              <div class="cred-username">${c.username || '(blank)'}${statusBadge}</div>
-              <div class="cred-meta">Type: ${c.type}${c.domain ? ` &bull; Domain: ${c.domain}` : ''}</div>
+              <div class="cred-username">${esc(c.username || '(blank)')}${statusBadge}</div>
+              <div class="cred-meta">Type: ${esc(c.type)}${c.domain ? ` &bull; Domain: ${esc(c.domain)}` : ''}</div>
             </div>`;
           }).join('');
           html += `<div class="detail-group">
@@ -3522,8 +3757,8 @@ class Msf::Plugin::NetworkMapLive
         deviceTypes.forEach(dt => {
           const label = document.createElement('label');
           label.className = 'filter-opt';
-          const cb = `<input type="checkbox" class="filter-device" value="${dt}"${isChecked('filter-device', dt) ? ' checked' : ''}>`;
-          label.innerHTML = `${cb} ${typeLabels[dt] || dt}`;
+          const cb = `<input type="checkbox" class="filter-device" value="${esc(dt)}"${isChecked('filter-device', dt) ? ' checked' : ''}>`;
+          label.innerHTML = `${cb} ${esc(typeLabels[dt] || dt)}`;
           deviceContainer.appendChild(label);
         });
 
@@ -3532,8 +3767,8 @@ class Msf::Plugin::NetworkMapLive
         osKeys.forEach(ok => {
           const label = document.createElement('label');
           label.className = 'filter-opt';
-          const cb = `<input type="checkbox" class="filter-os" value="${ok}"${isChecked('filter-os', ok) ? ' checked' : ''}>`;
-          label.innerHTML = `${cb} ${osLabels[ok] || ok}`;
+          const cb = `<input type="checkbox" class="filter-os" value="${esc(ok)}"${isChecked('filter-os', ok) ? ' checked' : ''}>`;
+          label.innerHTML = `${cb} ${esc(osLabels[ok] || ok)}`;
           osContainer.appendChild(label);
         });
 
@@ -3544,8 +3779,8 @@ class Msf::Plugin::NetworkMapLive
           label.className = 'filter-opt';
           label.style.fontFamily = 'monospace';
           label.style.fontSize = '11px';
-          const cb = `<input type="checkbox" class="filter-module" value="${m}"${isChecked('filter-module', m) ? ' checked' : ''}>`;
-          label.innerHTML = `${cb} ${m}`;
+          const cb = `<input type="checkbox" class="filter-module" value="${esc(m)}"${isChecked('filter-module', m) ? ' checked' : ''}>`;
+          label.innerHTML = `${cb} ${esc(m)}`;
           moduleContainer.appendChild(label);
         });
 
@@ -3557,8 +3792,8 @@ class Msf::Plugin::NetworkMapLive
           label.className = 'filter-opt';
           label.style.fontFamily = 'monospace';
           label.style.fontSize = '11px';
-          const cb = `<input type="checkbox" class="filter-cred" value="${u}"${isChecked('filter-cred', u) ? ' checked' : ''}>`;
-          label.innerHTML = `${cb} ${u}`;
+          const cb = `<input type="checkbox" class="filter-cred" value="${esc(u)}"${isChecked('filter-cred', u) ? ' checked' : ''}>`;
+          label.innerHTML = `${cb} ${esc(u)}`;
           credContainer.appendChild(label);
         });
 

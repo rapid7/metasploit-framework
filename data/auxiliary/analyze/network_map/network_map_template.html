@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MSF Network Graph</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
   %%D3_SCRIPT%%
   <style>
     :root {
@@ -726,6 +727,18 @@
   const NODES = %%NODES%%;
   const LINKS = %%LINKS%%;
 
+  // Everything rendered below comes from the workspace database (hostnames,
+  // service/loot/vuln/cred text, SNMP strings, ...) which scanned targets
+  // influence directly - never interpolate any of it into HTML or attribute
+  // context unescaped.
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   const DEVICE_TYPES = ['computer', 'server', 'router', 'switch', 'firewall', 'phone', 'printer', 'msf', 'generic'];
   const OS_CATEGORIES = [
     { name: 'Computers',  keys: ['android', 'bsd', 'debian', 'ios', 'linux', 'macos', 'redhat', 'ubuntu', 'vmware', 'windows'] },
@@ -814,11 +827,8 @@
               <circle cx="1.8" cy="8.5" r="1.2" fill="#e95420"/>`,
     macos:   `<path d="M9 3.5 C8 2 6.5 2 5.5 2.5 C5.5 4 6.5 4.5 7 4.5 C6 4.5 4 4.5 3 6.5 C2 8.5 3 11 5.5 11 C6.5 11 7 10.5 8 10.5 C9 10.5 9.5 11 10.5 11 C13 11 14 8.5 13 6.5 C12 4.5 10 4.5 9 4.5 C9.5 4 10 3 9 2 Z" fill="#999"/>
               <line x1="9" y1="1" x2="9.5" y2="2.5" stroke="#999" stroke-width="1" stroke-linecap="round"/>`,
-    vmware:  `<rect x="0.5" y="8.5" width="11" height="3" rx="1" fill="#1d428a"/>
-              <rect x="0.5" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
-              <rect x="1.2" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>
-              <rect x="7" y="3.5" width="4.5" height="4.5" rx="0.8" fill="#607078"/>
-              <rect x="7.7" y="4.2" width="3.1" height="2" rx="0.3" fill="#b0bec5"/>`,
+    vmware:  `<rect x="0.6" y="1.4" width="6" height="6" rx="1.3" fill="none" stroke="#4c8dff" stroke-width="1.5"/>
+              <rect x="5.4" y="4.6" width="6" height="6" rx="1.3" fill="none" stroke="#b0bec5" stroke-width="1.5"/>`,
     android: `<rect x="3" y="5" width="6" height="4.5" rx="0.8" fill="#3ddc84"/>
               <path d="M3.5 5 C3.5 2.8 8.5 2.8 8.5 5" fill="none" stroke="#3ddc84" stroke-width="1.1"/>
               <circle cx="4.8" cy="4" r="0.45" fill="#fff"/>
@@ -1175,8 +1185,8 @@
   nodeGroup
     .on('mouseenter', (event, d) => {
       tooltip.style.display = 'block';
-      tooltip.innerHTML = `<strong>${d.label}</strong><br>${d.address}` +
-        (d.os_name ? `<br><span class="session-meta">${d.os_name}${d.os_flavor ? ' ' + d.os_flavor : ''}</span>` : '');
+      tooltip.innerHTML = `<strong>${esc(d.label)}</strong><br>${esc(d.address)}` +
+        (d.os_name ? `<br><span class="session-meta">${esc(d.os_name)}${d.os_flavor ? ' ' + esc(d.os_flavor) : ''}</span>` : '');
     })
     .on('mousemove', (event) => {
       tooltip.style.left = (event.clientX + 14) + 'px';
@@ -1287,24 +1297,24 @@
     const osIconHtml = osKey ? `<svg width="16" height="16" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;flex-shrink:0;display:inline-block"><use href="#os-${osKey}" width="12" height="12"/></svg>` : '';
     const sessionsBadges = [...d.sessions].sort((a, b) => b.active - a.active).map(s =>
       `<div class="session-entry ${s.active ? 'session-active' : 'session-closed'}"
-            data-exploit="${s.via_exploit}" data-payload="${s.via_payload}"
-            data-lhost="${s.lhost}" data-lport="${s.lport}" data-rhost="${d.address}" data-rport="${s.rport}">
+            data-exploit="${esc(s.via_exploit)}" data-payload="${esc(s.via_payload)}"
+            data-lhost="${esc(s.lhost)}" data-lport="${esc(s.lport)}" data-rhost="${esc(d.address)}" data-rport="${esc(s.rport)}">
         <div class="session-header">
           <div>
             <span class="badge ${s.active ? 'badge-compromised' : 'badge-closed'}">${s.active ? 'ACTIVE' : 'CLOSED'}</span>
-            <strong>#${s.id}</strong> ${s.type}
+            <strong>#${s.id}</strong> ${esc(s.type)}
           </div>
           <button class="copy-session-btn" onclick="copySessionSetup(this)" title="Copy recreation commands">&#x2398;</button>
         </div>
-        <span class="session-meta">${s.via_exploit || 'unknown exploit'}</span><br>
-        ${s.via_payload ? `<span class="session-meta">${s.via_payload}</span><br>` : ''}
-        <span class="session-meta">Opened: ${s.opened_at || 'unknown'}</span>
-        ${!s.active ? `<br><span class="session-meta">Closed: ${s.closed_at}</span>` : ''}
+        <span class="session-meta">${esc(s.via_exploit || 'unknown exploit')}</span><br>
+        ${s.via_payload ? `<span class="session-meta">${esc(s.via_payload)}</span><br>` : ''}
+        <span class="session-meta">Opened: ${esc(s.opened_at || 'unknown')}</span>
+        ${!s.active ? `<br><span class="session-meta">Closed: ${esc(s.closed_at)}</span>` : ''}
       </div>`
     ).join('');
 
     const servicesBadges = d.services.slice(0, 30).map(s =>
-      `<span class="badge badge-port">${s.port}/${s.proto}${s.name ? ' ' + s.name : ''}</span>`
+      `<span class="badge badge-port">${s.port}/${esc(s.proto)}${s.name ? ' ' + esc(s.name) : ''}</span>`
     ).join('');
 
     let routeHtml = '';
@@ -1326,8 +1336,8 @@
               const rttStr = h.rtt > 0 ? `<span class="rtt-label">(${Number(h.rtt).toFixed(2)}ms)</span>` : '';
               const totalStr = i === 0 && totalRtt > 0 ? ` <span class="rtt-label rtt-total">total: ${totalRtt.toFixed(2)}ms</span>` : '';
               return i === 0
-                ? `<div class="route-entry-first">${h.label}${totalStr}</div>`
-                : `<div class="route-entry-hop">${h.label}${rttStr}</div>`;
+                ? `<div class="route-entry-first">${esc(h.label)}${totalStr}</div>`
+                : `<div class="route-entry-hop">${esc(h.label)}${rttStr}</div>`;
             }).join('')}
           </div>
         </div>
@@ -1337,28 +1347,28 @@
     let html = `
       <div class="detail-group">
         <div class="detail-label">IP Address</div>
-        <div class="detail-value">${d.address || '&mdash;'}</div>
+        <div class="detail-value">${d.address ? esc(d.address) : '&mdash;'}</div>
       </div>
       ${routeHtml}
       ${d.name ? `<div class="detail-group">
         <div class="detail-label">Hostname</div>
-        <div class="detail-value">${d.name}</div>
+        <div class="detail-value">${esc(d.name)}</div>
       </div>` : ''}
       ${d.mac ? `<div class="detail-group">
         <div class="detail-label">MAC Address</div>
-        <div class="detail-value">${d.mac}</div>
+        <div class="detail-value">${esc(d.mac)}</div>
       </div>` : ''}
       ${osStr ? `<div class="detail-group">
         <div class="detail-label">Operating System</div>
-        <div class="detail-value" style="display:flex;align-items:center">${osIconHtml}${osStr}</div>
+        <div class="detail-value" style="display:flex;align-items:center">${osIconHtml}${esc(osStr)}</div>
       </div>` : ''}
       ${d.arch ? `<div class="detail-group">
         <div class="detail-label">Architecture</div>
-        <div class="detail-value">${d.arch}</div>
+        <div class="detail-value">${esc(d.arch)}</div>
       </div>` : ''}
       ${d.purpose ? `<div class="detail-group">
         <div class="detail-label">Purpose</div>
-        <div class="detail-value">${d.purpose}</div>
+        <div class="detail-value">${esc(d.purpose)}</div>
       </div>` : ''}
       <div class="detail-group">
         <div class="detail-label">Status</div>
@@ -1394,7 +1404,7 @@
             <button class="section-toggle">&#x25ba;</button>
           </div>
           <div class="collapsible-body collapsed">
-            ${modules.map(m => `<div class="module-entry">${m}</div>`).join('')}
+            ${modules.map(m => `<div class="module-entry">${esc(m)}</div>`).join('')}
           </div>
         </div>`;
       }
@@ -1406,14 +1416,14 @@
       const vulnHtml = sorted.map(v => {
         const hasModule = v.msf_modules && v.msf_modules.length > 0;
         const cveSet = new Set(v.cve_refs || []);
-        const refs = (v.refs || []).map(r => `<span class="vuln-ref${cveSet.has(r.toUpperCase()) || cveSet.has(r) ? ' vuln-cve-ref' : ''}">${r}</span>`).join('');
-        const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${v.exploited_at}</div>` : '';
+        const refs = (v.refs || []).map(r => `<span class="vuln-ref${cveSet.has(r.toUpperCase()) || cveSet.has(r) ? ' vuln-cve-ref' : ''}">${esc(r)}</span>`).join('');
+        const exploited = v.exploited_at ? `<div class="vuln-exploited">Exploited: ${esc(v.exploited_at)}</div>` : '';
         const modulesHtml = hasModule
-          ? `<div class="vuln-module-row">${v.msf_modules.map(m => `<span class="vuln-msf-module">&#x25b6; ${m}</span>`).join('')}</div>`
+          ? `<div class="vuln-module-row">${v.msf_modules.map(m => `<span class="vuln-msf-module">&#x25b6; ${esc(m)}</span>`).join('')}</div>`
           : '';
         return `<div class="vuln-entry${hasModule ? ' vuln-entry-has-module' : ''}">
-          <div class="vuln-name">${v.name}${hasModule ? ' <span class="vuln-has-module">&#x25cf; MODULE</span>' : ''}</div>
-          ${v.info ? `<div class="vuln-info">${v.info}</div>` : ''}
+          <div class="vuln-name">${esc(v.name)}${hasModule ? ' <span class="vuln-has-module">&#x25cf; MODULE</span>' : ''}</div>
+          ${v.info ? `<div class="vuln-info">${esc(v.info)}</div>` : ''}
           ${refs ? `<div class="vuln-refs">${refs}</div>` : ''}
           ${modulesHtml}
           ${exploited}
@@ -1440,10 +1450,10 @@
       const lootEntries = d.loots.map(l => {
         const filename = l.name || l.path.split('/').pop() || 'loot';
         const fileUrl = 'file://' + l.path;
-        return `<a class="loot-entry" href="${fileUrl}" target="_blank" title="Click to open ${fileUrl}">
-          ${l.info ? `<div class="loot-info">${l.info}</div>` : ''}
-          ${l.ltype ? `<div class="loot-meta">${l.ltype}</div>` : ''}
-          <div class="loot-name">${filename}</div>
+        return `<a class="loot-entry" href="${esc(fileUrl)}" target="_blank" rel="noopener noreferrer" title="Click to open ${esc(fileUrl)}">
+          ${l.info ? `<div class="loot-info">${esc(l.info)}</div>` : ''}
+          ${l.ltype ? `<div class="loot-meta">${esc(l.ltype)}</div>` : ''}
+          <div class="loot-name">${esc(filename)}</div>
         </a>`;
       }).join('');
       html += `<div class="detail-group">
@@ -1458,10 +1468,10 @@
     if (d.creds && d.creds.length > 0) {
       const credEntries = d.creds.map(c => {
         const statusKey = (c.status || '').toLowerCase().replace(/\s+/g, '-');
-        const statusBadge = c.status ? `<span class="cred-status cred-status-${statusKey}">${c.status}</span>` : '';
+        const statusBadge = c.status ? `<span class="cred-status cred-status-${esc(statusKey)}">${esc(c.status)}</span>` : '';
         return `<div class="cred-entry">
-          <div class="cred-username">${c.username || '(blank)'}${statusBadge}</div>
-          <div class="cred-meta">Type: ${c.type}${c.domain ? ` &bull; Domain: ${c.domain}` : ''}</div>
+          <div class="cred-username">${esc(c.username || '(blank)')}${statusBadge}</div>
+          <div class="cred-meta">Type: ${esc(c.type)}${c.domain ? ` &bull; Domain: ${esc(c.domain)}` : ''}</div>
         </div>`;
       }).join('');
       html += `<div class="detail-group">
@@ -1480,9 +1490,9 @@
           <button class="section-toggle">&#x25ba;</button>
         </div>
         <div class="collapsible-body collapsed">
-          ${d.snmp_description ? `<div class="snmp-desc">${d.snmp_description}</div>` : ''}
-          ${d.snmp_contact ? `<div style="font-size:12px;margin-bottom:4px"><span style="color:var(--text-muted)">Contact: </span>${d.snmp_contact}</div>` : ''}
-          ${d.snmp_location ? `<div style="font-size:12px;"><span style="color:var(--text-muted)">Location: </span>${d.snmp_location}</div>` : ''}
+          ${d.snmp_description ? `<div class="snmp-desc">${esc(d.snmp_description)}</div>` : ''}
+          ${d.snmp_contact ? `<div style="font-size:12px;margin-bottom:4px"><span style="color:var(--text-muted)">Contact: </span>${esc(d.snmp_contact)}</div>` : ''}
+          ${d.snmp_location ? `<div style="font-size:12px;"><span style="color:var(--text-muted)">Location: </span>${esc(d.snmp_location)}</div>` : ''}
         </div>
       </div>`;
     }
@@ -1494,9 +1504,9 @@
         const statusClass = statusStr === 'up' ? 'iface-status-up' : statusStr === 'down' ? 'iface-status-down' : 'iface-status-unknown';
         const ifName = (iface['Interface'] || '').replace(/^\[\s*\w+\s*\]\s*/, '');
         return `<div class="iface-entry">
-          <div><span class="${statusClass}">&#x25cf; ${statusStr.toUpperCase()}</span> <strong>${ifName}</strong></div>
-          ${iface['Mac Address'] ? `<div style="font-size:11px;color:var(--text-muted)">MAC: ${iface['Mac Address']}</div>` : ''}
-          ${iface['Type'] ? `<div style="font-size:11px;color:var(--text-muted)">Type: ${iface['Type']}${iface['Speed'] ? ' &bull; ' + iface['Speed'] : ''}</div>` : ''}
+          <div><span class="${statusClass}">&#x25cf; ${statusStr.toUpperCase()}</span> <strong>${esc(ifName)}</strong></div>
+          ${iface['Mac Address'] ? `<div style="font-size:11px;color:var(--text-muted)">MAC: ${esc(iface['Mac Address'])}</div>` : ''}
+          ${iface['Type'] ? `<div style="font-size:11px;color:var(--text-muted)">Type: ${esc(iface['Type'])}${iface['Speed'] ? ' &bull; ' + esc(iface['Speed']) : ''}</div>` : ''}
         </div>`;
       }).join('');
       html += `<div class="detail-group">
@@ -1517,13 +1527,13 @@
       const portHtml = Object.entries(portGroups).map(([port, entries]) => {
         const rowsHtml = entries.map(e => {
           const label = e.host_label || e.mac;
-          const ipStr = e.host_ip ? ` <span style="color:var(--text-muted)">(${e.host_ip})</span>` : '';
+          const ipStr = e.host_ip ? ` <span style="color:var(--text-muted)">(${esc(e.host_ip)})</span>` : '';
           const inner = e.host_id
-            ? `<span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="selectNodeById('${e.host_id}')">${label}</span>${ipStr}`
-            : `<span style="font-family:monospace;font-size:11px">${e.mac}</span>`;
+            ? `<span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="selectNodeById('${e.host_id}')">${esc(label)}</span>${ipStr}`
+            : `<span style="font-family:monospace;font-size:11px">${esc(e.mac)}</span>`;
           return `<div style="margin-left:10px;margin-top:2px;font-size:11px">${inner}</div>`;
         }).join('');
-        return `<div style="margin-bottom:6px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary)">${port}</div>${rowsHtml}</div>`;
+        return `<div style="margin-bottom:6px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary)">${esc(port)}</div>${rowsHtml}</div>`;
       }).join('');
       const knownCount = d.snmp_port_hosts.filter(e => e.host_id).length;
       const badge = knownCount > 0 ? ` <span style="color:var(--accent);font-size:10px">(${knownCount} known)</span>` : '';
@@ -1543,17 +1553,17 @@
         let neighborHtml = '';
         if (hasLldp) {
           neighborHtml += d.snmp_lldp.map(nb => `<div class="neighbor-entry">
-            <div><span class="neighbor-badge neighbor-lldp">LLDP</span><strong>${nb['System Name'] || 'unknown'}</strong></div>
-            ${nb['Port Description'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${nb['Port Description']}</div>` : ''}
-            ${nb['Port ID'] ? `<div style="font-size:11px;color:var(--text-muted)">ID: ${nb['Port ID']}</div>` : ''}
+            <div><span class="neighbor-badge neighbor-lldp">LLDP</span><strong>${esc(nb['System Name'] || 'unknown')}</strong></div>
+            ${nb['Port Description'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${esc(nb['Port Description'])}</div>` : ''}
+            ${nb['Port ID'] ? `<div style="font-size:11px;color:var(--text-muted)">ID: ${esc(nb['Port ID'])}</div>` : ''}
           </div>`).join('');
         }
         if (hasCdp) {
           neighborHtml += d.snmp_cdp.map(nb => `<div class="neighbor-entry">
-            <div><span class="neighbor-badge neighbor-cdp">CDP</span><strong>${nb['Device ID'] || 'unknown'}</strong></div>
-            ${nb['IP Address'] ? `<div style="font-size:11px;color:var(--text-muted)">IP: ${nb['IP Address']}</div>` : ''}
-            ${nb['Port'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${nb['Port']}</div>` : ''}
-            ${nb['Platform'] ? `<div style="font-size:11px;color:var(--text-muted)">Platform: ${nb['Platform']}</div>` : ''}
+            <div><span class="neighbor-badge neighbor-cdp">CDP</span><strong>${esc(nb['Device ID'] || 'unknown')}</strong></div>
+            ${nb['IP Address'] ? `<div style="font-size:11px;color:var(--text-muted)">IP: ${esc(nb['IP Address'])}</div>` : ''}
+            ${nb['Port'] ? `<div style="font-size:11px;color:var(--text-muted)">Port: ${esc(nb['Port'])}</div>` : ''}
+            ${nb['Platform'] ? `<div style="font-size:11px;color:var(--text-muted)">Platform: ${esc(nb['Platform'])}</div>` : ''}
           </div>`).join('');
         }
         const totalCount = (d.snmp_lldp ? d.snmp_lldp.length : 0) + (d.snmp_cdp ? d.snmp_cdp.length : 0);
@@ -1824,7 +1834,7 @@
     deviceTypes.forEach(dt => {
       const label = document.createElement('label');
       label.className = 'filter-opt';
-      label.innerHTML = `<input type="checkbox" class="filter-device" value="${dt}"> ${typeLabels[dt] || dt}`;
+      label.innerHTML = `<input type="checkbox" class="filter-device" value="${esc(dt)}"> ${esc(typeLabels[dt] || dt)}`;
       deviceContainer.appendChild(label);
     });
 
@@ -1832,7 +1842,7 @@
     osKeys.forEach(ok => {
       const label = document.createElement('label');
       label.className = 'filter-opt';
-      label.innerHTML = `<input type="checkbox" class="filter-os" value="${ok}"> ${osLabels[ok] || ok}`;
+      label.innerHTML = `<input type="checkbox" class="filter-os" value="${esc(ok)}"> ${esc(osLabels[ok] || ok)}`;
       osContainer.appendChild(label);
     });
 
@@ -1842,7 +1852,7 @@
       label.className = 'filter-opt';
       label.style.fontFamily = 'monospace';
       label.style.fontSize = '11px';
-      label.innerHTML = `<input type="checkbox" class="filter-module" value="${m}"> ${m}`;
+      label.innerHTML = `<input type="checkbox" class="filter-module" value="${esc(m)}"> ${esc(m)}`;
       moduleContainer.appendChild(label);
     });
 
@@ -1853,7 +1863,7 @@
       label.className = 'filter-opt';
       label.style.fontFamily = 'monospace';
       label.style.fontSize = '11px';
-      label.innerHTML = `<input type="checkbox" class="filter-cred" value="${u}"> ${u}`;
+      label.innerHTML = `<input type="checkbox" class="filter-cred" value="${esc(u)}"> ${esc(u)}`;
       credContainer.appendChild(label);
     });
   })();

@@ -102,9 +102,15 @@ class MetasploitModule < Msf::Auxiliary
              else
                D3_CDN_TAG
              end
+    # Block form: String#sub interprets '\\' and '\1'-style sequences in
+    # string replacements, which would corrupt the d3 source and any JSON
+    # containing backslashes (Windows paths, DOMAIN\user, ...).
+    # inline_json (from NetworkGraphBuilder) additionally escapes
+    # markup-significant characters so no database string can terminate the
+    # <script> element the payloads are embedded in.
     template
-      .sub('%%D3_SCRIPT%%', d3_tag)
-      .sub('%%NODES%%', JSON.generate(utf8_sanitize(nodes)).force_encoding('UTF-8'))
-      .sub('%%LINKS%%', JSON.generate(utf8_sanitize(links)).force_encoding('UTF-8'))
+      .sub('%%D3_SCRIPT%%') { d3_tag }
+      .sub('%%NODES%%') { inline_json(nodes) }
+      .sub('%%LINKS%%') { inline_json(links) }
   end
 end
