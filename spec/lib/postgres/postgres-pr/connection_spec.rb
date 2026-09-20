@@ -75,7 +75,7 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
           [
             # server-first, containing server nonce, salt, and iteration count
             Msf::Db::PostgresPR::AuthenticationSASLContinue.new(
-              value: 'r=2kRpTcHEFyoG+UgDEpRBdVcJLTWh5WtxARhYOHcG27i7YxAi,s=GNpgixWS5E4INbrMf665Kw==,i=4096'
+              value: 'r=AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=2kRpTcHEFyoG+UgDEpRBdVcJLTWh5WtxARhYOHcG27i7YxAi,s=GNpgixWS5E4INbrMf665Kw==,i=4096'
             ),
             # For auth failure; server-final isn't AuthenticationSASLFinal - but just a generic Postgres ErrorResponse
             Msf::Db::PostgresPR::ErrorResponse.new(
