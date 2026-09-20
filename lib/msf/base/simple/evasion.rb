@@ -96,9 +96,14 @@ module Evasion
       raise $!
     rescue ::Msf::OptionValidateError => e
       evasion.error = e
+      # Propagate the failure to the original instance so callers (e.g. the RPC
+      # service) can report why the evasion never started, mirroring the job_id
+      # propagation on the success path above.
+      oevasion.error = e
       ::Msf::Ui::Formatter::OptionValidateError.print_error(evasion, e)
     rescue ::Exception => e
       evasion.error = e
+      oevasion.error = e
       evasion.print_error("evasion failed: #{e}")
       elog("Evasion failed (#{evasion.refname})", error: e)
     end
