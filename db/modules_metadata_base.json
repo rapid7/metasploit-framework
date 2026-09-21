@@ -134807,6 +134807,55 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_multi/persistence/kate_plugin": {
+    "name": "Kate Plugin Persistence",
+    "fullname": "exploit/multi/persistence/kate_plugin",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2025-05-11",
+    "type": "exploit",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module installs a malicious Kate (KTextEditor) plugin that executes the payload\n          each time Kate is launched.\n\n          Linux: a pre-built template SO is patched with raw x64 shellcode and uploaded\n          to the target. If the session has write access to the system Qt plugin directory\n          the plugin is installed there directly (no environment changes needed). Otherwise\n          it is installed user-locally with QT_PLUGIN_PATH persisted via KDE Plasma startup\n          scripts, systemd user environment files, and a .desktop file override so the\n          plugin is visible in Kate's plugin manager for both terminal and GUI launches.\n\n          Windows: a pre-compiled template DLL is patched with raw x64 shellcode and\n          dropped directly into Kate's own kf6/ktexteditor plugin directory. The directory\n          is located by finding kate.exe then searching for katefilebrowserplugin.dll\n          relative to it. Qt scans Kate's own plugin directory unconditionally at startup\n          - no environment variable or registry changes needed. Kate's install directory is\n          auto-detected.\n\n          Tested on 26.04.0 on Kali, 26.07.70 on Windows 10",
+    "references": [
+      "URL-https://develop.kde.org/docs/apps/kate/plugin/"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "x64",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Windows",
+      "Linux"
+    ],
+    "mod_time": "2026-09-19 18:17:26 +0000",
+    "path": "/modules/exploits/multi/persistence/kate_plugin.rb",
+    "is_install_path": true,
+    "ref_name": "multi/persistence/kate_plugin",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
   "exploit_multi/persistence/obsidian_plugin": {
     "name": "Obsidian Plugin Persistence",
     "fullname": "exploit/multi/persistence/obsidian_plugin",
