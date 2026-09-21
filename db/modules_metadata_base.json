@@ -64579,6 +64579,57 @@
       }
     ]
   },
+  "auxiliary_spoof/dhcp/dhcpv6_dns_takeover": {
+    "name": "DHCPv6 DNS Takeover (mitm6-style IPv6 DNS coercion)",
+    "fullname": "auxiliary/spoof/dhcp/dhcpv6_dns_takeover",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Pushpender Rathore"
+    ],
+    "description": "This module runs a rogue DHCPv6 server that hands the attacker to IPv6\n          clients as their DNS server (the classic mitm6 primitive), and a paired\n          DNS server that poisons names under a target domain to point at the\n          attacker while transparently forwarding all other lookups so the victim\n          stays functional.\n\n          Once a client resolves a target service through the attacker, it can be\n          coerced into authenticating to the attacker. Paired with a Kerberos relay\n          target (for example ESC8 AD CS web enrollment), this is the native\n          coercion half of the Kerberos relay via DNS technique (CVE-2026-20929),\n          removing the dependency on external tooling such as mitm6.\n\n          IPv6 is preferred by Windows over IPv4, so becoming the client's IPv6 DNS\n          server is enough to intercept its name resolution even on IPv4 networks.",
+    "references": [
+      "CVE-2026-20929",
+      "URL-https://github.com/dirkjanm/mitm6",
+      "ATT&CK-T1557"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 53,
+    "autofilter_ports": [
+      53
+    ],
+    "autofilter_services": [
+      "dns"
+    ],
+    "targets": null,
+    "mod_time": "2026-07-17 13:26:09 +0000",
+    "path": "/modules/auxiliary/spoof/dhcp/dhcpv6_dns_takeover.rb",
+    "is_install_path": true,
+    "ref_name": "spoof/dhcp/dhcpv6_dns_takeover",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "Service",
+        "description": "Run the DHCPv6 and DNS takeover services"
+      }
+    ]
+  },
   "auxiliary_spoof/dns/bailiwicked_domain": {
     "name": "DNS BailiWicked Domain Attack",
     "fullname": "auxiliary/spoof/dns/bailiwicked_domain",
@@ -64744,6 +64795,58 @@
       {
         "name": "Service",
         "description": "Serve DNS entries"
+      }
+    ]
+  },
+  "auxiliary_spoof/ipv6/ipv6_ra_dns_takeover": {
+    "name": "IPv6 Router Advertisement DNS Takeover (RDNSS IPv6 DNS coercion)",
+    "fullname": "auxiliary/spoof/ipv6/ipv6_ra_dns_takeover",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Pushpender Rathore"
+    ],
+    "description": "This module runs a rogue IPv6 router that advertises the attacker as the\n          recursive DNS server (RDNSS, RFC 8106) inside Router Advertisements, and a\n          paired DNS server that poisons names under a target domain to point at the\n          attacker while transparently forwarding all other lookups so the victim\n          stays functional.\n\n          It is the Router Advertisement equivalent of the mitm6 DHCPv6 DNS\n          takeover: instead of answering DHCPv6 Solicits, it multicasts RAs\n          carrying an RDNSS option, which modern Windows (and other RFC 8106\n          clients) adopt as their IPv6 resolver. It also listens for Router\n          Solicitations and replies with a unicast RA immediately, so a client is\n          coerced the moment it boots or refreshes rather than waiting for the next\n          unsolicited advertisement. By default the RA does not claim to be a\n          default router (router lifetime 0), so routing is left untouched and only\n          DNS is taken over.\n\n          Once a client resolves a target service through the attacker, it can be\n          coerced into authenticating to the attacker. Paired with a Kerberos relay\n          target (for example ESC8 AD CS web enrollment), this is a native coercion\n          half of the Kerberos relay via DNS technique (CVE-2026-20929), removing\n          the dependency on external tooling such as mitm6.\n\n          IPv6 is preferred by Windows over IPv4, so becoming the client's IPv6 DNS\n          server is enough to intercept its name resolution even on IPv4 networks.\n          Layer 2 adjacency (same segment) and root privileges to inject raw\n          packets are required.",
+    "references": [
+      "CVE-2026-20929",
+      "URL-https://www.rfc-editor.org/rfc/rfc8106",
+      "URL-https://github.com/dirkjanm/mitm6",
+      "ATT&CK-T1557"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 53,
+    "autofilter_ports": [
+      53
+    ],
+    "autofilter_services": [
+      "dns"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-21 01:21:16 +0000",
+    "path": "/modules/auxiliary/spoof/ipv6/ipv6_ra_dns_takeover.rb",
+    "is_install_path": true,
+    "ref_name": "spoof/ipv6/ipv6_ra_dns_takeover",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "Service",
+        "description": "Run the RA/RDNSS and DNS takeover services"
       }
     ]
   },
