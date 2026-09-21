@@ -65,10 +65,16 @@ module Rex
             end
 
             def parse_integer(argument, value)
-              literal = value.delete_prefix('-')
-              base = literal.start_with?('0x') ? 16 : 10
-              integer = value.start_with?('-') ? -literal.to_i(base) : literal.to_i(base)
-              unless value.match?(/\A-?(?:0x[0-9a-fA-F]+|[0-9]+)\z/) && INTEGER_RANGES.fetch(argument['type']).cover?(integer)
+              if value.is_a?(Integer)
+                integer = value
+              elsif value.is_a?(String) && value.match?(/\A-?(?:0x[0-9a-fA-F]+|[0-9]+)\z/)
+                literal = value.delete_prefix('-')
+                base = literal.start_with?('0x') ? 16 : 10
+                integer = literal.to_i(base)
+                integer = -integer if value.start_with?('-')
+              end
+
+              unless integer && INTEGER_RANGES.fetch(argument['type']).cover?(integer)
                 raise Error, "Positional BOF argument #{argument['position'] + 1} is not a valid #{argument['type']}"
               end
 

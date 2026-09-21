@@ -24,6 +24,20 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaArgumentParser 
     end
   end
 
+  it 'packs direct binary arguments as bytes' do
+    arguments = [{ 'type' => 'bytes', 'format' => 'b', 'position' => 0, 'required' => true }]
+
+    expect(described_class.new(arguments: arguments).parse(['hello']))
+      .to eq('format' => 'b', 'values' => ['hello'.b])
+  end
+
+  it 'accepts integer defaults parsed from CNA literals' do
+    arguments = [{ 'type' => 'int32', 'format' => 'i', 'position' => 0, 'required' => false, 'default' => 7 }]
+
+    expect(described_class.new(arguments: arguments).parse([]))
+      .to eq('format' => 'i', 'values' => [7])
+  end
+
   it 'rejects extra positionals' do
     arguments = [{ 'type' => 'int32', 'format' => 'i', 'fixed' => 1, 'required' => false }]
 
