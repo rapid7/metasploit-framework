@@ -183,6 +183,39 @@ RSpec.shared_examples_for 'Msf::DBManager::Cred' do
         subject.update_credential(id: core.id, private: { id: core.private_id, data: 'newpassword' })
         expect(core.reload.private.data).to eq('newpassword')
       end
+
+      let(:other_core) do
+        subject.create_credential(
+          address: '192.0.2.2',
+          port: 22,
+          service_name: 'ssh',
+          protocol: 'tcp',
+          workspace_id: workspace.id,
+          origin_type: :import,
+          filename: '/tmp/other-creds.txt',
+          username: 'someone-else',
+          private_data: 'unrelated-password',
+          private_type: :password
+        )
+      end
+
+      it 'does not modify an unrelated credential\'s private record when given a mismatched :private id' do
+        subject.update_credential(
+          id: core.id,
+          private: { id: other_core.private_id, data: 'overwritten', type: 'Metasploit::Credential::Password' }
+        )
+
+        expect(other_core.private.reload.data).to eq('unrelated-password')
+      end
+
+      it 'does not modify an unrelated credential\'s public record when given a mismatched :public id' do
+        subject.update_credential(
+          id: core.id,
+          public: { id: other_core.public_id, username: 'overwritten', type: 'Metasploit::Credential::Username' }
+        )
+
+        expect(other_core.public.reload.username).to eq('someone-else')
+      end
     end
   end
 end

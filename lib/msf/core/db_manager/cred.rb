@@ -260,32 +260,31 @@ module Msf::DBManager::Cred
       update_attrs[:workspace] = wspace if wspace
 
       if opts[:public]
-        if opts[:public][:id]
-          public_id = opts[:public].delete(:id)
-          public = Metasploit::Credential::Public.find(public_id)
-          public.update(opts[:public])
+        # The :id should only apply to the cred above, not any of the further lookups we do here so we exclude it
+        if opts[:public][:id] && opts[:public][:id].to_s == cred.public_id.to_s
+          public = Metasploit::Credential::Public.find(opts[:public][:id])
+          public.update(opts[:public].except(:id))
         else
-          public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
+          public = Metasploit::Credential::Public.where(opts[:public].except(:id)).first_or_initialize
         end
         update_attrs[:public] = public
       end
       if opts[:private]
-        if opts[:private][:id]
-          private_id = opts[:private].delete(:id)
-          private = Metasploit::Credential::Private.find(private_id)
-          private.update(opts[:private])
+        if opts[:private][:id] && opts[:private][:id].to_s == cred.private_id.to_s
+          private = Metasploit::Credential::Private.find(opts[:private][:id])
+          private.update(opts[:private].except(:id))
         else
-          private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
+          private = Metasploit::Credential::Private.where(opts[:private].except(:id)).first_or_initialize
         end
         update_attrs[:private] = private
       end
       if opts[:origin]
-        if opts[:origin][:id]
-          origin_id = opts[:origin].delete(:id)
-          origin = Metasploit::Credential::Origin.find(origin_id)
-          origin.update(opts[:origin])
+        # See comment above for :public -- same reasoning applies to :origin.
+        if opts[:origin][:id] && opts[:origin][:id].to_s == cred.origin_id.to_s
+          origin = Metasploit::Credential::Origin.find(opts[:origin][:id])
+          origin.update(opts[:origin].except(:id))
         else
-          origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
+          origin = Metasploit::Credential::Origin.where(opts[:origin].except(:id)).first_or_initialize
         end
         update_attrs[:origin] = origin
       end
