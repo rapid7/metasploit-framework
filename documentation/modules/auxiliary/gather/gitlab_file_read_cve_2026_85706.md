@@ -44,6 +44,9 @@ No user account or project is required. The files API reads the requested path b
 7. Run `check`.
 8. Run `run`.
 
+The module's check first attempts to verify the file read directly. If that does not prove exploitation, it fingerprints the
+GitLab version and compares the detected version range with the affected releases.
+
 ## Options
 
 ### FILEPATH
@@ -70,4 +73,3 @@ msf auxiliary(gather/gitlab_file_read_cve_2026_85706) > run
 [+] 192.0.2.1:8929 - Data from /opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml was read successfully and stored in: /loot/path/gitlab.yml
 [*] Auxiliary module execution completed
 ```
-
