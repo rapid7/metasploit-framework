@@ -11,7 +11,7 @@ module Rex
             class Unsupported < StandardError; end
 
             FORMAT_TYPES = {
-              'b' => 'file',
+              'b' => 'bytes',
               'i' => 'int32',
               's' => 'int16',
               'z' => 'string',
@@ -136,10 +136,9 @@ module Rex
                 expression = assignments.first
               end
 
-              calls = function_calls(expression, 'bof_pack')
-              raise Unsupported, 'arguments are not assigned by one bof_pack call' unless calls.length == 1
+              pack_arguments = exact_function_call(expression, 'bof_pack')
+              raise Unsupported, 'arguments are not assigned by one bof_pack call' unless pack_arguments
 
-              pack_arguments = calls.first
               format = literal(pack_arguments[1])
               unless format.is_a?(String) && !format.empty? && format.match?(/\A[biszZ]+\z/)
                 raise Unsupported, 'bof_pack uses a dynamic or invalid format'
@@ -198,10 +197,10 @@ module Rex
             end
 
             def optional_value(format_character, expression, assignments, seen)
-              calls = function_calls(expression, 'iff')
-              return unless calls.length == 1 && calls.first.length == 3
+              arguments = exact_function_call(expression, 'iff')
+              return unless arguments&.length == 3
 
-              condition, true_expression, false_expression = calls.first
+              condition, true_expression, false_expression = arguments
               match = condition.strip.match(/\A-istrue\s+(\$\d+)\z/)
               return unless match && true_expression.strip == match[1]
 
@@ -230,8 +229,8 @@ module Rex
               end
 
               %w[readb openf].each do |function_name|
-                calls = function_calls(expression, function_name)
-                return file_position(calls.first.first, assignments, seen) if calls.length == 1
+                arguments = exact_function_call(expression, function_name)
+                return file_position(arguments.first, assignments, seen) if arguments
               end
 
               raise Unsupported, "cannot determine the local file for packed expression #{expression.strip}"
@@ -291,24 +290,91 @@ module Rex
             end
 
             def bof_template(body, data_expression)
-              resource = function_calls(body, 'script_resource').find { |arguments| arguments.first&.include?('.o') }
-              return [resource.first, {}] if resource
+              expression = resolve_bof_expression(data_expression, variable_assignments(body), [])
+              resource = exact_function_call(expression, 'script_resource')
+              return [resource.first, {}] if resource&.length == 1
 
               @subroutines.each do |name, subroutine_body|
-                invocation = function_calls(data_expression, name)
-                next unless invocation.length == 1
+                invocation = exact_function_call(expression, name)
+                next unless invocation
 
-                resource = function_calls(subroutine_body, 'script_resource').find { |arguments| arguments.first&.include?('.o') }
-                next unless resource
+                template = subroutine_bof_template(subroutine_body)
 
-                replacements = invocation.first.each_with_index.each_with_object({}) do |(argument, index), result|
+                replacements = invocation.each_with_index.each_with_object({}) do |(argument, index), result|
                   value = literal(argument)
                   result["$#{index + 1}"] = value unless value.equal?(NULL)
                 end
-                return [resource.first, replacements]
+                return [template, replacements]
               end
 
               raise Unsupported, 'cannot determine the BOF path'
+            end
+
+            def subroutine_bof_template(body)
+              returns = return_expressions(body)
+              raise Unsupported, 'BOF helper does not have one static return value' unless returns.length == 1
+
+              expression = resolve_bof_expression(returns.first, variable_assignments(body), [])
+              resource = exact_function_call(expression, 'script_resource')
+              raise Unsupported, 'BOF helper does not return one resource path' unless resource&.length == 1
+
+              resource.first
+            end
+
+            def resolve_bof_expression(expression, assignments, seen)
+              expression = unwrap_parentheses(expression)
+              if expression.match?(VARIABLE_PATTERN)
+                raise Unsupported, "recursive assignment for #{expression}" if seen.include?(expression)
+
+                candidates = assignments[expression]
+                raise Unsupported, "#{expression} has a dynamic assignment" unless candidates&.length == 1
+
+                return resolve_bof_expression(candidates.first, assignments, seen + [expression])
+              end
+
+              arguments = %w[readb openf].filter_map { |function_name| exact_function_call(expression, function_name) }.first
+              return expression unless arguments
+              raise Unsupported, 'BOF data wrapper does not specify a path' if arguments.empty?
+
+              resolve_bof_expression(arguments.first, assignments, seen)
+            end
+
+            def unwrap_parentheses(expression)
+              expression = expression.strip
+              expression = expression[1...-1].strip while expression.start_with?('(') && matching_delimiter(expression, 0, '(', ')') == expression.length - 1
+              expression
+            end
+
+            def return_expressions(code)
+              expressions = []
+              quote = nil
+              escaped = false
+              index = 0
+
+              while index < code.length
+                character = code[index]
+                if quote
+                  if escaped
+                    escaped = false
+                  elsif character == '\\'
+                    escaped = true
+                  elsif character == quote
+                    quote = nil
+                  end
+                elsif ["'", '"'].include?(character)
+                  quote = character
+                elsif code[index, 6] == 'return' && (index.zero? || code[index - 1] !~ /[a-zA-Z0-9_$%@&.-]/) && code[index + 6].to_s !~ /[a-zA-Z0-9_-]/
+                  expression_start = index + 6
+                  terminator = matching_terminator(code, expression_start, ';')
+                  break unless terminator
+
+                  expressions << code[expression_start...terminator].strip
+                  index = terminator
+                end
+                index += 1
+              end
+
+              expressions
             end
 
             def bof_files(template, replacements)
@@ -396,6 +462,18 @@ module Rex
                 offset = closing + 1
               end
               calls
+            end
+
+            def exact_function_call(code, function_name)
+              expression = unwrap_parentheses(code)
+              match = /\A&?#{Regexp.escape(function_name)}\s*\(/.match(expression)
+              return unless match
+
+              opening = expression.index('(', match.begin(0))
+              closing = matching_delimiter(expression, opening, '(', ')')
+              return unless closing == expression.length - 1
+
+              split_top_level(expression[(opening + 1)...closing])
             end
 
             def split_top_level(code, separator: ',')
@@ -533,10 +611,14 @@ module Rex
 
               value = expression.strip
               return nil if value == '$null'
-              return parse_string(value) if value.match?(/\A(["']).*\1\z/m)
+              return parse_string(value) if string_literal?(value)
               return Integer(value, 0) if value.match?(/\A-?(?:0x[0-9a-fA-F]+|\d+)\z/)
 
               NULL
+            end
+
+            def string_literal?(value)
+              value.match?(/\A"(?:\\.|[^"\\])*"\z/m) || value.match?(/\A'(?:\\.|[^'\\])*'\z/m)
             end
 
             def parse_string(value)

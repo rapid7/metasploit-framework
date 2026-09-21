@@ -102,8 +102,8 @@ module Rex
           # @return [Array<String>, nil] Completion candidates.
           def cmd_bof_tabs(str, words)
             return CNA_SUBCOMMANDS.grep(/^#{Regexp.escape(str)}/) if words.length == 1
-            return tab_complete_filenames(str, words) if words.length == 2 && words.first == 'load'
-            return client.bofloader.cna_catalog['bofs'].keys.grep(/^#{Regexp.escape(str)}/) if words.length == 2 && %w[info run].include?(words.first)
+            return tab_complete_filenames(str, words) if words.length == 2 && words[1] == 'load'
+            return client.bofloader.cna_catalog['bofs'].keys.grep(/^#{Regexp.escape(str)}/) if words.length == 2 && %w[info run].include?(words[1])
           end
 
           def cmd_execute_bof_help
