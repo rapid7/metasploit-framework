@@ -82,6 +82,9 @@ jobs:
 
     name: Lint msftidy_docs
     steps:
+      - name: Install system dependencies
+        run: sudo apt-get install libpcap-dev graphviz
+
       - name: Checkout code
         uses: actions/checkout@v4
 
