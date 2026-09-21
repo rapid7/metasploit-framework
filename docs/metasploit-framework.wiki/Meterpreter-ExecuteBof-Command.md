@@ -48,7 +48,7 @@ meterpreter > bof unload
 
 ```
 ┌──(kali㉿kali)-[~/Documents/github/bof-library]
-└─$ ls -lah                 
+└─$ ls -lah
 total 68K
 drwxrwxr-x  2 kali kali 4.0K Sep  1 13:52 .
 drwxrwxr-x 12 kali kali 4.0K Sep  1 11:30 ..
@@ -67,9 +67,9 @@ drwxrwxr-x 12 kali kali 4.0K Sep  1 11:30 ..
 -rw-rw-r--  1 kali kali 1.1K Sep  1 13:52 probe.x64.o
 -rw-rw-r--  1 kali kali 1.1K Sep  1 13:52 probe.x86.o
 -rw-rw-r--  1 kali kali 1.2K Sep  1 13:51 README.md
-                                                                                                                                                            
+
 ┌──(kali㉿kali)-[~/Documents/github/bof-library]
-└─$ cat bofs.cna           
+└─$ cat bofs.cna
 sub readbof {
     $barch = barch($1);
     return readb(openf(script_resource("$2 $+ . $+ $barch $+ .o")), -1);
