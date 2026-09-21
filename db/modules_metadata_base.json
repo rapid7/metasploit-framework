@@ -23526,6 +23526,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/gitlab_file_read_cve_2026_85706": {
+    "name": "GitLab Unauthenticated Arbitrary File Read",
+    "fullname": "auxiliary/gather/gitlab_file_read_cve_2026_85706",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-10",
+    "type": "auxiliary",
+    "author": [
+      "s3ntago",
+      "guneykabel",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits CVE-2026-85706, an unauthenticated arbitrary file read\n          in the GitLab repository commits and files APIs. A path parsing discrepancy\n          between GitLab Workhorse and Rails allows unsigned upload metadata to reach\n          the Rails handler, where an attacker-controlled local path is read before\n          authentication.\n\n          The response disclosure is conditional. GitLab returns a fragment of file\n          data in an error only when the file contains a percent sign that is not\n          followed by two hexadecimal characters. URL-form delimiters can further\n          bound the returned fragment. Files without a malformed percent sequence are\n          read but are not returned to the attacker.\n\n          GitLab CE and EE versions from 18.7 before 19.1.8, 19.2 before 19.2.6, and\n          19.3 before 19.3.2 are affected.",
+    "references": [
+      "CVE-2026-85706",
+      "URL-https://github.com/guneykabel/cve-2026-85706",
+      "URL-https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-3-2-released/",
+      "URL-https://gitlab.com/gitlab-org/gitlab/-/commit/0d9ce3e758a85f0690be751e213625f7902c0361",
+      "URL-https://www.rapid7.com/blog/post/etr-cve-2026-85706-critical-gitlab-path-traversal-exploited-in-the-wild/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-17 15:22:33 +0000",
+    "path": "/modules/auxiliary/gather/gitlab_file_read_cve_2026_85706.rb",
+    "is_install_path": true,
+    "ref_name": "gather/gitlab_file_read_cve_2026_85706",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/gitlab_tags_rss_feed_email_disclosure": {
     "name": "GitLab Tags RSS feed email disclosure",
     "fullname": "auxiliary/gather/gitlab_tags_rss_feed_email_disclosure",
