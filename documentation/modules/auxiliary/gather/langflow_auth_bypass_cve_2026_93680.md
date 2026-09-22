@@ -29,7 +29,9 @@ This module was successfully tested on:
 sudo docker run -d \
   --name langflow \
   -p 192.168.1.30:7860:7860 \
-  --restart unless-stopped \
+  -e LANGFLOW_SUPERUSER=root \
+  -e LANGFLOW_SUPERUSER_PASSWORD=root \
+  -e LANGFLOW_AUTO_LOGIN=true \
   langflowai/langflow:1.8.4
 ```
 
