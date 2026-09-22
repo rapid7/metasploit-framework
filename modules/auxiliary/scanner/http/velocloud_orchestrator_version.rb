@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
   }.freeze
 
   def vulnerable?(version)
-    train = version.version.take(2).join('.')
+    train = version.segments.take(2).join('.')
 
     if FIXED_VERSIONS.key?(train)
       return version < FIXED_VERSIONS[train]
