@@ -20,9 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           loot as a JSON document.
         },
         'License' => MSF_LICENSE,
-        'Author' => [
-          'Richard Howe'
-        ],
+        'Author' => ['Richard Howe <rhowe425>'],
         'References' => [
           ['CVE', '2026-93680']
         ],

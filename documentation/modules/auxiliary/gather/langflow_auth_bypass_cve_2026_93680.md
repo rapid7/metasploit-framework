@@ -14,7 +14,7 @@ The vulnerability affects:
 
 This module was successfully tested on:
 
-    * Langflow 1.8.4 installed with Docker (authentication is enabled)
+    * Langflow 1.8.4 installed with Docker
 
 
 ### Installation
