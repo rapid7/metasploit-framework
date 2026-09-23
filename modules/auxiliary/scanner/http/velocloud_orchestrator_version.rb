@@ -92,10 +92,16 @@ class MetasploitModule < Msf::Auxiliary
   # Extract the VCO version from the web interface.
   #
   # NOTE: the exact unauthenticated version signal must be validated against a
-  # live VCO instance before this module is considered production-ready. The VCO
-  # UI is an nginx-fronted SPA whose REST API lives under /portal/rest. Candidate
-  # signals below are ordered most-to-least likely; adjust to whatever the tested
-  # build actually returns and record the tested versions in the module notes.
+  # live VCO instance before this module is considered production-ready. Public
+  # research (Arista OpenAPI guide, the vcoclient project, ProjectDiscovery
+  # nuclei templates) shows the VCO REST API lives under /portal/rest and is
+  # authenticated, and the only confirmed unauthenticated fingerprint is a
+  # favicon MurmurHash3 (mmh3 == -2062596654) that identifies the product but
+  # not its version. No public unauthenticated version endpoint is documented,
+  # so an unauthenticated version read may not be feasible on all builds. The
+  # candidates below (a build string in the SPA bundle) are a best guess pending
+  # confirmation; adjust to whatever a tested build actually returns and record
+  # the tested versions in the module notes.
   def get_version
     # Candidate 1: a version string embedded in the portal landing page / JS bundle.
     res = send_request_cgi(
@@ -117,6 +123,11 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
+  # Best-effort product identification from the landing page. The authoritative
+  # unauthenticated VCO fingerprint is the favicon MurmurHash3 (mmh3 ==
+  # -2062596654, per the nuclei favicon-detect template); wiring that in would
+  # be more reliable than string matching but needs a favicon-hash helper this
+  # framework does not yet provide, and validation against a real instance.
   def looks_like_vco?(res)
     return false unless res
 
