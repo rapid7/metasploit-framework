@@ -76,11 +76,20 @@ class MetasploitModule < Msf::Auxiliary
     '7.0' => Rex::Version.new('7.0.0.2')
   }.freeze
 
-  # Shodan/nuclei-style MurmurHash3 (mmh3) of the VCO login favicon. This is the
-  # one confirmed *unauthenticated* fingerprint for the product (per the public
-  # ProjectDiscovery favicon-hash template). It identifies VeloCloud Orchestrator
-  # but says nothing about the version, so it is used only to confirm the target
-  # is a VCO before the (best-effort) version read.
+  # MurmurHash3 (mmh3) of the VCO /favicon.ico, the one confirmed *unauthenticated*
+  # fingerprint for the product. It identifies VeloCloud Orchestrator but says
+  # nothing about the version, so it is used only to confirm the target is a VCO
+  # before the (best-effort) version read.
+  #
+  # Provenance: the ProjectDiscovery favicon-detect template maps this value to
+  # "arista-velocloud" via the expression mmh3(base64_py(body)) (i.e. mmh3 over
+  # the Python base64.encodebytes of the favicon), which is exactly what
+  # favicon_mmh3 reproduces below. The same Shodan dork (http.favicon.hash:
+  # -2062596654) is used to census VeloCloud Orchestrators in public SD-WAN
+  # reconnaissance research. The constant is corroborated by both, but the raw
+  # favicon is served only by the appliance and has not been re-hashed here
+  # against a live instance.
+  #   https://github.com/projectdiscovery/nuclei-templates/blob/main/http/technologies/favicon-detect.yaml
   VCO_FAVICON_MMH3 = -2062596654
 
   def vulnerable?(version)
