@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Post
           This module checks an on-premises Arista (formerly VMware) VeloCloud
           Orchestrator (VCO) host for the published host-side indicators of
           compromise (IOCs) associated with exploitation of CVE-2026-93952, a
-          CVSS 10.0 improper input validation flaw (CWE-20).
+          critical improper input validation flaw (CWE-20), scored by Arista
+          PSIRT as CVSS v3.1 10.0 and CVSS v4.0 9.5.
 
           This is a defensive, read-only forensic check intended to be run by an
           operator on a VCO host they administer. It does not exploit anything.
@@ -38,8 +39,9 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => %w[shell meterpreter],
         'References' => [
           [ 'CVE', '2026-93952' ],
-          [ 'URL', 'https://github.com/rapid7/metasploit-framework/issues/21940' ],
-          [ 'URL', 'https://thehackernews.com/2026/09/new-cvss-100-velocloud-orchestrator.html' ]
+          [ 'URL', 'https://www.arista.com/en/support/advisories-notices/security-advisory/24765-security-advisory-0183' ],
+          [ 'URL', 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-93952' ],
+          [ 'URL', 'https://github.com/rapid7/metasploit-framework/issues/21940' ]
         ],
         'DisclosureDate' => '2026-09-22',
         'Notes' => {

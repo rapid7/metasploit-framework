@@ -2,7 +2,7 @@
 
 This module fingerprints on-premises Arista (formerly VMware) VeloCloud
 Orchestrator (VCO) web interfaces and reports whether the detected version falls
-within a range affected by CVE-2026-93952, a CVSS 10.0 improper input validation
+within a range affected by CVE-2026-93952, a critical improper input validation
 flaw (CWE-20) in the Edge-to-VCO certificate authentication path.
 
 The module is detection-only: it does not attempt to exploit the flaw. It first

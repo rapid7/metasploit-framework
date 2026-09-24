@@ -2,7 +2,7 @@
 
 This module checks an on-premises Arista (formerly VMware) VeloCloud Orchestrator
 (VCO) host for the published host-side indicators of compromise (IOCs) associated
-with exploitation of CVE-2026-93952, a CVSS 10.0 improper input validation flaw
+with exploitation of CVE-2026-93952, a critical improper input validation flaw
 (CWE-20).
 
 It is a defensive, read-only forensic check intended to be run through an existing

@@ -16,8 +16,9 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module fingerprints the version of an on-premises Arista (formerly VMware)
           VeloCloud Orchestrator (VCO) web interface and reports whether the detected
-          version falls within a range affected by CVE-2026-93952, a CVSS 10.0 improper
-          input validation flaw (CWE-20).
+          version falls within a range affected by CVE-2026-93952, a critical improper
+          input validation flaw (CWE-20) scored by Arista PSIRT as CVSS v3.1 10.0 and
+          CVSS v4.0 9.5.
 
           This is a detection-only module: it makes no attempt to exploit the flaw. It
           reports on version alone. Note that CVE-2026-93952 only affects orchestrators
@@ -33,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           [ 'CVE', '2026-93952' ],
-          [ 'URL', 'https://thehackernews.com/2026/09/new-cvss-100-velocloud-orchestrator.html' ]
+          [ 'URL', 'https://www.arista.com/en/support/advisories-notices/security-advisory/24765-security-advisory-0183' ],
+          [ 'URL', 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-93952' ]
         ],
         'DisclosureDate' => '2026-09-22',
         'DefaultOptions' => {
