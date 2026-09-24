@@ -74,6 +74,13 @@ class MetasploitModule < Msf::Auxiliary
     '7.0' => Rex::Version.new('7.0.0.2')
   }.freeze
 
+  # Shodan/nuclei-style MurmurHash3 (mmh3) of the VCO login favicon. This is the
+  # one confirmed *unauthenticated* fingerprint for the product (per the public
+  # ProjectDiscovery favicon-hash template). It identifies VeloCloud Orchestrator
+  # but says nothing about the version, so it is used only to confirm the target
+  # is a VCO before the (best-effort) version read.
+  VCO_FAVICON_MMH3 = -2062596654
+
   def vulnerable?(version)
     train = version.segments.take(2).join('.')
 
@@ -95,9 +102,9 @@ class MetasploitModule < Msf::Auxiliary
   # live VCO instance before this module is considered production-ready. Public
   # research (Arista OpenAPI guide, the vcoclient project, ProjectDiscovery
   # nuclei templates) shows the VCO REST API lives under /portal/rest and is
-  # authenticated, and the only confirmed unauthenticated fingerprint is a
-  # favicon MurmurHash3 (mmh3 == -2062596654) that identifies the product but
-  # not its version. No public unauthenticated version endpoint is documented,
+  # authenticated, and the only confirmed unauthenticated fingerprint is the
+  # favicon MurmurHash3 (see favicon_mmh3) that identifies the product but not
+  # its version. No public unauthenticated version endpoint is documented,
   # so an unauthenticated version read may not be feasible on all builds. The
   # candidates below (a build string in the SPA bundle) are a best guess pending
   # confirmation; adjust to whatever a tested build actually returns and record
@@ -123,11 +130,70 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  # Best-effort product identification from the landing page. The authoritative
-  # unauthenticated VCO fingerprint is the favicon MurmurHash3 (mmh3 ==
-  # -2062596654, per the nuclei favicon-detect template); wiring that in would
-  # be more reliable than string matching but needs a favicon-hash helper this
-  # framework does not yet provide, and validation against a real instance.
+  # Fetch the site favicon and return its Shodan/nuclei-compatible mmh3 hash, or
+  # nil if no favicon is served. The hash is computed over the base64 encoding of
+  # the raw favicon bytes, wrapped at 76 characters with a trailing newline, which
+  # is what Shodan (Python base64.encodebytes) and the ProjectDiscovery templates
+  # hash. Ruby's Base64.encode64 wraps at 60 characters and would produce a
+  # different value, so the encoding is done explicitly here.
+  def favicon_mmh3
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'favicon.ico')
+    )
+    return nil unless res && res.code == 200 && res.body && !res.body.empty?
+
+    b64 = [res.body.to_s.b].pack('m0').scan(/.{1,76}/).join("\n") + "\n"
+    mmh3_x86_32(b64)
+  end
+
+  # MurmurHash3 x86 32-bit (seed 0), returned as a signed 32-bit integer to match
+  # the convention used by Python's mmh3 library, Shodan and nuclei favicon
+  # hashes. Reference: Austin Appleby, MurmurHash3 (public domain).
+  def mmh3_x86_32(data, seed = 0)
+    data = data.b
+    c1 = 0xcc9e2d51
+    c2 = 0x1b873593
+    len = data.bytesize
+    h1 = seed & 0xffffffff
+    rotl = ->(x, r) { ((x << r) | (x >> (32 - r))) & 0xffffffff }
+
+    nblocks = len / 4
+    nblocks.times do |b|
+      k1 = data.byteslice(b * 4, 4).unpack1('V')
+      k1 = (k1 * c1) & 0xffffffff
+      k1 = rotl.call(k1, 15)
+      k1 = (k1 * c2) & 0xffffffff
+      h1 ^= k1
+      h1 = rotl.call(h1, 13)
+      h1 = (h1 * 5 + 0xe6546b64) & 0xffffffff
+    end
+
+    tail = data.byteslice(nblocks * 4, len - nblocks * 4).bytes
+    k1 = 0
+    k1 ^= tail[2] << 16 if tail.size >= 3
+    k1 ^= tail[1] << 8 if tail.size >= 2
+    if tail.size >= 1
+      k1 ^= tail[0]
+      k1 = (k1 * c1) & 0xffffffff
+      k1 = rotl.call(k1, 15)
+      k1 = (k1 * c2) & 0xffffffff
+      h1 ^= k1
+    end
+
+    h1 ^= len
+    h1 ^= h1 >> 16
+    h1 = (h1 * 0x85ebca6b) & 0xffffffff
+    h1 ^= h1 >> 13
+    h1 = (h1 * 0xc2b2ae35) & 0xffffffff
+    h1 ^= h1 >> 16
+
+    h1 >= 0x80000000 ? h1 - 0x100000000 : h1
+  end
+
+  # Best-effort product identification from the landing page body/headers. Used as
+  # a fallback confirmation when the favicon is unavailable; the favicon hash in
+  # favicon_mmh3 is the more reliable signal.
   def looks_like_vco?(res)
     return false unless res
 
@@ -146,10 +212,16 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     )
 
-    unless looks_like_vco?(landing)
+    favicon_match = favicon_mmh3 == VCO_FAVICON_MMH3
+    string_match = looks_like_vco?(landing)
+
+    unless favicon_match || string_match
       vprint_error("#{peer} - VeloCloud Orchestrator not detected")
       return
     end
+
+    signal = favicon_match ? 'favicon hash' : 'page content'
+    vprint_good("#{peer} - VeloCloud Orchestrator identified via #{signal}")
 
     version = get_version
     if version.nil?
