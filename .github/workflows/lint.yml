@@ -57,7 +57,10 @@ jobs:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
 
-      - name: Run msftidy
+      # pre-commit-hook.rb also runs msftidy_docs.rb against any changed
+      # documentation/*.md files in this diff (see #21872), so this single
+      # step covers both modules and docs - no separate job needed.
+      - name: Run msftidy / msftidy_docs
         run: |
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
@@ -66,37 +69,3 @@ jobs:
       - name: Verify encoding
         run: |
           bundle exec ruby tools/dev/verify_encoding.rb
-
-  msftidy_docs:
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-
-    env:
-      BUNDLE_WITHOUT: "coverage development pcap"
-
-    strategy:
-      fail-fast: true
-      matrix:
-        ruby:
-          - '3.2'
-
-    name: Lint msftidy_docs
-    steps:
-      - name: Install system dependencies
-        run: sudo apt-get install libpcap-dev graphviz
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '${{ matrix.ruby }}'
-          bundler-cache: true
-
-      # NOTE: msftidy_docs currently flags pre-existing drift across a large
-      # portion of documentation/. This is set to continue-on-error until a
-      # separate cleanup PR lands (see #21872), at which point this should
-      # be switched to blocking like the msftidy job above.
-      - name: Run msftidy_docs
-        continue-on-error: true
-        run: bundle exec ruby ./tools/dev/msftidy_docs.rb documentation/
