@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir
+  
+    &mdash; Documentation by YARD 0.9.45
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fs.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs (module)">Fs</a></span></span>
+     &raquo; 
+    <span class="title">Dir</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../../../Dir.html" title="Rex::Post::Dir (class)">Dir</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../../Dir.html" title="Rex::Post::Dir (class)">Dir</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>This class implements directory operations against the remote endpoint.  It
+implements the Rex::Post::Dir interface.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-class_method" title="client (class method)">.<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute client.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>:nodoc:.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#path-instance_method" title="#path (instance method)">#<strong>path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The path of the directory that was opened.</p></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each-instance_method" title="#each (instance method)">#<strong>each</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Enumerates all of the contents of the directory.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(path)  &#x21d2; Dir </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Initializes the directory instance.</p></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../../../Dir.html" title="Rex::Post::Dir (class)">Dir</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Dir.html#chdir-class_method" title="Rex::Post::Dir.chdir (method)">chdir</a></span>, <span class='object_link'><a href="../../../../Dir.html#delete-class_method" title="Rex::Post::Dir.delete (method)">delete</a></span>, <span class='object_link'><a href="../../../../Dir.html#download-class_method" title="Rex::Post::Dir.download (method)">download</a></span>, <span class='object_link'><a href="../../../../Dir.html#entries-class_method" title="Rex::Post::Dir.entries (method)">entries</a></span>, <span class='object_link'><a href="../../../../Dir.html#entries_with_info-class_method" title="Rex::Post::Dir.entries_with_info (method)">entries_with_info</a></span>, <span class='object_link'><a href="../../../../Dir.html#getwd-class_method" title="Rex::Post::Dir.getwd (method)">getwd</a></span>, <span class='object_link'><a href="../../../../Dir.html#match-class_method" title="Rex::Post::Dir.match (method)">match</a></span>, <span class='object_link'><a href="../../../../Dir.html#mkdir-class_method" title="Rex::Post::Dir.mkdir (method)">mkdir</a></span>, <span class='object_link'><a href="../../../../Dir.html#pwd-class_method" title="Rex::Post::Dir.pwd (method)">pwd</a></span>, <span class='object_link'><a href="../../../../Dir.html#rmdir-class_method" title="Rex::Post::Dir.rmdir (method)">rmdir</a></span>, <span class='object_link'><a href="../../../../Dir.html#unlink-class_method" title="Rex::Post::Dir.unlink (method)">unlink</a></span>, <span class='object_link'><a href="../../../../Dir.html#upload-class_method" title="Rex::Post::Dir.upload (method)">upload</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(path)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir (class)">Dir</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Initializes the directory instance.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span>   <span class='op'>=</span> <span class='id identifier rubyid_path'>path</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="client=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-class_method">
+  
+    .<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute client.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>:nodoc:</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+397
+398
+399</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb', line 397</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="path=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="path-instance_method">
+  
+    #<strong>path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The path of the directory that was opened.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+395
+396
+397</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb', line 395</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_path'>path</span>
+  <span class='ivar'>@path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="each-instance_method">
+  
+    #<strong>each</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Enumerates all of the contents of the directory.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_dir'>dir</span><span class='period'>.</span><span class='id identifier rubyid_foreach'>foreach</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Sep 25 09:56:46 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.45 (ruby-3.3.12).
+</div>
+
+    </div>
+  </body>
+</html>
