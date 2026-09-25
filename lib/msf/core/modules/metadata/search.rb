@@ -94,17 +94,20 @@ module Msf::Modules::Metadata::Search
       keyword.downcase!
       search_term.downcase!
 
-      if keyword == "type"
-        search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
+      res[keyword] ||= [[], []]
+      mode = SearchMode::INCLUDE
+      if search_term.start_with?('-')
+        next if search_term.length == 1
+
+        search_term = search_term[1..]
+        mode = SearchMode::EXCLUDE
       end
 
-      res[keyword] ||=[   [],    []   ]
-      if search_term[0,1] == "-"
-        next if search_term.length == 1
-        res[keyword][SearchMode::EXCLUDE] << search_term[1,search_term.length-1]
-      else
-        res[keyword][SearchMode::INCLUDE] << search_term
+      if keyword == 'type' && MODULE_TYPE_SHORTHANDS.key?(search_term)
+        search_term = MODULE_TYPE_SHORTHANDS[search_term]
       end
+
+      res[keyword][mode] << search_term
     end
     res
   end
