@@ -1511,6 +1511,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/http/x64'
   end
 
+  context 'cmd/windows/http/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/http/aarch64'
+  end
+
   context 'cmd/windows/http/x86' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1527,6 +1535,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/https/x64'
   end
 
+  context 'cmd/windows/https/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/https/aarch64'
+  end
+
   context 'cmd/windows/https/x86' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1541,6 +1557,14 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/windows/ftp/x64'
                           ],
                           reference_name: 'cmd/windows/ftp/x64'
+  end
+
+  context 'cmd/windows/ftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/ftp/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/ftp/aarch64'
   end
 
   context 'cmd/windows/ftp/x86' do
@@ -1661,6 +1685,14 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/windows/tftp/x64'
                           ],
                           reference_name: 'cmd/windows/tftp/x64'
+  end
+
+  context 'cmd/windows/tftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/tftp/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/tftp/aarch64'
   end
 
   context 'firefox/exec' do
