@@ -132,4 +132,45 @@ RSpec.describe 'auxiliary/spoof/ipv6/ipv6_ra_dns_takeover' do
       expect(mod.send(:handle_router_solicitation, p.to_s)).to be(false)
     end
   end
+
+  describe '#cleanup' do
+    before do
+      mod.instance_variable_set(:@ra_smac, '00:11:22:33:44:55')
+      mod.instance_variable_set(:@ra_shost, 'fe80::1')
+      mod.instance_variable_set(:@ra_domains, [])
+      mod.instance_variable_set(:@ra_router_lifetime, 0)
+      allow(mod).to receive(:close_pcap)
+      allow(mod).to receive(:print_status)
+    end
+
+    # RDNSS option for a single server is [25, 3, 0, 0] followed by the 4-byte
+    # lifetime, so read the lifetime out of the injected Router Advertisement.
+    def rdnss_lifetime(raw)
+      idx = raw.index([25, 3, 0, 0].pack('CCn'))
+      return nil if idx.nil?
+
+      raw[(idx + 4), 4].unpack1('N')
+    end
+
+    it 'multicasts a withdrawal RA with a zero RDNSS lifetime before closing pcap' do
+      mod.instance_variable_set(:@ra_pcap_open, true)
+      injected = []
+      allow(mod).to receive(:inject) { |data| injected << data }
+
+      mod.cleanup
+
+      expect(injected).not_to be_empty
+      expect(rdnss_lifetime(injected.last)).to eq(0)
+      ra = PacketFu::Packet.parse(injected.last)
+      expect(ra.icmpv6_type).to eq(134) # Router Advertisement
+      expect(mod).to have_received(:close_pcap)
+    end
+
+    it 'does not inject a withdrawal when the pcap never opened' do
+      mod.instance_variable_set(:@ra_pcap_open, false)
+      expect(mod).not_to receive(:inject)
+      expect(mod).not_to receive(:close_pcap)
+      mod.cleanup
+    end
+  end
 end
