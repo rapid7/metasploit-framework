@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
+require 'rex/post/meterpreter/async_result_store'
 require 'rex/exceptions'
 require 'pathname'
 
@@ -82,6 +83,15 @@ module PacketDispatcher
     self.recv_queue   = []
     self.waiters      = []
     self.alive        = true
+  end
+
+  #
+  # Returns the async result store, creating it if needed.
+  #
+  # @return [AsyncResultStore]
+  #
+  def async_store
+    @async_store ||= AsyncResultStore.new
   end
 
   def shutdown_passive_dispatcher
@@ -198,6 +208,8 @@ module PacketDispatcher
   # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
+    timeout = async_response_timeout(timeout) if respond_to?(:async_response_timeout)
+
     if packet.type == PACKET_TYPE_REQUEST && commands.present?
       # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
       # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
@@ -231,11 +243,12 @@ module PacketDispatcher
     end
 
     # Wait for the supplied time interval
-    response = waiter.wait(timeout)
-
-    # Remove the waiter from the list of waiters in case it wasn't
-    # removed. This happens if the waiter timed out above.
-    remove_response_waiter(waiter)
+    begin
+      response = waiter.wait(timeout)
+    ensure
+      # Also remove the waiter if an async worker is cancelled while waiting.
+      remove_response_waiter(waiter)
+    end
 
     # wire in the UUID for this, as it should be part of every response
     # packet
@@ -585,6 +598,28 @@ module PacketDispatcher
     self.last_checkin = ::Time.now
 
     pivot_session = self.find_pivot_session(packet.session_guid)
+    target_client = pivot_session ? pivot_session.pivoted_session : self
+
+    # Refresh the target-time sample opportunistically. The implant tacks
+    # TLV_TYPE_TARGET_UNIX_TS + TARGET_LOCAL_UNIX_TS onto async check-in
+    # responses so short-term work-window status remains useful without a
+    # dedicated roundtrip. Request timeouts use a separate conservative bound.
+    if target_client.respond_to?(:target_time_sample=)
+      utc_ts   = packet.get_tlv_value(TLV_TYPE_TARGET_UNIX_TS)
+      local_ts = packet.get_tlv_value(TLV_TYPE_TARGET_LOCAL_UNIX_TS)
+      if utc_ts && local_ts
+        target_client.target_time_sample = {
+          target_unix_ts:  utc_ts,
+          target_local_ts: local_ts,
+          utc_offset:      local_ts - utc_ts,
+          sampled_at:      self.last_checkin
+        }
+      end
+    end
+
+    lease_enabled = packet.get_tlv_value(TLV_TYPE_ASYNC_LEASE_ENABLED)
+    target_client.async_lease_enabled = false if lease_enabled == false && target_client.respond_to?(:async_lease_enabled=)
+
     pivot_session.pivoted_session.last_checkin = self.last_checkin if pivot_session
 
     # If the packet is a response, try to notify any potential
