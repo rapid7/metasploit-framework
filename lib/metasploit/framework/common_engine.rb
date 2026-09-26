@@ -35,6 +35,7 @@ module Metasploit::Framework::CommonEngine
     config.root = Msf::Config::install_root
     config.paths.add 'app/models', autoload: true
     config.paths.add 'app/concerns', autoload: true
+    config.paths.add 'app/validators', autoload: true
     config.paths.add 'data/meterpreter', glob: '**/ext_*'
     config.paths.add 'modules'
 
