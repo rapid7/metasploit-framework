@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'gardnerapp', # Team Wild Star
+          'gardnerapp', # Team Wild Star 
           'cdelafuente-r7'
         ],
         'Platform' => [ 'osx' ],
