@@ -1,0 +1,35 @@
+name: openssh
+description: OpenSSH server for SSH scanner testing
+
+variants:
+  - name: "7.2"
+    version: "7.2p2"
+    image: docker.io/rastasheep/ubuntu-sshd:16.04
+    default: true
+
+shared:
+  ports:
+    ssh: 22
+
+  credentials:
+    default:
+      username: root
+      password: root
+
+  # TCP check is enough: if port 22 accepts a connection, SSH is ready
+  health_check:
+    type: tcp
+    interval: 2
+    timeout: 2
+    retries: 10
+
+  ci:
+    exploit:
+      force_exploit: true 
+    validation:
+      expected_session: false
+      expected_output: "SSH"
+
+profiles:
+  default:
+    description: Standard OpenSSH server
