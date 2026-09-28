@@ -116517,6 +116517,64 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/litellm_mcp_test_cmd_injection": {
+    "name": "BerriAI LiteLLM Proxy MCP Test Endpoint Command Execution",
+    "fullname": "exploit/multi/http/litellm_mcp_test_cmd_injection",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-21",
+    "type": "exploit",
+    "author": [
+      "Kenneth LaCroix"
+    ],
+    "description": "This module exploits CVE-2026-42271, a command execution vulnerability\n          in the BerriAI LiteLLM proxy. The MCP \"test\" REST endpoints\n          (POST /mcp-rest/test/connection and POST /mcp-rest/test/tools/list),\n          used by the admin UI to preview an MCP server before saving it, accept\n          a full server configuration in the request body. When the supplied\n          transport is \"stdio\", LiteLLM builds an MCP client that spawns the\n          provided command with its args as a subprocess on the proxy host.\n\n          On affected versions both endpoints are gated only by\n          user_api_key_auth and the stdio command is unrestricted, so any caller\n          holding a valid virtual key - including a low-privilege, non-admin key -\n          can reach the spawn path and run arbitrary commands as the LiteLLM proxy\n          process. LiteLLM 1.83.7 fixed this with two controls: it requires the\n          PROXY_ADMIN role on both endpoints (a non-admin key now receives HTTP\n          403), and it restricts the stdio command to an allowlist of interpreters\n          (deno, docker, node, npx, python, python3, uvx), so an arbitrary command\n          such as /bin/sh is rejected with HTTP 422 regardless of role.\n\n          Affected versions are 1.74.2 through 1.83.6 (fixed in 1.83.7). This\n          module targets the privilege boundary the CVE describes and expects a\n          non-admin APIKEY. When chained with the Starlette host-header\n          authentication bypass (CVE-2026-48710) the same primitive becomes\n          pre-authentication; that bypass is out of scope for this module, which\n          requires a valid virtual key.\n\n          The command runs blind: the spawned process is not an MCP server, so the\n          endpoint reports a connection failure after the command has already\n          executed. Use a payload that calls back (for example a reverse shell or\n          a fetched stager) rather than one whose output is read from the\n          response.",
+    "references": [
+      "CVE-2026-42271",
+      "GHSA-v4p8-mg3p-g94g"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 06:46:45 +0000",
+    "path": "/modules/exploits/multi/http/litellm_mcp_test_cmd_injection.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/litellm_mcp_test_cmd_injection",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/log1cms_ajax_create_folder": {
     "name": "Log1 CMS writeInfo() PHP Code Injection",
     "fullname": "exploit/multi/http/log1cms_ajax_create_folder",
