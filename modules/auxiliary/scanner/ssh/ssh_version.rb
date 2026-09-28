@@ -37,6 +37,14 @@ class MetasploitModule < Msf::Auxiliary
       ],
       self.class
     )
+
+    register_advanced_options(
+      [
+        OptString.new('KEX', [false, 'Comma separated list of key exchange algorithms to offer, in preference order. Example: diffie-hellman-group1-sha1 for old embedded devices. Prefix an entry with + to enable every algorithm the library supports', nil]),
+        OptBool.new('APPEND_ALL_SUPPORTED', [false, 'Offer all algorithms the net-ssh library supports, including deprecated ones (diffie-hellman-group1-sha1, ssh-dss, CBC ciphers, MD5 HMACs)', false])
+      ],
+      self.class
+    )
   end
 
   def timeout
@@ -223,9 +231,30 @@ class MetasploitModule < Msf::Auxiliary
     table
   end
 
+  # Opens a transport session for fingerprinting. Servers that only offer
+  # deprecated algorithms (e.g. old embedded devices speaking only
+  # diffie-hellman-group1-sha1) cannot negotiate against the net-ssh defaults,
+  # which offer no deprecated algorithms, so a failure to agree on algorithms
+  # is retried once with every library supported algorithm enabled.
+  def ssh_transport(target_host)
+    options = { port: rport }
+    options[:append_all_supported_algorithms] = true if datastore['APPEND_ALL_SUPPORTED']
+    kex = datastore['KEX'].to_s.split(',').map(&:strip).reject(&:empty?)
+    options[:kex] = kex unless kex.empty?
+
+    begin
+      Net::SSH::Transport::Session.new(target_host, options)
+    rescue Net::SSH::Exception => e
+      raise unless e.message.include?('could not settle on') && !options[:append_all_supported_algorithms] && options[:kex].nil?
+
+      print_status("#{target_host} - #{e.message.lines.first.strip}, retrying with deprecated algorithms enabled")
+      Net::SSH::Transport::Session.new(target_host, options.merge(append_all_supported_algorithms: true))
+    end
+  end
+
   def run_host(target_host)
     ::Timeout.timeout(timeout) do
-      transport = Net::SSH::Transport::Session.new(target_host, { port: rport })
+      transport = ssh_transport(target_host)
 
       server_data = transport.algorithms.instance_variable_get(:@server_data)
       host_keys = transport.algorithms.session.instance_variable_get(:@host_keys).instance_variable_get(:@host_keys)
@@ -274,9 +303,13 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("#{target_host} - #{table}")
     end
-  rescue EOFError, Rex::ConnectionError => e
+  rescue EOFError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETUNREACH, Rex::ConnectionError => e
     vprint_error("#{target_host} - #{e.message}") # This may be a little noisy, but it is consistent
   rescue Timeout::Error
     vprint_warning("#{target_host} - Timed out after #{timeout} seconds. Skipping.")
+  rescue Net::SSH::Exception => e
+    # includes the server's algorithm preferences, which is the interesting
+    # fingerprint data when the library simply cannot talk to the server
+    print_error("#{target_host} - SSH session failed: #{e.class}: #{e.message}")
   end
 end

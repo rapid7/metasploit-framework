@@ -160,6 +160,7 @@ class MetasploitModule < Msf::Encoder
 
     block.each_byte do |b|
       attempts = 0
+      xv = 0
 
       loop do
         if b == 0x00

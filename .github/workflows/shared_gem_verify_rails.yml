@@ -108,7 +108,7 @@ jobs:
           # Ensure the gem is on the latest version
           ruby -pi -e "gsub(/gem ['\"]rails['\"](, *['\"].*['\"])?/, \"gem 'rails', '${{ matrix.rails }}'\")" Gemfile
           bundle update
-          bundle install
+          bundle install --deployment
           bundle show rails
         shell: bash
 

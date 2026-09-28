@@ -163,32 +163,36 @@ class Server
     return if data.strip.empty?
     req = Packet.encode_drb(data)
     forward = req.dup
-    # Find cached items, remove request from forwarded packet
+    # Dnsruby#dup is shallow - req and forward share the same @question Array.
+    # Give forward its own copy so deleting forwarded questions doesn't also
+    # empty req.question, which we need intact when echoing it in the response.
+    forward.instance_variable_set(:@question, req.question.dup)
+    answers = []
+    # Find cached items, remove question from forwarded packet
     req.question.each do |ques|
       cached = self.cache.find(ques.qname, ques.qtype)
-      if cached.empty?
-        next
-      else
-        req.instance_variable_set(:@answer, (req.answer + cached).uniq)
+      unless cached.empty?
+        answers.concat(cached)
         forward.question.delete(ques)
       end
     end
     # Forward remaining requests, cache responses
-    if forward.question.count > 0 and @fwd_res
+    if forward.question.count > 0 && @fwd_res
       forwarded = self.fwd_res.send(forward)
-      req.instance_variable_set(:@answer, (req.answer + forwarded.answer).uniq)
-      forwarded.answer.each do |ans|
-        self.cache.cache_record(ans)
-      end
-      req.header.ra = true # Set recursion bit
+      answers.concat(forwarded.answer)
+      forwarded.answer.each { |ans| self.cache.cache_record(ans) }
     end
-    # Finalize answers in response
-    # Check for empty response prior to sending
-    if req.answer.size < 1
-      req.header.rcode = Dnsruby::RCode::NOERROR
-    end
-    req.header.qr = true # Set response bit
-    send_response(cli, req.encode)
+    # Build a fresh response message to avoid a Dnsruby stale-state encoding bug
+    # where instance_variable_set(:@answer) on a decoded request appends answer
+    # bytes after the packet end rather than inside the answer section.
+    resp = Dnsruby::Message.new
+    resp.header.id = req.header.id
+    resp.header.qr = true
+    resp.header.rd = req.header.rd      # echo Recursion Desired back to the client
+    resp.header.ra = !self.fwd_res.nil? # Recursion Available when we can forward upstream
+    req.question.each { |q| resp.add_question(q.qname, q.qtype, q.qclass) }
+    answers.uniq.each { |a| resp.add_answer(a) }
+    send_response(cli, resp.encode)
   end
 
   #
@@ -220,8 +224,12 @@ protected
       r,_,_ = ::IO.select(rds,wds,eds,1)
 
       if (r != nil and r[0] == self.udp_sock)
-        buf, addr = self.udp_sock.recvfrom(65535)
-        host, port = addr[3], addr[1]
+        buf, addr, source_port = self.udp_sock.recvfrom(65535)
+        if source_port
+          host, port = addr, source_port
+        else
+          host, port = addr[3], addr[1]
+        end
         # Mock up a client object for sending back data
         cli = MockDnsClient.new(host, port, r[0])
         dispatch_request(cli, buf)

