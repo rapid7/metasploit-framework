@@ -100844,7 +100844,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/apt_package_manager.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/apt_package_manager",
@@ -100998,7 +100998,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/docker_image.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/docker_image",
@@ -101153,7 +101153,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/init_openrc.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_openrc",
@@ -101209,7 +101209,7 @@
       "systemd",
       "systemd user"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/init_systemd.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_systemd",
@@ -101527,7 +101527,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/udev.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/udev",
@@ -101679,7 +101679,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/yum_package_manager.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/yum_package_manager",
@@ -134770,7 +134770,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/multi/persistence/at.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/at",
