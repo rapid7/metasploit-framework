@@ -56,7 +56,7 @@ PATH
       jsobfu
       json
       lru_redux
-      mcp (= 0.13.0)
+      mcp
       metasm
       metasploit-concern
       metasploit-credential (>= 6.0.21)
@@ -65,7 +65,7 @@ PATH
       metasploit_data_models (>= 6.0.15)
       metasploit_payloads-mettle (= 1.0.48)
       mqtt
-      msgpack (~> 1.6.0)
+      msgpack
       mutex_m
       nessus_rest
       net-imap
@@ -300,6 +300,7 @@ GEM
     gyoku (1.4.0)
       builder (>= 2.1.2)
       rexml (~> 3.0)
+    hana (1.3.7)
     hashdiff (1.2.1)
     hashery (2.1.2)
     hrr_rb_ssh (0.4.2)
@@ -324,9 +325,11 @@ GEM
     jsobfu (0.4.2)
       rkelly-remix
     json (2.21.2)
-    json-schema (6.2.0)
-      addressable (~> 2.8)
-      bigdecimal (>= 3.1, < 5)
+    json_schemer (2.5.0)
+      bigdecimal
+      hana (~> 1.3)
+      regexp_parser (~> 2.0)
+      simpleidn (~> 0.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     little-plugger (1.1.4)
@@ -338,8 +341,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lru_redux (1.1.0)
-    mcp (0.13.0)
-      json-schema (>= 4.1)
+    mcp (1.6.1)
+      json_schemer (>= 2.4)
     memory_profiler (1.1.0)
     metasm (1.0.6)
     metasploit-concern (5.0.6)
@@ -394,7 +397,7 @@ GEM
     minitest (5.25.5)
     mqtt (0.7.0)
       logger
-    msgpack (1.6.1)
+    msgpack (1.8.5)
     multi_json (1.15.0)
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
