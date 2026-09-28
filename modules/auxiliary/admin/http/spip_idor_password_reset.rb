@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
           arguments. Submitting them changes the target user's password.
         },
         'Author' => [
-          'Julien Voisin' # Metasploit module
+          'Julien Voisin', # Metasploit module
+          '0xkidz' # Discovery
         ],
         'License' => MSF_LICENSE,
         'References' => [
