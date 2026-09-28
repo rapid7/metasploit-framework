@@ -26,15 +26,10 @@ module Metasploit
 
           # Check for LuCI-specific indicators in the response
           if res.body.include?('LuCI') || res.body.include?('GL.iNet') || res.body.include?('luci_username')
-            report_service(service_opts)
             return false
           end
 
           'Target does not appear to be a GL.iNet LuCI interface'
-        end
-
-        def service_opts
-          build_service_opts('glinet-luci')
         end
 
         # (see Base#set_sane_defaults)
@@ -53,8 +48,16 @@ module Metasploit
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
-            **service_as_result(service_opts)
+            host: host,
+            port: port,
+            protocol: 'tcp'
           }
+
+          if ssl
+            result_opts[:service_name] = 'https'
+          else
+            result_opts[:service_name] = 'http'
+          end
 
           begin
             # Build the login request
