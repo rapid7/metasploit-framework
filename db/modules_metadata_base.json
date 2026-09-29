@@ -209059,6 +209059,59 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_windows/persistence/ollama_auto_update": {
+    "name": "Ollama Windows Auto-Update Path Traversal Persistence",
+    "fullname": "exploit/windows/persistence/ollama_auto_update",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-29",
+    "type": "exploit",
+    "author": [
+      "Bartłomiej Dmitruk",
+      "h00die"
+    ],
+    "description": "Ollama for Windows versions 0.12.10 through 0.22.1 are vulnerable to a\n          path traversal attack (CVE-2026-42249) in the auto-update download mechanism,\n          combined with a completely absent signature verification function\n          (CVE-2026-42248). Payloads are written to the startup folder\n          and executed at next login.",
+    "references": [
+      "CVE-2026-42248",
+      "CVE-2026-42249",
+      "URL-https://www.striga.ai/research/ollama-windows-auto-update-rce",
+      "ATT&CK-T1547.001",
+      "ATT&CK-T1546"
+    ],
+    "platform": "Windows",
+    "arch": "x64, x86",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-06-08 08:39:59 +0000",
+    "path": "/modules/exploits/windows/persistence/ollama_auto_update.rb",
+    "is_install_path": true,
+    "ref_name": "windows/persistence/ollama_auto_update",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ],
+      "Reliability": [
+        "event-dependent",
+        "repeatable-session"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
   "exploit_windows/persistence/powershell_profile": {
     "name": "Powershell Profile Persistence",
     "fullname": "exploit/windows/persistence/powershell_profile",
