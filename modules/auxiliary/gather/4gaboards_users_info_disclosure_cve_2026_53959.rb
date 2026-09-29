@@ -75,9 +75,15 @@ class MetasploitModule < Msf::Auxiliary
       }.to_json
     )
     if register_res && register_res.code == 409
-      json_data = register_res.get_json_document
-      if json_data.key?('message')
-        fail_with(Failure::BadConfig, "#{json_data['message']}. Supply a different email") # Check if email already exists
+      begin
+        json_data = register_res.get_json_document
+        if json_data.key?('message')
+          fail_with(Failure::BadConfig, "#{json_data['message']}. Supply a different email") # Check if email already exists
+        else
+          fail_with(Failure::UnexpectedReply, 'Server returned a HTTP 409 conflict')
+        end
+      rescue JSON::ParserError => e
+        fail_with(Failure::UnexpectedReply, "Failed to parse JSON response: #{e.message}")
       end
     elsif register_res && register_res.code == 200
       begin
@@ -145,20 +151,11 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status("Attempting to delete user '#{datastore['EMAIL']}'")
     print_status('Logging in as administrator')
-    boundary = "----WebKitFormBoundary#{Rex::Text.rand_text_alphanumeric(16)}"
-
-    data = [
-      "--#{boundary}",
-      'Content-Disposition: form-data; name="emailOrUsername"',
-      '',
-      datastore['ADMIN_USERNAME'],
-      "--#{boundary}",
-      'Content-Disposition: form-data; name="password"',
-      '',
-      datastore['ADMIN_PASSWORD'],
-      "--#{boundary}--",
-      ''
-    ].join("\r\n")
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(datastore['ADMIN_USERNAME'], nil, nil, 'form-data; name="emailOrUsername"')
+    post_data.add_part(datastore['ADMIN_PASSWORD'], nil, nil, 'form-data; name="password"')
+    data = post_data.to_s
+    boundary = post_data.bound
     login_url = normalize_uri(
       datastore['TARGETURI'],
       'api',
