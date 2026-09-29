@@ -29,11 +29,11 @@ RSpec.describe Msf::MCP::Tools::ModuleExecute do
 
   describe 'Input Schema' do
     it 'requires type, name and options' do
-      expect(described_class.input_schema.schema[:required]).to match_array(%w[type name options])
+      expect(described_class.input_schema.to_h[:required]).to match_array(%w[type name options])
     end
 
     it 'sources the type enum from EXECUTE_SUPPORTED_TYPES' do
-      expect(described_class.input_schema.schema[:properties][:type][:enum])
+      expect(described_class.input_schema.to_h[:properties][:type][:enum])
         .to eq(described_class::EXECUTE_SUPPORTED_TYPES)
     end
 
@@ -44,12 +44,12 @@ RSpec.describe Msf::MCP::Tools::ModuleExecute do
 
   describe 'Output Schema' do
     it 'declares job_id as nullable integer' do
-      job_id_schema = described_class.output_schema.schema[:properties][:data][:properties][:job_id]
+      job_id_schema = described_class.output_schema.to_h[:properties][:data][:properties][:job_id]
       expect(job_id_schema[:type]).to match_array(%w[integer null])
     end
 
     it 'declares uuid as nullable string' do
-      uuid_schema = described_class.output_schema.schema[:properties][:data][:properties][:uuid]
+      uuid_schema = described_class.output_schema.to_h[:properties][:data][:properties][:uuid]
       expect(uuid_schema[:type]).to match_array(%w[string null])
     end
   end

@@ -29,11 +29,11 @@ RSpec.describe Msf::MCP::Tools::ModuleCheck do
 
   describe 'Input Schema' do
     it 'requires type, name, and options' do
-      expect(described_class.input_schema.schema[:required]).to match_array(%w[type name options])
+      expect(described_class.input_schema.to_h[:required]).to match_array(%w[type name options])
     end
 
     it 'sources the type enum from CHECK_SUPPORTED_TYPES' do
-      expect(described_class.input_schema.schema[:properties][:type][:enum])
+      expect(described_class.input_schema.to_h[:properties][:type][:enum])
         .to eq(described_class::CHECK_SUPPORTED_TYPES)
     end
 
