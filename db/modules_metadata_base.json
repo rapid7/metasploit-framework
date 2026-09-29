@@ -317456,6 +317456,64 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "post_linux/manage/pam_backdoor": {
+    "name": "Linux PAM Backdoor",
+    "fullname": "post/linux/manage/pam_backdoor",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "post",
+    "author": [
+      "h00die"
+    ],
+    "description": "Installs a malicious PAM shared library (.so) on the target that\n          silently accepts a configured master password for ANY local account,\n          including root. Normal passwords continue to work, so the backdoor\n          is transparent. Works with ssh, su, sudo, login, and any other\n          service that routes through PAM.\n\n          On x86_64 targets the pre-compiled binary is patched in-memory and\n          uploaded directly - no compiler needed on the target. On other\n          architectures the module falls back to compiling the .c source on\n          the target (requires gcc).\n\n          The module drops the .so into the system PAM module directory and\n          inserts an \"auth sufficient\" line at the top of the selected PAM\n          config so it is checked before the real authentication stack.\n          Patching common-auth (Debian) or system-auth (RHEL) automatically\n          covers sudo, because those configs are @include'd by /etc/pam.d/sudo.\n\n          Run with ACTION=Cleanup (and identical options) to remove all\n          artifacts.",
+    "references": [
+      "URL-https://github.com/zephrax/linux-pam-backdoor",
+      "URL-https://unit42.paloaltonetworks.com/analysis-of-a-pam-backdoor/",
+      "URL-https://www.cyberark.com/resources/blog/plague-malware-exploits-pluggable-authentication-module-to-breach-linux-systems",
+      "ATT&CK-T1556.003"
+    ],
+    "platform": "Linux",
+    "arch": "",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-02 11:41:43 +0000",
+    "path": "/modules/post/linux/manage/pam_backdoor.rb",
+    "is_install_path": true,
+    "ref_name": "linux/manage/pam_backdoor",
+    "check": false,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ],
+      "Reliability": [],
+      "AKA": [
+        "PamDOORa",
+        "Plague"
+      ]
+    },
+    "session_types": [
+      "meterpreter",
+      "shell"
+    ],
+    "needs_cleanup": null,
+    "actions": [
+      {
+        "name": "Cleanup",
+        "description": "Remove the backdoor .so and restore PAM config"
+      },
+      {
+        "name": "Install",
+        "description": "Install PAM backdoor (default)"
+      }
+    ]
+  },
   "post_linux/manage/pseudo_shell": {
     "name": "Pseudo-Shell Post-Exploitation Module",
     "fullname": "post/linux/manage/pseudo_shell",
