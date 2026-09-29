@@ -255,12 +255,12 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'rejects ssl_cert given without ssl_key' do
         config[:mcp].delete(:ssl_key)
-        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must both be set, or both left unset/)
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must be set together with mcp\.ssl_key, or both left unset/)
       end
 
       it 'rejects ssl_key given without ssl_cert' do
         config[:mcp].delete(:ssl_cert)
-        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must both be set, or both left unset/)
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must be set together with mcp\.ssl_key, or both left unset/)
       end
 
       it 'rejects a certificate path that is not a readable file' do

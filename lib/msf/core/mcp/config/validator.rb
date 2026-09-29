@@ -199,7 +199,7 @@ module Msf::MCP
         return if cert.empty? && key.empty? # auto-generated at startup
 
         if cert.empty? || key.empty?
-          errors[:'mcp.ssl_cert'] = 'mcp.ssl_cert and mcp.ssl_key must both be set, or both left unset to auto-generate a self-signed certificate'
+          errors[:'mcp.ssl_cert'] = 'must be set together with mcp.ssl_key, or both left unset to auto-generate a self-signed certificate'
           return
         end
 
