@@ -75,6 +75,9 @@ module Msf::MCP
           end
         end
 
+        # Validate MCP TLS settings
+        validate_mcp_ssl(config, errors)
+
         # Validate MCP authentication token
         if config[:mcp].is_a?(Hash) && config[:mcp].key?(:auth_token)
           auth_token = config[:mcp][:auth_token]
@@ -157,6 +160,56 @@ module Msf::MCP
       end
 
       private
+
+      # Validate the MCP TLS options (ssl, ssl_cert, ssl_key).
+      #
+      # TLS is only meaningful with the 'http' transport. When enabled:
+      # - if neither ssl_cert nor ssl_key is given, a self-signed certificate is
+      #   generated and cached automatically at startup (see TlsCertGenerator);
+      #   this is a development/testing convenience, not a substitute for a
+      #   certificate from a trusted CA (e.g. Let's Encrypt) once the server is
+      #   reachable from another host.
+      # - if either is given, both must be given and both must be readable files.
+      #
+      # @param config [Hash] Configuration hash
+      # @param errors [Hash] Error hash to populate
+      # @return [void]
+      def validate_mcp_ssl(config, errors)
+        return unless config[:mcp].is_a?(Hash)
+
+        mcp = config[:mcp]
+        if mcp.key?(:ssl) && ![true, false].include?(mcp[:ssl])
+          errors[:'mcp.ssl'] = "must be boolean (true or false)"
+          return
+        end
+
+        ssl_opts_set = %i[ssl_cert ssl_key].any? { |k| !mcp[k].to_s.empty? }
+
+        unless mcp[:transport] == 'http'
+          if mcp[:ssl] == true || ssl_opts_set
+            errors[:'mcp.ssl'] = "TLS must only be used with the 'http' transport"
+          end
+          return
+        end
+
+        return unless mcp[:ssl] == true
+
+        cert = mcp[:ssl_cert].to_s
+        key = mcp[:ssl_key].to_s
+        return if cert.empty? && key.empty? # auto-generated at startup
+
+        if cert.empty? || key.empty?
+          errors[:'mcp.ssl_cert'] = 'mcp.ssl_cert and mcp.ssl_key must both be set, or both left unset to auto-generate a self-signed certificate'
+          return
+        end
+
+        { ssl_cert: 'certificate', ssl_key: 'private key' }.each do |key_name, label|
+          path = mcp[key_name].to_s
+          unless File.file?(File.expand_path(path)) && File.readable?(File.expand_path(path))
+            errors[:"mcp.#{key_name}"] = "must be a readable file (#{path})"
+          end
+        end
+      end
 
       LOCALHOST_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
 

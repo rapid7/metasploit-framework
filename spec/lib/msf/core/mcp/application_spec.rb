@@ -495,6 +495,63 @@ RSpec.describe Msf::MCP::Application do
 
       app.send(:start_mcp_server)
     end
+
+    context 'with TLS configured explicitly' do
+      it 'passes the configured cert/key through and does not auto-generate' do
+        http_config = valid_config.dup
+        http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: true, ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key' }
+
+        app = described_class.new([], output: output)
+        app.instance_variable_set(:@config, http_config)
+        app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+        expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+        expect(mock_mcp_server).to receive(:start).with(
+          hash_including(transport: :http, ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key')
+        )
+
+        app.send(:start_mcp_server)
+
+        expect(output.string).to include('MCP server listening on https://0.0.0.0:3000')
+        expect(output.string).to include('TLS: enabled (certificate: /tmp/server.crt)')
+        expect(output.string).not_to include('auto-generated self-signed certificate')
+      end
+    end
+
+    context 'with TLS enabled and no cert/key configured' do
+      it 'auto-generates a self-signed certificate and warns about it' do
+        http_config = valid_config.dup
+        http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: true }
+
+        app = described_class.new([], output: output)
+        app.instance_variable_set(:@config, http_config)
+        app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+        expect(Msf::MCP::Config::TlsCertGenerator).to receive(:ensure_self_signed_certificate)
+          .with(host: '0.0.0.0').and_return(['/tmp/generated.crt', '/tmp/generated.key'])
+        expect(mock_mcp_server).to receive(:start).with(
+          hash_including(transport: :http, ssl_cert: '/tmp/generated.crt', ssl_key: '/tmp/generated.key')
+        )
+
+        app.send(:start_mcp_server)
+
+        expect(output.string).to include('auto-generated self-signed certificate')
+      end
+    end
+
+    it 'does not generate a certificate when ssl is disabled' do
+      http_config = valid_config.dup
+      http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000 }
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@config, http_config)
+      app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+      expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(ssl_cert: nil, ssl_key: nil))
+
+      app.send(:start_mcp_server)
+    end
   end
 
   describe '#shutdown' do

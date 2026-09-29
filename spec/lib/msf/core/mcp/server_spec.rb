@@ -320,6 +320,39 @@ RSpec.describe Msf::MCP::Server do
         expect(server_instance.bound_port).to eq(3000)
       end
 
+      context 'with TLS' do
+        let(:ssl_context) { double('ssl_context', :cert= => nil, :key= => nil, :verify_mode= => nil) }
+        let(:puma_server_instance) { instance_double(puma_server_class, add_ssl_listener: nil, add_tcp_listener: nil, run: double(join: nil), stop: nil) }
+
+        before do
+          require 'puma/minissl'
+          allow(Puma::MiniSSL::Context).to receive(:new).and_return(ssl_context)
+          allow(puma_server_class).to receive(:new).and_return(puma_server_instance)
+        end
+
+        it 'binds an SSL listener when a certificate and key are given' do
+          expect(puma_server_instance).to receive(:add_ssl_listener).with('localhost', 3000, ssl_context)
+          expect(puma_server_instance).not_to receive(:add_tcp_listener)
+          expect(ssl_context).to receive(:cert=).with(File.expand_path('/tmp/server.crt'))
+          expect(ssl_context).to receive(:key=).with(File.expand_path('/tmp/server.key'))
+
+          server.start(transport: :http, port: 3000, ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key')
+        end
+
+        it 'binds a plain TCP listener when TLS is not configured' do
+          expect(puma_server_instance).to receive(:add_tcp_listener).with('localhost', 3000)
+          expect(puma_server_instance).not_to receive(:add_ssl_listener)
+
+          server.start(transport: :http, port: 3000)
+        end
+
+        it 'raises when only one of ssl_cert and ssl_key is given' do
+          expect {
+            server.start(transport: :http, port: 3000, ssl_cert: '/tmp/server.crt')
+          }.to raise_error(ArgumentError, /Both ssl_cert and ssl_key/)
+        end
+      end
+
       it 'creates a Rack application' do
         expect(Rack::Builder).to receive(:new).and_return(rack_app)
 

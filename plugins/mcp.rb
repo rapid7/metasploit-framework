@@ -296,6 +296,7 @@ module Msf
 
       host = mcp_config[:host]
       port = mcp_config[:port]
+      ssl = mcp_config[:ssl] == true
       if mcp_config.key?(:auth_token)
         auth_token = mcp_config[:auth_token]
         auth_token_generated = false
@@ -304,14 +305,31 @@ module Msf
         auth_token_generated = true
       end
 
-      print_status('Starting MCP server on HTTP transport...')
+      ssl_cert = ssl_key = nil
+      if ssl
+        ssl_cert = mcp_config[:ssl_cert]
+        ssl_key = mcp_config[:ssl_key]
+
+        if ssl_cert.to_s.empty? && ssl_key.to_s.empty?
+          ssl_cert, ssl_key = Msf::MCP::Config::TlsCertGenerator.ensure_self_signed_certificate(host: host)
+          print_status("TLS: using an auto-generated self-signed certificate (#{ssl_cert}).")
+          print_status("  Clients must explicitly trust it. For anything beyond local testing, set ssl_cert/ssl_key")
+          print_status("  in the MCP config to a certificate from a trusted CA (e.g. Let's Encrypt).")
+        end
+      end
+
+      print_status("Starting MCP server on HTTP#{ssl ? 'S' : ''} transport...")
       # Catch port conflicts synchronously before spawning async thread
       verify_port_available!(host, port)
 
       # Capture reference so the thread isn't affected if shutdown nils @mcp_server
       mcp_server = @mcp_server
       @server_thread = framework.threads.spawn('MCPServer', false) do
-        mcp_server.start(transport: :http, host: host, port: port, auth_token: auth_token)
+        mcp_server.start(
+          transport: :http, host: host, port: port, auth_token: auth_token,
+          ssl_cert: ssl_cert,
+          ssl_key: ssl_key
+        )
       end
 
       # Catches TOCTOU races where port freed between pre-flight and spawn

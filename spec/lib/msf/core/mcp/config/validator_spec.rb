@@ -219,6 +219,61 @@ RSpec.describe Msf::MCP::Config::Validator do
       end
     end
 
+    context 'with MCP TLS validation' do
+      let(:cert_file) { Tempfile.new(['server', '.crt']) }
+      let(:key_file) { Tempfile.new(['server', '.key']) }
+      let(:config) do
+        {
+          msf_api: { type: 'messagepack', host: 'localhost', port: 55553, user: 'msf', password: 'password' },
+          mcp: { transport: 'http', ssl: true, ssl_cert: cert_file.path, ssl_key: key_file.path }
+        }
+      end
+
+      after do
+        cert_file.close!
+        key_file.close!
+      end
+
+      it 'accepts ssl with a readable certificate and key' do
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'does not require a certificate when ssl is disabled' do
+        config[:mcp] = { transport: 'http', ssl: false }
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'allows ssl enabled with no cert/key (auto-generated at startup)' do
+        config[:mcp] = { transport: 'http', ssl: true }
+        expect(described_class.validate!(config)).to be true
+      end
+
+      it 'rejects a non-boolean ssl value' do
+        config[:mcp][:ssl] = 'yes'
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.ssl must be boolean/)
+      end
+
+      it 'rejects ssl_cert given without ssl_key' do
+        config[:mcp].delete(:ssl_key)
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must both be set, or both left unset/)
+      end
+
+      it 'rejects ssl_key given without ssl_cert' do
+        config[:mcp].delete(:ssl_cert)
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /must both be set, or both left unset/)
+      end
+
+      it 'rejects a certificate path that is not a readable file' do
+        config[:mcp][:ssl_cert] = '/nonexistent/server.crt'
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /mcp\.ssl_cert must be a readable file/)
+      end
+
+      it 'rejects ssl with the stdio transport' do
+        config[:mcp][:transport] = 'stdio'
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /TLS must only be used with the 'http' transport/)
+      end
+    end
+
     context 'with Puma thread/worker validation' do
       let(:valid_base) do
         {

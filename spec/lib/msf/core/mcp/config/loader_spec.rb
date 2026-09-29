@@ -545,7 +545,7 @@ RSpec.describe Msf::MCP::Config::Loader do
       %w[
         MSF_API_TYPE MSF_API_HOST MSF_API_PORT MSF_API_SSL MSF_API_ENDPOINT
         MSF_API_USER MSF_API_PASSWORD MSF_API_TOKEN MSF_AUTO_START_RPC
-        MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT
+        MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT MSF_MCP_SSL MSF_MCP_SSL_CERT MSF_MCP_SSL_KEY
         MSF_MCP_MIN_THREADS MSF_MCP_MAX_THREADS MSF_MCP_WORKERS
       ]
     end
@@ -755,6 +755,21 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'overrides the MCP port value as integer' do
           config = described_class.load(config_file)
           expect(config[:mcp][:port]).to eq(8080)
+        end
+      end
+
+      context 'when the MCP TLS environment variables are set' do
+        before do
+          ENV['MSF_MCP_SSL'] = 'true'
+          ENV['MSF_MCP_SSL_CERT'] = '/tmp/server.crt'
+          ENV['MSF_MCP_SSL_KEY'] = '/tmp/server.key'
+        end
+
+        it 'overrides ssl, ssl_cert and ssl_key' do
+          config = described_class.apply_env_overrides(cfg = { mcp: {} }) && cfg
+          expect(config[:mcp][:ssl]).to be true
+          expect(config[:mcp][:ssl_cert]).to eq('/tmp/server.crt')
+          expect(config[:mcp][:ssl_key]).to eq('/tmp/server.key')
         end
       end
 

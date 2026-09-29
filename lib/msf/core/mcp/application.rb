@@ -294,8 +294,19 @@ module Msf::MCP
       port = @config.dig(:mcp, :port) || 3000
 
       if transport == :http
-        @output.puts "Starting MCP server on HTTP transport..."
-        @output.puts "MCP server listening on http://#{Rex::Socket.to_authority(host, port)}/"
+        ssl_enabled = @config.dig(:mcp, :ssl) == true
+        ssl_cert, ssl_key, ssl_generated = ssl_enabled ? resolve_ssl_paths(host) : [nil, nil, false]
+        scheme = ssl_enabled ? 'https' : 'http'
+        @output.puts "Starting MCP server on HTTP#{ssl_enabled ? 'S' : ''} transport..."
+        @output.puts "MCP server listening on #{scheme}://#{Rex::Socket.to_authority(host, port)}/"
+        if ssl_enabled
+          @output.puts "TLS: enabled (certificate: #{ssl_cert})"
+          if ssl_generated
+            @output.puts '  Using an auto-generated self-signed certificate -- clients must explicitly trust it.'
+            @output.puts '  For anything beyond local testing, supply mcp.ssl_cert/mcp.ssl_key with a certificate'
+            @output.puts '  from a trusted CA (e.g. Let\'s Encrypt). See the MCP server wiki page for details.'
+          end
+        end
         auth_token = resolve_auth_token
         case auth_token
         when :disabled
@@ -325,7 +336,9 @@ module Msf::MCP
             auth_token: auth_token,
             min_threads: min_threads,
             max_threads: max_threads,
-            workers: workers
+            workers: workers,
+            ssl_cert: ssl_cert,
+            ssl_key: ssl_key
           )
         rescue Errno::EADDRINUSE => e
           @output.puts "#{e.class}: #{e.message}"
@@ -356,6 +369,23 @@ module Msf::MCP
       else
         :generated
       end
+    end
+
+    # Resolve the certificate/key paths to use for the HTTP transport's TLS listener.
+    #
+    # If the operator configured explicit paths, those are used as-is (already
+    # validated by Config::Validator). Otherwise a self-signed certificate is
+    # generated (or reused from a previous run) via TlsCertGenerator.
+    #
+    # @param host [String] Host the server will bind to, used for the certificate's SAN
+    # @return [Array(String, String, Boolean)] [cert_path, key_path, generated]
+    def resolve_ssl_paths(host)
+      cert = @config.dig(:mcp, :ssl_cert)
+      key = @config.dig(:mcp, :ssl_key)
+      return [cert, key, false] if cert.to_s != '' && key.to_s != ''
+
+      cert, key = Msf::MCP::Config::TlsCertGenerator.ensure_self_signed_certificate(host: host)
+      [cert, key, true]
     end
 
     # Error handlers
