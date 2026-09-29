@@ -19,6 +19,7 @@ class Cache
   #
   def refresh_metadata_instance(module_instance)
     @mutex.synchronize {
+      wait_for_load
       dlog "Refreshing #{module_instance.refname} of type: #{module_instance.type}"
       refresh_metadata_instance_internal(module_instance)
       update_store
@@ -48,6 +49,7 @@ class Cache
   def refresh_metadata(module_sets)
     has_changes = false
     @mutex.synchronize {
+      wait_for_load
       unchanged_module_references = get_unchanged_module_references
       module_sets.each do |mt|
         unchanged_reference_name_set = unchanged_module_references[mt[0]]

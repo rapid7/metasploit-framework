@@ -12,25 +12,17 @@ module Msf::Sessions
 
     # Abstract WinRM to look like a stream so CommandShell can be happy
     class WinRMStreamAdapter
+      include Msf::Sessions::WinrmStreamAdapterCommon
+
       # @param shell [Net::MsfWinRM::StdinShell] Shell for talking to the WinRM service
       # @param on_shell_ended [Method] Callback for when the background thread notices the shell has ended
       def initialize(shell, interactive_command_id, on_shell_ended)
         # To buffer input received while a session is backgrounded, we stick responses in a list
-        @buffer_mutex = Mutex.new
-        @buffer = []
+        init_stream_buffer
         @check_stdin_event = Rex::Sync::Event.new(false, true)
-        @received_stdout_event = Rex::Sync::Event.new(false, true)
         self.interactive_command_id = interactive_command_id
         self.shell = shell
         self.on_shell_ended = on_shell_ended
-      end
-
-      def peerinfo
-        shell.transport.peerinfo
-      end
-
-      def localinfo
-        shell.transport.localinfo
       end
 
       # Trigger the background thread to go get more stdout
@@ -43,47 +35,10 @@ module Msf::Sessions
         refresh_stdout
       end
 
-      ##
-      # :category: Msf::Session::Provider::SingleCommandShell implementors
-      #
-      # Read from the command shell.
-      #
+      # Read from the command shell, hurrying the keep-alive background
+      # thread along each time we loop back without a result.
       def get_once(length = -1, timeout = 1)
-        start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
-        result = ''
-        loop do
-          result = _get_once(length)
-          time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
-          elapsed = time - start_time
-          time_remaining = timeout - elapsed
-          break if (result != '' || time_remaining <= 0)
-
-          # rubocop:disable Lint/SuppressedException
-          begin
-            # We didn't receive anything - let's wait for some more
-            @received_stdout_event.wait(time_remaining)
-          rescue ::Timeout::Error
-          end
-          # rubocop:enable Lint/SuppressedException
-          # If we didn't get anything, let's hurry the background thread along
-          refresh_stdout unless result
-        end
-        result
-      end
-
-      def _get_once(length)
-        result = ''
-        @buffer_mutex.synchronize do
-          result = @buffer.join('')
-          @buffer = []
-          if (length > -1) && (result.length > length)
-            # Return up to length, and keep the rest in the buffer
-            extra = result[length..-1]
-            result = result[0, length]
-            @buffer << extra
-          end
-        end
-        result
+        super(length, timeout) { refresh_stdout }
       end
 
       # Start a background thread for regularly checking for stdout

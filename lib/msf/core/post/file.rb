@@ -245,13 +245,19 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
-    verification_token = Rex::Text.rand_text_alpha_upper(8)
-    if session.type == 'powershell' && file?(path)
-      return cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
+    if session.type == 'powershell'
+      return _writable_powershell?(path)
     end
-    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
-    cmd_exec("(test -w '#{path}' || test -O '#{path}') && echo true").to_s.include? 'true'
+    if session.platform == 'windows'
+      if session.type == 'meterpreter'
+        return _writable_windows_meterpreter?(path)
+      end
+
+      return _writable_windows_shell?(path)
+    end
+
+    _writable_unix?(path)
   end
 
   #
@@ -709,7 +715,7 @@ module Msf::Post::File
   #
   # @param path [String] Absolute base path to search from (default: '/')
   # @param max_depth [Integer] Maximum directory depth to search (0 = base directory only)
-  # @param timeout [Integer] Maximum seconds for cmd_exec to wait (default: 15).
+  # @param timeout [Integer] Maximum seconds for create_process to wait (default: 15).
   #   Note: if the command times out, the remote find process may continue
   #   running and tie up the shell channel until it finishes.
   # @return [Array<String>, nil] Array of writable directory paths, or nil on failure
@@ -729,18 +735,12 @@ module Msf::Post::File
       print_warning("Large max_depth (#{max_depth}) may cause the find command to run for a long time and hang the session")
     end
 
-    escaped_path = session.escape_arg(path)
-    find_args = ["find #{escaped_path}"]
-    find_args << "-maxdepth #{max_depth}"
-    find_args << '-type d'
-    find_args << '-writable'
-
-    find_args << '2>/dev/null'
-    cmd = find_args.join(' ')
     exec_timeout = timeout > 0 ? timeout : 15
+    find_args = ['-maxdepth', max_depth.to_s, '-type', 'd', '-writable']
 
     begin
-      cmd_exec(cmd, nil, exec_timeout).to_s.lines.map(&:strip).select { |p| p.start_with?('/') }
+      output = create_process('find', args: [path] + find_args, time_out: exec_timeout)
+      output.to_s.lines.map(&:strip).select { |p| p.start_with?('/') }
     rescue ::StandardError => e
       elog("Failed to find writable directories in #{path}", error: e)
       print_error("Failed to find writable directories in #{path}")
@@ -749,6 +749,73 @@ module Msf::Post::File
   end
 
   protected
+
+  # Check writability via PowerShell session by attempting to create/open a file.
+  #
+  # @param path [String] Remote path to check
+  # @return [Boolean] true if +path+ is writable
+  def _writable_powershell?(path)
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if directory?(path)
+      tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+      script = "$f=[System.IO.File]::Create('#{tmp_file}');if($?){$f.Close();[System.IO.File]::Delete('#{tmp_file}');echo #{verification_token}}"
+      return create_process('powershell.exe', args: ['-NoProfile', '-Command', script]).to_s.include?(verification_token)
+    end
+    return false unless file?(path)
+
+    script = "$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()"
+    create_process('powershell.exe', args: ['-NoProfile', '-Command', script]).to_s.include?(verification_token)
+  end
+
+  # Check writability on Windows via Meterpreter by attempting to open a file handle.
+  #
+  # @param path [String] Remote path to check
+  # @return [Boolean] true if +path+ is writable
+  def _writable_windows_meterpreter?(path)
+    if directory?(path)
+      tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+      begin
+        fd = session.fs.file.new(tmp_file, 'wb')
+        fd.close
+        session.fs.file.rm(tmp_file)
+        return true
+      rescue ::Rex::Post::Meterpreter::RequestError
+        return false
+      end
+    end
+    return false unless file?(path)
+
+    begin
+      fd = session.fs.file.new(path, 'wb')
+      fd.close
+      true
+    rescue ::Rex::Post::Meterpreter::RequestError
+      false
+    end
+  end
+
+  # Check writability on Windows via a shell session using cmd.exe redirects.
+  #
+  # @param path [String] Remote path to check
+  # @return [Boolean] true if +path+ is writable
+  def _writable_windows_shell?(path)
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if directory?(path)
+      tmp_file = "#{path}\\#{Rex::Text.rand_text_alpha(8)}.tmp"
+      return create_process('cmd.exe', args: ['/C', "type nul >> \"#{tmp_file}\" 2>nul && del \"#{tmp_file}\" && echo #{verification_token}"]).to_s.include?(verification_token)
+    end
+    return false unless file?(path)
+
+    create_process('cmd.exe', args: ['/C', "type nul >> \"#{path}\" 2>nul && echo #{verification_token}"]).to_s.include?(verification_token)
+  end
+
+  # Check writability on Unix using test(1) builtins.
+  #
+  # @param path [String] Remote path to check
+  # @return [Boolean] true if +path+ is writable
+  def _writable_unix?(path)
+    create_process('sh', args: ['-c', "(test -w '#{path}' || test -O '#{path}') && echo true"]).to_s.include?('true')
+  end
 
   def _append_file_powershell(file_name, data)
     _write_file_powershell(file_name, data, true)

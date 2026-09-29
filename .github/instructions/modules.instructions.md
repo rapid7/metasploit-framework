@@ -52,6 +52,7 @@ Valid values with descriptions: [`lib/msf/core/constants.rb`](../../lib/msf/core
 - Return bare `CheckCode::Safe` without a reason string
 - Use `JSON.parse(res.body)` — use `res.get_json_document`
 - Print `"#{ip}:#{port}"` — use `Rex::Socket.to_authority(ip, port)`
+- Prefix `print_*`/`vprint_*` messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` — the framework auto-prepends host:port via `print_prefix`
 
 ## Auxiliary Modules
 

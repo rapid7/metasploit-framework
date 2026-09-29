@@ -144,6 +144,11 @@ module Msf::Util::EXE
           to_win32pe_service(framework, code, exeopts)
         when ARCH_X64
           to_win64pe_service(framework, code, exeopts)
+        when ARCH_AARCH64
+          # No dedicated AArch64 service template exists yet; the loader
+          # template still runs when dropped as a "service" binary (the SCM
+          # start request just times out, as with any non-service exe).
+          to_winaarch64pe(framework, code, exeopts)
         end
       when 'exe-small'
         case arch
@@ -151,6 +156,8 @@ module Msf::Util::EXE
           to_win32pe_old(framework, code, exeopts)
         when ARCH_X64
           to_win64pe(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_winaarch64pe(framework, code, exeopts)
         end
       when 'exe-only'
         case arch
@@ -165,6 +172,8 @@ module Msf::Util::EXE
           exe = to_win32pe(framework, code, exeopts)
         when ARCH_X64
           exe = to_win64pe(framework, code, exeopts)
+        when ARCH_AARCH64
+          exe = to_winaarch64pe(framework, code, exeopts)
         end
         exeopts[:uac] = true
         Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
@@ -174,6 +183,8 @@ module Msf::Util::EXE
           exe = to_win32pe(framework, code, exeopts)
         when ARCH_X64
           exe = to_win64pe(framework, code, exeopts)
+        when ARCH_AARCH64
+          exe = to_winaarch64pe(framework, code, exeopts)
         end
         Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
       when 'elf'

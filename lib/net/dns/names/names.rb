@@ -18,8 +18,13 @@ module Net # :nodoc:
       def dn_expand(packet,offset)
         name = ""
         packetlen = packet.size
+        visited_offsets = {}
+        next_offset = nil
         while true
           raise ExpandError, "offset is greater than packet length!" if packetlen < (offset+1)
+          raise ExpandError, 'Compression pointer loop detected' if visited_offsets[offset]
+
+          visited_offsets[offset] = true
           len = packet.unpack("@#{offset} C")[0]
           
           if len == 0
@@ -29,11 +34,8 @@ module Net # :nodoc:
             raise ExpandError, "Packet ended before offset expand" if packetlen < (offset+INT16SZ)
             ptr = packet.unpack("@#{offset} n")[0]
             ptr &= 0x3FFF
-            name2 = dn_expand(packet,ptr)[0]
-            raise ExpandError, "Packet is malformed!" if name2 == nil
-            name += name2
-            offset += INT16SZ
-            break
+            next_offset ||= offset + INT16SZ
+            offset = ptr
           else
             offset += 1
             raise ExpandError, "No expansion found" if packetlen < (offset+len)
@@ -42,7 +44,7 @@ module Net # :nodoc:
             offset += len
           end
         end
-        return [name,offset] # name.chomp(".") if trailing dot has to be omitted
+        return [name, next_offset || offset] # name.chomp(".") if trailing dot has to be omitted
       end
       
       def pack_name(name)

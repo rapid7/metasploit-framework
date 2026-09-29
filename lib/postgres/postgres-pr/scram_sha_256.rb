@@ -17,6 +17,12 @@ class ScramSha256
   class NormalizeError < ArgumentError
   end
 
+  # RFC 5802 does not mandate a maximum iteration count, but the PostgreSQL default is 4096.
+  # A malicious/rogue server can specify an arbitrarily large iteration count to force the
+  # client to perform an excessive number of HMAC operations (CPU DoS). Cap it to a generous
+  # but bounded value.
+  MAX_ITERATIONS = 65_536
+
   # @param [String] user
   # @param [String] password
   def negotiate(user, password)
@@ -31,8 +37,17 @@ class ScramSha256
 
     server_first = parse_server_response(server_first_string)
     server_nonce = server_first[:r]
+    raise AuthenticationMethodMismatch, 'Server nonce does not start with client nonce' unless server_nonce&.start_with?(random_nonce)
+
     server_salt = Base64.strict_decode64(server_first[:s])
-    iterations = server_first[:i].to_i
+    # RFC 5802 defines the iteration count as a positive integer. #to_i is not sufficient validation:
+    # a missing field coerces to 0 and values like '4096garbage' silently truncate to 4096, letting a
+    # malformed server-first message slip past the bounds checks below. Require decimal digits only.
+    raw_iterations = server_first[:i]
+    raise AuthenticationMethodMismatch, "Server-specified iteration count (#{raw_iterations.inspect}) is not a valid integer" unless raw_iterations&.match?(/\A\d+\z/)
+    iterations = raw_iterations.to_i
+    raise AuthenticationMethodMismatch, "Server-specified iteration count (#{iterations}) exceeds maximum allowed (#{MAX_ITERATIONS})" if iterations > MAX_ITERATIONS
+    raise AuthenticationMethodMismatch, "Server-specified iteration count (#{iterations}) must be positive" if iterations < 1
 
     # https://datatracker.ietf.org/doc/html/rfc5802#section-3
     salted_password = hi(normalize(password), server_salt, iterations)

@@ -1,4 +1,8 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
+
+require 'openssl'
+require 'rex/proto'
 
 module Rex::Proto::Gss
   OID_SPNEGO = OpenSSL::ASN1::ObjectId.new('1.3.6.1.5.5.2')

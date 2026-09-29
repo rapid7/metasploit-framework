@@ -10,10 +10,9 @@ Follow `documentation/modules/module_doc_template.md` for structure.
 
 ## Required Sections
 
-1. **Introduction** — what the module does, what vulnerability it exploits
-2. **Vulnerable Application** — affected versions, fixed version, setup instructions
-3. **Verification Steps** — numbered steps to reproduce/verify
-4. **Scenarios** — must be filled out by a human with real console output
+1. **Vulnerable Application** — affected versions, fixed version, setup instructions
+1. **Verification Steps** — numbered steps to reproduce/verify
+1. **Scenarios** — must be filled out by a human with real console output
 
 ## Rules
 
