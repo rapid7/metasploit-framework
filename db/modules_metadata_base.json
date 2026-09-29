@@ -208725,7 +208725,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/accessibility_features_debugger.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/accessibility_features_debugger",
@@ -208777,7 +208777,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-17 16:32:34 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/assistive_technology.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/assistive_technology",
@@ -208828,7 +208828,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:53:27 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/bits.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/bits",
@@ -208932,7 +208932,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/image_exec_options.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/image_exec_options",
@@ -209293,7 +209293,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/registry_userinit.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/registry_userinit",
@@ -209349,7 +209349,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service",
@@ -209406,7 +209406,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/event.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/event",
@@ -209463,7 +209463,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/lock_unlock.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/lock_unlock",
@@ -209520,7 +209520,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/logon.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/logon",
@@ -209576,7 +209576,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/schedule.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/schedule",
@@ -209677,7 +209677,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-17 16:32:34 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/task_scheduler.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/task_scheduler",
@@ -209827,7 +209827,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-31 23:49:08 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/userinit_mpr_logon_script.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/userinit_mpr_logon_script",
