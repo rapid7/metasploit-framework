@@ -313,7 +313,7 @@ module Msf
         if ssl_cert.to_s.empty? && ssl_key.to_s.empty?
           ssl_cert, ssl_key = Msf::MCP::Config::TlsCertGenerator.ensure_self_signed_certificate(host: host)
           print_status("TLS: using an auto-generated self-signed certificate (#{ssl_cert}).")
-          print_status("  Clients must explicitly trust it. For anything beyond local testing, set ssl_cert/ssl_key")
+          print_status('  Clients must explicitly trust it. For anything beyond local testing, set ssl_cert/ssl_key')
           print_status("  in the MCP config to a certificate from a trusted CA (e.g. Let's Encrypt).")
         end
       end

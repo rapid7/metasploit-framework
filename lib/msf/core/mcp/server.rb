@@ -84,6 +84,7 @@ module Msf::MCP
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     # @raise [ArgumentError] If an unknown transport is specified, or only one of ssl_cert/ssl_key is given
     #
+    # rubocop:disable Metrics/ParameterLists -- keyword args mirror the existing start_http signature below
     def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS, ssl_cert: nil, ssl_key: nil)
       case transport
       when :stdio
@@ -98,6 +99,7 @@ module Msf::MCP
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
     end
+    # rubocop:enable Metrics/ParameterLists
 
     ##
     # Shutdown the MCP server and cleanup resources

@@ -203,7 +203,7 @@ module Msf::MCP
           return
         end
 
-        { ssl_cert: 'certificate', ssl_key: 'private key' }.each do |key_name, label|
+        %i[ssl_cert ssl_key].each do |key_name|
           path = mcp[key_name].to_s
           unless File.file?(File.expand_path(path)) && File.readable?(File.expand_path(path))
             errors[:"mcp.#{key_name}"] = "must be a readable file (#{path})"

@@ -468,7 +468,8 @@ RSpec.describe Msf::MCP::Application do
       expect(mock_mcp_server).to receive(:start).with(
         transport: :http, host: '0.0.0.0', port: 3000,
         auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
-        min_threads: 0, max_threads: 5, workers: 0
+        min_threads: 0, max_threads: 5, workers: 0,
+        ssl_cert: nil, ssl_key: nil
       )
 
       app.send(:start_mcp_server)
@@ -490,7 +491,8 @@ RSpec.describe Msf::MCP::Application do
         auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
         min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
         max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
-        workers: Msf::MCP::Server::PUMA_WORKERS
+        workers: Msf::MCP::Server::PUMA_WORKERS,
+        ssl_cert: nil, ssl_key: nil
       )
 
       app.send(:start_mcp_server)

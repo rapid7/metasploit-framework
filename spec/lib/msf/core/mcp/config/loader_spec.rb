@@ -766,10 +766,11 @@ RSpec.describe Msf::MCP::Config::Loader do
         end
 
         it 'overrides ssl, ssl_cert and ssl_key' do
-          config = described_class.apply_env_overrides(cfg = { mcp: {} }) && cfg
-          expect(config[:mcp][:ssl]).to be true
-          expect(config[:mcp][:ssl_cert]).to eq('/tmp/server.crt')
-          expect(config[:mcp][:ssl_key]).to eq('/tmp/server.key')
+          cfg = { mcp: {} }
+          described_class.apply_env_overrides(cfg)
+          expect(cfg[:mcp][:ssl]).to be true
+          expect(cfg[:mcp][:ssl_cert]).to eq('/tmp/server.crt')
+          expect(cfg[:mcp][:ssl_key]).to eq('/tmp/server.key')
         end
       end
 
