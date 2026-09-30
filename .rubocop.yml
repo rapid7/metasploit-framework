@@ -31,6 +31,7 @@ require:
   - ./lib/rubocop/cop/lint/module_redundant_arch_platform.rb
   - ./lib/rubocop/cop/lint/redundant_peer_in_print.rb
   - ./lib/rubocop/cop/lint/module_missing_autocheck.rb
+  - ./lib/rubocop/cop/lint/module_missing_rank.rb
   - ./lib/rubocop/cop/lint/module_default_payload.rb
   - ./lib/rubocop/cop/lint/module_http_fingerprint.rb
 
@@ -728,6 +729,16 @@ Lint/ModuleMissingAutocheck:
   Include:
     - 'modules/exploits/**/*'
     - 'modules/auxiliary/**/*'
+
+Lint/ModuleMissingRank:
+  Description: >-
+    Exploit modules should declare an explicit Rank. A missing Rank silently
+    defaults to NormalRanking, so it never fails to load and is easy to ship
+    unset. Choose a value from lib/msf/core/constants.rb.
+  Enabled: true
+  Severity: warning
+  Include:
+    - 'modules/exploits/**/*'
 
 Lint/ModuleDefaultPayload:
   Description: >-
