@@ -94759,6 +94759,57 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_linux/local/dirtyclone_cve_2026_43503": {
+    "name": "Sample Linux Priv Esc",
+    "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-21",
+    "type": "exploit",
+    "author": [
+      "Eddy Tsalolikhin",
+      "Or Peles",
+      "msutovsky-r7"
+    ],
+    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "references": [
+      "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
+      "CVE-2026-43503"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-09-09 14:35:45 +0000",
+    "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/dirtyclone_cve_2026_43503",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-down"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
   "exploit_linux/local/docker_cgroup_escape": {
     "name": "Docker cgroups Container Escape",
     "fullname": "exploit/linux/local/docker_cgroup_escape",
