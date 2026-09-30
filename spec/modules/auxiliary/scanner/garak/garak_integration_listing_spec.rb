@@ -9,6 +9,8 @@ RSpec.describe 'Garak probe listing' do
 
   before do
     mod.datastore['VERBOSE'] = true
+    # Do not depend on a sibling garak checkout being installed on the test host.
+    mod.datastore['GARAK_PATH'] = Dir.tmpdir
   end
 
   describe 'scan target validation' do

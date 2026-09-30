@@ -9,6 +9,8 @@ RSpec.describe 'Garak integration' do
 
   before do
     mod.datastore['VERBOSE'] = true
+    # Option validation requires an existing path, even when garak execution is mocked.
+    mod.datastore['GARAK_PATH'] = Dir.tmpdir
     allow(mod).to receive(:db).and_return(false)
     allow(mod).to receive(:print_warning)
   end
