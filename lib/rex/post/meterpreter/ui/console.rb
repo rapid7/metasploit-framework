@@ -86,6 +86,10 @@ class Console
     channel.reset_ui
   end
 
+  def async_worker?
+    !!@async_worker
+  end
+
   #
   # Queues a command to be run when the interactive loop is entered.
   #
@@ -93,15 +97,39 @@ class Console
     self.commands << cmd
   end
 
+  # Commands that are allowed when async mode is enabled.
+  # Everything else is blocked since direct commands would block
+  # on the slow poll interval.
+  ASYNC_ALLOWED_COMMANDS = %w[
+    background bg exit quit help
+    async
+  ].freeze
+
+  ASYNC_WORKER_BLOCKED_COMMANDS = %w[
+    async background bg exit quit irb pry sessions
+    channel shell interact portfwd rportfwd powershell_shell
+    detach sleep transport migrate pivot secure
+  ].freeze
+
   #
   # Runs the specified command wrapper in something to catch meterpreter
   # exceptions.
   #
   def run_command(dispatcher, method, arguments)
+    if client.async_mode_enabled?
+      if @async_worker && ASYNC_WORKER_BLOCKED_COMMANDS.include?(method)
+        log_error("Cannot run '#{method}' inside an async job.")
+        return
+      elsif !@async_worker && !ASYNC_ALLOWED_COMMANDS.include?(method)
+        log_error("Cannot run '#{method}' directly in async mode. Use 'async run #{method}' or 'async mode off' first.")
+        return
+      end
+    end
+
     begin
       super
     rescue Exception => e
-      is_error_handled = self.client.on_run_command_error_proc && self.client.on_run_command_error_proc.call(e) == :handled
+      is_error_handled = !@async_worker && client.on_run_command_error_proc && client.on_run_command_error_proc.call(e) == :handled
       return if is_error_handled
       case e
       when Rex::TimeoutError, Rex::InvalidDestination
@@ -116,6 +144,7 @@ class Console
         log_error("Error running command #{method}: #{e.class} #{e}")
         elog(e)
       end
+      raise if @async_worker
     end
   end
 
@@ -127,7 +156,7 @@ class Console
 
     elog(msg, 'meterpreter')
 
-    dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
+    dlog("Call stack:\n#{$@&.join("\n")}", 'meterpreter') if $@
   end
 
   attr_reader :client # :nodoc:
@@ -143,4 +172,3 @@ end
 end
 end
 end
-
