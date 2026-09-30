@@ -47,17 +47,17 @@ RSpec.describe Msf::MCP::Config::Validator do
       it 'does not raise error for missing msf_api.type (has default)' do
         config = { msf_api: { host: 'localhost', user: 'msf', password: 'pass' } }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.not_to raise_error
+        end.not_to raise_error
       end
 
       it 'does not raise error for missing msf_api.host (has default)' do
         config = { msf_api: { type: 'messagepack', user: 'msf', password: 'pass' } }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.not_to raise_error
+        end.not_to raise_error
       end
 
       it 'raises ValidationError for empty msf_api.type' do
@@ -70,10 +70,10 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
-          expect(error.errors[:'msf_api.type']).to eq("must be one of the valid API types: messagepack, json-rpc")
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'msf_api.type']).to eq('must be one of the valid API types: messagepack, json-rpc')
         end
       end
 
@@ -88,19 +88,19 @@ RSpec.describe Msf::MCP::Config::Validator do
         }
 
         # Whitespace host is not validated as "required", loader will apply default
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
-          expect(error.errors[:'msf_api.host']).to eq("must be a non-empty string")
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'msf_api.host']).to eq('must be a non-empty string')
         end
       end
 
       it 'does not raise error for missing type and host (have defaults)' do
         config = { msf_api: { user: 'msf', password: 'pass' } }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
 
@@ -113,10 +113,10 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
-          expect(error.errors[:'msf_api.type']).to eq("must be one of the valid API types: messagepack, json-rpc")
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'msf_api.type']).to eq('must be one of the valid API types: messagepack, json-rpc')
         end
       end
 
@@ -133,10 +133,10 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
-          expect(error.errors[:'mcp.transport']).to eq("must be one of the valid transport: stdio, http")
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.transport']).to eq('must be one of the valid transport: stdio, http')
         end
       end
 
@@ -304,45 +304,45 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'rejects negative min_threads' do
         config = valid_base.merge(mcp: { transport: 'http', min_threads: -1 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.min_threads']).to include('>= 0')
         end
       end
 
       it 'rejects zero max_threads' do
         config = valid_base.merge(mcp: { transport: 'http', max_threads: 0 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.max_threads']).to include('>= 1')
         end
       end
 
       it 'rejects negative workers' do
         config = valid_base.merge(mcp: { transport: 'http', workers: -1 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.workers']).to include('>= 0')
         end
       end
 
       it 'rejects min_threads greater than max_threads' do
         config = valid_base.merge(mcp: { transport: 'http', min_threads: 10, max_threads: 5 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.min_threads']).to include('less than or equal')
         end
       end
 
       it 'rejects non-integer min_threads' do
         config = valid_base.merge(mcp: { transport: 'http', min_threads: 'abc' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.min_threads']).to include('>= 0')
         end
       end
@@ -402,9 +402,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.port']).to eq('must be between 1 and 65535')
         end
       end
@@ -420,9 +420,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.port']).to eq('must be between 1 and 65535')
         end
       end
@@ -438,9 +438,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.port']).to eq('must be between 1 and 65535')
         end
       end
@@ -486,9 +486,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.auto_start_rpc']).to eq('must be boolean (true or false)')
         end
       end
@@ -504,9 +504,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.auto_start_rpc']).to eq('must be boolean (true or false)')
         end
       end
@@ -536,9 +536,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.user']).to eq('is required for MessagePack authentication. Use --user option or MSF_API_USER environment variable')
         end
       end
@@ -554,9 +554,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.user']).to eq('is required for MessagePack authentication. Use --user option or MSF_API_USER environment variable')
         end
       end
@@ -571,9 +571,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.password']).to eq('is required for MessagePack authentication. Use --password option or MSF_API_PASSWORD environment variable')
         end
       end
@@ -589,9 +589,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.password']).to eq('is required for MessagePack authentication. Use --password option or MSF_API_PASSWORD environment variable')
         end
       end
@@ -605,9 +605,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.user']).to eq('is required for MessagePack authentication. Use --user option or MSF_API_USER environment variable')
           expect(error.errors[:'msf_api.password']).to eq('is required for MessagePack authentication. Use --password option or MSF_API_PASSWORD environment variable')
         end
@@ -622,9 +622,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.user']).to be_a(String)
           expect(error.errors[:'msf_api.password']).to be_a(String)
         end
@@ -640,9 +640,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.password']).to be_a(String)
         end
       end
@@ -657,9 +657,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.user']).to be_a(String)
         end
       end
@@ -722,9 +722,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError)
+        end.to raise_error(Msf::MCP::Config::ValidationError)
       end
 
       it 'does not allow missing credentials when auto_start_rpc is false' do
@@ -736,9 +736,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError)
+        end.to raise_error(Msf::MCP::Config::ValidationError)
       end
     end
 
@@ -751,9 +751,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.token']).to eq('is required for JSON-RPC authentication')
         end
       end
@@ -767,9 +767,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.token']).to eq('is required for JSON-RPC authentication')
         end
       end
@@ -783,9 +783,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'msf_api.token']).to eq('is required for JSON-RPC authentication')
         end
       end
@@ -817,9 +817,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors.keys).to include(:'msf_api.type', :'msf_api.port', :'mcp.transport')
           expect(error.errors.size).to be >= 3
         end
@@ -835,9 +835,9 @@ RSpec.describe Msf::MCP::Config::Validator do
           }
         }
 
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.message).to include('msf_api.port')
           expect(error.message).to include('msf_api.user')
           expect(error.message).to include('msf_api.password')
@@ -877,54 +877,54 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError when rate_limit is not a Hash' do
         config = base_config.merge(rate_limit: 'yes')
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:rate_limit]).to eq('must be a configuration hash')
         end
       end
 
       it 'raises ValidationError for non-boolean enabled' do
         config = base_config.merge(rate_limit: { enabled: 'yes' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.enabled']).to eq('must be boolean (true or false)')
         end
       end
 
       it 'raises ValidationError for requests_per_minute of 0' do
         config = base_config.merge(rate_limit: { requests_per_minute: 0 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.requests_per_minute']).to eq('must be an integer >= 1')
         end
       end
 
       it 'raises ValidationError for negative requests_per_minute' do
         config = base_config.merge(rate_limit: { requests_per_minute: -5 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.requests_per_minute']).to eq('must be an integer >= 1')
         end
       end
 
       it 'raises ValidationError for non-integer requests_per_minute' do
         config = base_config.merge(rate_limit: { requests_per_minute: 'fast' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.requests_per_minute']).to eq('must be an integer >= 1')
         end
       end
 
       it 'raises ValidationError for float requests_per_minute' do
         config = base_config.merge(rate_limit: { requests_per_minute: 1.5 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.requests_per_minute']).to eq('must be an integer >= 1')
         end
       end
@@ -936,27 +936,27 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError for burst_size of 0' do
         config = base_config.merge(rate_limit: { burst_size: 0 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.burst_size']).to eq('must be an integer >= 1')
         end
       end
 
       it 'raises ValidationError for negative burst_size' do
         config = base_config.merge(rate_limit: { burst_size: -1 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.burst_size']).to eq('must be an integer >= 1')
         end
       end
 
       it 'raises ValidationError for non-integer burst_size' do
         config = base_config.merge(rate_limit: { burst_size: 'large' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'rate_limit.burst_size']).to eq('must be an integer >= 1')
         end
       end
@@ -968,9 +968,9 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'collects multiple rate_limit errors at once' do
         config = base_config.merge(rate_limit: { enabled: 'yes', requests_per_minute: 0, burst_size: -1 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors.keys).to include(:'rate_limit.enabled', :'rate_limit.requests_per_minute', :'rate_limit.burst_size')
         end
       end
@@ -989,18 +989,18 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError when mcp is not a Hash' do
         config = base_config.merge(mcp: 'stdio')
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:mcp]).to eq('must be a configuration hash')
         end
       end
 
       it 'raises ValidationError when mcp is an integer' do
         config = base_config.merge(mcp: 42)
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:mcp]).to eq('must be a configuration hash')
         end
       end
@@ -1038,27 +1038,27 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError when logging is not a Hash' do
         config = base_config.merge(logging: true)
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:logging]).to eq('must be a configuration hash')
         end
       end
 
       it 'raises ValidationError for non-boolean logging.enabled' do
         config = base_config.merge(logging: { enabled: 'yes' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'logging.enabled']).to eq('must be boolean (true or false)')
         end
       end
 
       it 'raises ValidationError for invalid logging.level' do
         config = base_config.merge(logging: { level: 'VERBOSE' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'logging.level']).to include('must be one of')
         end
       end
@@ -1077,18 +1077,18 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError for empty logging.log_file' do
         config = base_config.merge(logging: { log_file: '' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'logging.log_file']).to eq('must be a non-empty string')
         end
       end
 
       it 'raises ValidationError for whitespace-only logging.log_file' do
         config = base_config.merge(logging: { log_file: '   ' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'logging.log_file']).to eq('must be a non-empty string')
         end
       end
@@ -1105,9 +1105,9 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'raises ValidationError for non-boolean logging.sanitize' do
         config = base_config.merge(logging: { sanitize: 'yes' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'logging.sanitize']).to eq('must be boolean (true or false)')
         end
       end
@@ -1147,27 +1147,27 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'rejects non-boolean dangerous_actions (string)' do
         config = base_config.merge(mcp: { dangerous_actions: 'true' })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
         end
       end
 
       it 'rejects non-boolean dangerous_actions (integer)' do
         config = base_config.merge(mcp: { dangerous_actions: 1 })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
         end
       end
 
       it 'rejects non-boolean dangerous_actions (nil)' do
         config = base_config.merge(mcp: { dangerous_actions: nil })
-        expect {
+        expect do
           described_class.validate!(config)
-        }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+        end.to raise_error(Msf::MCP::Config::ValidationError) do |error|
           expect(error.errors[:'mcp.dangerous_actions']).to eq('must be boolean (true or false)')
         end
       end
@@ -1227,8 +1227,8 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'includes field names and error descriptions' do
         errors = {
-          :'msf_api.host' => 'is required',
-          :'msf_api.port' => 'must be between 1 and 65535'
+          'msf_api.host': 'is required',
+          'msf_api.port': 'must be between 1 and 65535'
         }
         error = described_class.new(errors)
 
@@ -1238,8 +1238,8 @@ RSpec.describe Msf::MCP::Config::Validator do
 
       it 'formats multiple errors with bullets' do
         errors = {
-          :'msf_api.type' => 'is required',
-          :'msf_api.host' => 'is required'
+          'msf_api.type': 'is required',
+          'msf_api.host': 'is required'
         }
         error = described_class.new(errors)
 
@@ -1250,7 +1250,7 @@ RSpec.describe Msf::MCP::Config::Validator do
 
     describe '#errors' do
       it 'provides access to errors hash' do
-        errors = { :'msf_api.host' => 'is required' }
+        errors = { 'msf_api.host': 'is required' }
         error = described_class.new(errors)
 
         expect(error.errors).to eq(errors)

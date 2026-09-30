@@ -645,7 +645,11 @@ RSpec.describe Msf::MCP::Application do
         app.instance_variable_set(:@config, valid_config.dup)
 
         # Simulate load_configuration CLI override
-        app.send(:load_configuration) rescue nil
+        begin
+          app.send(:load_configuration)
+        rescue StandardError
+          nil
+        end
         # Directly verify the config was updated by setting it up properly
         app = described_class.new(['--no-auto-start-rpc'], output: output)
         app.send(:parse_arguments)
@@ -994,11 +998,14 @@ RSpec.describe Msf::MCP::Application do
       # Track the order of operations
       order = []
       allow(mock_rpc_manager).to receive(:ensure_rpc_available) { order << :ensure_rpc }
-      allow(Msf::MCP::Metasploit::Client).to receive(:new) { order << :init_client; mock_client }
+      allow(Msf::MCP::Metasploit::Client).to receive(:new) {
+        order << :init_client
+        mock_client
+      }
 
       app.run
 
-      expect(order).to eq([:ensure_rpc, :init_client])
+      expect(order).to eq(%i[ensure_rpc init_client])
     end
   end
 end

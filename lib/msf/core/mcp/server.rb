@@ -258,7 +258,7 @@ module Msf::MCP
     # @return [Proc] Callback that wraps request execution and logs via Rex
     #
     def create_around_request
-      ->(data, &request_handler) do
+      lambda do |data, &request_handler|
         result = request_handler.call
 
         # Build message based on the type of request
@@ -273,7 +273,7 @@ module Msf::MCP
                   elsif data[:method]
                     "Method call: #{data[:method]}"
                   else
-                    "MCP request"
+                    'MCP request'
                   end
 
         context = data.dup
@@ -304,7 +304,7 @@ module Msf::MCP
     # @return [Proc] Callback that logs exceptions via Rex
     #
     def create_exception_reporter
-      ->(exception, context) do
+      lambda do |exception, context|
         return unless exception || context
 
         # Determine the context type and parse data

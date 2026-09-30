@@ -22,7 +22,7 @@ module Msf::MCP
         end
 
         unless config.is_a?(Hash)
-          raise ConfigurationError, "Configuration file must contain a YAML hash/dictionary"
+          raise ConfigurationError, 'Configuration file must contain a YAML hash/dictionary'
         end
 
         apply_defaults(config)
@@ -40,9 +40,6 @@ module Msf::MCP
         apply_env_overrides(config)
         config
       end
-
-
-      private
 
       # Apply default values to configuration
       #

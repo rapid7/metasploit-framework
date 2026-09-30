@@ -347,9 +347,9 @@ RSpec.describe Msf::MCP::Server do
         end
 
         it 'raises when only one of ssl_cert and ssl_key is given' do
-          expect {
+          expect do
             server.start(transport: :http, port: 3000, ssl_cert: '/tmp/server.crt')
-          }.to raise_error(ArgumentError, /Both ssl_cert and ssl_key/)
+          end.to raise_error(ArgumentError, /Both ssl_cert and ssl_key/)
         end
       end
 
@@ -369,15 +369,15 @@ RSpec.describe Msf::MCP::Server do
 
     context 'with invalid transport' do
       it 'raises ArgumentError' do
-        expect {
+        expect do
           server.start(transport: :websocket)
-        }.to raise_error(ArgumentError, /Unknown transport.*websocket/)
+        end.to raise_error(ArgumentError, /Unknown transport.*websocket/)
       end
 
       it 'error message mentions valid transports' do
-        expect {
+        expect do
           server.start(transport: :invalid)
-        }.to raise_error(ArgumentError, /stdio.*http/)
+        end.to raise_error(ArgumentError, /stdio.*http/)
       end
     end
   end
@@ -410,10 +410,10 @@ RSpec.describe Msf::MCP::Server do
     end
 
     it 'can be called multiple times safely' do
-      expect {
+      expect do
         server.shutdown
         server.shutdown
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it 'stops the Puma launcher when HTTP transport was used' do

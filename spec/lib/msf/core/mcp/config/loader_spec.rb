@@ -27,9 +27,9 @@ RSpec.describe Msf::MCP::Config::Loader do
 
     context 'with file not found' do
       it 'raises ConfigurationError with descriptive message' do
-        expect {
+        expect do
           described_class.load('/nonexistent/config.yaml')
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /not found/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /not found/)
       end
     end
 
@@ -47,9 +47,9 @@ RSpec.describe Msf::MCP::Config::Loader do
       end
 
       it 'raises ConfigurationError with YAML error details' do
-        expect {
+        expect do
           described_class.load(invalid_yaml_file.path)
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /Invalid YAML syntax/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /Invalid YAML syntax/)
       end
     end
 
@@ -67,9 +67,9 @@ RSpec.describe Msf::MCP::Config::Loader do
       end
 
       it 'raises ConfigurationError requiring hash/dictionary' do
-        expect {
+        expect do
           described_class.load(array_yaml_file.path)
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /must contain a YAML hash/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /must contain a YAML hash/)
       end
     end
   end
@@ -636,7 +636,7 @@ RSpec.describe Msf::MCP::Config::Loader do
           end
         end
 
-        context "to empty string" do
+        context 'to empty string' do
           before { ENV['MSF_API_SSL'] = '' }
 
           it 'does not override SSL' do
