@@ -284,7 +284,8 @@ class MetasploitModule < Msf::Auxiliary
       proto: 'tcp',
       name: name,
       info: "Share #{share} accepts password: #{password.empty? ? '<empty>' : password}",
-      refs: references
+      refs: references,
+      service: @smb_service
     )
   end
 end
