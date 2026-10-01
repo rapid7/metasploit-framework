@@ -137,7 +137,12 @@ class MetasploitModule < Msf::Auxiliary
 
     if name
       print_good("Discovered NetBIOS name: #{name}")
-      report_service(host: ip, port: RubySMB::Nbss::NodeStatus::NBNS_PORT, proto: 'udp', name: 'netbios', info: "NetBIOS name: #{name}")
+      base_opts = { host: ip, port: RubySMB::Nbss::NodeStatus::NBNS_PORT, proto: 'udp' }
+      report_service(base_opts.merge(
+        name: 'netbios',
+        info: "NetBIOS name: #{name}",
+        parents: base_opts.merge(name: 'udp')
+      ))
     elsif Process.uid != 0
       print_error('NBNS lookup got no reply; a Win95 target only answers on UDP/137, which needs root. Retry as root or set SMBName manually')
     else
