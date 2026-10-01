@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     # Phase 1: Connect and enumerate shares via RAP
     connect(versions: [1], backend: :ruby_smb, direct: false)
     smb_login
-    report_service(host: ip, port: rport, proto: 'tcp', name: 'smb', info: "NetBIOS name: #{smb_name}")
+    @smb_service = report_service(host: ip, port: rport, proto: 'tcp', name: 'smb', info: "NetBIOS name: #{smb_name}")
 
     shares = enum_shares_rap
     if shares.empty?
