@@ -116148,6 +116148,64 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_rce_cve_2026_0770": {
+    "name": "Langflow Unauthenticated RCE (validate endpoint)",
+    "fullname": "exploit/multi/http/langflow_rce_cve_2026_0770",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-23",
+    "type": "exploit",
+    "author": [
+      "Diamorphine",
+      "bhaskarbhar"
+    ],
+    "description": "Langflow versions up to and including 1.7.3 contain a remote code\n          execution vulnerability in the `validate` endpoint where unsanitized\n          values in `exec_globals`/`code` allow an attacker to execute arbitrary\n          Python code. This module abuses the `/api/v1/auto_login` (or\n          `/api/v1/login`) and `/api/v1/validate/code` endpoints to execute an\n          arbitrary Metasploit command payload.",
+    "references": [
+      "CVE-2026-0770",
+      "EDB-52597"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-09-07 21:49:25 +0000",
+    "path": "/modules/exploits/multi/http/langflow_rce_cve_2026_0770.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_rce_cve_2026_0770",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_rce_cve_2026_27966": {
     "name": "Langflow RCE",
     "fullname": "exploit/multi/http/langflow_rce_cve_2026_27966",
