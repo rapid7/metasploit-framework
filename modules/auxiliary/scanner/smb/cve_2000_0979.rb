@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   }.freeze
 
   # Printable ASCII range used when brute-forcing password bytes (space to ~).
-  PRINTABLE = (0x20..0x7e).freeze
+  PRINTABLE = (0x20..0x7e)
 
   def initialize(info = {})
     super(
