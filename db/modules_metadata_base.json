@@ -111765,6 +111765,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/dizquetv_rce": {
+    "name": "dizqueTV Unauthenticated Remote Code Execution",
+    "fullname": "exploit/multi/http/dizquetv_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-09-21",
+    "type": "exploit",
+    "author": [
+      "Muhammad Sulthon Nurbahari",
+      "Ahmed Said Saud Al-Busaidi"
+    ],
+    "description": "dizqueTV, a Node.js-based IPTV streaming server, is vulnerable to\n          unauthenticated remote code execution via the ffmpegPath configuration\n          parameter. On Linux, an attacker can inject a command into the ffmpegPath value.\n          On Windows, an attacker can upload a malicious batch script through the image\n          upload endpoint and set the ffmpegPath setting to the uploaded file. Requesting\n          the version API triggers execution on both platforms.\n\n          The ffmpegPath value is used by Node's child process APIs without adequate\n          validation, allowing arbitrary command execution as the Node.js process user.",
+    "references": [
+      "CVE-2024-58286",
+      "EDB-52079"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "cmd",
+    "rport": 8000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command",
+      "Windows Command"
+    ],
+    "mod_time": "2026-09-18 07:49:35 +0000",
+    "path": "/modules/exploits/multi/http/dizquetv_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/dizquetv_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/dompdf_rce_cve_2022_28368": {
     "name": "Dompdf RCE via Malicious Font Caching (CVE-2022-28368)",
     "fullname": "exploit/multi/http/dompdf_rce_cve_2022_28368",
