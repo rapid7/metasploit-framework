@@ -122,6 +122,9 @@ All configuration settings can be overridden by environment variables:
 | `MSF_MCP_TRANSPORT` | MCP transport type (`stdio` or `http`) |
 | `MSF_MCP_HOST` | MCP server host (for HTTP transport) |
 | `MSF_MCP_PORT` | MCP server port (for HTTP transport) |
+| `MSF_MCP_SSL` | Serve the HTTP transport over HTTPS (`true`/`1`/`yes` to enable) |
+| `MSF_MCP_SSL_CERT` | Path to the TLS certificate in PEM format (for HTTPS) |
+| `MSF_MCP_SSL_KEY` | Path to the TLS private key in PEM format (for HTTPS) |
 | `MSF_MCP_AUTH_TOKEN` | MCP server Bearer token for authentication (for HTTP transport) |
 | `MSF_MCP_DANGEROUS_ACTIONS` | Enable dangerous tools (`true`/`1`/`yes`/`on` to enable, anything else to disable) |
 
@@ -226,6 +229,42 @@ mcp:
   # ... other config keys
   auth_token: null # DISABLE HTTP AUTHENTICATION
 ```
+
+### Enabling HTTPS
+
+By default the HTTP transport is served in clear text. If the MCP client connects from another host, enable TLS so the
+Bearer token and the MCP traffic are encrypted:
+
+```yaml
+mcp:
+  transport: http
+  # ... other config keys
+  ssl: true
+```
+
+This can also be set with the `MSF_MCP_SSL=true` environment variable. With `ssl: true` and no certificate configured,
+the server automatically generates a self-signed certificate/key pair on first start and caches it under
+`~/.msf4/mcp/` (`server.crt` / `server.key`), reusing it on subsequent restarts. The startup banner prints the
+certificate path and a reminder when it's using this auto-generated certificate.
+
+**The auto-generated certificate is a convenience for local development and testing.** It is self-signed, so an MCP
+client will need to be explicitly configured to trust it, and it carries none of the rotation or revocation guarantees
+a real certificate authority provides. If the MCP server is reachable from another host, or in any production-like
+setting, supply your own certificate from a trusted CA -- for example, one issued by
+[Let's Encrypt](https://letsencrypt.org/) -- via `ssl_cert` and `ssl_key`:
+
+```yaml
+mcp:
+  transport: http
+  # ... other config keys
+  ssl: true
+  ssl_cert: /path/to/server.crt
+  ssl_key: /path/to/server.key
+```
+
+The same can be done with `MSF_MCP_SSL_CERT` and `MSF_MCP_SSL_KEY`. `ssl_cert` and `ssl_key` must either both be set
+(to existing, readable files) or both be left unset (to use the auto-generated certificate) -- setting only one is a
+configuration error. The MCP client must use an `https://` URL and trust whichever certificate is in use.
 
 The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TOKEN="" ./msfmcpd --mcp-transport http`.
 

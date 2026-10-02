@@ -42,6 +42,7 @@ require_relative 'mcp/errors'
 require_relative 'mcp/config/defaults'
 require_relative 'mcp/config/loader'
 require_relative 'mcp/config/validator'
+require_relative 'mcp/config/tls_cert_generator'
 
 # Security Layer
 require_relative 'mcp/security/input_validator'

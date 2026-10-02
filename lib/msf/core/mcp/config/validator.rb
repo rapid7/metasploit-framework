@@ -25,8 +25,8 @@ module Msf::MCP
 
         # Check msf_api section exists
         unless config[:msf_api].is_a?(Hash)
-          errors[:msf_api] = "configuration section is required"
-          raise ValidationError.new(errors)
+          errors[:msf_api] = 'configuration section is required'
+          raise ValidationError, errors
         end
 
         # Validate API type
@@ -36,12 +36,12 @@ module Msf::MCP
 
         # Validate API type
         if config[:msf_api][:host] && config[:msf_api][:host].to_s.strip.empty?
-          errors[:'msf_api.host'] = "must be a non-empty string"
+          errors[:'msf_api.host'] = 'must be a non-empty string'
         end
 
         # Validate mcp section type
         if config.key?(:mcp) && !config[:mcp].is_a?(Hash)
-          errors[:mcp] = "must be a configuration hash"
+          errors[:mcp] = 'must be a configuration hash'
         end
 
         # Validate transport
@@ -53,37 +53,40 @@ module Msf::MCP
         if config[:msf_api][:port]
           port = config[:msf_api][:port].to_i
           unless port.between?(1, 65535)
-            errors[:'msf_api.port'] = "must be between 1 and 65535"
+            errors[:'msf_api.port'] = 'must be between 1 and 65535'
           end
         end
 
         # Validate SSL option
         if config[:msf_api].key?(:ssl) && ![true, false].include?(config[:msf_api][:ssl])
-          errors[:'msf_api.ssl'] = "must be boolean (true or false)"
+          errors[:'msf_api.ssl'] = 'must be boolean (true or false)'
         end
 
         # Validate auto_start_rpc option
         if config[:msf_api].key?(:auto_start_rpc) && ![true, false].include?(config[:msf_api][:auto_start_rpc])
-          errors[:'msf_api.auto_start_rpc'] = "must be boolean (true or false)"
+          errors[:'msf_api.auto_start_rpc'] = 'must be boolean (true or false)'
         end
 
         # Validate MCP port
         if config[:mcp].is_a?(Hash) && config[:mcp][:port]
           port = config[:mcp][:port].to_i
           unless port.between?(1, 65535)
-            errors[:'mcp.port'] = "must be between 1 and 65535"
+            errors[:'mcp.port'] = 'must be between 1 and 65535'
           end
         end
+
+        # Validate MCP TLS settings
+        validate_mcp_ssl(config, errors)
 
         # Validate MCP authentication token
         if config[:mcp].is_a?(Hash) && config[:mcp].key?(:auth_token)
           auth_token = config[:mcp][:auth_token]
           if auth_token.is_a?(String)
             unless auth_token.match?(/\A[!-~]*\z/)
-              errors[:'mcp.auth_token'] = "must be a valid token"
+              errors[:'mcp.auth_token'] = 'must be a valid token'
             end
-          elsif auth_token != nil
-            errors[:'mcp.auth_token'] = "must be a string"
+          elsif !auth_token.nil?
+            errors[:'mcp.auth_token'] = 'must be a string'
           end
 
           unless config[:mcp][:transport] == 'http'
@@ -93,33 +96,25 @@ module Msf::MCP
 
         # Validate MCP Puma thread/worker settings
         if config[:mcp].is_a?(Hash)
-          if config[:mcp].key?(:min_threads)
-            unless config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:min_threads] >= 0
-              errors[:'mcp.min_threads'] = "must be an integer >= 0"
-            end
+          if config[:mcp].key?(:min_threads) && !(config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:min_threads] >= 0)
+            errors[:'mcp.min_threads'] = 'must be an integer >= 0'
           end
 
-          if config[:mcp].key?(:max_threads)
-            unless config[:mcp][:max_threads].is_a?(Integer) && config[:mcp][:max_threads] >= 1
-              errors[:'mcp.max_threads'] = "must be an integer >= 1"
-            end
+          if config[:mcp].key?(:max_threads) && !(config[:mcp][:max_threads].is_a?(Integer) && config[:mcp][:max_threads] >= 1)
+            errors[:'mcp.max_threads'] = 'must be an integer >= 1'
           end
 
-          if config[:mcp].key?(:workers)
-            unless config[:mcp][:workers].is_a?(Integer) && config[:mcp][:workers] >= 0
-              errors[:'mcp.workers'] = "must be an integer >= 0"
-            end
+          if config[:mcp].key?(:workers) && !(config[:mcp][:workers].is_a?(Integer) && config[:mcp][:workers] >= 0)
+            errors[:'mcp.workers'] = 'must be an integer >= 0'
           end
 
-          if config[:mcp].key?(:min_threads) && config[:mcp].key?(:max_threads)
-            if config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:max_threads].is_a?(Integer) &&
-               config[:mcp][:min_threads] > config[:mcp][:max_threads]
-              errors[:'mcp.min_threads'] = "must be less than or equal to mcp.max_threads"
-            end
+          if config[:mcp].key?(:min_threads) && config[:mcp].key?(:max_threads) && config[:mcp][:min_threads].is_a?(Integer) && config[:mcp][:max_threads].is_a?(Integer) &&
+             config[:mcp][:min_threads] > config[:mcp][:max_threads]
+            errors[:'mcp.min_threads'] = 'must be less than or equal to mcp.max_threads'
           end
 
           if config[:mcp].key?(:dangerous_actions) && ![true, false].include?(config[:mcp][:dangerous_actions])
-            errors[:'mcp.dangerous_actions'] = "must be boolean (true or false)"
+            errors[:'mcp.dangerous_actions'] = 'must be boolean (true or false)'
           end
         end
 
@@ -135,7 +130,7 @@ module Msf::MCP
           if config[:rate_limit].is_a?(Hash)
             validate_rate_limit(config, errors)
           else
-            errors[:rate_limit] = "must be a configuration hash"
+            errors[:rate_limit] = 'must be a configuration hash'
           end
         end
 
@@ -144,19 +139,69 @@ module Msf::MCP
           if config[:logging].is_a?(Hash)
             validate_logging(config, errors)
           else
-            errors[:logging] = "must be a configuration hash"
+            errors[:logging] = 'must be a configuration hash'
           end
         end
 
         # Raise error if any validation failed
         unless errors.empty?
-          raise ValidationError.new(errors)
+          raise ValidationError, errors
         end
 
         true
       end
 
       private
+
+      # Validate the MCP TLS options (ssl, ssl_cert, ssl_key).
+      #
+      # TLS is only meaningful with the 'http' transport. When enabled:
+      # - if neither ssl_cert nor ssl_key is given, a self-signed certificate is
+      #   generated and cached automatically at startup (see TlsCertGenerator);
+      #   this is a development/testing convenience, not a substitute for a
+      #   certificate from a trusted CA (e.g. Let's Encrypt) once the server is
+      #   reachable from another host.
+      # - if either is given, both must be given and both must be readable files.
+      #
+      # @param config [Hash] Configuration hash
+      # @param errors [Hash] Error hash to populate
+      # @return [void]
+      def validate_mcp_ssl(config, errors)
+        return unless config[:mcp].is_a?(Hash)
+
+        mcp = config[:mcp]
+        if mcp.key?(:ssl) && ![true, false].include?(mcp[:ssl])
+          errors[:'mcp.ssl'] = 'must be boolean (true or false)'
+          return
+        end
+
+        ssl_opts_set = %i[ssl_cert ssl_key].any? { |k| !mcp[k].to_s.empty? }
+
+        unless mcp[:transport] == 'http'
+          if mcp[:ssl] == true || ssl_opts_set
+            errors[:'mcp.ssl'] = "TLS must only be used with the 'http' transport"
+          end
+          return
+        end
+
+        return unless mcp[:ssl] == true
+
+        cert = mcp[:ssl_cert].to_s
+        key = mcp[:ssl_key].to_s
+        return if cert.empty? && key.empty? # auto-generated at startup
+
+        if cert.empty? || key.empty?
+          errors[:'mcp.ssl_cert'] = 'must be set together with mcp.ssl_key, or both left unset to auto-generate a self-signed certificate'
+          return
+        end
+
+        %i[ssl_cert ssl_key].each do |key_name|
+          path = mcp[key_name].to_s
+          unless File.file?(File.expand_path(path)) && File.readable?(File.expand_path(path))
+            errors[:"mcp.#{key_name}"] = "must be a readable file (#{path})"
+          end
+        end
+      end
 
       LOCALHOST_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
 
@@ -178,11 +223,11 @@ module Msf::MCP
 
         # Otherwise, require both
         unless user_provided
-          errors[:'msf_api.user'] = "is required for MessagePack authentication. Use --user option or MSF_API_USER environment variable"
+          errors[:'msf_api.user'] = 'is required for MessagePack authentication. Use --user option or MSF_API_USER environment variable'
         end
 
         unless password_provided
-          errors[:'msf_api.password'] = "is required for MessagePack authentication. Use --password option or MSF_API_PASSWORD environment variable"
+          errors[:'msf_api.password'] = 'is required for MessagePack authentication. Use --password option or MSF_API_PASSWORD environment variable'
         end
       end
 
@@ -198,7 +243,7 @@ module Msf::MCP
       # Validate JSON-RPC authentication fields
       def validate_jsonrpc_auth(config, errors)
         unless config[:msf_api][:token] && !config[:msf_api][:token].to_s.strip.empty?
-          errors[:'msf_api.token'] = "is required for JSON-RPC authentication"
+          errors[:'msf_api.token'] = 'is required for JSON-RPC authentication'
         end
       end
 
@@ -207,19 +252,15 @@ module Msf::MCP
         rate_limit = config[:rate_limit]
 
         if rate_limit.key?(:enabled) && ![true, false].include?(rate_limit[:enabled])
-          errors[:'rate_limit.enabled'] = "must be boolean (true or false)"
+          errors[:'rate_limit.enabled'] = 'must be boolean (true or false)'
         end
 
-        if rate_limit.key?(:requests_per_minute)
-          unless rate_limit[:requests_per_minute].is_a?(Integer) && rate_limit[:requests_per_minute] >= 1
-            errors[:'rate_limit.requests_per_minute'] = "must be an integer >= 1"
-          end
+        if rate_limit.key?(:requests_per_minute) && !(rate_limit[:requests_per_minute].is_a?(Integer) && rate_limit[:requests_per_minute] >= 1)
+          errors[:'rate_limit.requests_per_minute'] = 'must be an integer >= 1'
         end
 
-        if rate_limit.key?(:burst_size)
-          unless rate_limit[:burst_size].is_a?(Integer) && rate_limit[:burst_size] >= 1
-            errors[:'rate_limit.burst_size'] = "must be an integer >= 1"
-          end
+        if rate_limit.key?(:burst_size) && !(rate_limit[:burst_size].is_a?(Integer) && rate_limit[:burst_size] >= 1)
+          errors[:'rate_limit.burst_size'] = 'must be an integer >= 1'
         end
       end
 
@@ -230,7 +271,7 @@ module Msf::MCP
         logging = config[:logging]
 
         if logging.key?(:enabled) && ![true, false].include?(logging[:enabled])
-          errors[:'logging.enabled'] = "must be boolean (true or false)"
+          errors[:'logging.enabled'] = 'must be boolean (true or false)'
         end
 
         if logging.key?(:level) && !VALID_LOG_LEVELS.include?(logging[:level].to_s.upcase)
@@ -238,11 +279,11 @@ module Msf::MCP
         end
 
         if logging.key?(:log_file) && logging[:log_file].to_s.strip.empty?
-          errors[:'logging.log_file'] = "must be a non-empty string"
+          errors[:'logging.log_file'] = 'must be a non-empty string'
         end
 
         if logging.key?(:sanitize) && ![true, false].include?(logging[:sanitize])
-          errors[:'logging.sanitize'] = "must be boolean (true or false)"
+          errors[:'logging.sanitize'] = 'must be boolean (true or false)'
         end
       end
     end
