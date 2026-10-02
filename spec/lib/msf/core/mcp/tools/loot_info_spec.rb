@@ -60,11 +60,11 @@ RSpec.describe Msf::MCP::Tools::LootInfo do
   describe 'Input Schema Validation' do
     it 'does not require workspace (defaults to "default")' do
       input_schema = described_class.input_schema
-      expect(Array(input_schema.schema[:required])).not_to include('workspace')
+      expect(Array(input_schema.to_h[:required])).not_to include('workspace')
     end
 
     it 'supports pagination parameters' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:limit]).not_to be_nil
       expect(properties[:offset]).not_to be_nil
     end
@@ -72,7 +72,7 @@ RSpec.describe Msf::MCP::Tools::LootInfo do
 
   describe 'Output Schema' do
     it 'returns loot with type, name, content_type, size' do
-      data_items = described_class.output_schema.schema[:properties][:data][:items][:properties]
+      data_items = described_class.output_schema.to_h[:properties][:data][:items][:properties]
 
       expect(data_items[:host]).to eq({ type: 'string' })
       expect(data_items[:service_name_or_port]).to eq({ type: 'string' })

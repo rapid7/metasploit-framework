@@ -85,6 +85,13 @@ jobs:
           - { name: php, runtime_version: 5.3 }
           - { name: php, runtime_version: 7.4 }
           - { name: php, runtime_version: 8.3 }
+        exclude:
+          # PHP 7.4/8.3 cannot be provisioned on Intel macOS: Homebrew no longer ships Intel-macOS
+          # bottles, so setup-php builds from source and hits its no-output watchdog. Meterpreter has
+          # no macOS arm64 support, so there is no viable macOS host+install path -- PHP coverage is
+          # retained on Linux/Windows (php is interpreter-level, same payload path).
+          - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 7.4 } }
+          - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 8.3 } }
         include:
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
@@ -261,7 +268,7 @@ jobs:
           ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
           bundle config unset deployment
           bundle update metasploit_payloads-mettle
-          bundle install
+          bundle install --deployment
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
@@ -343,7 +350,7 @@ jobs:
         run: |
           bundle config unset deployment
           bundle update metasploit-payloads
-          bundle install
+          bundle install --deployment
         working-directory: metasploit-framework
 
       - name: Acceptance

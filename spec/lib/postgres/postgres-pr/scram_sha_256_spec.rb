@@ -1,6 +1,95 @@
+require 'postgres/postgres-pr/connection'
 require 'postgres/postgres-pr/scram_sha_256'
 
 RSpec.describe Msf::Db::PostgresPR::ScramSha256 do
+  describe '#negotiate' do
+    let(:user) { 'postgres' }
+    let(:password) { 'secret' }
+    let(:salt) { Base64.strict_encode64('salt1234567890ab') }
+    let(:error_class) { Msf::Db::PostgresPR::AuthenticationMethodMismatch }
+
+    # Drives #negotiate with an attacker-controlled server-first message. The block receives the
+    # client nonce so tests can echo it back and isolate the single field under test. No response is
+    # given for :client_final, so a message that passes every server-first check fails at the server
+    # proof comparison - that failure is how we assert validation let the value through.
+    def negotiate_with_server_first
+      subject.negotiate(user, password) do |step, payload|
+        case step
+        when :client_first
+          yield payload[/r=([^,]+)/, 1]
+        end
+      end
+    end
+
+    context 'when the server nonce does not start with the client nonce' do
+      it 'raises AuthenticationMethodMismatch' do
+        expect do
+          negotiate_with_server_first { "s=#{salt},i=4096,r=COMPLETELY_ATTACKER_CHOSEN_NONCE" }
+        end.to raise_error error_class, /Server nonce does not start with client nonce/
+      end
+    end
+
+    context 'when the server-first message omits the iteration count' do
+      it 'raises AuthenticationMethodMismatch' do
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt}" }
+        end.to raise_error error_class, /iteration count \(nil\) is not a valid integer/
+      end
+    end
+
+    context 'when the server-specified iteration count has trailing garbage' do
+      it 'raises AuthenticationMethodMismatch instead of truncating to the leading digits' do
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=4096garbage" }
+        end.to raise_error error_class, /iteration count \("4096garbage"\) is not a valid integer/
+      end
+    end
+
+    context 'when the server-specified iteration count is not numeric at all' do
+      it 'raises AuthenticationMethodMismatch' do
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=garbage" }
+        end.to raise_error error_class, /iteration count \("garbage"\) is not a valid integer/
+      end
+    end
+
+    context 'when the server-specified iteration count is negative' do
+      it 'raises AuthenticationMethodMismatch' do
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=-1" }
+        end.to raise_error error_class, /iteration count \("-1"\) is not a valid integer/
+      end
+    end
+
+    context 'when the server-specified iteration count is zero' do
+      it 'raises AuthenticationMethodMismatch' do
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=0" }
+        end.to raise_error error_class, /iteration count \(0\) must be positive/
+      end
+    end
+
+    context 'when the server-specified iteration count exceeds the maximum allowed' do
+      it 'raises AuthenticationMethodMismatch' do
+        iterations = Msf::Db::PostgresPR::ScramSha256::MAX_ITERATIONS + 1
+
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=#{iterations}" }
+        end.to raise_error error_class, /iteration count \(#{iterations}\) exceeds maximum allowed/
+      end
+    end
+
+    context 'when the server-specified iteration count is exactly the maximum allowed' do
+      it 'accepts the iteration count and proceeds to the server proof check' do
+        iterations = Msf::Db::PostgresPR::ScramSha256::MAX_ITERATIONS
+
+        expect do
+          negotiate_with_server_first { |client_nonce| "r=#{client_nonce},s=#{salt},i=#{iterations}" }
+        end.to raise_error error_class, /Server proof failed/
+      end
+    end
+  end
+
   describe '#hi' do
     [
       { str: "a", salt: "c", iteration_count: 1, expected: "\xF5*3|\x9ALKB\xD1\x8D\x96d\xC1\x1D\v\xAEY^\xA8\xBB?o\x90\xE0\bE\xD5\xE1!\xA9={".b },

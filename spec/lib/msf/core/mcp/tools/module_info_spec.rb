@@ -46,24 +46,24 @@ RSpec.describe Msf::MCP::Tools::ModuleInfo do
   describe 'Input Schema Validation' do
     it 'defines type and name as required parameters' do
       input_schema = described_class.input_schema
-      expect(input_schema.schema[:required]).to include("type", "name")
+      expect(input_schema.to_h[:required]).to include("type", "name")
     end
 
     it 'defines type as enum with valid module types' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:type][:type]).to eq('string')
       expect(properties[:type][:enum]).to include('exploit', 'auxiliary', 'post', 'payload')
     end
 
     it 'defines name as string type' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:name][:type]).to eq('string')
     end
   end
 
   describe 'Output Schema' do
     it 'returns complete module details' do
-      output_schema = described_class.output_schema.schema
+      output_schema = described_class.output_schema.to_h
       data_properties = output_schema[:properties][:data][:properties]
 
       expect(data_properties[:type]).to eq({ type: 'string' })
@@ -82,19 +82,19 @@ RSpec.describe Msf::MCP::Tools::ModuleInfo do
     end
 
     it 'includes options object with configuration parameters' do
-      data_properties = described_class.output_schema.schema[:properties][:data][:properties]
+      data_properties = described_class.output_schema.to_h[:properties][:data][:properties]
       expect(data_properties[:options]).to eq({ type: 'object' })
       expect(data_properties[:default_options]).to eq({ type: 'object' })
     end
 
     it 'includes targets object for exploit modules' do
-      data_properties = described_class.output_schema.schema[:properties][:data][:properties]
+      data_properties = described_class.output_schema.to_h[:properties][:data][:properties]
       expect(data_properties[:targets]).to eq({ type: 'object' })
       expect(data_properties[:default_target]).to eq({ type: 'integer' })
     end
 
     it 'includes references array with CVE, MSB, URL refs' do
-      data_properties = described_class.output_schema.schema[:properties][:data][:properties]
+      data_properties = described_class.output_schema.to_h[:properties][:data][:properties]
       expect(data_properties[:references]).to eq({ type: 'array', items: { type: ['string', 'object'] } })
     end
   end

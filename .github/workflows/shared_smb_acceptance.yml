@@ -101,7 +101,7 @@ jobs:
           bundle exec gem install ruby_smb-${{ env.RUBY_SMB_VERSION }}.gem
           bundle config unset deployment
           bundle update ruby_smb
-          bundle install
+          bundle install --deployment
         working-directory: metasploit-framework
 
       - name: acceptance
