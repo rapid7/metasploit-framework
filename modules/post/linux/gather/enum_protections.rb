@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Post
       'proxychains' => 'ProxyChains',
       'psad' => 'psad',
       'rkhunter' => 'rkhunter',
-      'siggen' => 'Tripwire (Open Source)',
+      'twadmin' => 'Tripwire (Open Source)',
       'snort' => 'snort',
       'suricata' => 'Suricata IDS/IPS',
       'sysdig' => 'Sysdig',
