@@ -17,3 +17,9 @@ both x86 and x64, then moves the outputs into the correct folder.
 # build only EXE templates
 .\build_all.ps1 -Templates exe,exe_service
 ```
+
+AArch64 EXE and DLL templates are not built by `build_all.ps1`. Compile them
+with MSVC on a Windows ARM64 host using the instructions at the top of:
+
+* `exe/template_aarch64_windows.c`
+* `dll/template_aarch64_windows.c`

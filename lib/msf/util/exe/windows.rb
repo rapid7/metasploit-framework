@@ -29,6 +29,7 @@ module Msf::Util::EXE::Windows
 
     def to_executable_windows_aarch64(framework, code, fmt = 'exe', opts = {})
       return to_winaarch64pe(framework, code, opts) if fmt == 'exe'
+      return to_winaarch64pe_dll(framework, code, opts) if fmt == 'dll'
     end
 
     def to_executable_windows_x64(framework, code, fmt = 'exe', opts = {})

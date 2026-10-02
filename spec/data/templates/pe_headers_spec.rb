@@ -9,7 +9,7 @@ RSpec.describe 'PE template binaries' do
   ARCH_EXPECTATIONS = {
     /\btemplate_x86_windows(_svc|_old|_dccw_gdiplus|_mixed_mode)?(\.256kib)?\.(exe|dll)\z/ => Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386,
     /\btemplate_x64_windows(_svc|_dccw_gdiplus|_mixed_mode)?(\.256kib)?\.(exe|dll)\z/      => Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_AMD64,
-    /\btemplate_aarch64_windows\.exe\z/                                                    => Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_ARM64
+    /\btemplate_aarch64_windows\.(exe|dll)\z/                                              => Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_ARM64
   }.freeze
 
   # Minimum subsystem version the EXE templates must support. DLLs are not

@@ -9,40 +9,58 @@ module Msf::Util::EXE::Windows::Aarch64
 
   module ClassMethods
     # The size, in bytes, of the fixed `payload[]` buffer declared in
-    # data/templates/src/pe/exe/template_aarch64_windows.c (SCSIZE). Shellcode
+    # data/templates/src/pe/exe/template_aarch64_windows.c and
+    # data/templates/src/pe/dll/template_aarch64_windows.c (SCSIZE). Shellcode
     # longer than this would overwrite adjacent bytes in the compiled template.
     WINAARCH64_PAYLOAD_SPACE = 8192
 
     # Construct a Windows AArch64 PE executable with the given shellcode.
     #
-    # Unlike the x86/x64 templates, there is currently no dedicated "service"
-    # or "dll" AArch64 template, so this loader-style template (which copies
-    # the payload into RWX memory and runs it in a new thread) is reused
-    # wherever an AArch64 PE is requested, including when a caller asked for
-    # an exe-service. That is safe for psexec-style delivery: Windows still
-    # spawns the process when the SCM start request times out because the
-    # binary doesn't speak the service control protocol.
-    # to_winaarch64pe
+    # There is still no dedicated AArch64 service template, so this loader-style
+    # EXE is reused when a caller asked for exe-service. That is safe for
+    # psexec-style delivery: Windows still spawns the process when the SCM
+    # start request times out because the binary doesn't speak the service
+    # control protocol. DLL generation uses {#to_winaarch64pe_dll} instead.
     #
     # @param framework [Msf::Framework] The Metasploit framework instance.
     # @param code [String] The shellcode to embed in the executable.
     # @param opts [Hash] Additional options.
     # @return [String] The constructed PE executable as a binary string.
-
     def to_winaarch64pe(framework, code, opts = {})
-      # Use the standard template if not specified by the user.
-      # This helper finds the full path and stores it in opts[:template].
-      set_template_default(opts, 'template_aarch64_windows.exe')
+      inject_winaarch64_payload(code, opts, 'template_aarch64_windows.exe')
+    end
 
-      # Read the template directly from the path now stored in the options.
+    # Construct a Windows AArch64 PE DLL with the given shellcode.
+    #
+    # @param framework [Msf::Framework] The Metasploit framework instance.
+    # @param code [String] The shellcode to embed in the DLL.
+    # @param opts [Hash] Additional options.
+    # @raise [RuntimeError] if opts[:inject] is set, which is unsupported.
+    # @return [String] The constructed PE DLL as a binary string.
+    def to_winaarch64pe_dll(framework, code, opts = {})
+      if opts[:inject]
+        raise RuntimeError, 'Template injection unsupported for AArch64 DLLs'
+      end
+
+      inject_winaarch64_payload(code, opts, 'template_aarch64_windows.dll')
+    end
+
+    # Overwrite the "PAYLOAD:" tag in a Windows AArch64 PE template.
+    #
+    # @param code [String] The shellcode to embed.
+    # @param opts [Hash] Options that may include a custom :template path.
+    # @param default_template [String] Template filename used when none is set.
+    # @raise [RuntimeError] if the template is missing the PAYLOAD: tag or the
+    #   payload is larger than WINAARCH64_PAYLOAD_SPACE.
+    # @return [String] The PE image with the payload substituted in.
+    def inject_winaarch64_payload(code, opts, default_template)
+      set_template_default(opts, default_template)
+
       pe = File.read(opts[:template], mode: 'rb')
-
-      # Find the tag and inject the payload
       bo = find_payload_tag(pe, 'Invalid Windows AArch64 template: missing "PAYLOAD:" tag')
 
       if code.length > WINAARCH64_PAYLOAD_SPACE
-        raise RuntimeError, "The Windows AArch64 EXE generator has a max size of " \
-                             "#{WINAARCH64_PAYLOAD_SPACE} bytes, please fix the calling module"
+        raise RuntimeError, "The Windows AArch64 PE generator has a max size of #{WINAARCH64_PAYLOAD_SPACE} bytes, please fix the calling module"
       end
 
       pe[bo, code.length] = code.dup

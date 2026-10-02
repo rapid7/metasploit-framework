@@ -128,6 +128,8 @@ module Msf::Util::EXE
           to_win32pe_dll(framework, code, exeopts)
         when ARCH_X64
           to_win64pe_dll(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_winaarch64pe_dll(framework, code, exeopts)
         end
       when 'exe'
         case arch
