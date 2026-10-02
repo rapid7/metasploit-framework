@@ -57,7 +57,10 @@ jobs:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
 
-      - name: Run msftidy
+      # pre-commit-hook.rb also runs msftidy_docs.rb against any changed
+      # documentation/*.md files in this diff (see #21872), so this single
+      # step covers both modules and docs - no separate job needed.
+      - name: Run msftidy / msftidy_docs
         run: |
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
