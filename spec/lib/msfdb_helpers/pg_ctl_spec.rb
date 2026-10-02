@@ -37,7 +37,7 @@ RSpec.describe MsfdbHelpers::PgCtl do
       allow(Process).to receive(:detach).with(1234).and_return(waiter)
     end
 
-    it 'waits for pg_ctl readiness with a bounded timeout and literal path arguments' do
+    it 'passes bounded, literal startup options' do
       expect(Process).to receive(:spawn).with(
         'pg_ctl', '-o', '-p 5433', '-D', db_path, '-l', "#{db_path}/log", '-w', '-t', '60', 'start'
       ).ordered.and_return(1234)
@@ -45,12 +45,12 @@ RSpec.describe MsfdbHelpers::PgCtl do
       expect(driver.start).to be true
     end
 
-    it 'does not capture pipes that the Windows server can inherit' do
+    it 'avoids captured output pipes' do
       expect(driver).not_to receive(:run_cmd)
       expect(driver.start).to be true
     end
 
-    it 'does not return while pg_ctl is still waiting for readiness' do
+    it 'waits for startup completion' do
       waiting = Queue.new
       ready = Queue.new
       allow(waiter).to receive(:value) do
@@ -75,7 +75,7 @@ RSpec.describe MsfdbHelpers::PgCtl do
     context 'when the postmaster is running but startup has not succeeded' do
       let(:startup_status) { instance_double(Process::Status, success?: false) }
 
-      it 'reports failure instead of accepting the process status' do
+      it 'reports the startup failure' do
         expect(driver.start).to be false
         expect(waiter).to have_received(:value)
         expect(driver).to have_received(:status).once
@@ -112,7 +112,7 @@ RSpec.describe MsfdbHelpers::PgCtl do
       allow(driver).to receive(:restart).and_return(true)
     end
 
-    it 'does not create users or rewrite authentication after startup failure' do
+    it 'aborts setup when startup fails' do
       allow(driver).to receive(:start).and_return(false)
       expect(driver).not_to receive(:create_db_users)
       expect(driver).not_to receive(:write_db_client_auth_config)
@@ -121,7 +121,7 @@ RSpec.describe MsfdbHelpers::PgCtl do
       expect { driver.init('test-password', 'test-password') }.to raise_error(PG::ConnectionBad, /did not become ready/)
     end
 
-    it 'creates users only after startup succeeds' do
+    it 'starts before configuring users' do
       expect(driver).to receive(:start).ordered.and_return(true)
       expect(driver).to receive(:create_db_users).with('test-password', 'test-password').ordered
       expect(driver).to receive(:write_db_client_auth_config).ordered
