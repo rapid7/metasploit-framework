@@ -294,8 +294,19 @@ class Msf::Payload::Apk
       end
     end
 
+    apktool_version = Rex::Version.new(
+        run_cmd(['apktool', '--version']).strip[/\d+\.\d+\.\d+/]
+    )
+
+    decode_cmd = ['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"]
+   
+    # Apktool < 3.0.0 supports --only-main-classes
+    if apktool_version < Rex::Version.new('3.0.0')
+        decode_cmd.insert(3, '--only-main-classes')
+    end
+
     print_status "Decompiling original APK..\n"
-    apktool_output = run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '--only-main-classes', '-o', "#{tempdir}/original"])
+    apktool_output = run_cmd(decode_cmd)
     check_apktool_output_for_exceptions(apktool_output)
 
     print_status "Decompiling payload APK..\n"
