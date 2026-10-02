@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Post
       '/etc/rkhunter.conf' => 'rkhunter',
       '/etc/safedog/sdsvrd.conf' => 'Safedog',
       '/etc/safedog/server/conf/sdsvrd.conf' => 'Safedog',
-      '/etc/sftd' => 'Okta Advanced Server Access / Privileged Access (sftd)',
+      '/etc/sft/sftd.yaml' => 'Okta Advanced Server Access / Privileged Access (sftd)',
       '/etc/suricata' => 'Suricata IDS/IPS',
       '/etc/syslog-ng/syslog-ng.conf' => 'syslog-ng (One Identity)',
       '/etc/teleport.yaml' => 'Teleport',
