@@ -17,6 +17,12 @@ This module was successfully tested on:
     * Langflow 1.8.4 installed with Docker
 
 
+### Introduction
+
+This module uses Langflow's unauthenticated MCP SSE endpoint to
+initialize a session and retrieve MCP metadata.
+
+
 ### Installation
 1. Install your favorite virtualization engine (VirtualBox or VMware) on your preferred platform.
 2. Install Ubuntu Linux (or other Linux distro) in your virtualization engine.
@@ -28,7 +34,7 @@ This module was successfully tested on:
 ```
 sudo docker run -d \
   --name langflow \
-  -p 192.168.1.30:7860:7860 \
+  -p 7860:7860 \
   -e LANGFLOW_SUPERUSER=root \
   -e LANGFLOW_SUPERUSER_PASSWORD=root \
   -e LANGFLOW_AUTO_LOGIN=true \
@@ -45,6 +51,9 @@ sudo docker run -d \
 
 ## Options
 
+### SSETTimeout
+
+The maximum number of seconds to wait for the MCP SSE response. Default: `15`.
 
 ## Scenarios
 ```

@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
         'protocolVersion' => '2025-06-18',
         'capabilities' => {},
         'clientInfo' => {
-          'name' => 'metasploit',
+          'name' => Faker::Name.name,
           'version' => '1.0.0'
         }
       }
@@ -182,6 +182,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_mcp_request(initialize_data)
 
     fail_with(Msf::Module::Failure::Unreachable, 'No response received from MCP initialize request') unless res
+
     fail_with(Msf::Module::Failure::UnexpectedReply, "MCP initialize returned HTTP #{res.code}") unless res.code == 202
 
     print_good("MCP initialize accepted (HTTP #{res.code})")
@@ -204,6 +205,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_mcp_request(initialized_data)
 
     fail_with(Msf::Module::Failure::Unreachable, 'No response received from initialized notification') unless res
+
     fail_with(Msf::Module::Failure::UnexpectedReply, "Initialized notification returned HTTP #{res.code}") unless res.code == 202
 
     print_good("MCP initialized notification accepted (HTTP #{res.code})")
@@ -222,6 +224,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_mcp_request(tools_data)
 
     fail_with(Msf::Module::Failure::Unreachable, 'No response received from tools/list request') unless res
+
     fail_with(Msf::Module::Failure::UnexpectedReply, "tools/list returned HTTP #{res.code}") unless res.code == 202
 
     print_good("MCP tools/list accepted (HTTP #{res.code})")
@@ -248,8 +251,7 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => {
         'Accept' => 'application/json, text/event-stream',
         'Content-Type' => 'application/json'
-      },
-      'timeout' => 10
+      }
     )
   end
 
@@ -395,6 +397,8 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable,
            Rex::ConnectionTimeout, ::Timeout::Error, ::EOFError => e
       fail_with(Msf::Module::Failure::Unreachable, "MCP communication failed: #{e.message}")
+    rescue Msf::Auxiliary::Failed
+      raise
     rescue StandardError => e
       fail_with(Msf::Module::Failure::UnexpectedReply, "MCP information gathering failed: #{e.message}")
     ensure
