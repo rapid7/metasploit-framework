@@ -59,17 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   def connect_sse
     print_status('Connecting to Langflow MCP SSE endpoint...')
 
-    @sse_client = Rex::Proto::Http::Client.new(
-      rhost,
-      rport,
-      {
-        'Msf' => framework,
-        'MsfExploit' => self
-      },
-      ssl,
-      ssl_version,
-      proxies
-    )
+    @sse_client = connect
 
     @sse_client.connect
 
