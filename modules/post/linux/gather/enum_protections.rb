@@ -301,7 +301,7 @@ class MetasploitModule < Msf::Post
       '/opt/nessus_agent' => 'Tenable Nessus Agent',
       '/opt/netskope/stagent' => 'Netskope Client',
       '/opt/nxlog' => 'NXLog',
-      '/opt/observiq-otel-collector' => 'Google SecOps / Chronicle BindPlane agent',
+      '/opt/observiq-otel-collector' => 'Generic BindPlane agent',
       '/opt/orbit' => 'Fleet (fleetd / Orbit - osquery manager)',
       '/opt/osquery' => 'osquery',
       '/opt/panda-security/endpoint' => 'WatchGuard EDR / EPDR (formerly Panda Adaptive Defense 360)',
