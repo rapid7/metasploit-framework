@@ -42,6 +42,40 @@ RSpec.describe Msf::Payload::MalleableC2 do
           end.to raise_error(Errno::ENOENT)
         end
       end
+
+      context 'with a tricky escaped string' do
+        # The string-token rule was tightened so its two alternatives are
+        # disjoint (a backslash can only begin an escape). These lock in that
+        # it still consumes escapes exactly as before -- the behaviour most at
+        # risk from that change. Byte arrays are used so the expected value is
+        # unambiguous regardless of Ruby string-literal escaping.
+        it 'keeps an escaped quote inside the value' do
+          profile = parse_profile('set useragent "a\\"b";')
+          expect(profile.useragent.bytes).to eq([97, 34, 98]) # a " b
+        end
+
+        it 'handles a value ending in an escaped backslash' do
+          profile = parse_profile('set useragent "c\\\\";')
+          expect(profile.useragent.bytes).to eq([99, 92]) # c \
+        end
+
+        it 'decodes hex and control escapes' do
+          profile = parse_profile('set useragent "x\\x41\\ty";')
+          expect(profile.useragent.bytes).to eq([120, 65, 9, 121]) # x A \t y
+        end
+      end
+
+      context 'with an unterminated string' do
+        it 'is rejected rather than accepted as a token' do
+          # A quote with no closing quote must not tokenize; the lexer reports
+          # an unexpected token. (With the tightened rule this also rejects in
+          # linear time, but that property is exercised offline, not here --
+          # the suite runs with a global Regexp.timeout that would mask it.)
+          expect do
+            parse_profile('set useragent "' + ('\\' * 64))
+          end.to raise_error(RuntimeError, /Unexpected token/)
+        end
+      end
     end
 
     describe 'ParsedProfile#uris' do
