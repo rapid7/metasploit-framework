@@ -22,7 +22,7 @@ Default true. Read Site URLs from `/cgi-bin/bfenterprise/clientregister.exe?Requ
 
 ### DOWNLOAD
 
-Default true. Attempt to download identified packages.
+Default false. Attempt to download identified packages.
 
 ### ShowURL
 
