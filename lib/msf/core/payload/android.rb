@@ -123,7 +123,8 @@ module Msf::Payload::Android
     end
 
     config += "\x00" * (8195 - config.size)
-    classes.gsub!("\xde\xad\xba\xad" + "\x00" * 8191, config)
+    # Binary configuration may contain bytes that resemble replacement backreferences.
+    classes.gsub!("\xde\xad\xba\xad" + "\x00" * 8191) { config }
 
     jar = Rex::Zip::Jar.new
     files = [
