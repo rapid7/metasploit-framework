@@ -250,12 +250,14 @@ class Modem
   #
   # Outbound datagrams are routed to the modem connection's send() via the
   # DirectChannelWrite mixin; inbound datagrams drained from recv are
-  # written into rsock followed by the sender's sockaddr (the same two-write
-  # trick Meterpreter's Datagram#dio_write_handler uses) so recvfrom() can
-  # reconstruct [data, host, port].
+  # written into rsock as individual datagrams. The connection has a fixed
+  # peer, so recvfrom() obtains the sender's sockaddr directly from the channel.
   # -----------------------------------------------------------------------
   class UdpChannel < ChannelBase
     include Rex::IO::DatagramAbstraction
+
+    # @return [String] the packed address of the connection's fixed peer
+    attr_reader :sockaddr
 
     #
     # Routes lsock writes (Rex::Socket::Udp#write/#sendto -> syswrite) straight
@@ -273,21 +275,19 @@ class Modem
     module SocketInterface
       include ChannelSocketInterface
 
-      MAX_SOCKADDR_LENGTH = 128
-
       def type?
         'udp'
       end
 
       #
-      # The reader thread writes each datagram into rsock followed by its
-      # sockaddr, so a recvfrom() pulls the data datagram then the sockaddr
-      # datagram back off the pair. Mirrors Datagram::SocketInterface.
+      # Read one datagram and use the channel's fixed peer address. Sending
+      # the address separately allows readers to run before it is available.
       #
+      # @param length [Integer] maximum number of payload bytes to receive
+      # @param flags [Integer] flags passed to the underlying socket read
+      # @return [Array(String, String)] the payload and packed peer address
       def recvfrom_nonblock(length, flags = 0)
-        data     = super(length, flags)[0]
-        sockaddr = super(MAX_SOCKADDR_LENGTH, flags)[0]
-        [data, sockaddr]
+        [super(length, flags)[0], channel.sockaddr.dup]
       end
 
       #
@@ -327,7 +327,6 @@ class Modem
       start_reader_thread('ModemUdpChannelReader') do |data|
         if data.is_a?(::String) && !data.empty?
           rsock.syswrite(data)
-          rsock.syswrite(@sockaddr)
         end
         true
       rescue ::StandardError
