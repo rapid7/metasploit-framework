@@ -16,12 +16,7 @@ mcp:
   host: 127.0.0.1  # Host to bind to (default: localhost)
   port: 3000       # Port to listen on (default: 3000)
   # auth_token: ... # Bearer token for authentication (default: randomly generated, one-time token)
-  # TLS/HTTPS (for HTTP transport only). Recommended when the MCP server is reachable from another host.
-  # The MCP client must trust the certificate.
   # ssl: false                       # Serve over HTTPS (default: false)
-  # With ssl: true and no ssl_cert/ssl_key given, a self-signed certificate is auto-generated and cached
-  # under ~/.msf4/mcp/ -- fine for local testing, but the MCP client must be told to trust it. For anything
-  # reachable from another host, set ssl_cert/ssl_key to a certificate from a trusted CA (e.g. Let's Encrypt).
   # ssl_cert: /path/to/server.crt    # PEM certificate (must be set together with ssl_key, or not at all)
   # ssl_key: /path/to/server.key     # PEM private key (must be set together with ssl_cert, or not at all)
   # Puma server tuning (for HTTP transport only)

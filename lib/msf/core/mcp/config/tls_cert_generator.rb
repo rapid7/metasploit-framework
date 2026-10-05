@@ -56,7 +56,8 @@ module Msf::MCP
       # @return [Boolean] true if a certificate/key already on disk at the given
       #   paths is valid, unexpired (outside the renewal window), and covers +host+
       def self.usable_certificate?(host, cert_path, key_path)
-        return false unless File.file?(cert_path) && File.file?(key_path)
+        return false unless File.file?(cert_path) && File.readable?(cert_path)
+        return false unless File.file?(key_path) && File.readable?(key_path)
 
         cert = OpenSSL::X509::Certificate.new(File.read(cert_path))
         OpenSSL::PKey::RSA.new(File.read(key_path))
@@ -65,7 +66,7 @@ module Msf::MCP
         return false unless san_covers_host?(cert, host)
 
         true
-      rescue OpenSSL::X509::CertificateError, OpenSSL::PKey::RSAError, Errno::ENOENT
+      rescue OpenSSL::X509::CertificateError, OpenSSL::PKey::RSAError, Errno::ENOENT, Errno::EACCES
         false
       end
       private_class_method :usable_certificate?
@@ -80,7 +81,7 @@ module Msf::MCP
         cert.subject = OpenSSL::X509::Name.parse("/CN=#{host}/O=Metasploit MCP Server (self-signed)")
         cert.issuer = cert.subject
         cert.public_key = key.public_key
-        cert.not_before = Time.now
+        cert.not_before = Time.now - 3600
         cert.not_after = Time.now + (VALIDITY_DAYS * 24 * 3600)
 
         ef = OpenSSL::X509::ExtensionFactory.new

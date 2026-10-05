@@ -73,7 +73,7 @@ module Msf::MCP
           config[:mcp][:min_threads] ||= Msf::MCP::Server::PUMA_MIN_THREADS
           config[:mcp][:max_threads] ||= Msf::MCP::Server::PUMA_MAX_THREADS
           config[:mcp][:workers] ||= Msf::MCP::Server::PUMA_WORKERS
-          config[:mcp][:ssl] = config[:mcp].fetch(:ssl, false)
+          config[:mcp][:ssl] = config[:mcp].fetch(:ssl) { !LOCALHOST_HOSTS.include?(config[:mcp][:host].to_s.downcase) }
         end
 
         # auth_token: only normalize if the key was explicitly provided.

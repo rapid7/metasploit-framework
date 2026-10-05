@@ -332,6 +332,11 @@ RSpec.describe Msf::MCP::Config::Loader do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:workers]).to eq(0)
         end
+
+        it 'defaults ssl to false when host is localhost' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:ssl]).to be false
+        end
       end
 
       context 'with http transport and explicit values' do
@@ -353,6 +358,11 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'preserves explicit port value' do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:port]).to eq(8080)
+        end
+
+        it 'defaults ssl to true when host is not localhost' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:ssl]).to be true
         end
       end
     end

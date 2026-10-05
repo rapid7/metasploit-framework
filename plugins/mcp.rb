@@ -205,7 +205,8 @@ module Msf
 
       if @mcp_server
         print_status('MCP server status: running')
-        print_status("  Listening: http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}")
+        scheme = mcp_config[:ssl] ? 'https' : 'http'
+        print_status("  Listening: #{scheme}://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}")
         print_status("  Uptime:    #{format_uptime}")
       else
         print_status('MCP server status: stopped')
@@ -336,7 +337,8 @@ module Msf
       verify_mcp_server_started!(host, port)
 
       @started_at = Time.now
-      print_status("MCP server listening on http://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}/")
+      scheme = ssl ? 'https' : 'http'
+      print_status("MCP server listening on #{scheme}://#{Rex::Socket.to_authority(mcp_config[:host], mcp_config[:port])}/")
       if auth_token_generated
         print_status("Authentication: Bearer token (auto-generated)")
         print_status("  Configure your MCP client with: Authorization: Bearer #{auth_token}")

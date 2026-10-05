@@ -25,6 +25,10 @@ module Msf
     LOG_INFO  = Rex::Logging::LEV_2
     LOG_WARN  = Rex::Logging::LEV_1
     LOG_ERROR = Rex::Logging::LEV_0
+
+    # Hostnames/addresses considered local to this machine, used to decide default
+    # security posture (e.g. whether TLS is required, whether local-only credentials apply).
+    LOCALHOST_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
   end
 end
 
