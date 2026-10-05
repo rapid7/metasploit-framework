@@ -178,8 +178,11 @@ module Msf::MCP
         ssl_opts_set = %i[ssl_cert ssl_key].any? { |k| !mcp[k].to_s.empty? }
 
         unless mcp[:transport] == 'http'
-          if mcp[:ssl] == true || ssl_opts_set
+          if mcp[:ssl] == true
             errors[:'mcp.ssl'] = "TLS must only be used with the 'http' transport"
+          elsif ssl_opts_set
+            errors[:'mcp.ssl_cert'] = "TLS must only be used with the 'http' transport" unless mcp[:ssl_cert].to_s.empty?
+            errors[:'mcp.ssl_key'] = "TLS must only be used with the 'http' transport" unless mcp[:ssl_key].to_s.empty?
           end
           return
         end

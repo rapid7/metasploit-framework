@@ -272,6 +272,13 @@ RSpec.describe Msf::MCP::Config::Validator do
         config[:mcp][:transport] = 'stdio'
         expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError, /TLS must only be used with the 'http' transport/)
       end
+
+      it 'flags mcp.ssl_cert (not mcp.ssl) when ssl_cert is set without ssl enabled on a non-http transport' do
+        config[:mcp] = { transport: 'stdio', ssl: false, ssl_cert: cert_file.path }
+        expect { described_class.validate!(config) }.to raise_error(Msf::MCP::Config::ValidationError) do |error|
+          expect(error.errors[:'mcp.ssl_cert']).to match(/TLS must only be used with the 'http' transport/)
+        end
+      end
     end
 
     context 'with Puma thread/worker validation' do
