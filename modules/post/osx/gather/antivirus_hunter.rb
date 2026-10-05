@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -5,20 +6,16 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Process
-  include Msf::Post::File
-  include Msf::Post::OSX::Priv
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'OSX Antivirus Hunter' => 'OSX Antivirus Hunter: Enumerate and disable antivirus products',
+        'Name' => 'OSX Security Product Enumeration',
         'Description' => %q{
           This module enumerates OSX systems for the presence of defensive products by enumerating the processes
-          running on the device.  The CUSTOM_PRODS option specifies
-          a file which contains a list of additional security products to hunt for, each of which will be seperated by
-          a newline character.  If run with root privilleges the KILL_PROCESSES option will attempt to send a kill
-          signal to all of the security related processes detected by this module.
+          running on the device. The AV_FILE_LIST option specifies a file which contains a list of additional security
+           products to hunt for, each of which should be seperated by a newline character.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -78,8 +75,8 @@ class MetasploitModule < Msf::Post
 
   def run
     products = [
-      'LuLu', 'BlockBlock', 'Do Not Disturb', 'ReiKey', 'RansomWhere', 'OverSight', 'CrowdStrike',
-      'Jamf', 'NetSkope', 'Qualys', 'NetSkope', 'BitDefender', 'Symantec'
+      'LuLu', 'BlockBlock', 'DoNotDisturb', 'ReiKey', 'RansomWhere', 'OverSight', 'CrowdStrike',
+      'Jamf', 'NetSkope', 'Qualys', 'BitDefender', 'Symantec'
     ]
 
     print_status('Retrieving process list...')
