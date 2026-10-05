@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
       report_note(
         host: session,
         type: 'osx.protection',
-        data: { "#{product}": process.inspect }, # need to test this
+        data: { product: product, name: process['name'], pid: process['pid'] },
         update: :unique_data
       )
     end
