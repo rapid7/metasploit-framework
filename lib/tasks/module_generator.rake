@@ -52,14 +52,11 @@ module MsfModuleGenerator
   end
 
   # The complete set of architecture names the generator will accept. Derived from the
-  # authoritative Rex::Arch::ARCH_TYPES (so it cannot drift from the framework as new
-  # arches land) plus 'generic', which is not an ARCH_TYPES member but is a real module
-  # path prefix (modules/encoders/generic, modules/payloads/singles/generic) that maps to
-  # ARCH_ALL. ARCH_ANY ('_any_') is intentionally excluded -- it is a matcher sentinel, not
-  # an arch a module is scaffolded for.
-  # Guarded against re-definition: the rake file can be loaded more than once in one
-  # process (e.g. the spec suite loads the module block, then loads the whole rakefile),
-  # and a bare re-assignment of a frozen constant warns.
+  # Accepted arch names: Rex::Arch::ARCH_TYPES (so it tracks the framework) plus 'generic',
+  # a real path prefix (encoders/generic, payloads/singles/generic) that maps to ARCH_ALL.
+  # ARCH_ANY is excluded -- a matcher sentinel, not something a module is scaffolded for.
+  # The `unless defined?` guard avoids a frozen-constant warning when the rake file is
+  # loaded twice in one process (the spec loads the module block, then the whole file).
   KNOWN_ARCHES = (Rex::Arch::ARCH_TYPES + %w[generic]).freeze unless defined?(KNOWN_ARCHES)
 
   # Check if a string matches a known architecture name
@@ -67,18 +64,11 @@ module MsfModuleGenerator
     KNOWN_ARCHES.include?(name)
   end
 
-  # Map user-provided arch string to framework constant name.
-  # Known archs (see known_arch?, derived from Rex::Arch::ARCH_TYPES) map to ARCH_<UPCASE>,
-  # which is the framework's naming rule for every arch constant (every ARCH_TYPES member
-  # has a matching ARCH_<UPCASE>). Exceptions to the <UPCASE> rule are mapped explicitly in
-  # ARCH_CONST_OVERRIDES (e.g. 'generic' -> ARCH_ALL, since ARCH_GENERIC does not exist). An
-  # UNKNOWN arch returns nil rather than manufacturing an invalid ARCH_* constant: nil flows
-  # through the generator's existing fail-loud path (the template emits 'Arch' => nil/[nil],
-  # which fails module load with a clear message), so there is a single fail-loud mechanism,
-  # not two.
+  # Map a known arch string to its framework constant: ARCH_<UPCASE> by convention, with
+  # explicit exceptions in ARCH_CONST_OVERRIDES. An unknown arch returns nil, which flows
+  # through the template's existing fail-loud [nil] path rather than inventing a bad constant.
 
   # Known archs whose constant name is NOT ARCH_<UPCASE>. Keep in sync with lib/rex/arch.rb.
-  # Guarded against re-definition (see KNOWN_ARCHES above).
   unless defined?(ARCH_CONST_OVERRIDES)
     ARCH_CONST_OVERRIDES = {
       'generic' => 'ARCH_ALL' # the generic/ tree (encoders, payloads) uses ARCH_ALL; ARCH_GENERIC does not exist
@@ -112,12 +102,9 @@ module MsfModuleGenerator
     end
   end
 
-  # Render a value as a valid Ruby string literal for interpolation into a template.
-  # Prefers a single-quoted literal (the framework's Style/StringLiterals convention)
-  # and only falls back to an escaped double-quoted literal (via inspect) when the
-  # value contains a single quote or backslash -- so an ordinary author like
-  # "Jane Tester" stays single-quoted and rubocop-clean, while "O'Connor" is escaped
-  # instead of producing the syntactically broken 'O'Connor'.
+  # Render a value as a valid Ruby string literal. Prefers single quotes (Style/StringLiterals)
+  # and falls back to inspect's escaped double quotes when the value contains a quote or
+  # backslash, so e.g. "O'Connor" escapes instead of producing broken 'O'Connor'.
   def self.ruby_str(value)
     str = value.to_s
     return "'#{str}'" unless str.include?("'") || str.include?('\\')
@@ -199,13 +186,10 @@ namespace :msf do
               else "#{type}s"
               end
 
-    # Map type to its SINGULAR form, used for BOTH the documentation directory
-    # (documentation/modules/exploit, .../payload/...) and the msfconsole fullname in
-    # `use ...` commands. Payloads are special: the loader strips the singles/stagers/
-    # stages/adapters segment (payload_set.rb), so a single payload's runtime fullname is
-    # `payload/<path>` (NOT payload/singles/<path>). Doc lookup uses mod.fullname
-    # (document_generator.rb), so the doc must live at documentation/modules/payload/<path>.
-    # Only the physical source dir (mod_dir) keeps the payloads/singles segment.
+    # Map type to its SINGULAR form, used for the documentation directory and the
+    # msfconsole fullname. Payloads are special: the loader strips the singles segment, so
+    # a single payload's runtime fullname is payload/<path>, and the doc (looked up by
+    # fullname) must live there too. Only the physical source dir keeps payloads/singles.
     singular_dir = case type
                    when 'payload_single' then 'payload'
                    when 'auxiliary' then 'auxiliary'
@@ -242,6 +226,10 @@ namespace :msf do
 
     # Arch constant mapping
     arch_const = MsfModuleGenerator.map_arch_const(arch)
+
+    # A 'local' path segment (e.g. linux/local/foo) selects the Msf::Exploit::Local base
+    # class instead of the remote default. Only the exploit template reads this.
+    local = type == 'exploit' && path.split('/').include?('local')
 
     # Platform string for metadata (canonical form)
     platform_meta = MsfModuleGenerator.map_platform_meta(platform, type)
@@ -283,10 +271,10 @@ namespace :msf do
       load_blockers << 'Platform (emitted as nil/[nil]) -- an invalid placeholder that does not resolve to a usable platform; set a real one before shipping'
     end
     if types_with_arch.include?(type) && arch_const.nil?
-      load_blockers << 'Arch (emitted as nil/[nil]) -- the module will not load until you set a real architecture'
+      load_blockers << 'Arch (emitted as [nil]) -- an invalid placeholder; the module raises on load (Rex::Transformer rejects [nil]) until you set a real architecture'
     end
     if types_with_rank.include?(type)
-      load_blockers << 'Rank (no explicit Rank emitted) -- msftidy flags this (INFO) until you set one (ManualRanking to ExcellentRanking)'
+      load_blockers << 'Rank (emitted as Rank = TODO_SET_A_RANK) -- an undefined constant; the module raises NameError at load until you set a real rank (ManualRanking to ExcellentRanking)'
     end
     if types_with_notes.include?(type)
       load_blockers << 'Notes (Stability/SideEffects/Reliability emitted as UNKNOWN_* sentinels) -- Lint/ModuleEnforceNotes flags these until you set real values'

@@ -18,13 +18,14 @@ class MetasploitModule < Msf::Encoder
 <%- if arch_const -%>
       'Arch' => <%= arch_const %>
 <%- else -%>
-      'Arch' => nil # PLACEHOLDER: replace nil with a real architecture (e.g., ARCH_X86) -- nil is invalid on purpose so the module fails to load until you set it
+      'Arch' => [nil] # PLACEHOLDER: set a real arch (e.g. [ARCH_X86]). [nil] fails load on purpose; a scalar nil is silently skipped by Rex::Transformer and would NOT fail loud.
 <%- end -%>
     )
   end
 
-  def encode(buf, _badchars = nil, _state = nil, _platform = nil)
-    # TODO: Implement encoding logic
-    buf
+  # Override encode_block, not encode: encode handles badchars/state/key setup and
+  # prepend_buf before delegating here (the convention in nearly all encoders).
+  def encode_block(_state, _buf)
+    raise NotImplementedError, 'TODO: Implement encode_block for this encoder'
   end
 end

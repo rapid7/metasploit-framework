@@ -19,13 +19,13 @@ Object.class_eval(mod_source, rake_path)
 # Exercises the msf:generate module generator without invoking Rake: it uses the
 # MsfModuleGenerator helper module loaded above and renders each ERB template
 # directly. This keeps the suite deterministic and free of framework/DB bootstrapping.
-RSpec.describe 'msf:generate module generator' do
+RSpec.describe 'msf:generate module generator' do # rubocop:disable Metrics/BlockLength
   # Render a template the same way the rake task does: ERB with trim_mode '-',
   # against a binding that supplies the template variables. The parameter list mirrors
   # the template variables 1:1 for readability, so the length cop is disabled here.
   def render(template_name, mod_name: 'Test Module', author: 'Tester', cve: nil, # rubocop:disable Metrics/ParameterLists
              date: '2026-01-01', platform: nil, arch_const: nil, platform_meta: nil,
-             type: 'exploit', path: 'linux/http/test', mod_dir: 'exploits')
+             type: 'exploit', path: 'linux/http/test', mod_dir: 'exploits', local: false)
     template_path = File.join(
       Metasploit::Framework.root.join('lib', 'tasks', 'templates').to_path,
       template_name
@@ -217,12 +217,14 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).not_to include("'Platform' => nil,")
     end
 
-    it 'payload_single emits [nil] Platform and nil Arch when un-inferred' do
+    it 'payload_single emits [nil] Platform and [nil] Arch when un-inferred' do
       source = render('payload_single.rb.erb', type: 'payload_single', mod_dir: 'payloads/singles')
       expect(source).to include("'Platform' => [nil],")
-      expect(source).to include("'Arch' => nil")
-      # Scalar nil Platform collapses to an empty PlatformList; use [nil] instead.
+      expect(source).to include("'Arch' => [nil]")
+      # A scalar nil Arch is skipped by Rex::Transformer and loads silently as []; [nil]
+      # raises on load. Scalar nil Platform likewise collapses to an empty PlatformList.
       expect(source).not_to include("'Platform' => nil,")
+      expect(source).not_to match(/'Arch' => nil(\s|$)/)
     end
 
     it 'post emits [nil] Platform when un-inferred (not a loadable [])' do
@@ -234,10 +236,13 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).not_to include("'Platform' => [],")
     end
 
-    it 'encoder and nop emit nil Arch when un-inferred' do
+    it 'encoder and nop emit [nil] Arch when un-inferred (scalar nil would load silently)' do
+      # A scalar nil Arch is skipped by Rex::Transformer and loads as an empty arch list
+      # with no error; [nil] raises on load, so it is the fail-loud placeholder.
       %w[encoder nop].each do |t|
         source = render("#{t}.rb.erb", type: t, mod_dir: "#{t}s")
-        expect(source).to include("'Arch' => nil"), "#{t} should emit nil Arch"
+        expect(source).to include("'Arch' => [nil]"), "#{t} should emit [nil] Arch"
+        expect(source).not_to match(/'Arch' => nil(\s|$)/), "#{t} should not emit scalar nil Arch"
       end
     end
 
@@ -291,14 +296,20 @@ RSpec.describe 'msf:generate module generator' do
     end
   end
 
-  # Rank is exploit-only: the exploit template must not hardcode a Rank (it emits a
-  # TODO so the ModuleMissingRank cop / author sets one), and non-exploit templates
-  # must not carry Rank handling at all.
+  # Rank is exploit-only. The exploit template emits a fail-loud Rank placeholder (an
+  # undefined constant that raises NameError at load), not a silently-defaulting missing
+  # Rank; non-exploit templates must not carry Rank handling at all.
   describe 'Rank handling is scoped to exploits' do
-    it 'exploit template emits no Rank assignment, only a TODO' do
+    it 'exploit template emits a fail-loud Rank = TODO_SET_A_RANK placeholder' do
       source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits')
-      expect(source).not_to match(/^\s*Rank\s*=/)
-      expect(source).to match(/TODO.*Rank/)
+      expect(source).to match(/^\s*Rank = TODO_SET_A_RANK\s*$/)
+      # It must be an undefined-constant placeholder (fails loud), never a real default.
+      expect(source).not_to match(/^\s*Rank = (Manual|Low|Average|Normal|Good|Great|Excellent)Ranking/)
+    end
+
+    it 'local exploit template also emits the fail-loud Rank placeholder' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits', local: true)
+      expect(source).to match(/^\s*Rank = TODO_SET_A_RANK\s*$/)
     end
 
     it 'encoder template emits no Rank assignment and no Rank TODO' do
@@ -400,6 +411,50 @@ RSpec.describe 'msf:generate module generator' do
       expect(source).to include("'SessionTypes' => []")
       expect(source).to match(/TODO.*[Ss]ession/)
       expect(source).not_to include("'SessionTypes' => ['meterpreter', 'shell']")
+    end
+  end
+
+  # Encoders must override encode_block, not encode: encode runs the badchars/state/key
+  # setup pipeline before delegating, so overriding encode bypasses it.
+  describe 'encoder scaffolds encode_block, not encode' do
+    it 'defines encode_block(state, buf) raising NotImplementedError and does not override encode' do
+      source = render('encoder.rb.erb', type: 'encoder', mod_dir: 'encoders')
+      expect(source).to match(/def encode_block\(_?state, _?buf\)/)
+      expect(source).to include('raise NotImplementedError')
+      # Must not define the full encode override (which would bypass the base pipeline).
+      expect(source).not_to match(/def encode\(/)
+    end
+  end
+
+  # NOP arch is inferred from the path, so a hardcoded x86 "\x90" sled would emit a
+  # non-x86 arch (e.g. ARCH_PHP) with an x86 sled and no warning. Fail loud instead.
+  describe 'nop scaffolds a fail-loud sled, not a hardcoded x86 one' do
+    it 'raises NotImplementedError in generate_sled and never returns a hardcoded "\x90" sled' do
+      source = render('nop.rb.erb', type: 'nop', mod_dir: 'nops')
+      expect(source).to match(/def generate_sled\(/)
+      expect(source).to include('raise NotImplementedError')
+      expect(source).not_to include('"\x90" * length')
+    end
+  end
+
+  # A 'local' path segment (e.g. linux/local/foo) must select the Msf::Exploit::Local
+  # base class and a post-session shape, not the remote default + no SessionTypes.
+  describe 'exploit base class branches on local vs remote' do
+    it 'renders Msf::Exploit::Local with a SessionTypes placeholder for a local path' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits', local: true)
+      expect(source).to include('class MetasploitModule < Msf::Exploit::Local')
+      expect(source).not_to include('class MetasploitModule < Msf::Exploit::Remote')
+      expect(source).to include("'SessionTypes' => []")
+      expect(source).to match(/TODO.*session types/i)
+      # AutoCheck is standard for local exploits too (71 of them use it), so it stays.
+      expect(source).to include('prepend Msf::Exploit::Remote::AutoCheck')
+    end
+
+    it 'renders Msf::Exploit::Remote with no SessionTypes for a non-local path' do
+      source = render('exploit.rb.erb', type: 'exploit', mod_dir: 'exploits', local: false)
+      expect(source).to include('class MetasploitModule < Msf::Exploit::Remote')
+      expect(source).not_to include('class MetasploitModule < Msf::Exploit::Local')
+      expect(source).not_to include("'SessionTypes'")
     end
   end
 end
@@ -530,5 +585,68 @@ RSpec.describe 'msf:generate rake task (task-level workflow)' do
     expect(Dir.glob(File.join(dir, '**', '*.md'))).to be_empty
   ensure
     FileUtils.remove_entry(dir) if dir
+  end
+
+  # Load-based coverage: the source-text specs assert the templates EMIT [nil], but the
+  # point of [nil] is runtime -- it must actually fail to initialize. This loads and
+  # instantiates the generated module so a regression back to scalar nil (which
+  # Rex::Transformer silently skips) is caught instead of passing the text assertions.
+  describe 'generated un-inferrable-Arch modules fail loud at load (not only in source text)' do
+    # Instantiate the generated module's class in a throwaway namespace. Returns the
+    # exception raised during initialize, or nil if it loaded cleanly.
+    def load_error_for(file)
+      code = File.read(file)
+      ns = Module.new
+      ns.module_eval(code, file)
+      klass = ns.const_get(:MetasploitModule)
+      begin
+        klass.new
+        nil
+      rescue StandardError => e
+        e
+      end
+    end
+
+    it 'a generated encoder with un-inferrable arch raises on instantiation' do
+      # x86/... would infer arch; use a path whose first segment is not a known arch so
+      # arch_const is nil and the template emits the [nil] placeholder.
+      _out, dir = run_generate('encoder', 'notanarch/etask', nil, nil,
+                               env: { 'MSF_MOD_AUTHOR' => 'Jane Tester' })
+      file = File.join(dir, 'modules', 'encoders', 'notanarch', 'etask.rb')
+      err = load_error_for(file)
+      expect(err).not_to be_nil, 'expected the [nil] Arch placeholder to raise at load, but it loaded cleanly'
+      expect(err.message).to match(/Invalid source class \(NilClass\) for Arch/)
+    ensure
+      FileUtils.remove_entry(dir) if dir
+    end
+    # NOTE: payload_single is a `module MetasploitModule` mixed into a loader-built class
+    # (not a directly-instantiable `class`), so it cannot be exercised this way without
+    # the full module loader. The encoder case above proves the shared
+    # Msf::Module#initialize -> Rex::Transformer path that every type's [nil] Arch flows
+    # through, which is the regression this spec guards.
+  end
+
+  # The fail-loud Rank placeholder (Rank = TODO_SET_A_RANK, an undefined constant) must
+  # raise at class-body EVALUATION (load time) -- earlier than the [nil] Arch raise, which
+  # is in #initialize. A missing Rank would silently default to NormalRanking
+  # (Msf::Module::Ranking#rank), so this guards against a regression back to no-Rank.
+  describe 'generated exploit fails loud on the unset Rank at load (not a silent default)' do
+    it 'raises NameError (uninitialized constant TODO_SET_A_RANK) when the generated exploit is evaluated' do
+      # Provide platform+arch so Arch does not raise first; the Rank placeholder is the
+      # only remaining load-time failure, isolating the behavior under test.
+      _out, dir = run_generate('exploit', 'linux/http/ranktest', 'linux', 'x64',
+                               env: { 'MSF_MOD_AUTHOR' => 'Jane Tester' })
+      file = File.join(dir, 'modules', 'exploits', 'linux', 'http', 'ranktest.rb')
+      err = nil
+      begin
+        Module.new.module_eval(File.read(file), file)
+      rescue StandardError => e
+        err = e
+      end
+      expect(err).to be_a(NameError)
+      expect(err.message).to match(/uninitialized constant.*TODO_SET_A_RANK/)
+    ensure
+      FileUtils.remove_entry(dir) if dir
+    end
   end
 end
