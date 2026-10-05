@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
           'cdelafuente-r7'
         ],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => ['meterpreter'],
+        'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
           ['URL', 'https://objective-see.org/tools.html']
         ],
@@ -33,12 +33,11 @@ class MetasploitModule < Msf::Post
           'Reliability' => []
         }
       )
-
-  )
+    )
 
     register_options(
       [
-        OptString.new('AV_FILE_LIST',
+        OptPath.new('AV_FILE_LIST',
                       [
                         false,
                         'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Post
   # reads a file and returns each line as an element in an array
   def file_to_array(file)
     f = File.open file
-    f.readlines.map(&:chomp)
+    File.readlines(file, chomp: true)
   end
 
   def enum_processes(product)
@@ -67,7 +66,7 @@ class MetasploitModule < Msf::Post
       report_note(
         host: session,
         type: 'osx.protection',
-        data: { "#{product}": process.inspect }, # need to test this
+        data: { product: product, name: process['name'], pid: process['pid'] },
         update: :unique_data
       )
     end
