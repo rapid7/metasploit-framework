@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
           'cdelafuente-r7'
         ],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => ['meterpreter'],
+        'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
           ['URL', 'https://objective-see.org/tools.html']
         ],
