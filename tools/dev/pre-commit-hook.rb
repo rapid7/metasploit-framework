@@ -54,6 +54,18 @@ valid = true # Presume validity
 files_to_check = []
 doc_files_to_check = []
 
+# MSFTIDY_TARGET lets CI run the module and documentation checks as
+# separate jobs. Unset (the default, e.g. local hooks) checks both.
+#   MSFTIDY_TARGET=modules  only run msftidy.rb
+#   MSFTIDY_TARGET=docs     only run msftidy_docs.rb
+target = ENV.fetch('MSFTIDY_TARGET', 'all')
+unless %w[all modules docs].include?(target)
+  puts "[!] Invalid MSFTIDY_TARGET '#{target}', expected one of: all, modules, docs"
+  exit(0x01)
+end
+check_modules = %w[all modules].include?(target)
+check_docs = %w[all docs].include?(target)
+
 # Who called us? If it's a post-merge check things operate a little
 # differently.
 puts "[*] Running msftidy.rb in #{$0} mode"
@@ -69,22 +81,33 @@ end
 
 if base_caller == :post_merge
   changed_files = run('git diff --name-only HEAD^ HEAD')
+  # Docs are only checked when newly added, existing docs still have a lot
+  # of pre-existing msftidy_docs.rb violations that are being cleaned up separately
+  added_files = run('git diff --name-only --diff-filter=A HEAD^ HEAD')
 else
   changed_files = run('git diff --cached --name-only')
+  added_files = run('git diff --cached --name-only --diff-filter=A')
 end
 
 changed_files.each_line do |fname|
   fname.strip!
   next unless File.exist?(fname)
   next unless File.file?(fname)
-  if fname =~ /^modules.+\.rb/
-    files_to_check << fname
-  elsif fname =~ /^documentation\/.+\.md/
-    doc_files_to_check << fname
-  end
+  next unless fname =~ /^modules.+\.rb/
+  files_to_check << fname
 end
 
-if files_to_check.empty?
+added_files.each_line do |fname|
+  fname.strip!
+  next unless File.exist?(fname)
+  next unless File.file?(fname)
+  next unless fname =~ /^documentation\/.+\.md/
+  doc_files_to_check << fname
+end
+
+if !check_modules
+  puts "--- Skipping Metasploit modules (MSFTIDY_TARGET=#{target}) ---"
+elsif files_to_check.empty?
   puts "--- No Metasploit modules to check ---"
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
@@ -102,15 +125,17 @@ end
 
 docs_valid = true # Presume validity
 
-if doc_files_to_check.empty?
-  puts "--- No documentation to check ---"
+if !check_docs
+  puts "--- Skipping documentation (MSFTIDY_TARGET=#{target}) ---"
+elsif doc_files_to_check.empty?
+  puts "--- No new documentation to check ---"
 else
-  puts "--- Checking new and changed documentation with tools/dev/msftidy_docs.rb ---"
+  puts "--- Checking new documentation with tools/dev/msftidy_docs.rb ---"
 
   command = %w[bundle exec ruby ./tools/dev/msftidy_docs.rb] + doc_files_to_check
   msftidy_docs_output, status = ::Open3.capture2(*command)
   docs_valid = false unless status.success?
-  puts "#{fname} - msftidy_docs check passed" if msftidy_docs_output.empty?
+  puts "msftidy_docs check passed" if msftidy_docs_output.empty?
   msftidy_docs_output.each_line do |line|
     puts line
   end

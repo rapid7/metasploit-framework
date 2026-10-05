@@ -57,10 +57,9 @@ jobs:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
 
-      # pre-commit-hook.rb also runs msftidy_docs.rb against any changed
-      # documentation/*.md files in this diff (see #21872), so this single
-      # step covers both modules and docs - no separate job needed.
-      - name: Run msftidy / msftidy_docs
+      - name: Run msftidy
+        env:
+          MSFTIDY_TARGET: modules
         run: |
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
@@ -69,3 +68,42 @@ jobs:
       - name: Verify encoding
         run: |
           bundle exec ruby tools/dev/verify_encoding.rb
+
+  msftidy_docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      BUNDLE_WITHOUT: "coverage development pcap"
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+
+    name: Lint msftidy_docs
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Required to checkout HEAD^ for the diff of newly added docs
+        # https://github.com/actions/checkout/tree/5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f#checkout-head
+        with:
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+
+      # Only checks documentation files newly added in this PR, not the
+      # whole documentation/ tree (see #21872)
+      - name: Run msftidy_docs
+        env:
+          MSFTIDY_TARGET: docs
+        run: |
+          ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+          ./.git/hooks/post-merge
