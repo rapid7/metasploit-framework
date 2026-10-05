@@ -14,7 +14,7 @@ module Rex
 
         # Seconds until the next allowed poll window opens, given the current
         # async work-hour config and a target-local "now" (a Time whose #hour
-        # and #wday read in the target's local frame — typically produced by
+        # and #wday read in the target's local frame - typically produced by
         # Client#target_time_now).
         #
         # Returns 0 when polling is currently permitted (inside the window on
