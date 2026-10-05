@@ -36,8 +36,7 @@ class MetasploitModule < Msf::Post
           'Reliability' => []
         }
       )
-
-  )
+    )
 
     register_options(
       [
