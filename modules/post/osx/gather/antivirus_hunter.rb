@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
   # reads a file and returns each line as an element in an array
   def file_to_array(file)
     f = File.open file
-    f.readlines.map(&:chomp)
+    File.readlines(file, chomp: true)
   end
 
   def enum_processes(product)
