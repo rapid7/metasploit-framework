@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('AV_FILE_LIST',
+        OptPath.new('AV_FILE_LIST',
                       [
                         false,
                         'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
