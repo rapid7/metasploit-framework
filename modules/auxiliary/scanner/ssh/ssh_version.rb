@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         'Daniel van Eeden <metasploit[at]myname.nl>', # original author
         'h00die' # algorithms enhancements
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'VulnerableEnvironment' => {
+        'definition' => 'openssh',
+        'default_variant' => '7.2',
+        'port_mapping' => { 22 => 'RPORT' }
+      }
     )
 
     register_options(

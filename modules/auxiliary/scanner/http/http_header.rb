@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => UNKNOWN_RELIABILITY,
           'Stability' => UNKNOWN_STABILITY,
           'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        },
+        'VulnerableEnvironment' => {
+          'definition' => 'httpd',
+          'default_variant' => '2.4.57',
+          'port_mapping' => { 80 => 'RPORT' }
         }
       )
     )
@@ -63,9 +68,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Header Names are case insensitive so convert them to upcase
-    headers_uppercase = headers.inject({}) do |hash, keys|
+    headers_uppercase = headers.each_with_object({}) do |keys, hash|
       hash[keys[0].upcase] = keys[1]
-      hash
     end
 
     ignored_headers.each do |h|
@@ -76,18 +80,18 @@ class MetasploitModule < Msf::Auxiliary
     end
     headers_uppercase.to_a.compact.sort
 
-    counter = 0;
+    counter = 0
     headers_uppercase.each do |h|
       header_string = "#{h[0]}: #{h[1]}"
       print_good "#{peer}: #{header_string}"
 
       report_note(
-        :type => "http.header.#{rport}.#{counter}",
-        :data => { :header_string => header_string },
-        :host => ip,
-        :port => rport
+        type: "http.header.#{rport}.#{counter}",
+        data: { header_string: header_string },
+        host: ip,
+        port: rport
       )
-      counter = counter + 1
+      counter += 1
     end
     if counter == 0
       print_warning "#{peer}: all detected headers are defined in IGN_HEADER and were ignored "
