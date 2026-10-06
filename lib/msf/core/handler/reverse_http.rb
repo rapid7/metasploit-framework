@@ -355,6 +355,33 @@ module ReverseHttp
     end
   end
 
+  # Apply persona-appropriate headers to decoy (non-payload) responses so that
+  # traffic from a scanner or unrelated browser looks like the C2 persona
+  # rather than a bare 200 with no type information.
+  #
+  # When a C2 profile is active the server headers from the matching verb block
+  # are applied (same as payload responses).  When no profile is loaded a
+  # minimal set of sensible defaults based on HttpServerName is applied so
+  # the decoy body at least has a Content-Type.
+  def apply_decoy_headers(req, resp)
+    if self.c2_profile
+      add_response_headers(req, resp)
+    else
+      # No profile — infer a plausible Content-Type from the decoy body and
+      # add a Date header so the response looks like a real HTTP server.
+      body = resp.body.to_s
+      resp['Content-Type'] = if body.lstrip.start_with?('{', '[')
+                               'application/json; charset=utf-8'
+                             elsif body.lstrip.start_with?('<')
+                               'text/html; charset=utf-8'
+                             else
+                               'text/plain; charset=utf-8'
+                             end
+      resp['Date'] = Time.now.httpdate rescue Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S GMT')
+      resp['X-Content-Type-Options'] = 'nosniff'
+    end
+  end
+
   # Return the live meterpreter session whose passive dispatcher is
   # registered for this bare conn_id, or nil if none matches. Used so
   # MC2 traffic -- which Rex routes to on_request because the profile
@@ -566,7 +593,8 @@ protected
         unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")
         end
-        resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        resp.body = datastore['HttpUnknownRequestResponse'].to_s
+        apply_decoy_headers(req, resp)
         self.pending_connections -= 1
     end
 
