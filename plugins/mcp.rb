@@ -26,6 +26,7 @@ module Msf
         VALID_OPTIONS = %w[
           AuthToken
           ServerHost ServerPort DangerousActions
+          SSL SSLCert SSLKey
           RpcHost RpcPort RpcUser RpcPass RpcSSL
           RateLimit
         ].freeze
@@ -73,6 +74,9 @@ module Msf
         print_line('  ServerHost=<host>           MCP server bind address (default: localhost)')
         print_line('  ServerPort=<port>           MCP server port (default: 3000)')
         print_line('  DangerousActions=<true|false> Enable destructive tools like module execution and session control (default: false)')
+        print_line('  SSL=<true|false>            Serve the MCP server over HTTPS (default: true unless ServerHost is localhost)')
+        print_line('  SSLCert=<path>              PEM certificate file (must be set together with SSLKey)')
+        print_line('  SSLKey=<path>               PEM private key file (must be set together with SSLCert)')
         print_line('  RpcHost=<host>              RPC server host (default: 127.0.0.1)')
         print_line('  RpcPort=<port>              RPC server port (default: 55552)')
         print_line('  RpcUser=<user>              RPC username (default: msf)')
@@ -437,9 +441,11 @@ module Msf
       validate_port_option!(opts, 'ServerPort')
       validate_port_option!(opts, 'RpcPort')
       validate_boolean_option!(opts, 'RpcSSL')
+      validate_boolean_option!(opts, 'SSL')
       validate_boolean_option!(opts, 'DangerousActions')
       validate_rate_limit_option!(opts)
       validate_rpc_credentials!(opts)
+      validate_ssl_cert_options!(opts)
     end
 
     def validate_port_option!(opts, key)
@@ -482,6 +488,27 @@ module Msf
       end
     end
 
+    def validate_ssl_cert_options!(opts)
+      cert = opts['SSLCert']
+      key = opts['SSLKey']
+      has_cert = cert && !cert.empty?
+      has_key = key && !key.empty?
+
+      if has_cert && !has_key
+        option_error('SSLKey', 'a value (both SSLCert and SSLKey are required, or leave both unset to auto-generate a self-signed certificate)')
+      elsif has_key && !has_cert
+        option_error('SSLCert', 'a value (both SSLCert and SSLKey are required, or leave both unset to auto-generate a self-signed certificate)')
+      end
+
+      if has_cert && !(File.file?(cert) && File.readable?(cert))
+        option_error('SSLCert', 'a readable file path')
+      end
+
+      if has_key && !(File.file?(key) && File.readable?(key))
+        option_error('SSLKey', 'a readable file path')
+      end
+    end
+
     #
     # Translates validated plugin options into the internal configuration hash
     # used by the MCP server components.
@@ -497,6 +524,17 @@ module Msf
 
       if opts.key?('AuthToken')
         mcp_config[:auth_token] = opts['AuthToken'].blank? ? nil : opts['AuthToken']
+      end
+
+      default_ssl = Msf::MCP::LOCALHOST_HOSTS.exclude?(mcp_config[:host].to_s.downcase)
+      mcp_config[:ssl] = parse_bool(opts['SSL'], default: default_ssl)
+
+      if opts.key?('SSLCert')
+        mcp_config[:ssl_cert] = opts['SSLCert']
+      end
+
+      if opts.key?('SSLKey')
+        mcp_config[:ssl_key] = opts['SSLKey']
       end
 
       rate_limit_value = Integer(opts['RateLimit'] || Msf::MCP::Config::Defaults::RATE_LIMIT_REQUESTS_PER_MINUTE)
