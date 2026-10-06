@@ -28,6 +28,7 @@ RSpec.describe 'PostgreSQL Login Scanner' do
 
   before do
     mod.datastore['RPORT'] = port
+    mod.datastore['VERBOSE'] = true
 
     allow(Metasploit::Framework::LoginScanner::Postgres)
       .to receive(:new)
@@ -77,7 +78,7 @@ RSpec.describe 'PostgreSQL Login Scanner' do
       end
 
       it 'does not include the target prefix in the module message' do
-        expect(mod).to receive(:vprint_error)
+        expect(mod).to receive(:print_error)
           .with("LOGIN FAILED: #{credential} (#{result.status}: #{result.proof})")
 
         mod.run_host(host)
