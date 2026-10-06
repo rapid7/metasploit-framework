@@ -57820,6 +57820,57 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/smb/cve_2000_0979": {
+    "name": "CVE-2000-0979 SMB Share Password Enumerator",
+    "fullname": "auxiliary/scanner/smb/cve_2000_0979",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2000-10-10",
+    "type": "auxiliary",
+    "author": [
+      "Zoltan Balazs <zoltan1.balazs <Zoltan Balazs <zoltan1.balazs@gmail.com> @zh4ck>",
+      "Azbil SecurityFriday Co Ltd"
+    ],
+    "description": "This module exploits CVE-2000-0979, an information disclosure vulnerability\n          in the share-level password authentication of Microsoft Windows 9x/Me SMB\n          servers. The server validates passwords one character at a time, allowing an\n          attacker to enumerate the correct password byte-by-byte based on the server\n          response. A zero-length password is always accepted, and each subsequent\n          character can be brute-forced individually, significantly reducing the search\n          space required to recover the full share password.",
+    "references": [
+      "CVE-2000-0979",
+      "URL-http://www.securityfriday.com/tools/SPC.html"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 139,
+    "autofilter_ports": [
+      139,
+      445
+    ],
+    "autofilter_services": [
+      "netbios-ssn",
+      "microsoft-ds"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-01 21:59:14 +0000",
+    "path": "/modules/auxiliary/scanner/smb/cve_2000_0979.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/smb/cve_2000_0979",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "AKA": [
+        "Share Password Checker"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/smb/impacket/dcomexec": {
     "name": "DCOM Exec",
     "fullname": "auxiliary/scanner/smb/impacket/dcomexec",

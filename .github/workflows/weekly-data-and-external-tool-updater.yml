@@ -22,6 +22,10 @@ on:
     - cron: '0 1 * * 1'
   workflow_dispatch: # Allows manual triggering from the Actions tab
 
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
+
 jobs:
   update-data-files:
     runs-on: ubuntu-latest
@@ -46,7 +50,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
