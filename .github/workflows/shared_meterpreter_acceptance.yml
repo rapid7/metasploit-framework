@@ -360,6 +360,8 @@ jobs:
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         run: |
           bundle config unset deployment
+          # Keep the payload-gem update on the precompiled Windows gem platform.
+          ${{ runner.os == 'Windows' && 'bundle lock --add-platform x64-mingw-ucrt' || 'echo "Skipping Windows Bundler platform lock"' }}
           bundle update metasploit-payloads
           bundle install --deployment
         working-directory: metasploit-framework
