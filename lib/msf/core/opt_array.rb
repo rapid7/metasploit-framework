@@ -63,22 +63,25 @@ module Msf
     # @return [Array, nil] normalized array or nil if invalid
     def normalize(value = self.value)
       return nil if value.nil?
-      
+
       arr = value_to_array(value)
-      
-      # Apply uniqueness if requested
-      arr = arr.uniq if @unique
-      
-      # Normalize case if accepted values are defined and case-insensitive
+
+      # Normalize case if accepted values are defined and case-insensitive.
+      # This must run before de-duplication so that case-variant spellings of
+      # the same accepted value (e.g. "STDAPI" and "stdapi") collapse to one
+      # canonical member rather than surviving #uniq as distinct strings.
       if @accepted && !case_sensitive?
         arr = arr.map do |member|
           @accepted.find { |a| a.casecmp?(member) } || member
         end
       end
-      
+
+      # Apply uniqueness if requested
+      arr = arr.uniq if @unique
+
       # Return nil if validation fails
       return nil unless valid?(arr, check_empty: false)
-      
+
       arr
     end
 
