@@ -108,7 +108,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    timeout-minutes: 50
+    # Source builds and the full acceptance suite share this job budget.
+    timeout-minutes: ${{ inputs.build_mettle && matrix.meterpreter.name == 'mettle' && 75 || 50 }}
 
     env:
       RAILS_ENV: test
@@ -220,6 +221,11 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --system core.longpaths true
 
+      # Bundler clones its Git cache locally; background maintenance can change
+      # commit-graph files while Git is validating their hardlinks.
+      - name: Complete Git maintenance before Bundler
+        run: git config --global maintenance.autoDetach false
+
       - name: Setup Ruby
         env:
           # Introduces flakiness when downloading zlib etc: https://github.com/sparklemotion/nokogiri/issues/3521
@@ -230,7 +236,9 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          cache-version: 5
+          # Runtime setup can add native libraries (for example, PHP's libffi).
+          # Do not restore those compiled gems into a different runtime job.
+          cache-version: 6-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}
           working-directory: metasploit-framework
 
       - name: Move mettle gem into framework
