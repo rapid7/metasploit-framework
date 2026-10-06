@@ -43,6 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2026-103648'],
+          ['URL', 'https://eternull.net/posts/cve-2026-103648-image-downloader-path-traversal'],
           ['URL', 'https://github.com/EterNullSec/CVE-2026-103648'],
           ['URL', 'https://gitlab.com/demsking/image-downloader/-/commit/fb4454304276e2439fb19b98836b3ba903b3aaea']
         ],
