@@ -316537,7 +316537,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-30 17:51:41 +0000",
+    "mod_time": "2026-10-02 16:10:00 +0000",
     "path": "/modules/post/linux/gather/enum_protections.rb",
     "is_install_path": true,
     "ref_name": "linux/gather/enum_protections",
