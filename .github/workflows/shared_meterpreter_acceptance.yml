@@ -109,7 +109,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     # Source builds and the full acceptance suite share this job budget.
-    timeout-minutes: ${{ inputs.build_mettle && matrix.meterpreter.name == 'mettle' && 75 || matrix.os == 'macos-15-intel' && matrix.meterpreter.name == 'php' && 60 || 50 }}
+    timeout-minutes: ${{ inputs.build_mettle && matrix.meterpreter.name == 'mettle' && 75 || 60 }}
 
     env:
       RAILS_ENV: test
