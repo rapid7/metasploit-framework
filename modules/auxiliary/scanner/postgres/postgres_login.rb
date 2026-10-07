@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         invalidate_login(credential_data)
-        print_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})" if datastore['VERBOSE']
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
     { successful_logins: successful_logins, successful_sessions: successful_sessions }
