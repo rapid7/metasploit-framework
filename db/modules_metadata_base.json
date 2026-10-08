@@ -83020,6 +83020,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/nable_ncentral_unauth_rce_cve_2026_86218": {
+    "name": "N-able N-central Struts BeanUtils Unauthenticated RCE",
+    "fullname": "exploit/linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-09-05",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "N-able N-central before 2026.3.1.14 uses a session-scoped Struts form on\n          an unauthenticated action. Two concurrent multipart requests can race the\n          form's multipart handler and expose Jetty's live configuration to Commons\n          BeanUtils property population.\n\n          This module changes a lazy N-central servlet holder into Jetty's bundled\n          CGI servlet, configures it to invoke /bin/sh, and sends a command payload\n          through the holder's existing URL mapping. By default, a second CGI\n          request uses N-central's local JMX service and installed Java libraries to\n          stop only the changed holder and restore its original servlet in memory.",
+    "references": [
+      "CVE-2026-86218",
+      "URL-https://me.n-able.com/s/security-advisory/aArVy0000002Ld3KAE/cve202686218-preauthentication-remote-code-execution",
+      "URL-https://documentation.n-able.com/N-central/Release_Notes/GA/Content/N-central_2026.3_HF4_Release_Notes.htm"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-18 14:55:32 +0000",
+    "path": "/modules/exploits/linux/http/nable_ncentral_unauth_rce_cve_2026_86218.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "service-resource-loss"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/nagios_xi_autodiscovery_webshell": {
     "name": "Nagios XI Autodiscovery Webshell Upload",
     "fullname": "exploit/linux/http/nagios_xi_autodiscovery_webshell",
