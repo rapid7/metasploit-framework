@@ -53973,7 +53973,7 @@
       "postgres"
     ],
     "targets": null,
-    "mod_time": "2025-09-02 16:31:33 +0000",
+    "mod_time": "2026-10-07 19:04:03 +0000",
     "path": "/modules/auxiliary/scanner/postgres/postgres_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/postgres/postgres_login",
@@ -119896,6 +119896,63 @@
         "artifacts-on-disk",
         "ioc-in-logs",
         "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/opencti_jsonmapper_safeejs_rce": {
+    "name": "OpenCTI JSON Mapper safeEjs Sandbox Escape RCE",
+    "fullname": "exploit/multi/http/opencti_jsonmapper_safeejs_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-21",
+    "type": "exploit",
+    "author": [
+      "Ege Balci"
+    ],
+    "description": "OpenCTI is an open source cyber threat intelligence platform built as a Node.js\n          GraphQL application. Its data-mapping feature lets a user attach an EJS \"formula\"\n          to a JSON mapper attribute, which the backend renders through a home-grown sandbox\n          (safeEjs) that is intended to allow only arithmetic and property access over the\n          mapped data.\n\n          The sandbox verifier permits assignment to identifiers it merely allow-lists, such\n          as the String global. Because the generated EJS runs in sloppy mode inside a\n          `with(locals)` block, that assignment reaches the global object, and the sandbox's\n          own runtime property guard then calls the now-attacker-controlled String() when it\n          normalises property names. Poisoning String defeats the guard's constructor\n          deny-list, and `({})['constructor']['constructor']` yields Function, giving\n          arbitrary JavaScript execution in the OpenCTI API process. The formula is rendered\n          synchronously in the main process rather than in the isolated worker used by the\n          other render sites, so execution lands in the process that holds the platform's\n          Elasticsearch, object-store and message-queue clients.\n\n          The jsonMapperTest GraphQL mutation reaches this render path and requires only the\n          CSVMAPPERS (\"Manage data mappers\") capability. The GraphQL endpoint is authenticated,\n          so the module offers three ways to obtain a context that satisfies it. AUTH_MODE=password\n          logs in with USERNAME and PASSWORD through the public `token` mutation and reuses the\n          resulting opencti_session cookie, optionally completing 2FA with OTP_CODE. AUTH_MODE=token\n          sends a pre-existing OpenCTI API token as a bearer credential. When a target has the\n          header-based authentication strategy enabled without a proxy-source restriction,\n          AUTH_MODE=header obtains a session for an arbitrary user (for example the platform\n          administrator) with no credential at all.",
+    "references": [
+      "GHSA-f56m-h35g-vfg5",
+      "URL-https://github.com/OpenCTI-Platform/opencti"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 8080,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-17 11:36:10 +0000",
+    "path": "/modules/exploits/multi/http/opencti_jsonmapper_safeejs_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencti_jsonmapper_safeejs_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
