@@ -797,6 +797,7 @@ private
       'Options'  => opts,
       'JobListener' => self.job_status_tracker
     })
+    _error_unless_started(mod)
     {
       "job_id" => mod.job_id,
       "uuid" => mod.run_uuid
@@ -862,10 +863,28 @@ private
       'JobListener' => self.job_status_tracker
     })
 
+    _error_unless_started(mod)
     {
       'job_id' => mod.job_id,
       'uuid'   => mod.run_uuid
     }
+  end
+
+  # Raise a structured RPC error when a run wrapper returned without launching a
+  # job. exploit_simple / Evasion.run_simple rescue a pre-launch failure (e.g.
+  # bad options) internally and return with job_id nil; surface that as an error,
+  # matching the auxiliary/post branches, rather than a success-shaped
+  # {job_id: nil} body. A failure after the job starts is out of scope: job_id is
+  # set by then and the reason surfaces through module.results.
+  #
+  # @param mod [Msf::Module] the module instance after its run wrapper returned
+  # @return [void] when a job was launched (job_id present)
+  # @raise [Msf::RPC::Exception] 500 with the failure reason when no job launched
+  def _error_unless_started(mod)
+    return unless mod.job_id.nil?
+
+    reason = mod.error ? mod.error.message : 'Module failed to start'
+    error(500, reason)
   end
 
   def _run_payload(mod, opts)
