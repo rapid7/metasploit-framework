@@ -380,6 +380,54 @@ RSpec.describe Rex::Proto::Ftp::Server do
           expect(resp).to start_with('500 ')
         end
       end
+
+      it 'responds 500 for a malformed PORT argument after a valid PORT command' do
+        with_connection do |sock|
+          expect(ftp_cmd(sock, 'PORT 127,0,0,1,4,1')).to start_with('200 ')
+          expect(ftp_cmd(sock, 'PORT invalid')).to start_with('500 ')
+        end
+      end
+
+      it 'responds 500 for an out-of-range PORT value after a valid PORT command' do
+        with_connection do |sock|
+          expect(ftp_cmd(sock, 'PORT 127,0,0,1,4,1')).to start_with('200 ')
+          expect(ftp_cmd(sock, 'PORT 127,0,0,1,256,1')).to start_with('500 ')
+        end
+      end
+
+      it 'connects to the control peer instead of the PORT advertised host' do
+        server.register_file('payload.bin', 'data')
+        data_server = TCPServer.new('127.0.0.1', 0)
+        data_port = data_server.local_address.ip_port
+        encoded_port = "#{data_port / 256},#{data_port % 256}"
+
+        with_connection do |sock|
+          authenticate(sock)
+          expect(ftp_cmd(sock, "PORT 192,0,2,1,#{encoded_port}")).to start_with('200 ')
+          expect(ftp_cmd(sock, 'RETR payload.bin')).to start_with('150 ')
+
+          data_socket = data_server.accept
+          expect(data_socket.read).to eq('data')
+          data_socket.close
+          expect(ftp_readline(sock)).to start_with('226 ')
+        end
+      ensure
+        data_server&.close
+      end
+
+      it 'responds 500 when a PORT value is outside the byte range' do
+        with_connection do |sock|
+          resp = ftp_cmd(sock, 'PORT 127,0,0,1,256,1')
+          expect(resp).to start_with('500 ')
+        end
+      end
+
+      it 'responds 500 for port zero' do
+        with_connection do |sock|
+          resp = ftp_cmd(sock, 'PORT 127,0,0,1,0,0')
+          expect(resp).to start_with('500 ')
+        end
+      end
     end
 
     describe 'SIZE' do

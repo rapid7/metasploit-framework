@@ -108,6 +108,48 @@ RSpec.describe Metasploit::Framework::LoginScanner::FTP do
     end
   end
 
+  describe '#data_connect' do
+    let(:control_socket) { double('control socket', peerhost: '192.0.2.1') }
+    let(:data_socket) { double('data socket') }
+
+    before do
+      allow(ftp_scanner).to receive(:datasocket).and_return(nil, data_socket)
+      allow(ftp_scanner).to receive(:datasocket=)
+      allow(ftp_scanner).to receive(:send_cmd).with(['PASV'], true, control_socket).and_return(
+        "227 Entering Passive Mode (10,0,0,50,192,0)\r\n"
+      )
+      allow(ftp_scanner).to receive(:framework).and_return(nil)
+      allow(ftp_scanner).to receive(:framework_module).and_return(nil)
+      allow(Rex::Socket::Tcp).to receive(:create).and_return(data_socket)
+    end
+
+    it 'uses the control connection host instead of the PASV advertised host' do
+      expect(ftp_scanner.data_connect(nil, control_socket)).to eq(data_socket)
+      expect(Rex::Socket::Tcp).to have_received(:create).with(
+        'PeerHost' => '192.0.2.1',
+        'PeerPort' => 49_152,
+        'Context' => { 'Msf' => nil, 'MsfExploit' => nil }
+      )
+    end
+
+    it 'clears an old socket and permits a retry after a malformed response' do
+      old_data_socket = double('old data socket', shutdown: nil, close: nil)
+      current_data_socket = old_data_socket
+      allow(ftp_scanner).to receive(:datasocket) { current_data_socket }
+      allow(ftp_scanner).to receive(:datasocket=) { |socket| current_data_socket = socket }
+      allow(ftp_scanner).to receive(:send_cmd).with(['PASV'], true, control_socket).and_return(
+        "227 Entering Passive Mode (invalid)\r\n",
+        "227 Entering Passive Mode (192,0,2,1,192,0)\r\n"
+      )
+
+      expect(ftp_scanner.data_connect(nil, control_socket)).to be_nil
+      expect(current_data_socket).to be_nil
+      expect(ftp_scanner.data_connect(nil, control_socket)).to eq(data_socket)
+      expect(old_data_socket).to have_received(:shutdown)
+      expect(old_data_socket).to have_received(:close)
+    end
+  end
+
   context '#attempt_login' do
     let(:mock_socket) { double('socket') }
 
