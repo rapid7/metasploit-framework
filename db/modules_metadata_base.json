@@ -25210,6 +25210,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/langflow_auth_bypass_cve_2026_93680": {
+    "name": "Langflow AI Authentication Bypass",
+    "fullname": "auxiliary/gather/langflow_auth_bypass_cve_2026_93680",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-22",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.11.4 allow unauthenticated\n          connections to the MCP SSE endpoint, allowing attackers to initialize\n          MCP sessions and retrieve privileged MCP-related information.\n\n          The MCP information collected from this module is stored in Metasploit\n          loot as a JSON document.",
+    "references": [
+      "CVE-2026-93680"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-02 13:54:04 +0000",
+    "path": "/modules/auxiliary/gather/langflow_auth_bypass_cve_2026_93680.rb",
+    "is_install_path": true,
+    "ref_name": "gather/langflow_auth_bypass_cve_2026_93680",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/lansweeper_collector": {
     "name": "Lansweeper Credential Collector",
     "fullname": "auxiliary/gather/lansweeper_collector",
@@ -116648,6 +116701,63 @@
     "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0768.rb",
     "is_install_path": true,
     "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0768",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0769": {
+    "name": "Langflow AI Custom Component Eval Injection Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0769",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-01-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.3.2 is susceptible to\n          unauthenticated remote code execution due to improper\n          input validation in the eval_custom_component_code() function.\n\n          Arbitrary code executes under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0769"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 11:52:00 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
     "check": true,
     "post_auth": false,
     "default_credential": false,
