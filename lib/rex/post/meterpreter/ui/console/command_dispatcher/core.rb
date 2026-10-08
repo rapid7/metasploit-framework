@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'set'
+require 'securerandom'
 require 'rex/post/meterpreter'
 require 'rex'
 
@@ -77,7 +78,9 @@ class Console::CommandDispatcher::Core
       'transport'                => 'Manage the transport mechanisms',
       'get_timeouts'             => 'Get the current session timeout values',
       'set_timeouts'             => 'Set the current session timeout values',
-      'ssl_verify'               => 'Modify the SSL certificate verification setting'
+      'ssl_verify'               => 'Modify the SSL certificate verification setting',
+      # async mode commands
+      'async'                    => 'Manage async polling mode (mode, config, run, queue)',
     }
 
     if msf_loaded?
@@ -107,6 +110,8 @@ class Console::CommandDispatcher::Core
       ],
       'get_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
       'set_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+      # async mode
+      'async'        => [COMMAND_ID_CORE_ASYNC_MODE],
     }
 
     # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
@@ -732,6 +737,442 @@ class Console::CommandDispatcher::Core
   end
 
   #
+  # Display help for async command.
+  #
+  def cmd_async_help
+    print(<<~HELP
+      Usage: async <subcommand> [options]
+
+      Manage async polling mode for HTTP transport.
+
+      Subcommands:
+        mode [on|off]         Toggle async mode on/off, or show current status
+        config [options]      Configure polling interval and business hours
+        run <command>         Enqueue a command for async execution
+        queue [rid]           View queued commands or a specific result
+        queue -c              Clear completed results
+
+      Config options:
+        -i <seconds>   Poll interval in seconds (default: 60)
+        -j <percent>   Jitter percentage 0-99 (default: 0)
+        -s <hour>      Work hours start 0-23 (default: 0)
+        -e <hour>      Work hours end 0-24 (default: 24)
+        -d <days>      Work days: sun,mon,tue,wed,thu,fri,sat or mon-fri (default: all)
+        -l <seconds>   Async job lease TTL, renewed while a job runs (default: 300)
+        -x <seconds>   Maximum runtime for one async job (default: 86400)
+
+      Examples:
+        async mode on
+        async config -i 300 -j 20 -s 8 -e 17 -d mon-fri
+        async config -i 600 -l 300 -x 7200
+        async run ls
+        async run execute -f cmd.exe -a "/c whoami" -H
+        async queue
+        async queue a1b2c3d4
+
+    HELP
+    )
+  end
+
+  DAY_NAMES = { 'sun' => 0, 'mon' => 1, 'tue' => 2, 'wed' => 3, 'thu' => 4, 'fri' => 5, 'sat' => 6 }.freeze
+
+  #
+  # Parse a day specification into a bitmask.
+  #
+  def parse_work_days(spec)
+    return spec.to_i if spec =~ /\A0x[0-9a-f]+\z/i || spec =~ /\A\d+\z/
+
+    if spec == 'mon-fri'
+      return 0x3E # bits 1-5
+    elsif spec == 'all'
+      return 0x7F
+    end
+
+    mask = 0
+    spec.split(',').each do |day|
+      day = day.strip.downcase[0..2]
+      bit = DAY_NAMES[day]
+      mask |= (1 << bit) if bit
+    end
+    mask
+  end
+
+  #
+  # Format a work days bitmask into a human-readable string.
+  #
+  def format_work_days(mask)
+    return 'all' if mask == 0
+    return 'all' if mask == 0x7F
+    return 'mon-fri' if mask == 0x3E
+
+    names = DAY_NAMES.sort_by { |_, v| v }.select { |_, v| (mask & (1 << v)) != 0 }.map(&:first)
+    names.empty? ? 'none' : names.join(', ')
+  end
+
+  #
+  # Handle the async command with subcommands.
+  #
+  def cmd_async(*args)
+    if args.empty? || args.include?('-h')
+      cmd_async_help
+      return
+    end
+
+    subcmd = args.shift
+    case subcmd
+    when 'mode'
+      async_subcmd_mode(args)
+    when 'config'
+      async_subcmd_config(args)
+    when 'run'
+      async_subcmd_run(args)
+    when 'queue'
+      async_subcmd_queue(args)
+    else
+      cmd_async_help
+    end
+  end
+
+  #
+  # Tab completion for async.
+  #
+  def cmd_async_tabs(str, words)
+    if words.length == 1
+      %w[mode config run queue].select { |o| o.start_with?(str) }
+    elsif words.length == 2 && words[0] == 'mode'
+      %w[on off].select { |o| o.start_with?(str) }
+    else
+      []
+    end
+  end
+
+  #
+  # async mode [on|off]
+  #
+  def async_subcmd_mode(args)
+    subcmd = args.shift
+    if subcmd.nil?
+      if client.async_mode_enabled?
+        print_good('Async mode: enabled')
+      else
+        print_status('Async mode: disabled')
+      end
+      return
+    end
+
+    case subcmd
+    when 'on'
+      unless client.passive_service
+        print_error('Async mode requires an HTTP(S) transport. Current transport does not support async polling.')
+        print_status('Use "transport add" to add an HTTP(S) transport and switch to it before enabling async mode.')
+        return
+      end
+      cfg = client.async_config
+      validation_error = async_config_validation_error(cfg)
+      if validation_error
+        print_error(validation_error)
+        return
+      end
+      print_status("Enabling async mode (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%)...")
+      client.core.async_mode(enabled: true, **cfg)
+      print_good('Async mode enabled. Use "async run <cmd>" to enqueue commands.')
+      print_warning('Use "async run <command>" for extension commands and Post modules; transport lifecycle and persistent interactive commands are unavailable.')
+      if cfg[:work_start] != 0 || cfg[:work_end] != 24
+        print_warning("Business hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00 use the TARGET's local time.")
+      end
+    when 'off'
+      print_status('Disabling async mode...')
+      client.async_store.stop_worker
+      client.core.async_mode(enabled: false)
+      print_good('Async mode disabled. Session is now interactive.')
+    else
+      print_error("Unknown mode: #{subcmd}. Use 'on' or 'off'.")
+    end
+  end
+
+  #
+  # async config -i <interval> -j <jitter> -s <start> -e <end> -d <days>
+  #
+  def async_subcmd_config(args)
+    cfg = client.async_config
+
+    if args.empty?
+      # Dump current config values
+      print(<<~CONFIG
+
+        Async Configuration:
+          Poll interval : #{cfg[:poll_interval]}s
+          Jitter        : #{cfg[:jitter]}%
+          Work hours    : #{cfg[:work_start]}:00 - #{cfg[:work_end]}:00
+          Work days     : #{format_work_days(cfg[:work_days])}
+          Lease TTL     : #{cfg[:lease_ttl]}s
+          Job timeout   : #{cfg[:job_timeout]}s
+          Mode          : #{client.async_mode_enabled? ? 'enabled' : 'disabled'}
+
+      CONFIG
+      )
+      return
+    end
+
+    opts = Rex::Parser::Arguments.new(
+      '-i' => [true, 'Poll interval (seconds)'],
+      '-j' => [true, 'Jitter percent (0-99)'],
+      '-s' => [true, 'Work start hour (0-23)'],
+      '-e' => [true, 'Work end hour (0-24)'],
+      '-d' => [true, 'Work days'],
+      '-l' => [true, 'Async job lease TTL (seconds)'],
+      '-x' => [true, 'Maximum async job runtime (seconds)']
+    )
+    updated = cfg.dup
+    opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-i'
+        updated[:poll_interval] = val.to_i
+      when '-j'
+        updated[:jitter] = val.to_i
+      when '-s'
+        updated[:work_start] = val.to_i
+      when '-e'
+        updated[:work_end] = val.to_i
+      when '-d'
+        updated[:work_days] = parse_work_days(val)
+      when '-l'
+        updated[:lease_ttl] = val.to_i
+      when '-x'
+        updated[:job_timeout] = val.to_i
+      end
+    end
+
+    validation_error = async_config_validation_error(updated)
+    if validation_error
+      print_error(validation_error)
+      return
+    end
+
+    cfg.replace(updated)
+    print_good("Async configuration updated (poll #{cfg[:poll_interval]}s, jitter #{cfg[:jitter]}%, hours #{cfg[:work_start]}:00-#{cfg[:work_end]}:00, lease #{cfg[:lease_ttl]}s).")
+    if client.async_mode_enabled?
+      print_status('Async mode is active. Sending updated config to target...')
+      client.core.async_mode(enabled: true, **cfg)
+      print_good('Config applied to active session.')
+    else
+      print_status('Config saved locally. Use "async mode on" to activate.')
+    end
+  end
+
+  # Commands that cannot be executed via 'async run' because they require
+  # an interactive channel or persistent socket that the async poll model
+  # cannot service.
+  #
+  # async run <command line>
+  #
+  def async_subcmd_run(args)
+    if args.empty?
+      print_error('Usage: async run <command> [arguments]')
+      return
+    end
+
+    unless client.async_mode_enabled?
+      print_error('Enable async mode before queuing async commands.')
+      return
+    end
+
+    blocked = Console::ASYNC_WORKER_BLOCKED_COMMANDS.include?(args.first)
+    if blocked
+      print_error("Command '#{args.first}' cannot run as an async job because it changes session lifecycle or requires persistent interaction.")
+      return
+    end
+
+    # The dispatcher shell strips quotes when parsing the command line before
+    # passing us *args. Rejoin so the async shell can re-parse it correctly.
+    # Wrap in double quotes only when strictly necessary (whitespace or embedded
+    # quotes); avoid Shellwords.shelljoin which aggressively backslash-escapes
+    # characters like '=' and '/' that MSF option parsing needs to see raw
+    # (e.g. CMD=whoami must stay CMD=whoami, not CMD\=whoami).
+    cmd_line = args.map do |arg|
+      if arg =~ /[\s"']/
+        %("#{arg.gsub('"', '\\"')}")
+      else
+        arg
+      end
+    end.join(' ')
+    rid = SecureRandom.hex(16)
+
+    # Capture the output handle now so completion notifications go to the
+    # operator's console (not the async shell's buffer).
+    notify_output = shell.output
+    main_shell = shell
+
+    client.async_store.enqueue_work(rid, cmd_line) do |work_rid|
+      async_shell = client.async_shell(main_shell)
+      # Drain any leftover output from previous runs on this shell so the
+      # captured output for this rid is fresh.
+      async_pipe = async_shell.instance_variable_get(:@async_pipe)
+      async_pipe.read_subscriber('async') if async_pipe
+
+      # Post modules invoke Msf::SessionCompatibility#setup which calls
+      # @session.init_ui(user_input, user_output). session.init_ui cascades
+      # to session.console.init_ui(...) which would clobber the operator's
+      # main console readline input on the interactive thread (crashing
+      # get_input_line with "undefined method 'pgets' for nil"). Redirect
+      # session.console to our async_shell for the duration of the run, so
+      # the compat setup lands on our private shell and never touches
+      # main_shell. Also snapshot user_input/user_output so we can restore
+      # them cleanly afterwards.
+      swap_console      = client.respond_to?(:console=) && client.console.equal?(main_shell)
+      saved_console     = swap_console ? client.console : nil
+      saved_user_input  = client.respond_to?(:user_input)  ? client.user_input  : nil
+      saved_user_output = client.respond_to?(:user_output) ? client.user_output : nil
+      client.console    = async_shell if swap_console
+
+      # Signal to Msf::SessionCompatibility that post modules dispatched from
+      # this worker thread are allowed to run against the async session.
+      ::Thread.current[:msf_async_bypass_post] = true
+      begin
+        client.with_async_lease do
+          ::Timeout.timeout(client.async_config[:job_timeout]) do
+            async_shell.run_single(cmd_line, propagate_errors: true)
+          end
+        end
+        captured = async_pipe ? async_pipe.read_subscriber('async') : ''
+        client.async_store.complete(work_rid, nil, captured.empty? ? '(no output)' : captured)
+      ensure
+        ::Thread.current[:msf_async_bypass_post] = nil
+        begin
+          client.console = saved_console if swap_console && saved_console
+          if client.respond_to?(:init_ui) && (saved_user_input || saved_user_output)
+            client.init_ui(saved_user_input, saved_user_output)
+          end
+        rescue ::Exception
+          # Best-effort restoration; don't mask the original error
+        end
+        begin
+          notify_output.print_good("Async result ready: #{cmd_line} (rid: #{work_rid[0..7]}). Use 'async queue #{work_rid[0..7]}' to view.")
+          # rb-readline captures $stdout while blocked in readline(). Force a
+          # display refresh so the notification appears immediately instead of
+          # waiting for the next user input.
+          if defined?(::RbReadline) && ::RbReadline.respond_to?(:rl_forced_update_display)
+            ::RbReadline.rl_forced_update_display
+          end
+        rescue ::Exception
+          # Notification delivery may fail if the session is closing
+        end
+      end
+    end
+
+    print_status("Queued: #{cmd_line} (rid: #{rid[0..7]})")
+
+    gap = client.async_seconds_until_next_window
+    sample_age = client.target_time_sample_age
+    if sample_age.nil? || sample_age > 3600
+      print_warning('Target clock sample is unavailable or stale; delivery waits for the next configured target-local window.')
+    elsif gap && gap > 0
+      human = if gap < 3600
+                "#{(gap / 60).round}m"
+              elsif gap < 86400
+                "#{(gap / 3600.0).round(1)}h"
+              else
+                "#{(gap / 86400.0).round(1)}d"
+              end
+      print_warning("Target outside work window; delivery resumes in approximately #{human} based on the last target-clock sample.")
+    end
+  end
+
+  def async_config_validation_error(cfg)
+    return 'Poll interval must be between 10 and 86400 seconds.' unless cfg[:poll_interval].between?(10, 86400)
+    return 'Jitter must be between 0 and 99 percent.' unless cfg[:jitter].between?(0, 99)
+    return 'Work start must be between 0 and 23.' unless cfg[:work_start].between?(0, 23)
+    return 'Work end must be between 0 and 24.' unless cfg[:work_end].between?(0, 24)
+    return 'Work days must select at least one day.' unless cfg[:work_days].between?(1, 0x7F)
+    return 'Lease TTL must be between 30 and 3600 seconds.' unless cfg[:lease_ttl].between?(30, 3600)
+    return 'Job timeout must be at least the lease TTL.' unless cfg[:job_timeout] >= cfg[:lease_ttl]
+
+    nil
+  end
+
+  #
+  # async queue [rid] [-c]
+  #
+  def async_subcmd_queue(args)
+    store = client.async_store
+
+    if args.include?('-c')
+      cleared = store.clear_completed
+      print_good("Cleared #{cleared} completed result(s).")
+      return
+    end
+
+    # If a specific rid is given, show its output
+    if args.length > 0 && !args[0].start_with?('-')
+      rid = args[0]
+      entry = store.fetch(rid)
+      if entry.nil?
+        # Try partial match
+        all = store.all
+        matches = all.keys.select { |k| k.start_with?(rid) }
+        if matches.length == 1
+          rid = matches.first
+          entry = store.fetch(rid)
+        elsif matches.length > 1
+          print_error("Ambiguous rid '#{rid}' matches #{matches.length} entries.")
+          return
+        else
+          print_error("No result found for rid '#{rid}'.")
+          return
+        end
+      end
+
+      print_line("Command: #{entry[:label]}")
+      print_line("Status:  #{entry[:status]}")
+      print_line("Queued:  #{entry[:queued_at]}")
+      if entry[:completed_at]
+        elapsed = entry[:completed_at] - entry[:queued_at]
+        print_line("Done:    #{entry[:completed_at]} (#{elapsed.round(1)}s)")
+      end
+      print_line
+      if entry[:output]
+        print_line(entry[:output])
+      elsif entry[:response]
+        print_line(entry[:response].inspect)
+      else
+        print_status('No output captured.')
+      end
+      return
+    end
+
+    # Show summary table
+    results = store.all
+    if results.empty?
+      print_status('No async commands queued.')
+      return
+    end
+
+    tbl = Rex::Text::Table.new(
+      'Header' => 'Async Command Queue',
+      'Indent' => 2,
+      'Columns' => ['RID (short)', 'Command', 'Status', 'Age']
+    )
+
+    results.each do |rid, entry|
+      # For running entries show elapsed-since-start (how long this item has
+      # been executing) so operators can distinguish a slow-but-progressing
+      # command from a hung one. For everything else show elapsed-since-queued.
+      reference = entry[:status] == Rex::Post::Meterpreter::AsyncResultStore::STATUS_RUNNING && entry[:started_at] ? entry[:started_at] : entry[:queued_at]
+      age = ::Time.now - reference
+      age_str = if age < 60
+                  "#{age.round(0)}s"
+                elsif age < 3600
+                  "#{(age / 60).round(0)}m"
+                else
+                  "#{(age / 3600).round(1)}h"
+                end
+      tbl << [rid[0..7], entry[:label] || '(unknown)', entry[:status].to_s, age_str]
+    end
+
+    print_line(tbl.to_s)
+  end
+
+  #
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
@@ -807,6 +1248,16 @@ class Console::CommandDispatcher::Core
     command = args.shift
     unless ['list', 'add', 'change', 'prev', 'next', 'remove'].include?(command)
       cmd_transport_help
+      return
+    end
+
+    # Guardrail: transport switching is not safe while async mode is active.
+    # Changing/removing the current transport tears down the session and would
+    # strand queued async work. 'list' is read-only and always allowed; 'add'
+    # is allowed so operators can stage a new transport before disabling async.
+    if client.async_mode_enabled? && !%w[list add].include?(command)
+      print_error("Transport '#{command}' is not permitted while async mode is enabled.")
+      print_status("Disable async mode first with 'async mode off'.")
       return
     end
 
@@ -1354,7 +1805,8 @@ class Console::CommandDispatcher::Core
       # First try it as a Post module if we have access to the Metasploit
       # Framework instance.  If we don't, or if no such module exists,
       # fall back to using the scripting interface.
-      if msf_loaded? && mod = client.framework.modules.create(script_name)
+      mod = client.framework.modules.create(script_name) if msf_loaded?
+      if mod
         original_mod = mod
         reloaded_mod = client.framework.modules.reload_module(original_mod)
 
@@ -1380,6 +1832,8 @@ class Console::CommandDispatcher::Core
         })
 
         print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
+      elsif shell.async_worker?
+        print_error('Meterpreter scripts cannot run inside an async job; use a Post module instead.')
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
