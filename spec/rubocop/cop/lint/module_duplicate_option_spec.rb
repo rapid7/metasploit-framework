@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'spec_helper'
 require 'rubocop/cop/lint/module_duplicate_option'
 
@@ -86,8 +84,8 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
 
         def initialize(info = {})
           super
-          register_options([Opt::RHOST('192.168.100.1')])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RHOST option again; set its value in DefaultOptions instead.
+          register_options([Opt::RHOST('192.0.2.1')])
+                            ^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RHOST option again; set its value in DefaultOptions instead.
         end
       end
     RUBY
@@ -128,10 +126,12 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
         def initialize(info = {})
           super
           register_options([OptPort.new('RPORT', [false, 'The target port', 4840])])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change whether the pre-existing RPORT option is required without deregistering it first.
         end
       end
     RUBY
+
+    expect_no_corrections
   end
 
   it 'flags an inherited option when its type and description change without autocorrecting it' do
@@ -164,17 +164,20 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
     RUBY
   end
 
-  it 'does not flag an Opt helper call that changes requiredness too' do
-    expect_no_offenses(<<~RUBY)
+  it 'flags an Opt helper call that changes requiredness without autocorrecting it' do
+    expect_offense(<<~RUBY)
       class MetasploitModule < Msf::Auxiliary
         include Msf::Exploit::Remote::Tcp
 
         def initialize(info = {})
           super
           register_options([Opt::RPORT(4840, false, 'The application port')])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change whether the pre-existing RPORT option is required without deregistering it first.
         end
       end
     RUBY
+
+    expect_no_corrections
   end
 
   it 'does not flag new options' do

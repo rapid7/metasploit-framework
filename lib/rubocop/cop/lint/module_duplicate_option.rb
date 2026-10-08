@@ -25,27 +25,28 @@ module RuboCop
 
         MIXIN_OPTIONS = {
           'Msf::Auxiliary::Scanner' => {
-            'RHOSTS' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
-            'THREADS' => { default: 1, description: 'The number of concurrent threads (max one per host)', type: 'OptInt' }
+            'RHOSTS' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', required: true, type: 'OptRhosts' },
+            'THREADS' => { default: 1, description: 'The number of concurrent threads (max one per host)', required: true, type: 'OptInt' }
           },
           'Msf::Exploit::Remote::HttpClient' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
-            'RPORT' => { default: 80, description: 'The target port', type: 'OptPort' },
-            'VHOST' => { default: nil, description: 'HTTP server virtual host', type: 'OptString' },
-            'SSL' => { default: false, description: 'Negotiate SSL/TLS for outgoing connections', type: 'OptBool' },
-            'Proxies' => { default: nil, description: nil, type: 'OptProxies' }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', required: true, type: 'OptRhosts' },
+            'RPORT' => { default: 80, description: 'The target port', required: true, type: 'OptPort' },
+            'VHOST' => { default: nil, description: 'HTTP server virtual host', required: false, type: 'OptString' },
+            'SSL' => { default: false, description: 'Negotiate SSL/TLS for outgoing connections', required: false, type: 'OptBool' },
+            'Proxies' => { default: nil, description: nil, required: false, type: 'OptProxies' }
           },
           'Msf::Exploit::Remote::Tcp' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
-            'RPORT' => { default: nil, description: 'The target port', type: 'OptPort' }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', required: true, type: 'OptRhosts' },
+            'RPORT' => { default: nil, description: 'The target port', required: true, type: 'OptPort' }
           },
           'Msf::Exploit::Remote::Udp' => {
-            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', type: 'OptRhosts' },
-            'RPORT' => { default: nil, description: 'The target port', type: 'OptPort' }
+            'RHOST' => { default: nil, description: 'The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html', required: true, type: 'OptRhosts' },
+            'RPORT' => { default: nil, description: 'The target port', required: true, type: 'OptPort' }
           }
         }.freeze
 
         MSG = 'Do not register the pre-existing %<option>s option again; set its value in DefaultOptions instead.'
+        REQUIREDNESS_MSG = 'Do not change whether the pre-existing %<option>s option is required without deregistering it first.'
         TYPE_MSG = 'Do not change the type of the pre-existing %<option>s option from %<expected>s to %<actual>s.'
 
         def on_class(class_node)
@@ -60,18 +61,25 @@ module RuboCop
               next unless inherited_options.key?(option_name)
 
               type_changed = type_changed?(option_node, inherited_options[option_name][:type])
-              next unless type_changed || description_unchanged?(option_node, inherited_options[option_name][:description])
+              requiredness_changed = requiredness_changed?(option_node, inherited_options[option_name][:required])
+              next unless type_changed || requiredness_changed || description_unchanged?(option_node, inherited_options[option_name][:description])
               next if deregistered_before?(class_node, register_node, option_name)
 
-              [option_node, option_name, inherited_options[option_name], type_changed]
+              [option_node, option_name, inherited_options[option_name], type_changed, requiredness_changed]
             end
           end
 
-          correctable_offenses = offenses.reject(&:last)
-          offenses.each do |option_node, option_name, option, type_changed|
-            message = type_changed ? format(TYPE_MSG, option: option_name, expected: option[:type], actual: option_type(option_node)) : format(MSG, option: option_name)
+          correctable_offenses = offenses.reject { |_option_node, _option_name, _option, type_changed, requiredness_changed| type_changed || requiredness_changed }
+          offenses.each do |option_node, option_name, option, type_changed, requiredness_changed|
+            message = if type_changed
+                        format(TYPE_MSG, option: option_name, expected: option[:type], actual: option_type(option_node))
+                      elsif requiredness_changed
+                        format(REQUIREDNESS_MSG, option: option_name)
+                      else
+                        format(MSG, option: option_name)
+                      end
             add_offense(option_node, message: message) do |corrector|
-              autocorrect(corrector, class_node, correctable_offenses) if !type_changed && option_node == correctable_offenses.first&.first
+              autocorrect(corrector, class_node, correctable_offenses) if !type_changed && !requiredness_changed && option_node == correctable_offenses.first&.first
             end
           end
         end
@@ -117,6 +125,23 @@ module RuboCop
 
         def option_type(node)
           node.receiver&.const_name if node.method?(:new)
+        end
+
+        def requiredness_changed?(node, inherited_requiredness)
+          requiredness = option_requiredness(node)
+          return false unless requiredness
+
+          return true unless requiredness.true_type? || requiredness.false_type?
+
+          requiredness.true_type? != inherited_requiredness
+        end
+
+        def option_requiredness(node)
+          if node.receiver&.const_name == 'Opt'
+            node.arguments[1]
+          elsif node.method?(:new)
+            node.arguments[1]&.values&.[](0)
+          end
         end
 
         def type_changed?(node, inherited_type)
