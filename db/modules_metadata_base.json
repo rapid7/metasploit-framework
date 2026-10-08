@@ -116608,6 +116608,63 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0768": {
+    "name": "Langflow AI Validate Code Injection unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0768",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-02",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.4.2 is susceptible to unauthenticated\n          remote code execution due to improper handling of the code\n          parameter provided to the `/validate` endpoint.\n\n          Arbitrary code is executed under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0768"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-01 18:21:13 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0768.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0768",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_unauth_rce_cve_2026_33017": {
     "name": "Langflow Unauth RCE",
     "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_33017",
