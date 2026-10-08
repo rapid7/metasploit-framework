@@ -51,7 +51,7 @@ sudo docker run -d \
 
 ## Options
 
-### SSETTimeout
+### SSETimeout
 
 The maximum number of seconds to wait for the MCP SSE response. Default: `15`.
 
