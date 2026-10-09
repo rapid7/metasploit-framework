@@ -136,7 +136,7 @@ module Msf::Util::EXE::Windows::Common
         size_suffix = match.last
       end
 
-      arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64'}.fetch(arch, nil)
+      arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64', ARCH_AARCH64 => 'aarch64'}.fetch(arch, nil)
       raise ArgumentError, 'The specified arch is not supported, no DLL templates are available for it.' if arch.nil?
 
       if flavor.present?

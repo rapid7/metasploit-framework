@@ -4,13 +4,16 @@
 
 .DESCRIPTION
     Compiles x86 and x64 variants of the EXE, service EXE, DLL, GDI+ DLL, and
-    mixed-mode DLL templates using the MSVC toolchain. After linking, the EXE
-    templates are patched to lower the minimum subsystem version so they can run
-    on legacy Windows (NT 4.0+ for x86, Server 2003+ for x64). Modern MSVC
-    linkers enforce a floor of 5.01/5.02 which is too high for those targets.
+    mixed-mode DLL templates using the MSVC toolchain. AArch64 currently builds
+    only the standard DLL from dll/template.c (same source as x86/x64, with
+    CONTEXT.Pc). After linking, the EXE templates are patched to lower the
+    minimum subsystem version so they can run on legacy Windows (NT 4.0+ for
+    x86, Server 2003+ for x64). Modern MSVC linkers enforce a floor of
+    5.01/5.02 which is too high for those targets.
 
 .PARAMETER Architectures
-    Which architectures to build. Defaults to both x86 and x64.
+    Which architectures to build. Defaults to x86 and x64. Pass aarch64 to
+    build the ARM64 DLL (vcvarsall arm64).
 
 .PARAMETER Templates
     Which templates to build. Defaults to all of them.
@@ -18,11 +21,12 @@
 .EXAMPLE
     .\build_all.ps1
     .\build_all.ps1 -Architectures x86
+    .\build_all.ps1 -Architectures aarch64 -Templates dll
     .\build_all.ps1 -Templates exe,exe_service
 #>
 
 param(
-    [ValidateSet('x86', 'x64')]
+    [ValidateSet('x86', 'x64', 'aarch64')]
     [string[]]$Architectures = @('x86', 'x64'),
 
     [ValidateSet('exe', 'exe_service', 'dll', 'dll_gdiplus', 'dll_mixed_mode')]
@@ -202,12 +206,24 @@ function Build-Template {
     }
 }
 
+# vcvarsall uses arm64; output filenames use aarch64 to match MSF templates.
+$VcArch = @{
+    x86     = 'x86'
+    x64     = 'x64'
+    aarch64 = 'arm64'
+}
+
 # Build each requested template for each architecture
 foreach ($arch in $Architectures) {
     Write-Host "`n=== Configuring for $arch ===" -ForegroundColor Cyan
-    Invoke-VCVars $arch
+    Invoke-VCVars $VcArch[$arch]
 
     foreach ($tmpl in $Templates) {
+        if ($arch -eq 'aarch64' -and $tmpl -ne 'dll') {
+            Write-Host "`nSkipping: $tmpl ($arch) - only dll/template.c is built for AArch64" -ForegroundColor Yellow
+            continue
+        }
+
         Write-Host "`nBuilding: $tmpl ($arch)" -ForegroundColor Green
         Build-Template -Arch $arch -Name $tmpl
     }
