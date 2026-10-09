@@ -212,7 +212,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     if extensions.is_a?(String)
       extensions = extensions.split(',')
     end
-    extensions = Array(extensions).map(&:strip).reject(&:empty?)
+    extensions = Array(extensions).map { |extension| extension.to_s.strip }.reject { |extension| extension.empty? || extension == '[]' }
 
     # BEGIN: This should be removed on MSF 7
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)

@@ -153,6 +153,7 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
+    self.micro_commands = []
     self.last_checkin = ::Time.now
 
     self.conn_id      = opts[:conn_id]
@@ -415,6 +416,7 @@ class Client
   #
   def deregister_extension_alias(name)
     self.ext_aliases.aliases.delete(name)
+    singleton_class.send(:remove_method, name.to_sym) if singleton_class.instance_methods(false).include?(name.to_sym)
   end
 
   #
@@ -524,6 +526,14 @@ class Client
   #
   attr_reader :commands
   #
+  # Commands provided by resident microextensions.
+  #
+  attr_reader :micro_commands
+  #
+  # Channel types provided by resident microextensions.
+  #
+  attr_reader :micro_channels
+  #
   # The timestamp of the last received response
   #
   attr_accessor :last_checkin
@@ -539,7 +549,7 @@ class Client
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
   attr_writer   :ext, :sock # :nodoc:
-  attr_writer   :commands # :nodoc:
+  attr_writer   :commands, :micro_commands, :micro_channels # :nodoc:
 end
 
 end; end; end
