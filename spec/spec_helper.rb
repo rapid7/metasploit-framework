@@ -116,6 +116,11 @@ RSpec.configure do |config|
   config.order = :random
 
   if load_metasploit
+    # A Framework fixture must not supply threads to later examples.
+    config.after(:example) do
+      Rex::ThreadFactory.provider = nil
+    end
+
     config.use_transactional_fixtures = true
 
     # rspec-rails 3 will no longer automatically infer an example group's spec type
