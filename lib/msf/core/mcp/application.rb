@@ -148,7 +148,6 @@ module Msf::MCP
       return unless @options[:enable_logging_cli] || @config.dig(:logging, :enabled)
 
       log_file = @options[:log_file_cli] || @config.dig(:logging, :log_file)
-      @config.dig(:logging, :level)
       threshold = case @config.dig(:logging, :level).upcase
                   when 'DEBUG'
                     Rex::Logging::LEV_3
@@ -295,6 +294,9 @@ module Msf::MCP
 
       if transport == :http
         ssl_enabled = @config.dig(:mcp, :ssl) == true
+        if !ssl_enabled && %i[ssl_cert ssl_key].any? { |k| !@config.dig(:mcp, k).to_s.empty? }
+          @output.puts 'Warning: mcp.ssl_cert/mcp.ssl_key are configured but mcp.ssl is not true; serving cleartext HTTP and ignoring the certificate.'
+        end
         ssl_cert, ssl_key, ssl_generated = ssl_enabled ? resolve_ssl_paths(host) : [nil, nil, false]
         scheme = ssl_enabled ? 'https' : 'http'
         @output.puts "Starting MCP server on HTTP#{ssl_enabled ? 'S' : ''} transport..."
@@ -320,7 +322,7 @@ module Msf::MCP
           @output.puts 'Authentication: Bearer token (auto-generated)'
           @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
         else
-          raise 'auth_token did not resolve to a supported value.'
+          raise Msf::MCP::Error, "auth_token did not resolve to a supported value: #{auth_token.inspect}"
         end
         @output.puts 'Press Ctrl+C to shutdown'
 

@@ -554,6 +554,23 @@ RSpec.describe Msf::MCP::Application do
 
       app.send(:start_mcp_server)
     end
+
+    it 'warns when ssl_cert/ssl_key are configured but ssl is not true' do
+      http_config = valid_config.dup
+      http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: false,
+                             ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key' }
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@config, http_config)
+      app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+      expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(ssl_cert: nil, ssl_key: nil))
+
+      app.send(:start_mcp_server)
+
+      expect(output.string).to include('mcp.ssl_cert/mcp.ssl_key are configured but mcp.ssl is not true')
+    end
   end
 
   describe '#shutdown' do
