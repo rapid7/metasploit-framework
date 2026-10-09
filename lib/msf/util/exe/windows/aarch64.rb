@@ -9,9 +9,10 @@ module Msf::Util::EXE::Windows::Aarch64
 
   module ClassMethods
     # The size, in bytes, of the fixed `payload[]` buffer declared in
-    # data/templates/src/pe/exe/template_aarch64_windows.c and
-    # data/templates/src/pe/dll/template_aarch64_windows.c (SCSIZE). Shellcode
+    # data/templates/src/pe/exe/template_aarch64_windows.c (SCSIZE). Shellcode
     # longer than this would overwrite adjacent bytes in the compiled template.
+    # The AArch64 DLL uses the shared pe/dll/template.c buffers (4KiB / 256KiB)
+    # via {#set_template_default_winpe_dll}, not this constant.
     WINAARCH64_PAYLOAD_SPACE = 8192
 
     # Construct a Windows AArch64 PE executable with the given shellcode.
@@ -38,11 +39,15 @@ module Msf::Util::EXE::Windows::Aarch64
     # @raise [RuntimeError] if opts[:inject] is set, which is unsupported.
     # @return [String] The constructed PE DLL as a binary string.
     def to_winaarch64pe_dll(framework, code, opts = {})
+      set_template_default_winpe_dll(opts, ARCH_AARCH64, code.size)
+
+      opts[:exe_type] = :dll
+
       if opts[:inject]
         raise RuntimeError, 'Template injection unsupported for AArch64 DLLs'
+      else
+        exe_sub_method(code, opts)
       end
-
-      inject_winaarch64_payload(code, opts, 'template_aarch64_windows.dll')
     end
 
     # Overwrite the "PAYLOAD:" tag in a Windows AArch64 PE template.
