@@ -45,14 +45,19 @@ This action does not prove KDC ticket-key ownership.
 ### HIJACK
 
 Adds `SPN` plus `UNICODE_CODEPOINT` to the target account and classifies the resulting LDAP resolution as a hijack,
-collision, or ineffective write. An ineffective write is rolled back automatically. A successful hijack or collision
-is left in place for authorized testing and must be removed with `CLEANUP`.
+collision, or ineffective write. A collision is only reported when the target account becomes a new owner of the clean
+SPN, so a name that already had several owners is not mistaken for a successful write. An ineffective write is rolled
+back automatically, as is a write whose verification query fails. A successful hijack or collision is left in place
+for authorized testing and must be removed with `CLEANUP`.
 
 The module refuses to overwrite or later roll back an identical hidden-character SPN that was already present.
 
 ### CLEANUP
 
-Removes the exact value produced from `SPN` and `UNICODE_CODEPOINT`.
+Removes the exact value produced from `SPN` and `UNICODE_CODEPOINT`. The action is idempotent: it reads the target's
+SPNs first and does nothing when that exact value is absent. Because the module cannot tell a value it wrote from an
+identical value that was already there, it warns before the delete. Compare the value against the baseline recorded
+during lab setup before confirming the removal.
 
 ## Verification Steps
 
@@ -89,6 +94,9 @@ The clean service principal name to query or influence, for example `cifs/DC1.ex
 for `AUDIT`, `HIJACK`, and `CLEANUP`. `CHECK` generates a random probe instead.
 
 Use the exact hostname clients put in the TGS request. Short-name and fully qualified SPNs are different values.
+
+Supply the clean value only. The module rejects an `SPN` that already carries a comparison-ignorable codepoint,
+because every clean-SPN query it runs would otherwise be a query for a poisoned value.
 
 ### UNICODE_CODEPOINT
 

