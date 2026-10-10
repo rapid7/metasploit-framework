@@ -170,11 +170,12 @@ The accounts above belong to a disposable laboratory container and were created 
 The hash bodies are redacted because the contribution checklist asks for no hashes in code or documentation.
 The `$wp$2y$` prefix is kept because it determines the cracking path described below.
 
-WordPress 6.8 and later store `$wp$2y$` hashes, which are bcrypt applied to an HMAC-SHA384 pre-hash of the
-password. `Metasploit::Framework::Hashes.identify_hash` does not recognize that prefix yet, so the
-credentials are stored without a John the Ripper format. John the Ripper has no native format for them
-either. Hashcat can crack them through its bridge mode. Targets running WordPress before 6.8 return `$P$`
-phpass hashes, which are identified and cracked normally.
+By default, WordPress 6.8 and later create `$wp$2y$` hashes, which are bcrypt applied to an HMAC-SHA384
+pre-hash of the password. Existing `$P$` phpass hashes stay in place until the user next logs in or changes
+their password, so a 6.8 or later site can still return them. `Metasploit::Framework::Hashes.identify_hash`
+does not recognize the `$wp$2y$` prefix yet, so those credentials are stored without a John the Ripper
+format. John the Ripper has no native format for them either. Hashcat can crack them through its bridge
+mode. The `$P$` phpass hashes are identified and cracked normally.
 
 ### Quotes Llama 3.1.6, the patched version
 
