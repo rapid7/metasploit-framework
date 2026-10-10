@@ -37,7 +37,6 @@ The following information is enumerated:
   5. Do: ```run```
   6. You should have lots of files saved to the logs folder
 
-
 ## Scenarios
 
 ### User level shell on OSX 10.14.4
