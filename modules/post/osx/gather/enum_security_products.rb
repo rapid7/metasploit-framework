@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -11,15 +12,15 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'OSX Security Product Enumeration',
+        'Name' => 'OSX Gather Security Product Enumeration',
         'Description' => %q{
           This module enumerates OSX systems for the presence of defensive products by enumerating the processes
           running on the device. The AV_FILE_LIST option specifies a file which contains a list of additional security
-           products to hunt for, each of which should be seperated by a newline character.
+          products to hunt for, each of which should be seperated by a newline character.
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'gardnerapp', # Team Wild Star 
+          'gardnerapp', # Team Wild Star
           'cdelafuente-r7'
         ],
         'Platform' => [ 'osx' ],
@@ -38,10 +39,10 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptPath.new('AV_FILE_LIST',
-                      [
-                        false,
-                        'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
-                      ]),
+                    [
+                      false,
+                      'File containing a list of AV products to hunt for. Each value should be seperated by a newline character and matching will be done in a case insensitive fashion', nil
+                    ]),
       ]
     )
   end
@@ -49,7 +50,7 @@ class MetasploitModule < Msf::Post
   # good canidate for an acessory method
   # reads a file and returns each line as an element in an array
   def file_to_array(file)
-    f = File.open file
+    File.open file
     File.readlines(file, chomp: true)
   end
 
