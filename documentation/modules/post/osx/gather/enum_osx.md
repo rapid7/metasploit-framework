@@ -37,11 +37,6 @@ The following information is enumerated:
   5. Do: ```run```
   6. You should have lots of files saved to the logs folder
 
-## Options
-
-### AV_FILE_LSIT 
-
-A path to a file containing user specified security products to enumerate for. All items should be seperated by a new line character. 
 
 ## Scenarios
 
