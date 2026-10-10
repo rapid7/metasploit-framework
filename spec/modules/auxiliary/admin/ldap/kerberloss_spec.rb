@@ -51,6 +51,47 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
     end
   end
 
+  describe '#clean_spn?' do
+    it 'accepts an SPN that the DC compares verbatim' do
+      expect(mod.send(:clean_spn?, 'cifs/DC1.kerberloss.test')).to be(true)
+    end
+
+    it 'rejects an SPN that already carries a comparison-ignorable character' do
+      expect(mod.send(:clean_spn?, "cifs/DC1.kerberloss.test\u{200c}")).to be(false)
+    end
+  end
+
+  describe '#validate' do
+    let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
+
+    before do
+      allow(mod).to receive(:optional_session_enabled?).and_return(false)
+      mod.datastore['TARGET_DN'] = target_dn
+    end
+
+    it 'runs the framework option validation before the module specific checks' do
+      mod.datastore['SPN'] = 'cifs/DC1.kerberloss.test'
+      expect(mod.options).to receive(:validate).with(mod.datastore)
+
+      mod.validate
+    end
+
+    it 'rejects an SPN that already contains a comparison-ignorable character' do
+      allow(mod.options).to receive(:validate)
+      mod.datastore['SPN'] = "cifs/DC1.kerberloss.test\u{200c}"
+
+      error = nil
+      begin
+        mod.validate
+      rescue Msf::OptionValidateError => e
+        error = e
+      end
+
+      expect(error).to be_a(Msf::OptionValidateError)
+      expect(error.reasons['SPN'].join).to match(/comparison-ignorable/)
+    end
+  end
+
   describe '#classify_resolution' do
     let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
     let(:owner_dn) { 'CN=DC1,OU=Domain Controllers,DC=kerberloss,DC=test' }
@@ -65,6 +106,106 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
 
     it 'classifies a write that does not resolve to the target as ineffective' do
       expect(mod.send(:classify_resolution, [], [], target_dn)).to eq(:ineffective)
+    end
+
+    it 'does not report a collision when the pre-existing owners are unchanged' do
+      owners = [owner_dn, 'CN=DC2,OU=Domain Controllers,DC=kerberloss,DC=test']
+      expect(mod.send(:classify_resolution, owners, owners, target_dn)).to eq(:ineffective)
+    end
+
+    it 'classifies an unchanged pre-existing target owner as ineffective' do
+      expect(mod.send(:classify_resolution, [target_dn], [target_dn], target_dn)).to eq(:ineffective)
+    end
+  end
+
+  describe '#action_hijack' do
+    let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
+    let(:owner_dn) { 'CN=DC1,OU=Domain Controllers,DC=kerberloss,DC=test' }
+    let(:clean_spn) { 'cifs/DC1.kerberloss.test' }
+    let(:hidden_spn) { "cifs/DC1.kerberloss.test\u{200c}" }
+
+    before do
+      mod.instance_variable_set(:@target_dn, target_dn)
+      mod.datastore['SPN'] = clean_spn
+      allow(mod).to receive(:target_spns).and_return([])
+      allow(mod).to receive(:print_status)
+      allow(mod).to receive(:print_good)
+      allow(mod).to receive(:print_warning)
+      allow(mod).to receive(:print_error)
+    end
+
+    it 'keeps the SPN when the clean name resolves to the target account' do
+      allow(mod).to receive(:spn_owners).and_return([], [target_dn])
+      expect(mod).to receive(:add_spn).with(target_dn, hidden_spn)
+      expect(mod).not_to receive(:delete_spn)
+
+      mod.action_hijack
+    end
+
+    it 'rolls back the exact value when the verification query fails' do
+      calls = 0
+      allow(mod).to receive(:spn_owners) do
+        calls += 1
+        raise Net::LDAP::Error, 'verification failed' if calls > 1
+
+        []
+      end
+      expect(mod).to receive(:add_spn).with(target_dn, hidden_spn)
+      expect(mod).to receive(:delete_spn).with(target_dn, hidden_spn)
+
+      expect { mod.action_hijack }.to raise_error(Net::LDAP::Error, /verification failed/)
+    end
+
+    it 'reports a failed rollback without masking the original error' do
+      calls = 0
+      allow(mod).to receive(:spn_owners) do
+        calls += 1
+        raise Net::LDAP::Error, 'verification failed' if calls > 1
+
+        []
+      end
+      allow(mod).to receive(:add_spn)
+      allow(mod).to receive(:delete_spn).and_raise(Net::LDAP::Error, 'rollback failed')
+      expect(mod).to receive(:print_error).with(/remove it manually/)
+
+      expect { mod.action_hijack }.to raise_error(Net::LDAP::Error, /verification failed/)
+    end
+
+    it 'rolls back when the clean SPN already had several owners and nothing changed' do
+      owners = [owner_dn, 'CN=DC2,OU=Domain Controllers,DC=kerberloss,DC=test']
+      allow(mod).to receive(:spn_owners).and_return(owners, owners)
+      allow(mod).to receive(:add_spn)
+      expect(mod).to receive(:delete_spn).with(target_dn, hidden_spn)
+
+      mod.action_hijack
+    end
+  end
+
+  describe '#action_cleanup' do
+    let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
+    let(:hidden_spn) { "cifs/DC1.kerberloss.test\u{200c}" }
+
+    before do
+      mod.instance_variable_set(:@target_dn, target_dn)
+      mod.datastore['SPN'] = 'cifs/DC1.kerberloss.test'
+      allow(mod).to receive(:print_status)
+      allow(mod).to receive(:print_good)
+      allow(mod).to receive(:print_warning)
+    end
+
+    it 'does not issue a write when the exact value is absent' do
+      allow(mod).to receive(:target_spns).and_return(['cifs/DC1.kerberloss.test'])
+      expect(mod).not_to receive(:delete_spn)
+
+      mod.action_cleanup
+    end
+
+    it 'warns that it removes a value this module may not have added' do
+      allow(mod).to receive(:target_spns).and_return([hidden_spn])
+      expect(mod).to receive(:print_warning).with(/even if this module did not add it/)
+      expect(mod).to receive(:delete_spn).with(target_dn, hidden_spn)
+
+      mod.action_cleanup
     end
   end
 
