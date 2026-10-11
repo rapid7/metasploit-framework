@@ -29,7 +29,8 @@ begin
           RbReadline.rl_parse_and_bind('"\e[1;5D": backward-word')
           RbReadline.rl_parse_and_bind('"\e[1;5C": forward-word')
           RbReadline.rl_parse_and_bind('"\e[3;5~": kill-word')
-        rescue Exception
+        rescue StandardError => e
+          dlog("Failed to register RbReadline word-navigation key bindings: #{e.class} - #{e.message}")
         end
       end
 
