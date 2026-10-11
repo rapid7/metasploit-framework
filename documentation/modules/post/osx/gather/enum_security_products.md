@@ -22,7 +22,7 @@ Symantec
 ## Verification Steps
 1) Start msfconsole
 2) Obtain a shell on an OSX device
-3) Do: `use post/osx/gather/antivirus_hunter`
+3) Do: `use post/osx/gather/enum_security_products`
 4) Do: `set session #`
 5) ** Optional ** Do: `set AV_FILE_LIST <file>`
 6) Do: `run`
@@ -48,8 +48,6 @@ msf post(osx/gather/antivirus_hunter) > run
 [+] Found potential process artifact for LuLu: {"name"=>"LuLu", "pid"=>700}
 [+] Found potential process artifact for BlockBlock: {"name"=>"BlockBlock Helpe", "pid"=>697}
 [+] Found potential process artifact for BlockBlock: {"name"=>"BlockBlock", "pid"=>344}
-[+] Found potential process artifact for Xprotect: {"name"=>"JAMF", "pid"=>36895}
-[+] Found potential process artifact for Xprotect: {"name"=>"CrowdStrike Agent", "pid"=>35985}
 [*] Post module execution completed
 msf post(osx/gather/antivirus_hunter) > exit
 ```

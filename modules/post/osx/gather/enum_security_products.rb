@@ -50,8 +50,10 @@ class MetasploitModule < Msf::Post
   # good canidate for an acessory method
   # reads a file and returns each line as an element in an array
   def file_to_array(file)
-    File.open file
-    File.readlines(file, chomp: true)
+    f = File.open file
+    array = f.readlines(chomp: true)
+    f.close
+    array
   end
 
   def enum_processes(product)
@@ -91,6 +93,8 @@ class MetasploitModule < Msf::Post
     if datastore['AV_FILE_LIST']
       file = datastore['AV_FILE_LIST']
       av = file_to_array file
+      av.reject!(&:empty?)
+
       av.each do |prod|
         enum_processes prod
       end
