@@ -25210,6 +25210,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/langflow_auth_bypass_cve_2026_93680": {
+    "name": "Langflow AI Authentication Bypass",
+    "fullname": "auxiliary/gather/langflow_auth_bypass_cve_2026_93680",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-22",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.11.4 allow unauthenticated\n          connections to the MCP SSE endpoint, allowing attackers to initialize\n          MCP sessions and retrieve privileged MCP-related information.\n\n          The MCP information collected from this module is stored in Metasploit\n          loot as a JSON document.",
+    "references": [
+      "CVE-2026-93680"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-02 13:54:04 +0000",
+    "path": "/modules/auxiliary/gather/langflow_auth_bypass_cve_2026_93680.rb",
+    "is_install_path": true,
+    "ref_name": "gather/langflow_auth_bypass_cve_2026_93680",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/lansweeper_collector": {
     "name": "Lansweeper Credential Collector",
     "fullname": "auxiliary/gather/lansweeper_collector",
@@ -53973,7 +54026,7 @@
       "postgres"
     ],
     "targets": null,
-    "mod_time": "2025-09-02 16:31:33 +0000",
+    "mod_time": "2026-10-07 19:04:03 +0000",
     "path": "/modules/auxiliary/scanner/postgres/postgres_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/postgres/postgres_login",
@@ -83020,6 +83073,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/nable_ncentral_unauth_rce_cve_2026_86218": {
+    "name": "N-able N-central Struts BeanUtils Unauthenticated RCE",
+    "fullname": "exploit/linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-09-05",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "N-able N-central before 2026.3.1.14 uses a session-scoped Struts form on\n          an unauthenticated action. Two concurrent multipart requests can race the\n          form's multipart handler and expose Jetty's live configuration to Commons\n          BeanUtils property population.\n\n          This module changes a lazy N-central servlet holder into Jetty's bundled\n          CGI servlet, configures it to invoke /bin/sh, and sends a command payload\n          through the holder's existing URL mapping. By default, a second CGI\n          request uses N-central's local JMX service and installed Java libraries to\n          stop only the changed holder and restore its original servlet in memory.",
+    "references": [
+      "CVE-2026-86218",
+      "URL-https://me.n-able.com/s/security-advisory/aArVy0000002Ld3KAE/cve202686218-preauthentication-remote-code-execution",
+      "URL-https://documentation.n-able.com/N-central/Release_Notes/GA/Content/N-central_2026.3_HF4_Release_Notes.htm"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-18 14:55:32 +0000",
+    "path": "/modules/exploits/linux/http/nable_ncentral_unauth_rce_cve_2026_86218.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "service-resource-loss"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/nagios_xi_autodiscovery_webshell": {
     "name": "Nagios XI Autodiscovery Webshell Upload",
     "fullname": "exploit/linux/http/nagios_xi_autodiscovery_webshell",
@@ -94609,6 +94723,56 @@
       "meterpreter"
     ],
     "needs_cleanup": null,
+    "actions": []
+  },
+  "exploit_linux/local/cve_2026_3888": {
+    "name": "Local Privilege Escalation in snapd",
+    "fullname": "exploit/linux/local/cve_2026_3888",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-17",
+    "type": "exploit",
+    "author": [
+      "msutovsky-r7",
+      "Qualys Security Advisory Team"
+    ],
+    "description": "The `snap-confine` in some Ubuntu versions is vulnerable to race condition, when setting up snap sandbox and creating mimic of /usr/lib/x86_64-linux-gnu.\n          The snapd package is vulnerable up to version 2.74.1+ubuntu26.04.3 - however, each minor version has its own patch.\n          The time window between creating bind-mounted copies of real libraries and copying them into sandbox /usr/lib/x86_64-linux-gnu allows the attacker to take control of content of those libraries by recreating /tmp/.snap folder.\n          This folder is owned by root, but it's auto-deleted after 30 days without activity (by default on Ubuntu 24.04+).\n          The attacker can recreate this folder once it is deleted and take over the sandboxed libraries.\n          After gaining root inside sandbox, it can escape the sandbox by copying setuid binary into host filesystem.",
+    "references": [
+      "URL-https://blog.qualys.com/vulnerabilities-threat-research/2026/03/17/cve-2026-3888-important-snap-flaw-enables-local-privilege-escalation-to-root",
+      "URL-https://cdn2.qualys.com/advisory/2026/03/17/snap-confine-systemd-tmpfiles.txt",
+      "CVE-2026-3888"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-09-22 18:03:09 +0000",
+    "path": "/modules/exploits/linux/local/cve_2026_3888.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/cve_2026_3888",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
     "actions": []
   },
   "exploit_linux/local/cve_2026_43284_dirty_frag": {
@@ -116260,6 +116424,64 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_auth_rce_cve_2026_7873": {
+    "name": "Langflow AI Code Validation Authenticated RCE",
+    "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_7873",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-30",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "n0k0"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.10.0 are susceptible to authenticated remote code\n          execution due to improper validation of code in the `/api/v1/validate/code` endpoint.\n\n          Arbitrary code is executed under the context of the backend Langflow process.",
+    "references": [
+      "CVE-2026-7873",
+      "URL-https://www.ibm.com/support/pages/node/7278441"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 08:39:45 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_rce_cve_2026_7873.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_rce_cve_2026_7873",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_rce_cve_2026_0770": {
     "name": "Langflow Unauthenticated RCE (validate endpoint)",
     "fullname": "exploit/multi/http/langflow_rce_cve_2026_0770",
@@ -116430,6 +116652,120 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0768": {
+    "name": "Langflow AI Validate Code Injection unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0768",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-02",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.4.2 is susceptible to unauthenticated\n          remote code execution due to improper handling of the code\n          parameter provided to the `/validate` endpoint.\n\n          Arbitrary code is executed under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0768"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-01 18:21:13 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0768.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0768",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0769": {
+    "name": "Langflow AI Custom Component Eval Injection Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0769",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-01-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.3.2 is susceptible to\n          unauthenticated remote code execution due to improper\n          input validation in the eval_custom_component_code() function.\n\n          Arbitrary code executes under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0769"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 11:52:00 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -119896,6 +120232,63 @@
         "artifacts-on-disk",
         "ioc-in-logs",
         "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/opencti_jsonmapper_safeejs_rce": {
+    "name": "OpenCTI JSON Mapper safeEjs Sandbox Escape RCE",
+    "fullname": "exploit/multi/http/opencti_jsonmapper_safeejs_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-21",
+    "type": "exploit",
+    "author": [
+      "Ege Balci"
+    ],
+    "description": "OpenCTI is an open source cyber threat intelligence platform built as a Node.js\n          GraphQL application. Its data-mapping feature lets a user attach an EJS \"formula\"\n          to a JSON mapper attribute, which the backend renders through a home-grown sandbox\n          (safeEjs) that is intended to allow only arithmetic and property access over the\n          mapped data.\n\n          The sandbox verifier permits assignment to identifiers it merely allow-lists, such\n          as the String global. Because the generated EJS runs in sloppy mode inside a\n          `with(locals)` block, that assignment reaches the global object, and the sandbox's\n          own runtime property guard then calls the now-attacker-controlled String() when it\n          normalises property names. Poisoning String defeats the guard's constructor\n          deny-list, and `({})['constructor']['constructor']` yields Function, giving\n          arbitrary JavaScript execution in the OpenCTI API process. The formula is rendered\n          synchronously in the main process rather than in the isolated worker used by the\n          other render sites, so execution lands in the process that holds the platform's\n          Elasticsearch, object-store and message-queue clients.\n\n          The jsonMapperTest GraphQL mutation reaches this render path and requires only the\n          CSVMAPPERS (\"Manage data mappers\") capability. The GraphQL endpoint is authenticated,\n          so the module offers three ways to obtain a context that satisfies it. AUTH_MODE=password\n          logs in with USERNAME and PASSWORD through the public `token` mutation and reuses the\n          resulting opencti_session cookie, optionally completing 2FA with OTP_CODE. AUTH_MODE=token\n          sends a pre-existing OpenCTI API token as a bearer credential. When a target has the\n          header-based authentication strategy enabled without a proxy-source restriction,\n          AUTH_MODE=header obtains a session for an arbitrary user (for example the platform\n          administrator) with no credential at all.",
+    "references": [
+      "GHSA-f56m-h35g-vfg5",
+      "URL-https://github.com/OpenCTI-Platform/opencti"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 8080,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-17 11:36:10 +0000",
+    "path": "/modules/exploits/multi/http/opencti_jsonmapper_safeejs_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencti_jsonmapper_safeejs_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -240049,6 +240442,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/ftp/aarch64/exec": {
+    "name": "FTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/ftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/ftp/aarch64/shell/reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/ftp/aarch64/shell_reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/ftp/x64/custom/bind_ipv6_tcp": {
     "name": "FTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/ftp/x64/custom/bind_ipv6_tcp",
@@ -251787,6 +252293,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/http/aarch64/exec": {
+    "name": "HTTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/http/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/http/aarch64/shell/reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/http/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/http/aarch64/shell_reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/http/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/http/x64/custom/bind_ipv6_tcp": {
     "name": "HTTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/http/x64/custom/bind_ipv6_tcp",
@@ -263493,6 +264112,119 @@
     "staged": true,
     "stage_refname": "windows/vncinject",
     "stager_refname": "windows/reverse_winhttp"
+  },
+  "payload_cmd/windows/https/aarch64/exec": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/https/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/https/aarch64/shell/reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/https/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/https/aarch64/shell_reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/https/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
   },
   "payload_cmd/windows/https/x64/custom/bind_ipv6_tcp": {
     "name": "HTTPS Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
@@ -290489,6 +291221,119 @@
     "stage_refname": "windows/x64/vncinject",
     "stager_refname": "windows/x64/reverse_winhttps"
   },
+  "payload_cmd/windows/tftp/aarch64/exec": {
+    "name": "TFTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/tftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/tftp/aarch64/shell/reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/tftp/aarch64/shell_reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/tftp/x64/custom/bind_ipv6_tcp": {
     "name": "TFTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/tftp/x64/custom/bind_ipv6_tcp",
@@ -316537,7 +317382,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-30 17:51:41 +0000",
+    "mod_time": "2026-10-02 16:10:00 +0000",
     "path": "/modules/post/linux/gather/enum_protections.rb",
     "is_install_path": true,
     "ref_name": "linux/gather/enum_protections",

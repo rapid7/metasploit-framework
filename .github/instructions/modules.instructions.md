@@ -4,6 +4,17 @@ applyTo: "modules/**/*.rb"
 
 # Module Development Instructions
 
+## Getting Started
+
+Before writing a module from scratch, scaffold it with the generator:
+```
+bundle exec rake 'msf:generate[TYPE,PATH]'
+```
+This creates the module file and documentation skeleton with correct structure and metadata.
+Run `bundle exec rake msf:generate:types` for available types and examples.
+
+After scaffolding, resolve ALL `TODO:` and `PLACEHOLDER:` comments and placeholder values before submitting. No placeholder text, empty Notes arrays, or stub methods should remain in the final module.
+
 ## Structure Order
 
 1. Header comment block
