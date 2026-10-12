@@ -219,7 +219,6 @@ class Obj
         end
       end
     end
-
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(::Encoding::UTF_8)
   end
