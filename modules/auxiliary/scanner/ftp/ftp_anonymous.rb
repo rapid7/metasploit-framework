@@ -11,32 +11,42 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Module::Deprecated
   moved_from 'auxiliary/scanner/ftp/anonymous'
 
-  def initialize
+  def initialize(info = {})
     super(
-      'Name' => 'Anonymous FTP Access Detection',
-      'Description' => 'Detect anonymous (read/write) FTP service access.',
-      'References' => [
-        ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
-        ['CVE', '1999-0497'],
-      ],
-      'Author' => [
-        'Matteo Cantoni <goony[at]nothink.org>',
-        'g0tmi1k' # @g0tmi1k - additional features
-      ],
-      'License' => MSF_LICENSE,
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'SideEffects' => [IOC_IN_LOGS],
-        'Reliability' => []
-      }
+      update_info(
+        info,
+        'Name' => 'Anonymous FTP Access Detection',
+        'Description' => 'Detect anonymous (read/write) FTP service access.',
+        'References' => [
+          ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
+          ['CVE', '1999-0497'],
+        ],
+        'Author' => [
+          'Matteo Cantoni <goony[at]nothink.org>',
+          'g0tmi1k' # @g0tmi1k - additional features
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
     )
 
     register_options(
       [
         Opt::RPORT(21),
-        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true])
+        OptBool.new('STORE_LOOT', [false, 'Store the directory listing as loot', true]),
+        OptBool.new('EXTENDED_CHECKS', [false, 'Gather service info via FEAT, STAT and SYST', true])
       ]
     )
+
+    # Some servers may accept anonymous login under the username `ftp` (RFC 959)
+    # Some servers may also check the password is a valid email address
+    deregister_options('FTPUSER', 'FTPPASS')
+    datastore['FTPUSER'] = 'anonymous'
+    datastore['FTPPASS'] = 'mozilla@example.com'
   end
 
   def run_host(target_host)
@@ -56,21 +66,10 @@ class MetasploitModule < Msf::Auxiliary
         access_type = 'Read-only'
       end
 
-      print_good("Anonymous #{access_type} access (#{@banner_version})")
+      print_good("Anonymous #{access_type} access (#{banner_version})")
 
-      if datastore['STORE_LOOT']
-        vprint_status('Listing directory contents')
-        listing = send_cmd_data(['LS'], nil)
-        if listing.nil?
-          print_warning('Could not retrieve directory listing (data connection failed)')
-        elsif listing[1].nil? || listing[1].empty?
-          vprint_status('Directory listing: (empty)')
-        else
-          vprint_status("Directory listing:\n#{listing[1]}")
-          path = store_loot('ftp.anonymous', 'text/plain', rhost, listing[1], 'ftp_anonymous.txt', 'Anonymous FTP directory listing')
-          print_good("Directory listing stored to: #{path}")
-        end
-      end
+      ftp_list_directory(username: datastore['FTPUSER'], save_loot: true) if datastore['STORE_LOOT']
+      ftp_fingerprint(username: datastore['FTPUSER']) if datastore['EXTENDED_CHECKS']
 
       report_vuln(
         host: rhost,
@@ -87,9 +86,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_warning('No FTP banner received')
     end
+  rescue ::Rex::ConnectionRefused
+    vprint_error('Connection refused')
   rescue ::Rex::TimeoutError, ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNREFUSED => e
     vprint_error(e.message)
-    report_host(host: rhost)
   rescue ::Interrupt
     raise $ERROR_INFO
   ensure
