@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            print_good "Success: '#{result.credential}'"
             successful_logins << result
 
             if create_session?
@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
             end
           else
             invalidate_login(credential_data)
-            vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+            vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
           end
         end
 
