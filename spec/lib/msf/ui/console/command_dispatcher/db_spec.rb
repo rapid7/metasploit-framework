@@ -253,29 +253,161 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       ensure
         RSpec::Expectations.configuration.max_formatted_output_length = orig
       end
+
+      describe "-t" do
+        it "nests each service underneath the service it runs on top of" do
+          db.cmd_services "-t"
+          expect(@output.join("\n")).to match_table <<~'TABLE'
+            Services
+            ========
+
+            host         port  proto  name            state  info  resource
+            ----         ----  -----  ----            -----  ----  --------
+            192.168.0.1  1024  udp    service3        open         {"base_url":"/service3"}
+            192.168.0.1  1024  udp    \- service2     open         {"base_url":"/service2"}
+            192.168.0.1  1024  udp       \- service1  open         {"base_url":"/service1"}
+          TABLE
+        end
+
+        it "drops the parents column, which would only restate the row above" do
+          db.cmd_services "-t"
+
+          expect(@output.join("\n")).to_not include 'parents'
+        end
+
+        it "warns and falls back to a flat table when writing to a file" do
+          output_file = ::Tempfile.new('services')
+
+          begin
+            db.cmd_services "-t", "-o", output_file.path
+
+            expect(@error.join("\n")).to include 'Ignoring --tree'
+            expect(::File.read(output_file.path)).to include 'parents'
+          ensure
+            output_file.close
+            output_file.unlink
+          end
+        end
+
+        it "warns that --order is ignored" do
+          db.cmd_services "-t", "-O", "2"
+
+          expect(@error.join("\n")).to include 'Ignoring --order'
+        end
+
+        it "warns when the name column is hidden" do
+          db.cmd_services "-t", "-c", "port,state"
+
+          expect(@error.join("\n")).to include 'the hierarchy is drawn on the first visible service column'
+        end
+
+        describe "--tree-style" do
+          it "draws the hierarchy with box drawing characters when asked for unicode" do
+            db.cmd_services "--tree-style", "unicode"
+
+            expect(@output.join("\n")).to match_table <<~TABLE
+              Services
+              ========
+
+              host         port  proto  name            state  info  resource
+              ----         ----  -----  ----            -----  ----  --------
+              192.168.0.1  1024  udp    service3        open         {"base_url":"/service3"}
+              192.168.0.1  1024  udp    \u2514\u2500 service2     open         {"base_url":"/service2"}
+              192.168.0.1  1024  udp       \u2514\u2500 service1  open         {"base_url":"/service1"}
+            TABLE
+          end
+
+          it "turns the tree on by itself, since it means nothing otherwise" do
+            db.cmd_services "--tree-style", "ascii"
+
+            expect(@output.join("\n")).to include '\\- service2'
+          end
+
+          it "rejects an unknown style without printing a table" do
+            db.cmd_services "--tree-style", "emoji"
+
+            expect(@error.join("\n")).to include 'Invalid tree style'
+            expect(@output.to_a.join("\n")).to_not include 'Services'
+          end
+        end
+
+        describe "--tree-group" do
+          it "nests the services underneath host, port, and protocol rows" do
+            db.cmd_services "--tree-group"
+
+            expect(@output.join("\n")).to match_table <<~'TABLE'
+              Services
+              ========
+
+              host / port / proto / name  state  info  resource
+              --------------------------  -----  ----  --------
+              192.168.0.1
+              \- 1024
+                 \- udp
+                    \- service3           open         {"base_url":"/service3"}
+                       \- service2        open         {"base_url":"/service2"}
+                          \- service1     open         {"base_url":"/service1"}
+            TABLE
+          end
+        end
+
+        context "with two services running on top of the same service" do
+          before(:example) do
+            parent = {
+              host: '192.168.0.2',
+              port: 8000,
+              name: 'http',
+              proto: 'tcp',
+              resource: { base_url: '/' }
+            }
+
+            framework.db.report_service(parent)
+            framework.db.report_service(parent.merge(name: 'jenkins', resource: { base_url: '/jenkins' }, parents: parent))
+            framework.db.report_service(parent.merge(name: 'robots.txt', resource: { base_url: '/robots.txt' }, parents: parent))
+          end
+
+          it "marks the last sibling apart from the ones with siblings below them" do
+            db.cmd_services "-t", "192.168.0.2"
+
+            expect(@output.join("\n")).to match_table <<~'TABLE'
+              Services
+              ========
+
+              host         port  proto  name           state  info  resource
+              ----         ----  -----  ----           -----  ----  --------
+              192.168.0.2  8000  tcp    http           open         {"base_url":"/"}
+              192.168.0.2  8000  tcp    +- jenkins     open         {"base_url":"/jenkins"}
+              192.168.0.2  8000  tcp    \- robots.txt  open         {"base_url":"/robots.txt"}
+            TABLE
+          end
+        end
+      end
     end
 
     describe "-h" do
       it "should show a help message" do
         db.cmd_services "-h"
         expect(@output).to match_array [
-          "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]",
+          "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-t] [-o <filename>] [addr1 addr2 ...]",
           "",
           "OPTIONS:",
           "",
-          "    -a, --add                  Add the services instead of searching.",
-          "    -c, --column <col1,col2>   Only show the given columns.",
-          "    -d, --delete               Delete the services instead of searching.",
-          "    -h, --help                 Show this help information.",
-          "    -O, --order <column id>    Order rows by specified column number.",
-          "    -o, --output <filename>    Send output to a file in csv format.",
-          "    -p, --port <ports>         Search for a list of ports.",
-          "    -r, --protocol <protocol>  Protocol type of the service being added [tcp|udp].",
-          "    -R, --rhosts               Set RHOSTS from the results of the search.",
-          "    -s, --name <name>          Name of the service to add.",
-          "    -S, --search <filter>      Search string to filter by.",
-          "    -u, --up                   Only show services which are up.",
-          "    -U, --update               Update data for existing service.",
+          "    --tree-group                  Nest --tree output underneath host, port, and protocol rows instead of repeating them as columns.",
+          "    --tree-style <ascii|unicode>  Connectors --tree draws the hierarchy with. Defaults to ascii.",
+          "    -a, --add                     Add the services instead of searching.",
+          "    -c, --column <col1,col2>      Only show the given columns.",
+          "    -d, --delete                  Delete the services instead of searching.",
+          "    -h, --help                    Show this help information.",
+          "    -O, --order <column id>       Order rows by specified column number.",
+          "    -o, --output <filename>       Send output to a file in csv format.",
+          "    -p, --port <ports>            Search for a list of ports.",
+          "    -r, --protocol <protocol>     Protocol type of the service being added [tcp|udp].",
+          "    -R, --rhosts                  Set RHOSTS from the results of the search.",
+          "    -s, --name <name>             Name of the service to add.",
+          "    -S, --search <filter>         Search string to filter by.",
+          "    -t, --tree                    Nest each service underneath the service it runs on top of.",
+          "    -u, --up                      Only show services which are up.",
+          "    -U, --update                  Update data for existing service.",
           "Available columns: created_at, info, name, port, proto, state, updated_at"
         ]
       end
