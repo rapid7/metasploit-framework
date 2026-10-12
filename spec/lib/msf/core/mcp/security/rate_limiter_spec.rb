@@ -130,6 +130,10 @@ RSpec.describe Msf::MCP::Security::RateLimiter do
   end
 
   describe 'thread safety' do
+    before do
+      allow(Time).to receive(:now).and_return(Time.now)
+    end
+
     it 'handles concurrent requests correctly' do
       limiter = described_class.new(requests_per_minute: 100)
 

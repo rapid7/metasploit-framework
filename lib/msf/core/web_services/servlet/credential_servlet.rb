@@ -57,6 +57,7 @@ module Msf::WebServices::CredentialServlet
 
   def self.update_credential
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -72,6 +73,7 @@ module Msf::WebServices::CredentialServlet
 
   def self.delete_credentials
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_credentials(opts)

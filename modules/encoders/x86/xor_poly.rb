@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Encoder::Xor
   def choose_permutation(state, table)
     table = table.shuffle
     for i in 0..table.length - 1
-      if table[i].count(state.badchars).zero?
+      if Rex::Text.badchar_index(table[i], state.badchars).nil?
         return table[i]
       end
     end

@@ -13,6 +13,10 @@ on:
         default: "[]"
         type: string
 
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -60,7 +64,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
