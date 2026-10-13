@@ -210,30 +210,36 @@ module Rex
               packed_value(format_character, match[1], assignments, seen).merge('required' => false, 'default' => default)
             end
 
-            def file_position(expression, assignments, seen)
-              variable = expression.strip
-              if (match = variable.match(PARAMETER_PATTERN))
-                position = match[1].to_i - 2
-                raise Unsupported, 'Beacon ID cannot identify a local file' if position.negative?
-
-                return position
-              end
-
+            def file_position(expression, assignments, seen, stage = :readb)
+              variable = unwrap_parentheses(expression)
               if variable.match?(VARIABLE_PATTERN)
                 raise Unsupported, "recursive assignment for #{variable}" if seen.include?(variable)
 
                 candidates = assignments[variable]
                 raise Unsupported, "#{variable} has a dynamic assignment" unless candidates&.length == 1
 
-                return file_position(candidates.first, assignments, seen + [variable])
+                return file_position(candidates.first, assignments, seen + [variable], stage)
               end
 
-              %w[readb openf].each do |function_name|
-                arguments = exact_function_call(expression, function_name)
-                return file_position(arguments.first, assignments, seen) if arguments
+              case stage
+              when :readb
+                arguments = exact_function_call(variable, 'readb')
+                if arguments&.length == 2 && arguments[1].strip == '-1'
+                  return file_position(arguments.first, assignments, seen, :openf)
+                end
+              when :openf
+                arguments = exact_function_call(variable, 'openf')
+                return file_position(arguments.first, assignments, seen, :parameter) if arguments&.length == 1
+              when :parameter
+                if (match = variable.match(PARAMETER_PATTERN))
+                  position = match[1].to_i - 2
+                  raise Unsupported, 'Beacon ID cannot identify a local file' if position.negative?
+
+                  return position
+                end
               end
 
-              raise Unsupported, "cannot determine the local file for packed expression #{expression.strip}"
+              raise Unsupported, 'binary file arguments must use readb(openf(path), -1)'
             end
 
             def packed_definition(format_character)
@@ -321,7 +327,7 @@ module Rex
               resource.first
             end
 
-            def resolve_bof_expression(expression, assignments, seen)
+            def resolve_bof_expression(expression, assignments, seen, stage = :optional_readb)
               expression = unwrap_parentheses(expression)
               if expression.match?(VARIABLE_PATTERN)
                 raise Unsupported, "recursive assignment for #{expression}" if seen.include?(expression)
@@ -329,14 +335,27 @@ module Rex
                 candidates = assignments[expression]
                 raise Unsupported, "#{expression} has a dynamic assignment" unless candidates&.length == 1
 
-                return resolve_bof_expression(candidates.first, assignments, seen + [expression])
+                return resolve_bof_expression(candidates.first, assignments, seen + [expression], stage)
               end
 
-              arguments = %w[readb openf].filter_map { |function_name| exact_function_call(expression, function_name) }.first
-              return expression unless arguments
-              raise Unsupported, 'BOF data wrapper does not specify a path' if arguments.empty?
+              case stage
+              when :optional_readb
+                readb_arguments = exact_function_call(expression, 'readb')
+                return expression unless readb_arguments || exact_function_call(expression, 'openf')
 
-              resolve_bof_expression(arguments.first, assignments, seen)
+                if readb_arguments&.length == 2 && readb_arguments[1].strip == '-1'
+                  return resolve_bof_expression(readb_arguments.first, assignments, seen, :openf)
+                end
+              when :openf
+                openf_arguments = exact_function_call(expression, 'openf')
+                if openf_arguments&.length == 1
+                  return resolve_bof_expression(openf_arguments.first, assignments, seen, :path)
+                end
+              when :path
+                return expression unless exact_function_call(expression, 'readb') || exact_function_call(expression, 'openf')
+              end
+
+              raise Unsupported, 'BOF data must use readb(openf(path), -1)'
             end
 
             def unwrap_parentheses(expression)
@@ -378,7 +397,7 @@ module Rex
             end
 
             def bof_files(template, replacements)
-              architecture_variables = template.scan(/\$[a-zA-Z_]\w*/).select { |variable| variable.match?(/arch\z/i) }
+              architecture_variables = nil # template.scan(/\$[a-zA-Z_]\w*/).select { |variable| variable.match?(/arch\z/i) }
               architecture_variables |= ['$barch', '$arch']
               x64_replacements = replacements.merge(architecture_variables.to_h { |variable| [variable, 'x64'] })
               x86_replacements = replacements.merge(architecture_variables.to_h { |variable| [variable, 'x86'] })
@@ -612,7 +631,7 @@ module Rex
               value = expression.strip
               return nil if value == '$null'
               return parse_string(value) if string_literal?(value)
-              return Integer(value, 0) if value.match?(/\A-?(?:0x[0-9a-fA-F]+|\d+)\z/)
+              return Integer(value, 0) if value.match?(/\A-?(?:0x[0-9a-fA-F]+|0[0-7]*|[1-9]\d*)\z/)
 
               NULL
             end
