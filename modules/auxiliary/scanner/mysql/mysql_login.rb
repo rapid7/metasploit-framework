@@ -138,15 +138,15 @@ class MetasploitModule < Msf::Auxiliary
             end
           else
             invalidate_login(credential_data)
-            vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+            print_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})" if datastore['VERBOSE']
           end
         end
 
-      else
-        vprint_error "#{target} - Unsupported target version of MySQL detected. Skipping."
+      elsif datastore['VERBOSE']
+        print_error 'Unsupported target version of MySQL detected. Skipping.'
       end
     rescue ::Rex::ConnectionError, ::EOFError => e
-      vprint_error "#{target} - Unable to connect: #{e.to_s}"
+      print_error "Unable to connect: #{e}" if datastore['VERBOSE']
     end
     { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       raise e
     rescue ::Exception => e
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} error checking version #{e.class} #{e}")
+      print_error("Error checking version #{e.class} #{e}") if datastore['VERBOSE']
       return false
     end
     offset = 0
@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_good "#{Rex::Socket.to_authority(rhost, rport)} - Found remote MySQL version #{short_version}"
+    print_good "Found remote MySQL version #{short_version}" if datastore['VERBOSE']
     int_version(short_version) >= int_version(target)
   end
 

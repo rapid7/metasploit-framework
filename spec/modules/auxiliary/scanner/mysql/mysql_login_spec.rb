@@ -37,6 +37,18 @@ RSpec.describe 'MySQL Login Scanner' do
     allow(mod).to receive(:create_session?).and_return(false)
   end
 
+  describe '#mysql_version_check' do
+    it 'does not manually include the target prefix when version checking raises an error' do
+      allow(mod).to receive(:mysql_version_check).and_call_original
+      allow(mod).to receive(:connect).and_raise(RuntimeError, 'unexpected response')
+
+      expect(mod).to receive(:print_error)
+        .with('Error checking version RuntimeError unexpected response')
+
+      expect(mod.mysql_version_check).to be(false)
+    end
+  end
+
   describe '#run_host' do
     context 'when authentication succeeds' do
       let(:result) do
@@ -75,8 +87,35 @@ RSpec.describe 'MySQL Login Scanner' do
       end
 
       it 'does not include the target prefix in the module message' do
-        expect(mod).to receive(:vprint_error)
+        expect(mod).to receive(:print_error)
           .with("LOGIN FAILED: #{credential} (#{result.status}: #{result.proof})")
+
+        mod.run_host(host)
+      end
+    end
+
+    context 'when the connection fails' do
+      before do
+        allow(mod).to receive(:mysql_version_check)
+          .and_raise(Rex::ConnectionError, 'connection refused')
+      end
+
+      it 'does not include the target prefix in the module message' do
+        expect(mod).to receive(:print_error)
+          .with(a_string_starting_with('Unable to connect: '))
+
+        mod.run_host(host)
+      end
+    end
+
+    context 'when the target MySQL version is unsupported' do
+      before do
+        allow(mod).to receive(:mysql_version_check).and_return(false)
+      end
+
+      it 'does not include the target prefix in the module message' do
+        expect(mod).to receive(:print_error)
+          .with('Unsupported target version of MySQL detected. Skipping.')
 
         mod.run_host(host)
       end
