@@ -23,9 +23,10 @@ class MetasploitModule < Msf::Auxiliary
           then attempts to execute a relay attack against an LDAP server on the
           configured RHOSTS hosts.
 
-          It is not possible to relay NTLMv2 to LDAP due to the Message Integrity Check
-          (MIC). As a result, this will only work with NTLMv1. The module takes care of
-          removing the relevant flags to bypass signing.
+          Supports relaying NTLMv1 and NTLMv2. NTLMv2 clients must not request NTLM
+          signing or sealing, since removing those flags invalidates the Message
+          Integrity Check (MIC). NTLMv1 signing flags are removed automatically.
+          Targets must not require LDAP signing.
 
           If the relay succeeds, an LDAP session to the target will be created. This can
           be used by any modules that support LDAP sessions, like `admin/ldap/rbcd` or
