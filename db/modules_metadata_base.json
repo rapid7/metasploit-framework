@@ -20213,6 +20213,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/4gaboards_users_info_disclosure_cve_2026_53959": {
+    "name": "4gaBoards Mass User Information Disclosure (CVE-2026-53959)",
+    "fullname": "auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-06-05",
+    "type": "auxiliary",
+    "author": [
+      "lucquach (GitHub)",
+      "de3erve (GitHub)",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits a broken access control vulnerability in 4gaBoards versions 3.3.8 or less.\n          The /api/users endpoint allows any authenticated user to enumerate account information for every user.\n          Responses expose email, phone, organization, name, isAdmin, ssoGoogleEmail, ssoGithubEmail, and other SSO-linked email fields.\n\n          The module first creates a new user with the supplied email to obtain an access token.\n          The access token is then used to dump information of all users registered on the application.\n          If valid administrator credentials are provided, the module also performs cleanup by deleting the newly created user account.",
+    "references": [
+      "CVE-2026-53959",
+      "GHSA-p77f-p47g-h72p"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-29 07:46:50 +0000",
+    "path": "/modules/auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959.rb",
+    "is_install_path": true,
+    "ref_name": "gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/acronis_cyber_protect_machine_info_disclosure": {
     "name": "Acronis Cyber Protect/Backup machine info disclosure",
     "fullname": "auxiliary/gather/acronis_cyber_protect_machine_info_disclosure",
