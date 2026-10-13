@@ -397,8 +397,7 @@ module Rex
             end
 
             def bof_files(template, replacements)
-              architecture_variables = nil # template.scan(/\$[a-zA-Z_]\w*/).select { |variable| variable.match?(/arch\z/i) }
-              architecture_variables |= ['$barch', '$arch']
+              architecture_variables = ['$barch', '$arch']
               x64_replacements = replacements.merge(architecture_variables.to_h { |variable| [variable, 'x64'] })
               x86_replacements = replacements.merge(architecture_variables.to_h { |variable| [variable, 'x86'] })
               x64_path = resource_path(template, x64_replacements)
