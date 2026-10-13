@@ -136,6 +136,85 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     expect(catalog['bofs']['load']['arguments'].first).to include('type' => 'file', 'position' => 0)
   end
 
+  it 'detects binary file reads split across variables' do
+    catalog = parse_cna(<<~'CNA')
+      alias load {
+        $handle = openf($2);
+        $payload = readb($handle, -1);
+        $args = bof_pack($1, "b", $payload);
+        beacon_inline_execute($1, readb(openf(script_resource("load.o")), -1), "go", $args);
+      }
+    CNA
+
+    expect(catalog['bofs']['load']['arguments'].first).to include('type' => 'file', 'position' => 0)
+  end
+
+  it 'rejects unsupported binary file read chains', :aggregate_failures do
+    expressions = [
+      'readb(openf($2), 4)',
+      'readb(openf($2), -0x1)',
+      'readb(openf($2), 08)',
+      'readb(openf($2), side_effect($3))',
+      'readb(openf($2))',
+      'readb(openf($2), -1, 4)',
+      'readb(openf($2, "rb"), -1)',
+      'readb($2, -1)',
+      'openf($2)',
+      'openf(readb($2, -1))',
+      'readb(readb(openf($2), -1), -1)',
+      'readb(openf(openf($2)), -1)'
+    ]
+
+    expressions.each do |expression|
+      expect do
+        parse_cna(<<~CNA)
+          alias load {
+            $payload = #{expression};
+            $args = bof_pack($1, "b", $payload);
+            beacon_inline_execute($1, readb(openf(script_resource("load.o")), -1), "go", $args);
+          }
+        CNA
+      end.to raise_error(described_class::Error, /binary file arguments must use/)
+    end
+  end
+
+  it 'rejects an unsupported binary file read hidden behind variables' do
+    expect do
+      parse_cna(<<~'CNA')
+        alias load {
+          $handle = openf($2, "rb");
+          $payload = readb($handle, -1);
+          $args = bof_pack($1, "b", $payload);
+          beacon_inline_execute($1, readb(openf(script_resource("load.o")), -1), "go", $args);
+        }
+      CNA
+    end.to raise_error(described_class::Error, /binary file arguments must use/)
+  end
+
+  it 'rejects unsupported BOF data read chains', :aggregate_failures do
+    expressions = [
+      'readb(openf(script_resource("load.o")), 4)',
+      'readb(openf(script_resource("load.o")), -0x1)',
+      'readb(openf(script_resource("load.o")), 08)',
+      'readb(openf(script_resource("load.o")), side_effect($2))',
+      'readb(openf(script_resource("load.o")))',
+      'readb(openf(script_resource("load.o")), -1, 4)',
+      'readb(openf(script_resource("load.o"), "rb"), -1)',
+      'readb(script_resource("load.o"), -1)',
+      'openf(script_resource("load.o"))'
+    ]
+
+    expressions.each do |expression|
+      expect do
+        parse_cna(<<~CNA)
+          alias load {
+            beacon_inline_execute($1, #{expression}, "go", $null);
+          }
+        CNA
+      end.to raise_error(described_class::Error, /BOF data must use/)
+    end
+  end
+
   it 'treats direct binary arguments as bytes' do
     catalog = parse_cna(<<~'CNA')
       alias echo {
@@ -145,6 +224,29 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     CNA
 
     expect(catalog['bofs']['echo']['arguments'].first).to include('type' => 'bytes', 'position' => 0)
+  end
+
+  it 'parses octal and hexadecimal integer literals' do
+    catalog = parse_cna(<<~'CNA')
+      alias example {
+        $args = bof_pack($1, "iiiii", 010, 077, -010, 0x10, -0x10);
+        beacon_inline_execute($1, readb(openf(script_resource("example.o")), -1), "go", $args);
+      }
+    CNA
+
+    fixed_values = catalog['bofs']['example']['arguments'].map { |argument| argument['fixed'] }
+    expect(fixed_values).to eq([8, 63, -8, 16, -16])
+  end
+
+  it 'rejects invalid octal integer literals' do
+    expect do
+      parse_cna(<<~'CNA')
+        alias example {
+          $args = bof_pack($1, "i", 08);
+          beacon_inline_execute($1, readb(openf(script_resource("example.o")), -1), "go", $args);
+        }
+      CNA
+    end.to raise_error(described_class::Error, /cannot statically evaluate packed expression 08/)
   end
 
   it 'accepts grouped bof_pack and iff calls' do
