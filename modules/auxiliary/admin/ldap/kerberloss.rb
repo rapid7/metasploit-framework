@@ -246,7 +246,16 @@ class MetasploitModule < Msf::Auxiliary
     added = true
     yield
   ensure
-    delete_spn(object_dn, spn) if added
+    if added
+      original_error = $!
+      begin
+        delete_spn(object_dn, spn)
+      rescue ::StandardError => cleanup_error
+        raise unless original_error
+
+        print_error("Couldn't remove temporary #{visible_value(spn)} on #{object_dn} (#{cleanup_error.class}: #{cleanup_error.message}); remove it manually.")
+      end
+    end
   end
 
   def constraint_failure_message(details)
