@@ -1,0 +1,29 @@
+name: httpd
+description: Apache HTTP Server for scanner testing
+
+variants:
+  - name: "2.4.57"
+    version: "2.4.57"
+    image: docker.io/library/httpd:2.4.57
+    default: true
+
+shared:
+  ports:
+    http: 80
+
+  health_check:
+    type: http
+    path: /
+    expected_status: 200
+    interval: 2
+    timeout: 2
+    retries: 10
+
+  ci:
+    validation:
+      expected_session: false
+      expected_output: "Apache"
+
+profiles:
+  default:
+    description: Standard Apache HTTP Server
