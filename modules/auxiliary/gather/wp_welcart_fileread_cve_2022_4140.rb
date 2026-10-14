@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HTTP::Wordpress
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -44,6 +45,10 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def check
+    check_plugin_version_from_readme('usc-e-shop', '2.8.5')
+  end
+
   def run
     # Check whether server is reachable and WordPress is installed
     unless wordpress_and_online?
@@ -55,24 +60,6 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
       print_error('Please supply the name of the file you want to download')
       return
-    end
-
-    # Check if plugin version is vulnerable
-    version = check_plugin_version_from_readme('usc-e-shop', '2.8.5')
-
-    if version == Msf::Exploit::CheckCode::Unknown
-      print_status('No response for plugin\'s readme.txt or it could not be found')
-      return
-    elsif version == Msf::Exploit::CheckCode::Detected
-      print_status(version.message)
-      return
-    elsif version == Msf::Exploit::CheckCode::Safe
-      print_good("Welcart e-Commerce plugin found: #{version.details}")
-      print_error('The target is not vulnerable')
-      return
-    elsif version == Msf::Exploit::CheckCode::Appears
-      print_good("Welcart e-Commerce plugin found: #{version.details}")
-      print_good('The target is vulnerable')
     end
 
     # Create request
@@ -94,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     unless res.code == 200
       fail_with(Failure::UnexpectedReply, "Unexpected HTTP status: #{res.code} while attempting to read file")
     end
-    unless res.body.length !empty
+    if res.body.empty?
       fail_with(Failure::Unreachable, 'File does not exist')
     end
 
