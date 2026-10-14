@@ -114642,6 +114642,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/grafana_sql_expressions_rce_cve_2024_9264": {
+    "name": "Grafana SQL Expressions DuckDB Command Injection",
+    "fullname": "exploit/multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-10-17",
+    "type": "exploit",
+    "author": [
+      "Özcan Ersan (@ozcanpng) <ozcanersan@proton.me>"
+    ],
+    "description": "This module exploits an authenticated command injection vulnerability in Grafana's\n          experimental SQL Expressions feature. Affected Grafana releases are 11.0.0 through\n          11.0.6, 11.1.0 through 11.1.7, and 11.2.0 through 11.2.2. They pass attacker-controlled\n          SQL expressions to DuckDB without sufficient sanitization.\n\n          Successful command execution requires the duckdb binary to be available in the Grafana\n          process PATH. This module uses DuckDB's shellfs community extension and Unix pipe syntax,\n          so it is limited to Unix-like targets with shellfs available. The extension installation\n          may download and cache files on the target.",
+    "references": [
+      "CVE-2024-9264",
+      "URL-https://grafana.com/security/security-advisories/cve-2024-9264/",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-9264",
+      "URL-https://github.com/ozcanpng/CVE-2024-9264"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-14 12:06:46 +0000",
+    "path": "/modules/exploits/multi/http/grafana_sql_expressions_rce_cve_2024_9264.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/grav_admin_direct_install_rce_cve_2025_50286": {
     "name": "Grav CMS Admin Direct Install Authenticated Plugin Upload RCE",
     "fullname": "exploit/multi/http/grav_admin_direct_install_rce_cve_2025_50286",
