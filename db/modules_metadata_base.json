@@ -51472,6 +51472,49 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/mongodb/mongodb_hashdump": {
+    "name": "MongoDB Hash Extractor",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_hashdump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module extracts password hashes from a MongoDB instance and stores\n          them in the database for later cracking. By default, it dumps system user\n          credentials from the 'system.users' collection. Alternatively,\n          it can dump application user hashes from a specified collection.\n          On MongoDB 3.0+ all users are stored in admin.system.users regardless\n          of their authentication database, so the default DB of 'admin' is\n          normally correct, and the querying user needs privileges\n          (root, userAdminAnyDatabase, readAnyDatabase) to read them.\n\n          The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)\n          and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's\n          auxiliary/analyze cracking modules -- use hashcat directly against the\n          exported hash, or 'creds -o' to export it, for now.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
+      "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/",
+      "URL-https://hashcat.net/wiki/doku.php?id=example_hashes"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_hashdump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_hashdump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/mongodb/mongodb_login": {
     "name": "MongoDB Login Utility",
     "fullname": "auxiliary/scanner/mongodb/mongodb_login",
@@ -51480,9 +51523,11 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "Gregory Man <man.gregory@gmail.com>"
+      "Gregory Man <man.gregory@gmail.com>",
+      "h00die",
+      "prithvee07"
     ],
-    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          Note that, by default, MongoDB does not require authentication.",
+    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy\n          MONGODB-CR authentication if SCRAM is unsupported by the target server.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
     "references": [
       "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
       "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/"
@@ -51493,7 +51538,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-09-15 09:00:29 +0000",
     "path": "/modules/auxiliary/scanner/mongodb/mongodb_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mongodb/mongodb_login",
@@ -51501,14 +51546,95 @@
     "post_auth": true,
     "default_credential": false,
     "notes": {
-      "Reliability": [
-        "unknown-reliability"
-      ],
+      "Reliability": [],
       "Stability": [
-        "unknown-stability"
+        "crash-safe"
       ],
       "SideEffects": [
-        "unknown-side-effects"
+        "ioc-in-logs",
+        "account-lockouts"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_schemadump": {
+    "name": "MongoDB Schema Enumerator",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_schemadump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to an unauthenticated or authenticated MongoDB instance,\n          authenticates using SCRAM-SHA-1 if credentials are provided, enumerates\n          databases and collections via wire protocol, samples documents, and dumps\n          the inferred schema structure.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_schemadump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_schemadump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_version": {
+    "name": "MongoDB Version Detector",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to a MongoDB instance and retrieves the server version\n          using the buildInfo command. Through MongoDB 8.0 this command requires no\n          authentication; MongoDB 8.1+ requires authentication for buildInfo, so the\n          module reports '8.1+' unless USERNAME is set, in which case it authenticates\n          and retrieves the actual version string.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/command/buildInfo/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
