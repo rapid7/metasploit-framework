@@ -120,6 +120,7 @@ protected
         return result
       else
         mod.print_error("Session not found")
+        job_listener.failed(run_uuid, 'Session not found', mod)
         return
       end
     rescue Msf::Post::Complete
@@ -127,14 +128,17 @@ protected
       return
     rescue Msf::Post::Failed => e
       mod.error = e
+      job_listener.failed(run_uuid, e, mod)
       mod.print_error("Post aborted due to failure: #{e.message}")
       return
     rescue ::Timeout::Error => e
       mod.error = e
+      job_listener.failed(run_uuid, e, mod)
       mod.print_error("Post triggered a timeout exception")
       return
     rescue ::Interrupt => e
       mod.error = e
+      job_listener.failed(run_uuid, e, mod)
       mod.print_error("Post interrupted by the console user")
       return
     rescue ::Msf::OptionValidateError => e
@@ -144,6 +148,7 @@ protected
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")
+      job_listener.failed(run_uuid, e, mod)
       if(e.class.to_s != 'Msf::OptionValidateError')
         mod.print_error("Call stack:")
         e.backtrace.each do |line|
