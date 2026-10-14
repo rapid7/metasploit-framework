@@ -84949,6 +84949,65 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/opencti_notifier_rce": {
+    "name": "OpenCTI Authentication Bypass and Notifier EJS Remote Code Execution",
+    "fullname": "exploit/linux/http/opencti_notifier_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-05-04",
+    "type": "exploit",
+    "author": [
+      "Jean-Marie Bourbon"
+    ],
+    "description": "This module chains CVE-2026-27960 and CVE-2026-39980 to achieve\n          unauthenticated remote command execution against vulnerable OpenCTI\n          instances.\n\n          CVE-2026-27960 allows an unauthenticated attacker to authenticate to\n          the GraphQL API using the UUID of an existing user as a bearer token.\n          By default, this module uses OpenCTI's deterministic default\n          administrator UUID. A different user UUID can be supplied with USER_ID.\n\n          After confirming the authentication bypass, the module locates the\n          Platform mailer notification connector and exploits CVE-2026-39980,\n          an EJS notifier template sanitizer bypass, to execute a Unix command in\n          the OpenCTI Node.js process context.\n\n          The full unauthenticated chain applies where the affected version\n          ranges overlap: OpenCTI 6.6.0 through 6.9.4.",
+    "references": [
+      "CVE-2026-27960",
+      "CVE-2026-39980",
+      "GHSA-6vvv-vmfr-xhrx",
+      "GHSA-jv9r-jw2f-rhrf"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 16:53:50 +0000",
+    "path": "/modules/exploits/linux/http/opencti_notifier_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/opencti_notifier_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/opendcim_install_sqli_rce": {
     "name": "openDCIM install.php SQL Injection to RCE",
     "fullname": "exploit/linux/http/opendcim_install_sqli_rce",
