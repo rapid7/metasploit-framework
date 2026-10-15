@@ -58,6 +58,8 @@ module Metasploit
           inclusion: { in: [true, false] }
 
         def attempt_login(credential)
+          client = nil
+          retain_client = false
           result_options = {
               credential: credential,
               host: host,
@@ -73,8 +75,7 @@ module Metasploit
               if use_client_as_proof
                 result_options[:proof] = client
                 result_options[:connection] = client.sock
-              else
-                client.disconnect
+                retain_client = true
               end
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
@@ -82,16 +83,26 @@ module Metasploit
           rescue ::Rex::ConnectionError => e
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
-          rescue => e
+          rescue StandardError => e
             elog(e, error: e)
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
           end
 
-          ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+          result = ::Metasploit::Framework::LoginScanner::Result.new(result_options)
+          client = nil if retain_client
+          result
+        ensure
+          disconnect_mssql_client(client)
         end
 
         private
+
+        def disconnect_mssql_client(client)
+          client&.disconnect
+        rescue StandardError => e
+          elog('Failed to disconnect MSSQL client', error: e)
+        end
 
         def set_sane_defaults
           self.connection_timeout    ||= 30
