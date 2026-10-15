@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
 
     version = check_version   # (A) Phase 3
     posture = check_posture   # (B) Phase 4
-    targeting = datastore['HUNT_LOG'] ? hunt_targeting : { sig_hits: [], ioc_hits: [], detection_total: 0 } # (C) Phase 5
+    targeting = hunt_targeting # (C) Phase 5 — collection_script decides what is gathered (log vs IOC scan)
 
     verdict = score(version, posture, targeting)
     report(verdict, version, posture, targeting)
@@ -132,6 +132,8 @@ class MetasploitModule < Msf::Post
         $since=(Get-Date).AddDays(-__DAYS__)
         $events=@(Get-WinEvent -FilterHashtable @{LogName='__LOG__';Id=1116,1117;StartTime=$since} -MaxEvents 500)
         $o.detections=@($events | ForEach-Object { $tn=''; try { $x=[xml]$_.ToXml(); $tn=[string](($x.Event.EventData.Data | Where-Object { $_.Name -eq 'Threat Name' }).'#text') } catch {}; [ordered]@{ time=$_.TimeCreated.ToString('o'); id=$_.Id; threat=$tn; msg=(($_.Message -split "`n")[0]).Trim() } })
+      }
+      if (__SCAN_FILES__) {
         $dirs=@()
         Get-ChildItem 'C:\Users' -Directory | ForEach-Object { $dirs+=(Join-Path $_.FullName 'Downloads'); $dirs+=(Join-Path $_.FullName 'Pictures') }
         $files=@()
@@ -143,6 +145,7 @@ class MetasploitModule < Msf::Post
     tpl.gsub('__DAYS__', datastore['HUNT_DAYS'].to_i.to_s)
        .gsub('__LOG__', DEFENDER_OP_LOG)
        .gsub('__HUNT_LOG__', datastore['HUNT_LOG'] ? '$true' : '$false')
+       .gsub('__SCAN_FILES__', scan_files? ? '$true' : '$false')
        .gsub('__HASH__', hash_iocs? ? '$true' : '$false')
   end
 
@@ -218,6 +221,8 @@ class MetasploitModule < Msf::Post
   end
 
   def build_regex(pattern)
+    return nil if pattern.to_s.strip.empty?
+
     Regexp.new(pattern.to_s, Regexp::IGNORECASE)
   rescue RegexpError
     nil
@@ -227,7 +232,25 @@ class MetasploitModule < Msf::Post
     path = datastore['IOC_FILE'].to_s
     return {} if path.empty? || !::File.file?(path)
 
-    JSON.parse(::File.read(path))
+    parsed = JSON.parse(::File.read(path))
+    unless parsed.is_a?(Hash)
+      print_warning("IOC_FILE #{path} must contain a JSON object; skipping IOC matching.")
+      return {}
+    end
+
+    %w[path_regexes file_hashes_sha256].each do |key|
+      next unless parsed.key?(key)
+
+      unless parsed[key].is_a?(Array)
+        print_warning("IOC_FILE #{path} field '#{key}' must be an array; skipping it.")
+        parsed[key] = []
+        next
+      end
+
+      kept = parsed[key].select! { |entry| entry.is_a?(Hash) }
+      print_warning("IOC_FILE #{path} has invalid '#{key}' entries; skipping them.") if kept
+    end
+    parsed
   rescue JSON::ParserError
     print_warning("IOC_FILE #{path} is not valid JSON; skipping IOC matching.")
     {}
@@ -245,6 +268,13 @@ class MetasploitModule < Msf::Post
       v = h['value'].to_s.downcase
       !v.empty? && !v.start_with?('placeholder')
     end
+  end
+
+  # True when the feed carries any indicator to match staged files against (a path
+  # regex or a hash), so the file scan runs whenever IOC_FILE provides indicators —
+  # independent of HUNT_LOG, which gates only the event-log hunt.
+  def scan_files?
+    Array(iocs['path_regexes']).any? || hash_iocs?
   end
 
   def version_below?(installed, fixed)
