@@ -20213,6 +20213,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/4gaboards_users_info_disclosure_cve_2026_53959": {
+    "name": "4gaBoards Mass User Information Disclosure (CVE-2026-53959)",
+    "fullname": "auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-06-05",
+    "type": "auxiliary",
+    "author": [
+      "lucquach (GitHub)",
+      "de3erve (GitHub)",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits a broken access control vulnerability in 4gaBoards versions 3.3.8 or less.\n          The /api/users endpoint allows any authenticated user to enumerate account information for every user.\n          Responses expose email, phone, organization, name, isAdmin, ssoGoogleEmail, ssoGithubEmail, and other SSO-linked email fields.\n\n          The module first creates a new user with the supplied email to obtain an access token.\n          The access token is then used to dump information of all users registered on the application.\n          If valid administrator credentials are provided, the module also performs cleanup by deleting the newly created user account.",
+    "references": [
+      "CVE-2026-53959",
+      "GHSA-p77f-p47g-h72p"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-29 07:46:50 +0000",
+    "path": "/modules/auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959.rb",
+    "is_install_path": true,
+    "ref_name": "gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/acronis_cyber_protect_machine_info_disclosure": {
     "name": "Acronis Cyber Protect/Backup machine info disclosure",
     "fullname": "auxiliary/gather/acronis_cyber_protect_machine_info_disclosure",
@@ -51413,6 +51472,49 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/mongodb/mongodb_hashdump": {
+    "name": "MongoDB Hash Extractor",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_hashdump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module extracts password hashes from a MongoDB instance and stores\n          them in the database for later cracking. By default, it dumps system user\n          credentials from the 'system.users' collection. Alternatively,\n          it can dump application user hashes from a specified collection.\n          On MongoDB 3.0+ all users are stored in admin.system.users regardless\n          of their authentication database, so the default DB of 'admin' is\n          normally correct, and the querying user needs privileges\n          (root, userAdminAnyDatabase, readAnyDatabase) to read them.\n\n          The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)\n          and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's\n          auxiliary/analyze cracking modules -- use hashcat directly against the\n          exported hash, or 'creds -o' to export it, for now.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
+      "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/",
+      "URL-https://hashcat.net/wiki/doku.php?id=example_hashes"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_hashdump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_hashdump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/mongodb/mongodb_login": {
     "name": "MongoDB Login Utility",
     "fullname": "auxiliary/scanner/mongodb/mongodb_login",
@@ -51421,9 +51523,11 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "Gregory Man <man.gregory@gmail.com>"
+      "Gregory Man <man.gregory@gmail.com>",
+      "h00die",
+      "prithvee07"
     ],
-    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          Note that, by default, MongoDB does not require authentication.",
+    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy\n          MONGODB-CR authentication if SCRAM is unsupported by the target server.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
     "references": [
       "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
       "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/"
@@ -51434,7 +51538,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-09-15 09:00:29 +0000",
     "path": "/modules/auxiliary/scanner/mongodb/mongodb_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mongodb/mongodb_login",
@@ -51442,14 +51546,95 @@
     "post_auth": true,
     "default_credential": false,
     "notes": {
-      "Reliability": [
-        "unknown-reliability"
-      ],
+      "Reliability": [],
       "Stability": [
-        "unknown-stability"
+        "crash-safe"
       ],
       "SideEffects": [
-        "unknown-side-effects"
+        "ioc-in-logs",
+        "account-lockouts"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_schemadump": {
+    "name": "MongoDB Schema Enumerator",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_schemadump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to an unauthenticated or authenticated MongoDB instance,\n          authenticates using SCRAM-SHA-1 if credentials are provided, enumerates\n          databases and collections via wire protocol, samples documents, and dumps\n          the inferred schema structure.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_schemadump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_schemadump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_version": {
+    "name": "MongoDB Version Detector",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to a MongoDB instance and retrieves the server version\n          using the buildInfo command. Through MongoDB 8.0 this command requires no\n          authentication; MongoDB 8.1+ requires authentication for buildInfo, so the\n          module reports '8.1+' unless USERNAME is set, in which case it authenticates\n          and retrieves the actual version string.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/command/buildInfo/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -84764,6 +84949,65 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/opencti_notifier_rce": {
+    "name": "OpenCTI Authentication Bypass and Notifier EJS Remote Code Execution",
+    "fullname": "exploit/linux/http/opencti_notifier_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-05-04",
+    "type": "exploit",
+    "author": [
+      "Jean-Marie Bourbon"
+    ],
+    "description": "This module chains CVE-2026-27960 and CVE-2026-39980 to achieve\n          unauthenticated remote command execution against vulnerable OpenCTI\n          instances.\n\n          CVE-2026-27960 allows an unauthenticated attacker to authenticate to\n          the GraphQL API using the UUID of an existing user as a bearer token.\n          By default, this module uses OpenCTI's deterministic default\n          administrator UUID. A different user UUID can be supplied with USER_ID.\n\n          After confirming the authentication bypass, the module locates the\n          Platform mailer notification connector and exploits CVE-2026-39980,\n          an EJS notifier template sanitizer bypass, to execute a Unix command in\n          the OpenCTI Node.js process context.\n\n          The full unauthenticated chain applies where the affected version\n          ranges overlap: OpenCTI 6.6.0 through 6.9.4.",
+    "references": [
+      "CVE-2026-27960",
+      "CVE-2026-39980",
+      "GHSA-6vvv-vmfr-xhrx",
+      "GHSA-jv9r-jw2f-rhrf"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 16:53:50 +0000",
+    "path": "/modules/exploits/linux/http/opencti_notifier_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/opencti_notifier_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/opendcim_install_sqli_rce": {
     "name": "openDCIM install.php SQL Injection to RCE",
     "fullname": "exploit/linux/http/opendcim_install_sqli_rce",
@@ -114397,6 +114641,66 @@
     },
     "session_types": false,
     "needs_cleanup": null
+  },
+  "exploit_multi/http/grafana_sql_expressions_rce_cve_2024_9264": {
+    "name": "Grafana SQL Expressions DuckDB Command Injection",
+    "fullname": "exploit/multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-10-17",
+    "type": "exploit",
+    "author": [
+      "Özcan Ersan (@ozcanpng) <ozcanersan@proton.me>"
+    ],
+    "description": "This module exploits an authenticated command injection vulnerability in Grafana's\n          experimental SQL Expressions feature. Affected Grafana releases are 11.0.0 through\n          11.0.6, 11.1.0 through 11.1.7, and 11.2.0 through 11.2.2. They pass attacker-controlled\n          SQL expressions to DuckDB without sufficient sanitization.\n\n          Successful command execution requires the duckdb binary to be available in the Grafana\n          process PATH. This module uses DuckDB's shellfs community extension and Unix pipe syntax,\n          so it is limited to Unix-like targets with shellfs available. The extension installation\n          may download and cache files on the target.",
+    "references": [
+      "CVE-2024-9264",
+      "URL-https://grafana.com/security/security-advisories/cve-2024-9264/",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-9264",
+      "URL-https://github.com/ozcanpng/CVE-2024-9264"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-14 12:06:46 +0000",
+    "path": "/modules/exploits/multi/http/grafana_sql_expressions_rce_cve_2024_9264.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
   },
   "exploit_multi/http/grav_admin_direct_install_rce_cve_2025_50286": {
     "name": "Grav CMS Admin Direct Install Authenticated Plugin Upload RCE",

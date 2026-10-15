@@ -38,6 +38,13 @@ module Rex::Proto::MsTds
       self.lsock.starttls(params)
     end
 
+    # Stop the transport when the local stream reaches EOF. Wake its reader
+    # so the server-socket relay can close its own source.
+    # @return [void]
+    def close_write
+      sock.shutdown(::Socket::SHUT_RDWR) unless sock.closed?
+    end
+
     protected
 
     def negotiating_ssl?
@@ -48,7 +55,8 @@ module Rex::Proto::MsTds
     end
 
     def _exit_handler
-      self.rsock.close
+      # Wake the socket-pair relay so it can close its own source socket.
+      rsock.shutdown(::Socket::SHUT_RDWR) unless rsock.closed?
     end
 
     def _read_handler(buf)

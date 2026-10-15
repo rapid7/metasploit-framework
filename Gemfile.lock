@@ -523,7 +523,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.36)
+    rex-core (0.1.37)
     rex-encoder (0.1.10)
       metasm
       rex-arch
