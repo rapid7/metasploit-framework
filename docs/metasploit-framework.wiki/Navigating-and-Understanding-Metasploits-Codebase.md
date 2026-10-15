@@ -1,7 +1,7 @@
 # Overview
 One of the most important things to learn when first working with Metasploit is how to navigate Metasploit's codebase. However, its often not immediately clear how this should be done. This page aims to explain some of the different approaches that one can take when navigating Metasploit's codebase and provides a primer for learning how Metasploit's codebase is structured.
 
-A quick reminder before we get started, but one can always access the Metasploit Slack at <https://metasploit.slack.com/>. Normally this page should allow you to sign up, however if for any reason you cannot, feel free to shoot an email to msfdev *at* rapid7 *dot* com and we will be happy to send you an invite link.
+A quick reminder before we get started, but one can always join the Metasploit Slack at <https://metasploit.com/slack>. If you have any trouble joining, feel free to shoot an email to msfdev *at* rapid7 *dot* com and we will be happy to help.
 
 # Metasploit Code Structure
 A great outline of Metasploit's code structure can be found at <https://www.offensive-security.com/metasploit-unleashed/metasploit-architecture/>, which should be referred to for an overview of Metasploit's code structure. To repeat what is said there there are the following main subdirectories:
