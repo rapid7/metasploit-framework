@@ -102,7 +102,10 @@ class MetasploitModule < Msf::Post
   # Every cmdlet used by collection_script is read-only; nothing on the host changes.
   def run_ps(script)
     enc = Rex::Text.encode_base64(Rex::Text.to_unicode(script))
-    cmd_exec("powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand #{enc}")
+    # Explicit, generous timeout: collection can read the event log and hash files,
+    # which may exceed cmd_exec's 15s default on busy hosts. Truncated output would
+    # otherwise fail to parse and be misread as "Defender not detected".
+    cmd_exec("powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand #{enc}", nil, 180)
   end
 
   def collection_script
@@ -123,17 +126,24 @@ class MetasploitModule < Msf::Post
       $mpcmd=if($plat){Join-Path $plat.FullName 'MpCmdRun.exe'}else{$null}
       $o.file_version=if($mpcmd -and (Test-Path $mpcmd)){(Get-Item $mpcmd).VersionInfo.ProductVersion}else{$null}
       $o.shadow_count=@(Get-CimInstance Win32_ShadowCopy).Count
-      $since=(Get-Date).AddDays(-__DAYS__)
-      $events=@(Get-WinEvent -FilterHashtable @{LogName='__LOG__';Id=1116,1117;StartTime=$since} -MaxEvents 500)
-      $o.detections=@($events | ForEach-Object { [ordered]@{ time=$_.TimeCreated.ToString('o'); id=$_.Id; msg=(($_.Message -split "`n")[0]).Trim() } })
-      $dirs=@()
-      Get-ChildItem 'C:\Users' -Directory | ForEach-Object { $dirs+=(Join-Path $_.FullName 'Downloads'); $dirs+=(Join-Path $_.FullName 'Pictures') }
-      $files=@()
-      foreach($d in $dirs){ if(Test-Path $d){ Get-ChildItem $d -Recurse -Include *.exe -File | Select-Object -First 300 | ForEach-Object { $files+=[ordered]@{ path=$_.FullName; sha256=(Get-FileHash -Algorithm SHA256 $_.FullName).Hash } } } }
-      $o.staged=$files
+      $o.detections=@()
+      $o.staged=@()
+      if (__HUNT_LOG__) {
+        $since=(Get-Date).AddDays(-__DAYS__)
+        $events=@(Get-WinEvent -FilterHashtable @{LogName='__LOG__';Id=1116,1117;StartTime=$since} -MaxEvents 500)
+        $o.detections=@($events | ForEach-Object { $tn=''; try { $x=[xml]$_.ToXml(); $tn=[string](($x.Event.EventData.Data | Where-Object { $_.Name -eq 'Threat Name' }).'#text') } catch {}; [ordered]@{ time=$_.TimeCreated.ToString('o'); id=$_.Id; threat=$tn; msg=(($_.Message -split "`n")[0]).Trim() } })
+        $dirs=@()
+        Get-ChildItem 'C:\Users' -Directory | ForEach-Object { $dirs+=(Join-Path $_.FullName 'Downloads'); $dirs+=(Join-Path $_.FullName 'Pictures') }
+        $files=@()
+        foreach($d in $dirs){ if(Test-Path $d){ Get-ChildItem $d -Recurse -Include *.exe -File | Select-Object -First 300 | ForEach-Object { $h=if(__HASH__){(Get-FileHash -Algorithm SHA256 $_.FullName).Hash}else{$null}; $files+=[ordered]@{ path=$_.FullName; sha256=$h } } } }
+        $o.staged=$files
+      }
       $o | ConvertTo-Json -Depth 5 -Compress
     PS
-    tpl.gsub('__DAYS__', datastore['HUNT_DAYS'].to_i.to_s).gsub('__LOG__', DEFENDER_OP_LOG)
+    tpl.gsub('__DAYS__', datastore['HUNT_DAYS'].to_i.to_s)
+       .gsub('__LOG__', DEFENDER_OP_LOG)
+       .gsub('__HUNT_LOG__', datastore['HUNT_LOG'] ? '$true' : '$false')
+       .gsub('__HASH__', hash_iocs? ? '$true' : '$false')
   end
 
   #
@@ -189,12 +199,14 @@ class MetasploitModule < Msf::Post
   def hunt_targeting
     c = collected
     sig = DEFENDER_SIGNATURE.downcase
-    sig_hits = Array(c['detections']).select { |e| e['msg'].to_s.downcase.include?(sig) }
+    # The threat name lives in structured event data, not on the message's first
+    # line, so match against both the extracted threat name and the message.
+    sig_hits = Array(c['detections']).select { |e| "#{e['threat']} #{e['msg']}".downcase.include?(sig) }
 
-    iocs = load_iocs
+    feed = iocs
     staged = Array(c['staged'])
-    regexes = Array(iocs['path_regexes']).map { |r| build_regex(r['pattern']) }.compact
-    hashes = Array(iocs['file_hashes_sha256']).map { |h| h['value'].to_s.downcase }
+    regexes = Array(feed['path_regexes']).map { |r| build_regex(r['pattern']) }.compact
+    hashes = Array(feed['file_hashes_sha256']).map { |h| h['value'].to_s.downcase }
                                               .reject { |v| v.empty? || v.start_with?('placeholder') }
     ioc_hits = staged.select do |f|
       path = f['path'].to_s
@@ -221,6 +233,20 @@ class MetasploitModule < Msf::Post
     {}
   end
 
+  # Memoized IOC feed from IOC_FILE (empty hash when unset or invalid).
+  def iocs
+    @iocs ||= load_iocs
+  end
+
+  # True when the feed carries at least one real (non-placeholder) SHA-256 hash, so
+  # the collection script only hashes files when hash matching can actually use them.
+  def hash_iocs?
+    Array(iocs['file_hashes_sha256']).any? do |h|
+      v = h['value'].to_s.downcase
+      !v.empty? && !v.start_with?('placeholder')
+    end
+  end
+
   def version_below?(installed, fixed)
     return false if installed.to_s.empty?
 
@@ -237,10 +263,8 @@ class MetasploitModule < Msf::Post
     base =
       if version[:vulnerable]
         'VULNERABLE'
-      elsif weak_posture?(posture)
-        'PATCHED-BUT-EXPOSED'
       elsif version[:vulnerable] == false
-        'HARDENED'
+        weak_posture?(posture) ? 'PATCHED-BUT-EXPOSED' : 'HARDENED'
       else
         'UNKNOWN'
       end
@@ -276,7 +300,7 @@ class MetasploitModule < Msf::Post
     print_line('')
     print_status('== (C) Targeting evidence ==')
     print_status("  Defender detections in window (1116/1117): #{targeting[:detection_total]}")
-    Array(targeting[:sig_hits]).each { |e| print_warning("  BlueHammer signature hit [#{e['time']}] #{e['msg']}") }
+    Array(targeting[:sig_hits]).each { |e| print_warning("  BlueHammer signature hit [#{e['time']}] #{e['threat'].to_s.empty? ? e['msg'] : e['threat']}") }
     Array(targeting[:ioc_hits]).each { |f| print_error("  IOC match: #{f['path']}") }
     print_good('  no BlueHammer signature or IOC matches') unless verdict[:targeted]
 
