@@ -59,7 +59,7 @@ class ExtensionMapper
   #   not be loaded.
   # @return [Module] The extension module.
   def self.get_extension_module(name)
-    name.downcase!
+    name = name.downcase
 
     begin
       require("rex/post/meterpreter/extensions/#{name}/#{name}")
@@ -79,7 +79,7 @@ class ExtensionMapper
   #   not be loaded.
   # @return [Class] The extension class.
   def self.get_extension_klass(name)
-    name.downcase!
+    name = name.downcase
 
     unless @@klasses[name]
       mod = self.get_extension_module(name)
