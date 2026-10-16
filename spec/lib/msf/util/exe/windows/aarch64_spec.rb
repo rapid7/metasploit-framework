@@ -53,6 +53,9 @@ RSpec.describe Msf::Util::EXE::Windows::Aarch64 do
     let(:template) do
       File.expand_path('../../../../../../data/templates/template_aarch64_windows.dll', __dir__)
     end
+    let(:large_template) do
+      File.expand_path('../../../../../../data/templates/template_aarch64_windows.256kib.dll', __dir__)
+    end
 
     it 'produces an ARM64 DLL' do
       dll = Msf::Util::EXE.to_winaarch64pe_dll(nil, payload, template: template)
@@ -79,9 +82,29 @@ RSpec.describe Msf::Util::EXE::Windows::Aarch64 do
       expect { Msf::Util::EXE.to_winaarch64pe_dll(nil, oversized, template: template) }
         .to raise_error(RuntimeError, /max size of 4096 bytes/)
     end
+
+    it 'selects the 256 KiB default template and injects the payload' do
+      oversized = 'B'.b * 4097
+      template_bytes = File.binread(large_template)
+      payload_offset = template_bytes.index('PAYLOAD:')
+      dll = Msf::Util::EXE.to_winaarch64pe_dll(nil, oversized)
+
+      expect(dll.bytesize).to eq(template_bytes.bytesize)
+      expect(payload_offset).not_to be_nil
+      expect(dll.byteslice(payload_offset, oversized.bytesize)).to eq(oversized)
+    end
   end
 
-  describe 'to_executable_fmt dll' do
+  describe '.to_executable_windows' do
+    it 'selects the AArch64 DLL generator' do
+      dll = Msf::Util::EXE.to_executable_windows(nil, [ARCH_AARCH64], payload, 'dll', {})
+      pe = Rex::PeParsey::Pe.new_from_string(dll)
+      expect(pe.hdr.file.Machine).to eq(Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_ARM64)
+      expect(pe.hdr.file.Characteristics & 0x2000).to eq(0x2000) # IMAGE_FILE_DLL
+    end
+  end
+
+  describe '.to_executable_fmt dll' do
     it 'selects the AArch64 DLL generator' do
       dll = Msf::Util::EXE.to_executable_fmt(nil, ARCH_AARCH64, nil, payload, 'dll', {})
       pe = Rex::PeParsey::Pe.new_from_string(dll)

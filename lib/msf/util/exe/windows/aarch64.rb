@@ -44,7 +44,7 @@ module Msf::Util::EXE::Windows::Aarch64
       opts[:exe_type] = :dll
 
       if opts[:inject]
-        raise RuntimeError, 'Template injection unsupported for AArch64 DLLs'
+        raise Rex::RuntimeError, 'Template injection unsupported for AArch64 DLLs'
       else
         exe_sub_method(code, opts)
       end
@@ -65,7 +65,7 @@ module Msf::Util::EXE::Windows::Aarch64
       bo = find_payload_tag(pe, 'Invalid Windows AArch64 template: missing "PAYLOAD:" tag')
 
       if code.length > WINAARCH64_PAYLOAD_SPACE
-        raise RuntimeError, "The Windows AArch64 PE generator has a max size of #{WINAARCH64_PAYLOAD_SPACE} bytes, please fix the calling module"
+        raise Rex::RuntimeError, "The Windows AArch64 PE generator has a max size of #{WINAARCH64_PAYLOAD_SPACE} bytes, please fix the calling module"
       end
 
       pe[bo, code.length] = code.dup
