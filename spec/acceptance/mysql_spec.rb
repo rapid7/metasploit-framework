@@ -31,6 +31,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
           lines: {
             all: {
               required: [
+                /\[\+\](?:\e\[[0-9;]*m)*\s*#{Regexp.escape(ENV.fetch('MYSQL_RHOST', '127.0.0.1'))}:#{Regexp.escape(ENV.fetch('MYSQL_RPORT', '3306'))}(?:\e\[[0-9;]*m)*\s+-\s+(?:\e\[[0-9;]*m)*Found remote MySQL version/,
                 /\[\+\](?:\e\[[0-9;]*m)*\s*#{Regexp.escape(ENV.fetch('MYSQL_RHOST', '127.0.0.1'))}:#{Regexp.escape(ENV.fetch('MYSQL_RPORT', '3306'))}(?:\e\[[0-9;]*m)*\s+-\s+(?:\e\[[0-9;]*m)*Success:/
               ]
             }
