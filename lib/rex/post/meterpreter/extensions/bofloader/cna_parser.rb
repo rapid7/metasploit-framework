@@ -17,6 +17,10 @@ module Rex
               'z' => 'string',
               'Z' => 'wstring'
             }.freeze
+            INTEGER_RANGES = {
+              'i' => (-2**31)..(2**31 - 1),
+              's' => (-2**15)..(2**15 - 1)
+            }.freeze
             NULL = Object.new.freeze
             PARAMETER_PATTERN = /\A\$(\d+)\z/
             VARIABLE_PATTERN = /\A\$[a-zA-Z_]\w*\z/
@@ -48,17 +52,16 @@ module Rex
               registrations = command_registrations
               bofs = {}
               warnings = []
+              duplicate_aliases = aliases.map(&:first).tally.select { |_name, count| count > 1 }.keys
+              duplicate_aliases.each { |alias_name| warnings << "CNA alias '#{alias_name}' is declared more than once" }
 
               aliases.each do |alias_name, body|
+                next if duplicate_aliases.include?(alias_name)
                 next if function_calls(body, 'beacon_inline_execute').empty?
 
                 begin
                   definition = import_alias(alias_name, body, registrations[alias_name])
-                  if bofs.key?(alias_name)
-                    warnings << "CNA alias '#{alias_name}' is declared more than once"
-                  else
-                    bofs[alias_name] = definition
-                  end
+                  bofs[alias_name] = definition
                 rescue Unsupported => e
                   warnings << "CNA alias '#{alias_name}' was skipped: #{e.message}"
                 end
@@ -86,9 +89,12 @@ module Rex
             def import_alias(alias_name, body, registration)
               execute_calls = function_calls(body, 'beacon_inline_execute')
               raise Unsupported, 'multiple beacon_inline_execute calls are not statically supported' unless execute_calls.length == 1
+              raise Unsupported, 'beacon_inline_execute must be an unconditional top-level call' unless function_calls(body, 'beacon_inline_execute', top_level: true).length == 1
 
               execute_arguments = execute_calls.first
               raise Unsupported, 'beacon_inline_execute does not specify a BOF and entry point' if execute_arguments.length < 3
+              raise Unsupported, 'beacon_inline_execute has unsupported extra arguments' if execute_arguments.length > 4
+              raise Unsupported, 'beacon_inline_execute must target the alias Beacon' unless unwrap_parentheses(execute_arguments[0]) == '$1'
 
               template, replacements = bof_template(body, execute_arguments[1])
               files = bof_files(template, replacements)
@@ -130,14 +136,12 @@ module Rex
 
               expression = argument_expression.strip
               if expression.match?(VARIABLE_PATTERN)
-                assignments = variable_assignments(body)[expression]
-                raise Unsupported, "#{expression} has a dynamic assignment" unless assignments&.length == 1
-
-                expression = assignments.first
+                expression = assignment_value(variable_assignments(body), expression)
               end
 
               pack_arguments = exact_function_call(expression, 'bof_pack')
               raise Unsupported, 'arguments are not assigned by one bof_pack call' unless pack_arguments
+              raise Unsupported, 'bof_pack must target the alias Beacon' unless unwrap_parentheses(pack_arguments[0]) == '$1'
 
               format = literal(pack_arguments[1])
               unless format.is_a?(String) && !format.empty? && format.match?(/\A[biszZ]+\z/)
@@ -179,10 +183,7 @@ module Rex
               if variable.match?(VARIABLE_PATTERN)
                 raise Unsupported, "recursive assignment for #{variable}" if seen.include?(variable)
 
-                candidates = assignments[variable]
-                raise Unsupported, "#{variable} has a dynamic assignment" unless candidates&.length == 1
-
-                return packed_value(format_character, candidates.first, assignments, seen + [variable])
+                return packed_value(format_character, assignment_value(assignments, variable), assignments, seen + [variable])
               end
 
               if format_character == 'b'
@@ -215,10 +216,7 @@ module Rex
               if variable.match?(VARIABLE_PATTERN)
                 raise Unsupported, "recursive assignment for #{variable}" if seen.include?(variable)
 
-                candidates = assignments[variable]
-                raise Unsupported, "#{variable} has a dynamic assignment" unless candidates&.length == 1
-
-                return file_position(candidates.first, assignments, seen + [variable], stage)
+                return file_position(assignment_value(assignments, variable), assignments, seen + [variable], stage)
               end
 
               case stage
@@ -259,35 +257,55 @@ module Rex
               when 'b'
                 value.is_a?(String)
               when 'i', 's'
-                value.is_a?(Integer)
+                value.is_a?(Integer) && INTEGER_RANGES.fetch(format_character).cover?(value)
               when 'z', 'Z'
                 value.is_a?(String)
               end
             end
 
             def decorate_arguments!(definitions, usage)
-              argument_names = usage_argument_names(usage)
+              argument_hints = usage_argument_hints(usage)
               used_names = {}
               definitions.each do |definition|
                 next if definition.key?('fixed')
 
                 position = definition['position']
-                base_name = argument_names[position] || "argument_#{position + 1}"
+                hint = argument_hints[position]
+                base_name = hint&.fetch('name') || "argument_#{position + 1}"
                 name = unique_name(base_name, used_names)
                 definition['name'] = name
                 definition['description'] = "CNA positional argument #{position + 1}"
+
+                if hint&.fetch('optional') && definition['required'] && definition['type'] != 'file'
+                  definition['required'] = false
+                  definition['default'] = default_argument_value(definition['type'])
+                end
               end
             end
 
-            def usage_argument_names(usage)
+            def usage_argument_hints(usage)
               return [] unless usage
 
               usage.scan(/<([^>]+)>|\[([^\]]+)\]/).map do |angle, square|
                 description = angle || square
+                optional = description.match?(/\A(?:optional|opt)\s*:?\s*/i)
                 description = description.sub(/\A(?:optional|required|opt)\s*:?\s*/i, '')
                 candidate = description[/[a-zA-Z][a-zA-Z0-9_-]*/]
-                candidate&.downcase&.tr('-', '_')
+                next unless candidate
+
+                { 'name' => candidate.downcase.tr('-', '_'), 'optional' => optional }
               end.compact
+            end
+
+            def default_argument_value(type)
+              case type
+              when 'bytes'
+                String.new.b
+              when 'int16', 'int32'
+                0
+              when 'string', 'wstring'
+                String.new
+              end
             end
 
             def unique_name(base_name, used_names)
@@ -298,13 +316,22 @@ module Rex
             def bof_template(body, data_expression)
               expression = resolve_bof_expression(data_expression, variable_assignments(body), [])
               resource = exact_function_call(expression, 'script_resource')
-              return [resource.first, {}] if resource&.length == 1
+              if resource&.length == 1
+                validate_architecture_variables!(resource.first, variable_assignments(body))
+                return [resource.first, {}]
+              end
 
-              @subroutines.each do |name, subroutine_body|
+              helpers = @subroutines.filter_map do |name, subroutine_body|
                 invocation = exact_function_call(expression, name)
                 next unless invocation
 
-                template = subroutine_bof_template(subroutine_body)
+                [subroutine_body, invocation]
+              end
+              raise Unsupported, 'BOF helper is declared more than once' if helpers.length > 1
+
+              if helpers.one?
+                subroutine_body, invocation = helpers.first
+                template = subroutine_bof_template(subroutine_body, invocation)
 
                 replacements = invocation.each_with_index.each_with_object({}) do |(argument, index), result|
                   value = literal(argument)
@@ -316,14 +343,16 @@ module Rex
               raise Unsupported, 'cannot determine the BOF path'
             end
 
-            def subroutine_bof_template(body)
+            def subroutine_bof_template(body, invocation)
               returns = return_expressions(body)
               raise Unsupported, 'BOF helper does not have one static return value' unless returns.length == 1
+              raise Unsupported, 'BOF helper return must be unconditional and top-level' unless return_expressions(body, top_level: true).length == 1
 
               expression = resolve_bof_expression(returns.first, variable_assignments(body), [])
               resource = exact_function_call(expression, 'script_resource')
               raise Unsupported, 'BOF helper does not return one resource path' unless resource&.length == 1
 
+              validate_architecture_variables!(resource.first, variable_assignments(body), invocation: invocation)
               resource.first
             end
 
@@ -332,10 +361,7 @@ module Rex
               if expression.match?(VARIABLE_PATTERN)
                 raise Unsupported, "recursive assignment for #{expression}" if seen.include?(expression)
 
-                candidates = assignments[expression]
-                raise Unsupported, "#{expression} has a dynamic assignment" unless candidates&.length == 1
-
-                return resolve_bof_expression(candidates.first, assignments, seen + [expression], stage)
+                return resolve_bof_expression(assignment_value(assignments, expression), assignments, seen + [expression], stage)
               end
 
               case stage
@@ -364,7 +390,7 @@ module Rex
               expression
             end
 
-            def return_expressions(code)
+            def return_expressions(code, top_level: false)
               expressions = []
               quote = nil
               escaped = false
@@ -382,7 +408,7 @@ module Rex
                   end
                 elsif ["'", '"'].include?(character)
                   quote = character
-                elsif code[index, 6] == 'return' && (index.zero? || code[index - 1] !~ /[a-zA-Z0-9_$%@&.-]/) && code[index + 6].to_s !~ /[a-zA-Z0-9_-]/
+                elsif (!top_level || top_level_offset?(code, index)) && code[index, 6] == 'return' && (index.zero? || code[index - 1] !~ /[a-zA-Z0-9_$%@&.-]/) && code[index + 6].to_s !~ /[a-zA-Z0-9_-]/
                   expression_start = index + 6
                   terminator = matching_terminator(code, expression_start, ';')
                   break unless terminator
@@ -411,17 +437,27 @@ module Rex
             def resource_path(expression, replacements)
               parts = split_top_level(expression, separator: '.')
               evaluated = parts.map do |part|
-                value = literal(part)
-                if value.is_a?(String)
-                  replacements.reduce(value) { |result, (variable, replacement)| result.gsub(/#{Regexp.escape(variable)}\b/, replacement.to_s) }
-                elsif replacements.key?(part.strip)
-                  replacements.fetch(part.strip).to_s
+                stripped_part = part.strip
+                if string_literal?(stripped_part)
+                  value = parse_string(stripped_part)
+                  next value if stripped_part.start_with?("'")
+
+                  raise Unsupported, 'BOF path contains an escaped dynamic variable' if stripped_part.include?('\\$')
+
+                  value.gsub!(/\s*\$\+\s*/, '')
+                  unless replacements.empty?
+                    replacement_pattern = Regexp.union(replacements.keys.map { |variable| /#{Regexp.escape(variable)}\b/ })
+                    value = value.gsub(replacement_pattern) { |variable| replacements.fetch(variable).to_s }
+                  end
+                  raise Unsupported, 'BOF path still contains dynamic variables' if value.include?('$')
+
+                  value
+                elsif replacements.key?(stripped_part)
+                  replacements.fetch(stripped_part).to_s
                 else
-                  raise Unsupported, "BOF path contains dynamic expression #{part.strip}"
+                  raise Unsupported, "BOF path contains dynamic expression #{stripped_part}"
                 end
               end.join
-              evaluated.gsub!(/\s*\$\+\s*/, '')
-              raise Unsupported, 'BOF path still contains dynamic variables' if evaluated.include?('$')
 
               ::File.expand_path(evaluated.tr('\\', ::File::SEPARATOR), @base_path)
             end
@@ -438,12 +474,46 @@ module Rex
               nil
             end
 
+            def validate_architecture_variables!(template, assignments, invocation: nil)
+              architecture_variables(template).each do |variable|
+                barch_arguments = exact_function_call(assignment_value(assignments, variable), 'barch')
+                raise Unsupported, "#{variable} must be assigned by barch" unless barch_arguments&.length == 1
+
+                beacon_expression = barch_arguments.first
+                if invocation
+                  parameter = unwrap_parentheses(beacon_expression).match(PARAMETER_PATTERN)
+                  beacon_expression = invocation[parameter[1].to_i - 1] if parameter
+                end
+                unless beacon_expression && unwrap_parentheses(beacon_expression) == '$1'
+                  raise Unsupported, "#{variable} must resolve the alias Beacon architecture"
+                end
+              end
+            end
+
+            def architecture_variables(template)
+              split_top_level(template, separator: '.').flat_map do |part|
+                stripped_part = part.strip
+                if stripped_part.start_with?('"')
+                  stripped_part.scan(/(?<!\\)\$(?:barch|arch)\b/)
+                elsif %w[$barch $arch].include?(stripped_part)
+                  stripped_part
+                end
+              end.compact.uniq
+            end
+
             def variable_assignments(code)
               result = Hash.new { |hash, key| hash[key] = [] }
+              masked_code = mask_string_literals(code)
               offset = 0
-              pattern = /(\$[a-zA-Z_]\w*)\s*=\s*/
-              while (match = pattern.match(code, offset))
-                terminator = matching_terminator(code, match.end(0), ';')
+              pattern = %r{(\$[a-zA-Z_]\w*)\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)\s*}
+              while (match = pattern.match(masked_code, offset))
+                unless match[2] == '=' && top_level_offset?(masked_code, match.begin(0))
+                  result[match[1]] << NULL
+                  offset = match.end(0)
+                  next
+                end
+
+                terminator = matching_terminator(masked_code, match.end(0), ';')
                 break unless terminator
 
                 result[match[1]] << code[match.end(0)...terminator].strip
@@ -453,31 +523,69 @@ module Rex
             end
 
             def named_blocks(keyword)
-              blocks = {}
+              blocks = []
+              masked_code = mask_string_literals(@code)
               offset = 0
               pattern = /\b#{keyword}\s+([a-zA-Z_][a-zA-Z0-9_-]*)\s*\{/
-              while (match = pattern.match(@code, offset))
-                opening = @code.index('{', match.begin(0))
-                closing = matching_delimiter(@code, opening, '{', '}')
+              while (match = pattern.match(masked_code, offset))
+                unless top_level_offset?(masked_code, match.begin(0))
+                  offset = match.end(0)
+                  next
+                end
+
+                opening = masked_code.index('{', match.begin(0))
+                closing = matching_delimiter(masked_code, opening, '{', '}')
                 break unless closing
 
-                blocks[match[1]] = @code[(opening + 1)...closing]
+                blocks << [match[1], @code[(opening + 1)...closing]]
                 offset = closing + 1
               end
               blocks
             end
 
-            def function_calls(code, function_name)
+            def function_calls(code, function_name, top_level: false)
               calls = []
-              offset = 0
+              delimiters = { '(' => ')', '[' => ']', '{' => '}' }
+              stack = []
+              quote = nil
+              escaped = false
               pattern = /(?<![a-zA-Z0-9_])&?#{Regexp.escape(function_name)}\s*\(/
-              while (match = pattern.match(code, offset))
-                opening = code.index('(', match.begin(0))
-                closing = matching_delimiter(code, opening, '(', ')')
-                break unless closing
+              index = 0
+              statement_start = 0
 
-                calls << split_top_level(code[(opening + 1)...closing])
-                offset = closing + 1
+              while index < code.length
+                character = code[index]
+                if quote
+                  if escaped
+                    escaped = false
+                  elsif character == '\\'
+                    escaped = true
+                  elsif character == quote
+                    quote = nil
+                  end
+                elsif ["'", '"'].include?(character)
+                  quote = character
+                elsif delimiters.key?(character)
+                  stack << delimiters.fetch(character)
+                elsif stack.last == character
+                  stack.pop
+                  statement_start = index + 1 if top_level && stack.empty? && character == '}'
+                elsif character == ';' && stack.empty?
+                  statement_start = index + 1
+                elsif !top_level || stack.empty?
+                  match = pattern.match(code, index)
+                  if match&.begin(0) == index
+                    opening = code.index('(', index)
+                    closing = matching_delimiter(code, opening, '(', ')')
+                    break unless closing
+
+                    following_character = code[(closing + 1)..]&.match(/\S/)&.[](0)
+                    direct_call = code[statement_start...index].strip.empty? && [nil, ';'].include?(following_character)
+                    calls << split_top_level(code[(opening + 1)...closing]) if !top_level || direct_call
+                    index = closing
+                  end
+                end
+                index += 1
               end
               calls
             end
@@ -590,6 +698,63 @@ module Rex
               nil
             end
 
+            def top_level_offset?(code, offset)
+              delimiters = { '(' => ')', '[' => ']', '{' => '}' }
+              stack = []
+              quote = nil
+              escaped = false
+              code.each_char.with_index do |character, index|
+                break if index == offset
+
+                if quote
+                  if escaped
+                    escaped = false
+                  elsif character == '\\'
+                    escaped = true
+                  elsif character == quote
+                    quote = nil
+                  end
+                elsif ["'", '"'].include?(character)
+                  quote = character
+                elsif delimiters.key?(character)
+                  stack << delimiters.fetch(character)
+                elsif stack.last == character
+                  stack.pop
+                end
+              end
+              stack.empty?
+            end
+
+            def assignment_value(assignments, variable)
+              candidates = assignments[variable]
+              raise Unsupported, "#{variable} has a dynamic assignment" unless candidates&.length == 1 && candidates.first.is_a?(String)
+
+              candidates.first
+            end
+
+            def mask_string_literals(code)
+              quote = nil
+              escaped = false
+              code.each_char.map do |character|
+                if quote
+                  if escaped
+                    escaped = false
+                  elsif character == '\\'
+                    escaped = true
+                  elsif character == quote
+                    quote = nil
+                  end
+                  next character == "\n" ? character : ' '
+                end
+                if ["'", '"'].include?(character)
+                  quote = character
+                  next ' '
+                end
+
+                character
+              end.join
+            end
+
             def remove_comments(source)
               quote = nil
               escaped = false
@@ -629,7 +794,7 @@ module Rex
 
               value = expression.strip
               return nil if value == '$null'
-              return parse_string(value) if string_literal?(value)
+              return parse_string(value) if string_literal?(value) && !interpolated_string?(value)
               return Integer(value, 0) if value.match?(/\A-?(?:0x[0-9a-fA-F]+|0[0-7]*|[1-9]\d*)\z/)
 
               NULL
@@ -639,9 +804,29 @@ module Rex
               value.match?(/\A"(?:\\.|[^"\\])*"\z/m) || value.match?(/\A'(?:\\.|[^'\\])*'\z/m)
             end
 
+            def interpolated_string?(value)
+              return false unless value.start_with?('"')
+
+              escaped = false
+              value[1...-1].each_char do |character|
+                if escaped
+                  escaped = false
+                elsif character == '\\'
+                  escaped = true
+                elsif character == '$'
+                  return true
+                end
+              end
+              false
+            end
+
             def parse_string(value)
-              value[1...-1].gsub(/\\(?:n|r|t|\\|"|')/) do |escape|
-                { '\\n' => "\n", '\\r' => "\r", '\\t' => "\t", '\\\\' => '\\', '\\"' => '"', "\\'" => "'" }.fetch(escape)
+              content = value[1...-1]
+              return content if value.start_with?("'")
+
+              content.gsub(/\\(.)/m) do
+                character = ::Regexp.last_match(1)
+                { 'n' => "\n", 'r' => "\r", 't' => "\t" }.fetch(character, character)
               end
             end
           end

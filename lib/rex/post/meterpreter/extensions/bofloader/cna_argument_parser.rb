@@ -34,11 +34,13 @@ module Rex
               raise Error, "Too many positional BOF arguments (expected at most #{expected_count})" if tokens.length > expected_count
 
               values = @arguments.map do |argument|
-                next argument['fixed'] if argument.key?('fixed')
-
-                raw_value = tokens[argument['position']]
-                raw_value = argument['default'] if raw_value.nil? && argument.key?('default')
-                raise Error, "Missing positional BOF argument #{argument['position'] + 1}" if raw_value.nil?
+                if argument.key?('fixed')
+                  raw_value = argument['fixed']
+                else
+                  raw_value = tokens[argument['position']]
+                  raw_value = argument['default'] if raw_value.nil? && argument.key?('default')
+                  raise Error, "Missing positional BOF argument #{argument['position'] + 1}" if raw_value.nil?
+                end
 
                 coerce(argument, raw_value)
               end
@@ -50,16 +52,20 @@ module Rex
             def coerce(argument, value)
               case argument['type']
               when 'bytes'
+                raise Error, "#{argument_name(argument)} is not valid binary data" unless value.is_a?(String)
+
                 value.b
               when 'file'
-                unless ::File.file?(value) && ::File.readable?(value)
-                  raise Error, "Positional BOF argument #{argument['position'] + 1} references an unreadable file"
+                unless value.is_a?(String) && ::File.file?(value) && ::File.readable?(value)
+                  raise Error, "#{argument_name(argument)} references an unreadable file"
                 end
 
                 ::File.binread(value)
               when *INTEGER_RANGES.keys
                 parse_integer(argument, value)
               when 'string', 'wstring'
+                raise Error, "#{argument_name(argument)} is not a valid string" unless value.is_a?(String)
+
                 value
               end
             end
@@ -75,10 +81,16 @@ module Rex
               end
 
               unless integer && INTEGER_RANGES.fetch(argument['type']).cover?(integer)
-                raise Error, "Positional BOF argument #{argument['position'] + 1} is not a valid #{argument['type']}"
+                raise Error, "#{argument_name(argument)} is not a valid #{argument['type']}"
               end
 
               integer
+            end
+
+            def argument_name(argument)
+              return "Positional BOF argument #{argument['position'] + 1}" if argument['position']
+
+              'Fixed CNA BOF argument'
             end
           end
         end

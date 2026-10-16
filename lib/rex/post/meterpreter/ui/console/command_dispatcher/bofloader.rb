@@ -401,6 +401,7 @@ module Rex
               if status.exitstatus != 0
                 print_error("Compilation exited with error code: #{status.exitstatus}")
                 print_line(output) unless output.blank?
+                nil
               else
                 ::File.binread(destination)
               end

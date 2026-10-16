@@ -38,6 +38,13 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaArgumentParser 
       .to eq('format' => 'i', 'values' => [7])
   end
 
+  it 'rejects fixed integers outside the packed format range' do
+    arguments = [{ 'type' => 'int16', 'format' => 's', 'fixed' => 32_768, 'required' => false }]
+
+    expect { described_class.new(arguments: arguments).parse([]) }
+      .to raise_error(described_class::Error, /Fixed CNA BOF argument is not a valid int16/)
+  end
+
   it 'rejects extra positionals' do
     arguments = [{ 'type' => 'int32', 'format' => 'i', 'fixed' => 1, 'required' => false }]
 

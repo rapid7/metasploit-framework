@@ -220,7 +220,6 @@ module Rex
               request = Packet.create_request(COMMAND_ID_BOFLOADER_EXECUTE)
 
               # Pack up beacon object file data and arguments into one single binary blob
-              # Hardcode the entrypoint to "go" (CobaltStrike approved)
               bof = BofPack.new
               packed_args = bof.bof_pack(args_format, args)
 

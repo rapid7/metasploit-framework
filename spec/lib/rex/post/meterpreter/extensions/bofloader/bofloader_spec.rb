@@ -12,6 +12,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::Bofloader do
       File.binwrite(File.join(directory, 'hello.x64.o'), 'x64 BOF')
       File.binwrite(script_path, <<~'CNA')
         alias hello {
+          $barch = barch($1);
           $args = bof_pack($1, "zi", $2, 7);
           beacon_inline_execute($1, readb(openf(script_resource("hello. $+ $barch $+ .o")), -1), "go", $args);
         }

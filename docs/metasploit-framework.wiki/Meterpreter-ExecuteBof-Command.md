@@ -116,11 +116,14 @@ This imports `hello` with `hello/hello.x64.o` and `hello/hello.x86.o`, a literal
 and a fixed integer. The importer supports:
 
 * One direct `beacon_inline_execute` call in an alias.
-* Literal entry points and `script_resource` paths, including `$barch` or `$arch` substitutions.
+* Literal entry points and `script_resource` paths, including `$barch` or `$arch` values assigned by `barch` for the
+  alias Beacon.
 * Conventional helper functions such as `readbof($1, "hello")` when their resource path is static.
 * Omitted or `$null` arguments, or one `bof_pack` call with a literal `b`, `i`, `s`, `z`, or `Z` format.
 * Direct positional arguments (`$2`, `$3`, and so on), fixed strings or integers, simple single assignments, and
   `iff(-istrue $N, $N, default)` optional arguments.
+* Direct values identified as `optional` or `opt` in the registered command usage, using an empty or zero value when
+  omitted.
 * Binary arguments loaded from a local file through `readb(openf(...))`.
 
 ### Unsupported CNA Example
