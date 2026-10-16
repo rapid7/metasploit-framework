@@ -121,30 +121,25 @@ protected
       else
         mod.print_error("Session not found")
         job_listener.failed(run_uuid, 'Session not found', mod)
-        mod.cleanup
         return
       end
     rescue Msf::Post::Complete
       job_listener.completed(run_uuid, nil, mod)
-      mod.cleanup
       return
     rescue Msf::Post::Failed => e
       mod.error = e
-      mod.print_error("Post aborted due to failure: #{e.message}")
       job_listener.failed(run_uuid, e, mod)
-      mod.cleanup
+      mod.print_error("Post aborted due to failure: #{e.message}")
       return
     rescue ::Timeout::Error => e
       mod.error = e
-      mod.print_error("Post triggered a timeout exception")
       job_listener.failed(run_uuid, e, mod)
-      mod.cleanup
+      mod.print_error("Post triggered a timeout exception")
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Post interrupted by the console user")
       job_listener.failed(run_uuid, e, mod)
-      mod.cleanup
+      mod.print_error("Post interrupted by the console user")
       return
     rescue ::Msf::OptionValidateError => e
       mod.error = e
@@ -153,6 +148,7 @@ protected
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")
+      job_listener.failed(run_uuid, e, mod)
       if(e.class.to_s != 'Msf::OptionValidateError')
         mod.print_error("Call stack:")
         e.backtrace.each do |line|
@@ -162,8 +158,6 @@ protected
       end
 
       elog('Post failed', error: e)
-      job_listener.failed(run_uuid, e, mod)
-      mod.cleanup
 
       return
     end
