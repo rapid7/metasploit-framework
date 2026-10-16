@@ -23976,7 +23976,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/hikvision_info_disclosure_cve_2017_7921.rb",
     "is_install_path": true,
     "ref_name": "gather/hikvision_info_disclosure_cve_2017_7921",
@@ -25835,7 +25835,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-10 16:13:38 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/magento_xxe_cve_2024_34102.rb",
     "is_install_path": true,
     "ref_name": "gather/magento_xxe_cve_2024_34102",
@@ -36584,7 +36584,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-21 15:18:58 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/scanner/http/elasticsearch_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/elasticsearch_traversal",
