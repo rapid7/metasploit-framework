@@ -10,6 +10,26 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
 
   subject(:harness) { harness_class.new }
 
+  describe 'LoongArch64 shell loader' do
+    it 'uses the generic Linux memfd, ftruncate, getpid and kill syscalls' do
+      words = harness._generate_first_stage_shellcode('loongarch64').unpack('V*')
+      syscall_numbers = words.each_cons(2).filter_map do |instruction, following|
+        (instruction >> 10) & 0xfff if (instruction & 0xffc003ff) == 0x0380000b && following == 0x002b0000
+      end
+      expect(syscall_numbers).to eq([279, 46, 172, 129])
+    end
+
+    it 'loads an aligned 64-bit destination and jumps through it' do
+      fragment = harness._generate_jmp_instruction('loongarch64')
+      encoded = IO.popen(['sh', '-c', "vdso_addr=0x123456789abc; echo #{fragment}"], &:read).strip
+      instructions = [encoded].pack('H*')
+      expect(instructions.bytesize).to eq(24)
+      expect(instructions[16, 8].unpack1('Q<')).to eq(0x123456789abc)
+      # PCADDI establishes a PC-relative base; LD.D reads the aligned literal.
+      expect(instructions[0, 16].unpack('V*')).to eq([0x1800000c, 0x28c0418c, 0x4c000180, 0x03400000])
+    end
+  end
+
   # Representative of the get_file_cmd curl/wget build when FETCH dynamic_arch is
   # enabled: it contains a literal single quote plus other shell metacharacters
   # ($, &). Embedded unencoded, that quote previously closed the python3 -c '...'
