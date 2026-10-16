@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            print_good "Success: '#{result.credential}'"
             successful_logins << result
 
             if create_session?
@@ -138,15 +138,15 @@ class MetasploitModule < Msf::Auxiliary
             end
           else
             invalidate_login(credential_data)
-            vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+            vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
           end
         end
 
       else
-        vprint_error "#{target} - Unsupported target version of MySQL detected. Skipping."
+        vprint_error 'Unsupported target version of MySQL detected. Skipping.'
       end
     rescue ::Rex::ConnectionError, ::EOFError => e
-      vprint_error "#{target} - Unable to connect: #{e.to_s}"
+      vprint_error "Unable to connect: #{e}"
     end
     { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       raise e
     rescue ::Exception => e
-      vprint_error("#{Rex::Socket.to_authority(rhost, rport)} error checking version #{e.class} #{e}")
+      vprint_error("error checking version #{e.class} #{e}")
       return false
     end
     offset = 0
@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_good "#{Rex::Socket.to_authority(rhost, rport)} - Found remote MySQL version #{short_version}"
+    print_good "Found remote MySQL version #{short_version}" if datastore['VERBOSE']
     int_version(short_version) >= int_version(target)
   end
 
