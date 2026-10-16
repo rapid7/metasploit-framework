@@ -159,10 +159,15 @@ module Rex
               client.put("227 Entering Passive Mode (#{pasv}).\r\n")
 
             when 'PORT'
+              values = nil
+              active_port = nil
               parts = arg.split(',')
-              if parts.length == 6
-                state[:active_host] = parts[0..3].join('.')
-                state[:active_port] = (parts[4].to_i * 256) + parts[5].to_i
+              values = parts.map(&:to_i) if parts.length == 6 && parts.all? { |part| part.match?(/\A\d{1,3}\z/) }
+              active_port = (values[4] * 256) + values[5] if values&.all? { |value| value.between?(0, 255) }
+
+              if active_port&.positive?
+                state[:active_host] = client.peerhost
+                state[:active_port] = active_port
                 state[:mode] = :active
                 client.put("200 PORT command successful.\r\n")
               else
