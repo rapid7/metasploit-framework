@@ -8,7 +8,28 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer
   prepend Msf::Exploit::Remote::AutoCheck
-  CheckCode = Exploit::CheckCode
+  # APSB24-40 fixed releases from https://helpx.adobe.com/security/products/magento/apsb24-40.html.
+  # Each mapped x.y.z branch is affected until its listed fixed patch level. A target on one of
+  # these branches that is not yet at fixed_patch is affected by CVE-2024-34102.
+  APSB24_40_BRANCHES = {
+    '2.4.7' => { fixed_patch: 1 }.freeze,
+    '2.4.6' => { fixed_patch: 6 }.freeze,
+    '2.4.5' => { fixed_patch: 8 }.freeze,
+    '2.4.4' => { fixed_patch: 9 }.freeze
+  }.freeze
+  # Adobe Commerce is reported by the banner as "Enterprise" and shares the -pN scheme on 2.4.4-2.4.7.
+  MAPPED_EDITIONS = %w[Community Enterprise].freeze
+  # Adobe Commerce extended support branches, affected up to and including the listed -ext-N level.
+  APSB24_40_EXT_BRANCHES = {
+    '2.4.3' => { affected_through: 7 }.freeze,
+    '2.4.2' => { affected_through: 7 }.freeze
+  }.freeze
+  MAGENTO_BANNER_PATTERN = %r{\bMagento/([^\s(]+)\s+\(([^)]*)\)}
+  # The /magento_version controller only emits major.minor (e.g. "2.4"); a full x.y.z[-pN] is only
+  # available from other sources.
+  MAGENTO_MINOR_PATTERN = /\A\d+\.\d+\z/
+  MAGENTO_VERSION_PATTERN = /\A(\d+\.\d+\.\d+)(?:-p(\d+))?\z/
+  MAGENTO_EXT_VERSION_PATTERN = /\A(\d+\.\d+\.\d+)-ext-(\d+)\z/
 
   def initialize(info = {})
     super(
@@ -49,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     vprint_status('Trying to get the Magento version')
 
-    # request to check if the target is vulnerable /magento_version
+    # Request to check whether the target identifies itself as Magento.
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, '/magento_version')
@@ -57,24 +78,59 @@ class MetasploitModule < Msf::Auxiliary
 
     return Exploit::CheckCode::Unknown('Could not detect the version.') unless res&.code == 200
 
-    # Magento/2.4 (Community)
-    version, edition = res.body.scan(%r{Magento/([\d.]+) \(([^)]+)\)}).first
+    body = res.body.to_s
+    banner_match = body.match(MAGENTO_BANNER_PATTERN)
+    return Exploit::CheckCode::Safe('Target was not identified as Magento') unless banner_match
 
-    version = Rex::Version.new(version)
+    version = banner_match[1]
+    edition = banner_match[2].strip
+    return Exploit::CheckCode::Unknown('Detected Magento banner with insufficient version or edition evidence') if edition.empty?
+    return Exploit::CheckCode::Unknown("Detected Magento #{edition} edition version #{version} with insufficient edition mapping evidence") unless MAPPED_EDITIONS.include?(edition)
 
-    return Exploit::CheckCode::Safe("Detected Magento #{edition} edition version #{version} which is not vulnerable") unless
-      version <= (Rex::Version.new('2.4.7')) ||
-      version <= (Rex::Version.new('2.4.6-p5')) ||
-      version <= (Rex::Version.new('2.4.5-p7')) ||
-      version <= (Rex::Version.new('2.4.4-p8')) ||
-      (
-        edition == 'Enterprise' && (
-          version <= (Rex::Version.new('2.4.3-ext-7')) ||
-          version <= (Rex::Version.new('2.4.2-ext-7'))
-        )
-      )
+    case classify_version(version, edition)
+    when :unverifiable
+      Exploit::CheckCode::Detected("Detected Magento #{edition} edition version #{version}; the patch level cannot be determined from /magento_version")
+    when :affected
+      Exploit::CheckCode::Appears("Detected Magento #{edition} edition version #{version} which is affected by CVE-2024-34102")
+    when :fixed
+      Exploit::CheckCode::Safe("Detected Magento #{edition} edition version #{version} which is fixed for CVE-2024-34102")
+    else
+      Exploit::CheckCode::Unknown("Detected Magento #{edition} edition version #{version} with insufficient version or branch mapping evidence")
+    end
+  end
 
-    Exploit::CheckCode::Appears("Detected Magento #{edition} edition version #{version} which is vulnerable")
+  # Classifies a Magento version string against the APSB24-40 advisory.
+  #
+  # The /magento_version endpoint only returns major.minor (e.g. "2.4"), which is not enough to
+  # tell patched releases (or isolated-patch installs) from vulnerable ones.
+  #
+  # @param version [String] the version component of the Magento banner
+  # @param edition [String] the edition component of the Magento banner
+  # @return [Symbol] :affected, :fixed, :unverifiable (branch only), or :unknown
+  def classify_version(version, edition)
+    return :unverifiable if version.match?(MAGENTO_MINOR_PATTERN)
+
+    ext_match = version.match(MAGENTO_EXT_VERSION_PATTERN)
+    if ext_match
+      ext_release = APSB24_40_EXT_BRANCHES[ext_match[1]]
+      return :unknown unless ext_release && edition == 'Enterprise'
+
+      # Levels beyond the last advisory-listed one are not mapped, so don't claim they are fixed.
+      return ext_match[2].to_i <= ext_release[:affected_through] ? :affected : :unknown
+    end
+
+    version_match = version.match(MAGENTO_VERSION_PATTERN)
+    return :unknown unless version_match
+
+    patch = version_match[2]&.to_i
+    release = APSB24_40_BRANCHES[version_match[1]]
+    return :unknown unless release
+
+    # A base release with no patch suffix (patch.nil?) has not had the APSB24-40 patch applied,
+    # so a mapped branch is affected. Below fixed_patch is affected; at or above it is fixed.
+    return :affected if patch.nil? || patch < release[:fixed_patch]
+
+    :fixed
   end
 
   def ent_eval
