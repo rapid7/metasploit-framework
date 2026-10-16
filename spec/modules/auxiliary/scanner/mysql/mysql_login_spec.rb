@@ -42,8 +42,8 @@ RSpec.describe 'MySQL Login Scanner' do
       allow(mod).to receive(:mysql_version_check).and_call_original
       allow(mod).to receive(:connect).and_raise(RuntimeError, 'unexpected response')
 
-      expect(mod).to receive(:print_error)
-        .with('Error checking version RuntimeError unexpected response')
+      expect(mod).to receive(:vprint_error)
+        .with('error checking version RuntimeError unexpected response')
 
       expect(mod.mysql_version_check).to be(false)
     end
@@ -64,7 +64,7 @@ RSpec.describe 'MySQL Login Scanner' do
         allow(mod).to receive(:create_credential_login)
       end
 
-      it 'does not include the target prefix in the module message' do
+      it 'does not add a duplicate target prefix to successful authentication output' do
         expect(mod).to receive(:print_good)
           .with("Success: '#{credential}'")
 
@@ -86,8 +86,8 @@ RSpec.describe 'MySQL Login Scanner' do
         allow(mod).to receive(:invalidate_login)
       end
 
-      it 'does not include the target prefix in the module message' do
-        expect(mod).to receive(:print_error)
+      it 'uses verbose target-aware output for failed authentication' do
+        expect(mod).to receive(:vprint_error)
           .with("LOGIN FAILED: #{credential} (#{result.status}: #{result.proof})")
 
         mod.run_host(host)
@@ -101,7 +101,7 @@ RSpec.describe 'MySQL Login Scanner' do
       end
 
       it 'does not include the target prefix in the module message' do
-        expect(mod).to receive(:print_error)
+        expect(mod).to receive(:vprint_error)
           .with(a_string_starting_with('Unable to connect: '))
 
         mod.run_host(host)
@@ -114,7 +114,7 @@ RSpec.describe 'MySQL Login Scanner' do
       end
 
       it 'does not include the target prefix in the module message' do
-        expect(mod).to receive(:print_error)
+        expect(mod).to receive(:vprint_error)
           .with('Unsupported target version of MySQL detected. Skipping.')
 
         mod.run_host(host)

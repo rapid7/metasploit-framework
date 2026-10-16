@@ -138,15 +138,15 @@ class MetasploitModule < Msf::Auxiliary
             end
           else
             invalidate_login(credential_data)
-            print_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})" if datastore['VERBOSE']
+            vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
           end
         end
 
-      elsif datastore['VERBOSE']
-        print_error 'Unsupported target version of MySQL detected. Skipping.'
+      else
+        vprint_error "Unsupported target version of MySQL detected. Skipping."
       end
     rescue ::Rex::ConnectionError, ::EOFError => e
-      print_error "Unable to connect: #{e}" if datastore['VERBOSE']
+      vprint_error "Unable to connect: #{e}"
     end
     { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       raise e
     rescue ::Exception => e
-      print_error("Error checking version #{e.class} #{e}") if datastore['VERBOSE']
+      vprint_error("error checking version #{e.class} #{e}")
       return false
     end
     offset = 0
