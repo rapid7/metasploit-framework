@@ -61,10 +61,10 @@ class MetasploitModule < Msf::Auxiliary
       'PeerPort' => rport,
       'Context' => { 'Msf' => framework, 'MsfExploit' => self }
     ) # No need to rescue, it's a UDP faux-socket
-    udp_sock.sendto(payload, rhost, rport)
+    udp_sock.send(payload, 0, rhost, rport)
     recv = udp_sock.timed_read(65535, recv_timeout)
     if recv && !recv.empty?
-      udp_sock.sendto(payload, rhost, rport)
+      udp_sock.send(payload, 0, rhost, rport)
     else
       print_error "#{Rex::Socket.to_authority(rhost, rport)} - TFTP - No response from the target, aborting."
       return
