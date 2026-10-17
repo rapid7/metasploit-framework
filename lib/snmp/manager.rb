@@ -59,9 +59,7 @@ class RexUDPTransport
 
     def send(data, host, port, flags = 0)
         begin
-            @socket.sendto(data, host, port, flags)
-        rescue NoMethodError
-            @socket.send(data, 0, host, port)
+            @socket.send(data, flags, host, port)
         rescue ::Errno::EISCONN
             @socket.write(data)
         end
