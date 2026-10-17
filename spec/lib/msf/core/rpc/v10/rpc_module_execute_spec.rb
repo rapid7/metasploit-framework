@@ -118,6 +118,43 @@ RSpec.describe Msf::RPC::RPC_Module, '#rpc_execute returns uuid/job_id for all m
     end
   end
 
+  context 'when the module fails to start (option validation or other pre-launch failure)' do
+    # The wrapper rescues internally and returns with job_id nil; rpc_execute
+    # must raise a structured error, not a success-shaped {job_id: nil} body.
+    shared_examples 'raises instead of returning a nil job_id' do |mtype, mname, simple_klass, simple_method|
+      let(:validate_error) { double('OptionValidateError', message: 'The following options failed to validate: RHOSTS.') }
+
+      def failing_module(mtype, error)
+        double('Module', uuid: 'mod-uuid', job_id: nil, run_uuid: nil, error: error, type: mtype)
+      end
+
+      it "raises Msf::RPC::Exception carrying the reason for #{mtype} modules" do
+        mod = failing_module(mtype, validate_error)
+        allow(modules).to receive(:create).with("#{mtype}/#{mname}").and_return(mod)
+        allow(simple_klass).to receive(simple_method) # no-op: leaves job_id nil, as the internal rescue does
+
+        opts = { 'PAYLOAD' => 'generic/shell_reverse_tcp' }
+        expect { rpc.rpc_execute(mtype, mname, opts) }
+          .to raise_error(Msf::RPC::Exception, /failed to validate/)
+      end
+
+      it "falls back to a generic message when no error was recorded for #{mtype} modules" do
+        mod = failing_module(mtype, nil)
+        allow(modules).to receive(:create).with("#{mtype}/#{mname}").and_return(mod)
+        allow(simple_klass).to receive(simple_method)
+
+        opts = { 'PAYLOAD' => 'generic/shell_reverse_tcp' }
+        expect { rpc.rpc_execute(mtype, mname, opts) }
+          .to raise_error(Msf::RPC::Exception, /Module failed to start/)
+      end
+    end
+
+    include_examples 'raises instead of returning a nil job_id',
+                     'exploit', 'multi/handler', Msf::Simple::Exploit, :exploit_simple
+    include_examples 'raises instead of returning a nil job_id',
+                     'evasion', 'windows/applocker_evasion_msbuild', Msf::Simple::Evasion, :run_simple
+  end
+
   context 'structural options validation (defence-in-depth for non-MCP callers)' do
     it 'accepts a well-formed options hash with scalar values' do
       mod = double('Module', uuid: 'u', job_id: 1, run_uuid: 'r', type: 'auxiliary')
