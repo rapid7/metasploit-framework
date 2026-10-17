@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       fd.read(fd.stat.size).split("\n").each do |filename|
         filename.strip!
         pkt = "\x00\x01" + filename + "\x00" + "netascii" + "\x00"
-        udp_sock.sendto(pkt, ip, datastore['RPORT'])
+        udp_sock.send(pkt, 0, ip, datastore['RPORT'])
         resp = udp_sock.get(3)
         if resp and resp.length >= 2 and resp[0, 2] == "\x00\x03"
           print_good("Found #{filename} on #{ip}")

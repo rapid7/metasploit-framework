@@ -165,7 +165,7 @@ class Client
       'LocalPort' => local_port,
       'Context'   => context
     )
-    self.client_sock.sendto(rrq_packet, peer_host, peer_port)
+    self.client_sock.send(rrq_packet, 0, peer_host, peer_port)
     self.threads << Rex::ThreadFactory.spawn("TFTPClientMonitor", false) {
       if block_given?
         monitor_client_sock {|msg| yield msg}
@@ -226,7 +226,7 @@ class Client
     self.recv_tempfile.write(data)
     self.recv_tempfile.flush
     req = ack_packet(blocknum)
-    self.server_sock.sendto(req, host, port)
+    self.server_sock.send(req, 0, host, port)
     yield "Received and acknowledged #{data.size} in block #{blocknum}" if block_given?
   end
 
@@ -274,7 +274,7 @@ class Client
       'LocalPort' => local_port,
       'Context'   => context
     )
-    self.client_sock.sendto(wrq_packet, peer_host, peer_port)
+    self.client_sock.send(wrq_packet, 0, peer_host, peer_port)
     self.threads << Rex::ThreadFactory.spawn("TFTPClientMonitor", false) {
       if block_given?
         monitor_client_sock {|msg| yield msg}
@@ -307,7 +307,7 @@ class Client
     data_blocks.each_with_index do |data_block,idx|
       loop do
         req = [Constants::OpData, (idx + 1), data_block].pack("nnA*")
-        if self.server_sock.sendto(req, host, port) <= 0
+        if self.server_sock.send(req, 0, host, port) <= 0
           send_retries += 1
           if send_retries > 100
             break
