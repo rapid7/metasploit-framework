@@ -1,0 +1,15 @@
+schema: meterpreter-micro/v1
+profile: micro-file-helper
+platform: windows
+architecture: [x64, x86]
+objects:
+  - name: micro-stdapi-file-channel
+    file:
+      x64: ../../build/fs_file.x64.o
+      x86: ../../build/fs_file.x86.o
+    channels: [stdapi_fs_file]
+    commands: []
+    client:
+      helper:
+        file: ../helpers/custom_download.rb
+        alias: custom_fs
