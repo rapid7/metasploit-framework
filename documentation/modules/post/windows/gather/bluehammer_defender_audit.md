@@ -136,8 +136,8 @@ msf post(windows/gather/bluehammer_defender_audit) > run
 
 | Verdict | Meaning |
 | --- | --- |
-| `HARDENED` | Patched build, Tamper Protection on, real-time protection on, signatures current |
-| `PATCHED-BUT-EXPOSED` | Patched build, but weak posture (Tamper off, real-time off, signatures stale, or shadow copies present) |
+| `HARDENED` | Patched build with every control positively confirmed on — Tamper Protection on, real-time protection on, signatures current, no shadow copies |
+| `PATCHED-BUT-EXPOSED` | Patched build, but a control is off or could not be confirmed (Tamper off, real-time off, signatures stale, shadow copies present, or posture unreadable) |
 | `VULNERABLE` | Defender platform build is below `FIXED_VERSION` |
 | `UNKNOWN` | The Defender platform version could not be determined from any source |
 | `EVIDENCE-OF-TARGETING` | Overlay on any verdict — a Defender detection (event 1116/1117) for the BlueHammer signature, or an IOC match from `IOC_FILE`, was found |

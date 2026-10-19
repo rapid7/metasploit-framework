@@ -294,7 +294,7 @@ class MetasploitModule < Msf::Post
       if version[:vulnerable]
         'VULNERABLE'
       elsif version[:vulnerable] == false
-        weak_posture?(posture) ? 'PATCHED-BUT-EXPOSED' : 'HARDENED'
+        strong_posture?(posture) ? 'HARDENED' : 'PATCHED-BUT-EXPOSED'
       else
         'UNKNOWN'
       end
@@ -302,9 +302,16 @@ class MetasploitModule < Msf::Post
     { base: base, targeted: targeted }
   end
 
-  def weak_posture?(posture)
-    stale_sig = !posture[:sig_age_days].nil? && posture[:sig_age_days] > SIG_STALE_DAYS
-    posture[:tamper] == false || posture[:rtp] == false || posture[:vss_present] == true || stale_sig
+  # HARDENED requires POSITIVE confirmation of every control. An unknown (nil) value
+  # — e.g. if Get-MpComputerStatus failed while the version was confirmed from disk —
+  # counts as not-confirmed, so a failed posture read degrades to PATCHED-BUT-EXPOSED
+  # rather than falsely claiming the host is hardened.
+  def strong_posture?(posture)
+    posture[:tamper] == true &&
+      posture[:rtp] == true &&
+      posture[:vss_present] == false &&
+      !posture[:sig_age_days].nil? &&
+      posture[:sig_age_days] <= SIG_STALE_DAYS
   end
 
   #
