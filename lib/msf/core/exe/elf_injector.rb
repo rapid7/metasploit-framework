@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elftools'
+require 'digest/sha1'
 require 'metasm'
 require 'stringio'
 
@@ -22,8 +23,8 @@ module Msf
       PF_W = ELFTools::Constants::PF::PF_W
       PF_R = ELFTools::Constants::PF::PF_R
 
+      FINGERPRINT_BYTES = 2080
       MAX_ALIGNMENT = 0x200000
-      MARKER = "\x00msfelfinject\x01\x00".b.freeze
 
       MACHINE_ARCHITECTURES = {
         [32, ELFTools::Constants::EM::EM_386] => :x86,
@@ -66,7 +67,12 @@ module Msf
 
       # @return [Boolean] Whether this injector's marker is present.
       def injected?
-        @template.include?(MARKER)
+        @template.include?(fingerprint)
+      end
+
+      # @return [String] SHA-1 fingerprint of the first 2080 bytes of the .text section, or of a canonicalized executable prefix for sectionless ELFs.
+      def fingerprint
+        @fingerprint ||= Digest::SHA1.hexdigest(fingerprint_data).b
       end
 
       # @return [String] A modified ELF that forks the payload and resumes the original entry point.
@@ -85,10 +91,10 @@ module Msf
       def inject_new_segment
         program_header = reusable_program_header
         alignment = segment_alignment
-        injected_offset = align_up(@template.bytesize, alignment)
+        injected_offset = align_up([@template.bytesize, fingerprint_file_range.last].max, alignment)
         injected_address = align_up(load_segments.map { |segment| segment[:virtual_address] + segment[:memory_size] }.max, alignment)
         trampoline = build_trampoline(injected_address)
-        injected_data = trampoline + @payload + MARKER
+        injected_data = trampoline + @payload + fingerprint
 
         modified = @template.dup
         modified << "\x00".b * (injected_offset - modified.bytesize)
@@ -240,8 +246,9 @@ module Msf
           memory_capacity = memory_code_cave_capacity(segment, segment_end_address)
           next if file_capacity <= 0 || memory_capacity <= 0
 
-          data = ("\x00".b * padding_size) + build_trampoline(address) + @payload + MARKER
+          data = ("\x00".b * padding_size) + build_trampoline(address) + @payload + fingerprint
           next if data.bytesize > [file_capacity, memory_capacity].min
+          next if ranges_overlap?([offset, offset + data.bytesize], fingerprint_file_range)
 
           cave = @template.byteslice(offset, data.bytesize)
           next unless cave && cave.bytes.all?(&:zero?)
@@ -323,6 +330,44 @@ module Msf
           p_align: header.fetch(:alignment)
         )
         encoded.to_binary_s
+      end
+
+      def fingerprint_data
+        section = text_section
+        if section
+          section_offset = section.header.sh_offset.to_i
+          size = [section.header.sh_size.to_i, FINGERPRINT_BYTES].min
+          @fingerprint_file_range = [section_offset, section_offset + size]
+          return section.data.byteslice(0, FINGERPRINT_BYTES).to_s.b
+        end
+
+        @fingerprint_file_range = [0, FINGERPRINT_BYTES]
+        data = @template.byteslice(0, FINGERPRINT_BYTES).to_s.ljust(FINGERPRINT_BYTES, "\x00").b
+        data[@entrypoint_offset, @word_size] = "\x00".b * @word_size
+        program_headers_size = @program_header_size * @program_header_count
+        if @program_header_offset < FINGERPRINT_BYTES
+          size = [program_headers_size, FINGERPRINT_BYTES - @program_header_offset].min
+          data[@program_header_offset, size] = "\x00".b * size
+        end
+        data.byteslice(0, FINGERPRINT_BYTES)
+      end
+
+      def fingerprint_file_range
+        fingerprint unless @fingerprint_file_range
+        @fingerprint_file_range
+      end
+
+      def ranges_overlap?(first, second)
+        first[0] < second[1] && second[0] < first[1]
+      end
+
+      def text_section
+        return @text_section if defined?(@text_section)
+
+        section = @section_metadata_valid ? @elf.section_by_name('.text') : nil
+        @text_section = section if section && section.header.sh_type.to_i != SHT_NOBITS && section.header.sh_size.to_i.positive?
+      rescue ELFTools::ELFError, IOError, NoMethodError
+        @text_section = nil
       end
 
       def build_trampoline(injected_address)

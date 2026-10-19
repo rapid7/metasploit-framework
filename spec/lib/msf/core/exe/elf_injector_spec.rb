@@ -24,12 +24,34 @@ RSpec.describe Msf::Exe::ElfInjector do
   def elf64_with_code_cave
     code = "\xb8\x3c\x00\x00\x00\x31\xff\x0f\x05".b
     entrypoint = 0x4000b0
+    shstrtab = "\x00.text\x00.shstrtab\x00".b
+    section_header_offset = 0x900
     identifier = "\x7fELF\x02\x01\x01\x00".b + ("\x00".b * 8)
-    header = identifier + [2, 62, 1, entrypoint, 64, 0, 0, 64, 56, 2, 0, 0, 0].pack('vvVQ<Q<Q<Vvvvvvv')
+    header = identifier + [2, 62, 1, entrypoint, 64, section_header_offset, 0, 64, 56, 2, 64, 3, 2].pack('vvVQ<Q<Q<Vvvvvvv')
     executable = [1, 5, 0, 0x400000, 0x400000, 176 + code.bytesize, 176 + code.bytesize, 0x1000].pack('VVQ<Q<Q<Q<Q<Q<')
     readable = [1, 4, 0x1000, 0x401000, 0x401000, 1, 1, 0x1000].pack('VVQ<Q<Q<Q<Q<Q<')
+    sections = ("\x00".b * 64) +
+               [1, 1, 6, entrypoint, 176, code.bytesize, 0, 0, 16, 0].pack('VVQ<Q<Q<Q<VVQ<Q<') +
+               [7, 3, 0, 0, 0x800, shstrtab.bytesize, 0, 0, 1, 0].pack('VVQ<Q<Q<Q<VVQ<Q<')
 
-    (header + executable + readable + code).ljust(0x1000, "\x00".b) + 'A'.b
+    (header + executable + readable + code).ljust(0x800, "\x00".b) + shstrtab.ljust(0x100, "\x00".b) + sections.ljust(0x700, "\x00".b) + 'A'.b
+  end
+
+  def elf64_with_text(text)
+    entrypoint = 0x4000b0
+    shstrtab = "\x00.text\x00.shstrtab\x00".b
+    shstrtab_offset = 176 + text.bytesize
+    section_header_offset = (shstrtab_offset + shstrtab.bytesize + 7) & -8
+    file_size = 176 + text.bytesize
+    identifier = "\x7fELF\x02\x01\x01\x00".b + ("\x00".b * 8)
+    header = identifier + [2, 62, 1, entrypoint, 64, section_header_offset, 0, 64, 56, 2, 64, 3, 2].pack('vvVQ<Q<Q<Vvvvvvv')
+    load = [1, 5, 0, 0x400000, 0x400000, file_size, file_size, 0x1000].pack('VVQ<Q<Q<Q<Q<Q<')
+    note = [4, 4, file_size, 0x400000 + file_size, 0x400000 + file_size, 0, 0, 4].pack('VVQ<Q<Q<Q<Q<Q<')
+    sections = ("\x00".b * 64) +
+               [1, 1, 6, entrypoint, 176, text.bytesize, 0, 0, 16, 0].pack('VVQ<Q<Q<Q<VVQ<Q<') +
+               [7, 3, 0, 0, shstrtab_offset, shstrtab.bytesize, 0, 0, 1, 0].pack('VVQ<Q<Q<Q<VVQ<Q<')
+
+    (header + load + note + text + shstrtab).ljust(section_header_offset, "\x00".b) + sections
   end
 
   def elf64_with_nobits_code_cave
@@ -90,6 +112,18 @@ RSpec.describe Msf::Exe::ElfInjector do
     expect(program_headers.values_at(1, 9)).to eq([5, 7])
     expect(injector.technique).to eq(:program_header)
     expect(described_class.new(template: generated).injected?).to be(true)
+  end
+
+  it 'uses a binary-specific SHA-1 marker derived from the first 2080 .text bytes' do
+    common_text = 'A'.b * described_class::FINGERPRINT_BYTES
+    first = described_class.new(template: elf64_with_text(common_text + 'X'.b), payload: "\xcc".b)
+    same_prefix = described_class.new(template: elf64_with_text(common_text + 'Y'.b), payload: "\xcc".b)
+    changed_prefix = described_class.new(template: elf64_with_text('B'.b + common_text.byteslice(1..)), payload: "\xcc".b)
+
+    expect(first.fingerprint).to eq(Digest::SHA1.hexdigest(common_text))
+    expect(same_prefix.fingerprint).to eq(first.fingerprint)
+    expect(changed_prefix.fingerprint).not_to eq(first.fingerprint)
+    expect(first.generate.end_with?(first.fingerprint)).to be(true)
   end
 
   it 'uses an executable code cave before requiring a reusable program header' do
