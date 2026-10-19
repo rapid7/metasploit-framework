@@ -1,37 +1,34 @@
 # frozen_string_literal: true
 
+require 'elftools'
 require 'metasm'
+require 'stringio'
 
 module Msf
   module Exe
     # Injects a forked payload into an ELF code cave or a reusable program header.
     class ElfInjector
-      ET_EXEC = 2
-      ET_DYN = 3
+      ET_EXEC = ELFTools::Constants::ET::ET_EXEC
+      ET_DYN = ELFTools::Constants::ET::ET_DYN
 
-      PT_NULL = 0
-      PT_LOAD = 1
-      PT_NOTE = 4
-      PT_GNU_PROPERTY = 0x6474e553
+      PT_NULL = ELFTools::Constants::PT::PT_NULL
+      PT_LOAD = ELFTools::Constants::PT::PT_LOAD
+      PT_NOTE = ELFTools::Constants::PT::PT_NOTE
+      PT_GNU_PROPERTY = ELFTools::Constants::PT::PT_GNU_PROPERTY
 
-      SHT_NOBITS = 8
+      SHT_NOBITS = ELFTools::Constants::SHT::SHT_NOBITS
 
-      PF_X = 1
-      PF_W = 2
-      PF_R = 4
+      PF_X = ELFTools::Constants::PF::PF_X
+      PF_W = ELFTools::Constants::PF::PF_W
+      PF_R = ELFTools::Constants::PF::PF_R
 
       MAX_ALIGNMENT = 0x200000
       MARKER = "\x00msfelfinject\x01\x00".b.freeze
 
-      CLASS_BITS = {
-        1 => 32,
-        2 => 64
-      }.freeze
-
       MACHINE_ARCHITECTURES = {
-        3 => :x86,
-        62 => :x64,
-        183 => :aarch64
+        [32, ELFTools::Constants::EM::EM_386] => :x86,
+        [64, ELFTools::Constants::EM::EM_X86_64] => :x64,
+        [64, ELFTools::Constants::EM::EM_AARCH64] => :aarch64
       }.freeze
 
       EXPECTED_PROGRAM_HEADER_SIZES = {
@@ -58,11 +55,13 @@ module Msf
         parse_header
         parse_program_headers
         parse_section_headers
+      rescue ELFTools::ELFError => e
+        raise ArgumentError, e.message
       end
 
       # @return [Symbol] The ELF architecture.
       def architecture
-        MACHINE_ARCHITECTURES.fetch(@machine)
+        MACHINE_ARCHITECTURES.fetch([@bits, @machine])
       end
 
       # @return [Boolean] Whether this injector's marker is present.
@@ -125,40 +124,28 @@ module Msf
 
       def parse_header
         raise ArgumentError, 'template is too small to be an ELF' if @template.bytesize < 52
-        raise ArgumentError, 'template does not contain an ELF magic value' unless @template.start_with?("\x7fELF".b)
 
-        @bits = CLASS_BITS[@template.getbyte(4)]
-        raise ArgumentError, 'unsupported ELF class' unless @bits
-        raise ArgumentError, 'only little-endian ELF executables are supported' unless @template.getbyte(5) == 1
-        raise ArgumentError, 'unsupported ELF machine architecture' unless MACHINE_ARCHITECTURES.key?(read_integer(18, 2))
+        @elf = ELFTools::ELFFile.new(StringIO.new(@template))
+        @bits = @elf.elf_class
+        raise ArgumentError, 'template is too small to be a 64-bit ELF' if @bits == 64 && @template.bytesize < 64
+        raise ArgumentError, 'only little-endian ELF executables are supported' unless @elf.endian == :little
 
-        @machine = read_integer(18, 2)
-        @type = read_integer(16, 2)
+        header = @elf.header
+        @machine = header.e_machine.to_i
+        raise ArgumentError, 'unsupported ELF class and machine architecture combination' unless MACHINE_ARCHITECTURES.key?([@bits, @machine])
+
+        @type = header.e_type.to_i
         raise ArgumentError, 'ELF must be ET_EXEC or ET_DYN' unless [ET_EXEC, ET_DYN].include?(@type)
 
-        if @bits == 32
-          @word_size = 4
-          @entrypoint_offset = 24
-          @entrypoint = read_integer(@entrypoint_offset, @word_size)
-          @program_header_offset = read_integer(28, 4)
-          @section_header_offset = read_integer(32, 4)
-          @program_header_size = read_integer(42, 2)
-          @program_header_count = read_integer(44, 2)
-          @section_header_size = read_integer(46, 2)
-          @section_header_count = read_integer(48, 2)
-        else
-          raise ArgumentError, 'template is too small to be a 64-bit ELF' if @template.bytesize < 64
-
-          @word_size = 8
-          @entrypoint_offset = 24
-          @entrypoint = read_integer(@entrypoint_offset, @word_size)
-          @program_header_offset = read_integer(32, 8)
-          @section_header_offset = read_integer(40, 8)
-          @program_header_size = read_integer(54, 2)
-          @program_header_count = read_integer(56, 2)
-          @section_header_size = read_integer(58, 2)
-          @section_header_count = read_integer(60, 2)
-        end
+        @word_size = @bits / 8
+        @entrypoint_offset = header.offset + header.e_entry.abs_offset
+        @entrypoint = header.e_entry.to_i
+        @program_header_offset = header.e_phoff.to_i
+        @section_header_offset = header.e_shoff.to_i
+        @program_header_size = header.e_phentsize.to_i
+        @program_header_count = header.e_phnum.to_i
+        @section_header_size = header.e_shentsize.to_i
+        @section_header_count = header.e_shnum.to_i
 
         raise ArgumentError, 'ELF has an invalid program header size' unless @program_header_size == EXPECTED_PROGRAM_HEADER_SIZES[@bits]
         raise ArgumentError, 'ELF has an invalid program header count' unless @program_header_count.between?(1, 128)
@@ -168,35 +155,19 @@ module Msf
       end
 
       def parse_program_headers
-        @program_headers = Array.new(@program_header_count) do |index|
-          header_offset = @program_header_offset + (@program_header_size * index)
-          if @bits == 32
-            values = @template.byteslice(header_offset, @program_header_size).unpack('V8')
-            {
-              header_offset: header_offset,
-              type: values[0],
-              offset: values[1],
-              virtual_address: values[2],
-              physical_address: values[3],
-              file_size: values[4],
-              memory_size: values[5],
-              flags: values[6],
-              alignment: values[7]
-            }
-          else
-            values = @template.byteslice(header_offset, @program_header_size).unpack('VVQ<Q<Q<Q<Q<Q<')
-            {
-              header_offset: header_offset,
-              type: values[0],
-              flags: values[1],
-              offset: values[2],
-              virtual_address: values[3],
-              physical_address: values[4],
-              file_size: values[5],
-              memory_size: values[6],
-              alignment: values[7]
-            }
-          end
+        @program_headers = @elf.each_segments.map do |segment|
+          header = segment.header
+          {
+            header_offset: header.offset,
+            type: header.p_type.to_i,
+            offset: header.p_offset.to_i,
+            virtual_address: header.p_vaddr.to_i,
+            physical_address: header.p_paddr.to_i,
+            file_size: header.p_filesz.to_i,
+            memory_size: header.p_memsz.to_i,
+            flags: header.p_flags.to_i,
+            alignment: header.p_align.to_i
+          }
         end
 
         raise ArgumentError, 'ELF has no loadable segments' if load_segments.empty?
@@ -212,6 +183,7 @@ module Msf
 
       def parse_section_headers
         @section_ranges = []
+        @nobits_section_ranges = []
         @section_metadata_valid = @section_header_offset.zero? && @section_header_count.zero?
         return if @section_header_count.zero?
         return unless @section_header_size == EXPECTED_SECTION_HEADER_SIZES[@bits]
@@ -222,12 +194,18 @@ module Msf
 
         @section_ranges << [@section_header_offset, table_end]
         valid = true
-        @section_header_count.times do |index|
-          header_offset = @section_header_offset + (@section_header_size * index)
-          section_type = read_integer(header_offset + 4, 4)
-          section_offset = read_integer(header_offset + (@bits == 32 ? 16 : 24), @word_size)
-          section_size = read_integer(header_offset + (@bits == 32 ? 20 : 32), @word_size)
-          next if section_type == SHT_NOBITS || section_size.zero?
+        @elf.each_sections do |section|
+          header = section.header
+          section_type = header.sh_type.to_i
+          section_address = header.sh_addr.to_i
+          section_offset = header.sh_offset.to_i
+          section_size = header.sh_size.to_i
+          next if section_size.zero?
+
+          if section_type == SHT_NOBITS
+            @nobits_section_ranges << [section_address, section_address + section_size]
+            next
+          end
 
           section_end = section_offset + section_size
           if section_end > @template.bytesize
@@ -237,7 +215,10 @@ module Msf
 
           @section_ranges << [section_offset, section_end]
         end
-        @section_ranges.clear unless valid
+        unless valid
+          @section_ranges.clear
+          @nobits_section_ranges.clear
+        end
         @section_metadata_valid = valid
       end
 
@@ -287,11 +268,16 @@ module Msf
         return 0 if load_segments.any? do |header|
           !header.equal?(segment) && header[:virtual_address] < address && header[:virtual_address] + header[:memory_size] > address
         end
+        return 0 if @nobits_section_ranges.any? { |range_start, range_end| range_start <= address && range_end > address }
+
+        nobits_boundary = @nobits_section_ranges.filter_map { |range_start, _range_end| range_start if range_start >= address }.min
 
         mapped_capacity = segment[:virtual_address] + segment[:memory_size] - address
+        return [mapped_capacity, nobits_boundary - address].min if mapped_capacity.positive? && nobits_boundary
         return mapped_capacity if mapped_capacity.positive?
 
         boundary = load_segments.filter_map { |header| header[:virtual_address] if header[:virtual_address] > address }.min
+        boundary = [boundary, nobits_boundary].compact.min
         boundary ? boundary - address : 0
       end
 
@@ -300,10 +286,14 @@ module Msf
         return null_header if null_header
 
         property_ranges = @program_headers.select { |header| header[:type] == PT_GNU_PROPERTY }.map do |header|
-          [header[:offset], header[:file_size]]
+          [header[:offset], header[:offset] + header[:file_size]]
         end
         note_header = @program_headers.find do |header|
-          header[:type] == PT_NOTE && !property_ranges.include?([header[:offset], header[:file_size]])
+          next unless header[:type] == PT_NOTE
+
+          note_start = header[:offset]
+          note_end = note_start + header[:file_size]
+          property_ranges.none? { |property_start, property_end| note_start < property_end && property_start < note_end }
         end
         raise ArgumentError, 'ELF has no reusable PT_NULL or PT_NOTE program header' unless note_header
 
@@ -320,11 +310,19 @@ module Msf
       end
 
       def encode_program_header(header)
-        if @bits == 32
-          header.values_at(:type, :offset, :virtual_address, :physical_address, :file_size, :memory_size, :flags, :alignment).pack('V8')
-        else
-          header.values_at(:type, :flags, :offset, :virtual_address, :physical_address, :file_size, :memory_size, :alignment).pack('VVQ<Q<Q<Q<Q<Q<')
-        end
+        encoded = ELFTools::Structs::ELF_Phdr.fetch(@bits).new(endian: @elf.endian)
+        encoded.elf_class = @bits
+        encoded.assign(
+          p_type: header.fetch(:type),
+          p_flags: header.fetch(:flags),
+          p_offset: header.fetch(:offset),
+          p_vaddr: header.fetch(:virtual_address),
+          p_paddr: header.fetch(:physical_address),
+          p_filesz: header.fetch(:file_size),
+          p_memsz: header.fetch(:memory_size),
+          p_align: header.fetch(:alignment)
+        )
+        encoded.to_binary_s
       end
 
       def build_trampoline(injected_address)
@@ -342,20 +340,6 @@ module Msf
 
       def instruction_alignment
         architecture == :aarch64 ? 4 : 1
-      end
-
-      def read_integer(offset, size)
-        data = @template.byteslice(offset, size)
-        raise ArgumentError, 'ELF header is truncated' unless data && data.bytesize == size
-
-        case size
-        when 2
-          data.unpack1('v')
-        when 4
-          data.unpack1('V')
-        when 8
-          data.unpack1('Q<')
-        end
       end
 
       def pack_word(value)

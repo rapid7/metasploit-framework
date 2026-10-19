@@ -32,10 +32,44 @@ RSpec.describe Msf::Exe::ElfInjector do
     (header + executable + readable + code).ljust(0x1000, "\x00".b) + 'A'.b
   end
 
+  def elf64_with_nobits_code_cave
+    template = elf64
+    section_header_offset = 0x200
+    segment_file_end = template.bytesize
+    segment_address_end = 0x400000 + segment_file_end
+
+    template[40, 8] = [section_header_offset].pack('Q<')
+    template[58, 2] = [64].pack('v')
+    template[60, 2] = [2].pack('v')
+    template[104, 8] = [segment_file_end + 0x100].pack('Q<')
+
+    null_section = "\x00".b * 64
+    bss_section = [0, 8, 3, segment_address_end, segment_file_end, 0x100, 0, 0, 8, 0].pack('VVQ<Q<Q<Q<VVQ<Q<')
+    template.ljust(section_header_offset, "\x00".b) + null_section + bss_section
+  end
+
+  def elf64_with_overlapping_gnu_property_note
+    code = "\xb8\x3c\x00\x00\x00\x31\xff\x0f\x05".b
+    note_data = "\x00".b * 16
+    program_header_end = 64 + (3 * 56)
+    entrypoint = 0x400000 + program_header_end + note_data.bytesize
+    file_size = program_header_end + note_data.bytesize + code.bytesize
+    identifier = "\x7fELF\x02\x01\x01\x00".b + ("\x00".b * 8)
+    header = identifier + [2, 62, 1, entrypoint, 64, 0, 0, 64, 56, 3, 0, 0, 0].pack('vvVQ<Q<Q<Vvvvvvv')
+    load = [1, 5, 0, 0x400000, 0x400000, file_size, file_size, 0x1000].pack('VVQ<Q<Q<Q<Q<Q<')
+    note = [4, 4, program_header_end, 0x400000 + program_header_end, 0x400000 + program_header_end, note_data.bytesize, note_data.bytesize, 4].pack('VVQ<Q<Q<Q<Q<Q<')
+    property = [0x6474e553, 4, program_header_end + 4, 0x400000 + program_header_end + 4, 0x400000 + program_header_end + 4, 8, 8, 4].pack('VVQ<Q<Q<Q<Q<Q<')
+    header + load + note + property + note_data + code
+  end
+
   it 'detects supported ELF architectures' do
     expect(described_class.new(template: elf32).architecture).to eq(:x86)
     expect(described_class.new(template: elf64).architecture).to eq(:x64)
     expect(described_class.new(template: elf64(machine: 183)).architecture).to eq(:aarch64)
+  end
+
+  it 'rejects mismatched ELF classes and machine architectures' do
+    expect { described_class.new(template: elf64(machine: 3)) }.to raise_error(ArgumentError, 'unsupported ELF class and machine architecture combination')
   end
 
   it 'dispatches to each architecture-specific injector' do
@@ -68,8 +102,24 @@ RSpec.describe Msf::Exe::ElfInjector do
     expect(described_class.new(template: generated).injected?).to be(true)
   end
 
+  it 'does not use an executable code cave occupied by an SHT_NOBITS section' do
+    template = elf64_with_nobits_code_cave
+    injector = described_class.new(template: template, payload: "\xcc".b)
+    generated = injector.generate
+
+    expect(injector.technique).to eq(:program_header)
+    expect(generated.byteslice(64, 56)).to eq(template.byteslice(64, 56))
+    expect(described_class.new(template: generated).injected?).to be(true)
+  end
+
   it 'rejects ELF files without a reusable program header' do
     injector = described_class.new(template: elf64(note_type: 0x6474e553), payload: "\xcc".b)
+
+    expect { injector.generate }.to raise_error(ArgumentError, 'ELF has no reusable PT_NULL or PT_NOTE program header')
+  end
+
+  it 'does not reuse a PT_NOTE containing a GNU property range' do
+    injector = described_class.new(template: elf64_with_overlapping_gnu_property_note, payload: "\xcc".b)
 
     expect { injector.generate }.to raise_error(ArgumentError, 'ELF has no reusable PT_NULL or PT_NOTE program header')
   end
