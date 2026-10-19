@@ -13,7 +13,7 @@
 
 .PARAMETER Architectures
     Which architectures to build. Defaults to x86 and x64. Pass aarch64 to
-    build the ARM64 DLL (vcvarsall arm64).
+    build the ARM64 DLL (vcvarsall amd64_arm64).
 
 .PARAMETER Templates
     Which templates to build. Defaults to all of them.
@@ -118,7 +118,10 @@ function Invoke-VCVars {
         [System.Environment]::SetEnvironmentVariable($v, $null, 'Process')
     }
     $vcvars = Join-Path $env:VCINSTALLDIR 'Auxiliary\Build\vcvarsall.bat'
-    cmd /c "`"$vcvars`" $Arch >nul 2>&1 && set" 2>&1 | ForEach-Object {
+    $vcvarsOutput = cmd /c "`"$vcvars`" $Arch >nul 2>&1 && set" 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "vcvarsall.bat failed for $Arch" }
+
+    $vcvarsOutput | ForEach-Object {
         if ($_ -match '^([^=]+)=(.*)$') {
             [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
         }
@@ -206,11 +209,18 @@ function Build-Template {
     }
 }
 
-# vcvarsall uses arm64; output filenames use aarch64 to match MSF templates.
+# vcvarsall uses amd64_arm64; output filenames use aarch64 to match MSF templates.
 $VcArch = @{
     x86     = 'x86'
     x64     = 'x64'
-    aarch64 = 'arm64'
+    aarch64 = 'amd64_arm64'
+}
+
+if ($Architectures -contains 'aarch64') {
+    $unsupportedTemplates = @($Templates | Where-Object { $_ -ne 'dll' })
+    if ($unsupportedTemplates.Count -gt 0) {
+        throw "AArch64 supports only the dll template; unsupported template(s): $($unsupportedTemplates -join ', ')"
+    }
 }
 
 # Build each requested template for each architecture
@@ -219,11 +229,6 @@ foreach ($arch in $Architectures) {
     Invoke-VCVars $VcArch[$arch]
 
     foreach ($tmpl in $Templates) {
-        if ($arch -eq 'aarch64' -and $tmpl -ne 'dll') {
-            Write-Host "`nSkipping: $tmpl ($arch) - only dll/template.c is built for AArch64" -ForegroundColor Yellow
-            continue
-        }
-
         Write-Host "`nBuilding: $tmpl ($arch)" -ForegroundColor Green
         Build-Template -Arch $arch -Name $tmpl
     }
