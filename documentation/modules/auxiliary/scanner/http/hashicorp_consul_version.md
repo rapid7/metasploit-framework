@@ -43,7 +43,6 @@ Consul ACL token for agents that enforce ACLs
 
 ```
 msf > use auxiliary/scanner/http/hashicorp_consul_version 
-[*] Using configured payload cmd/linux/http/x64/meterpreter/reverse_tcp
 msf auxiliary(scanner/http/hashicorp_consul_version) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 msf auxiliary(scanner/http/hashicorp_consul_version) > run
