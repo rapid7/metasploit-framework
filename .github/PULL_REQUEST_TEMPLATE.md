@@ -15,4 +15,6 @@
 - [ ] Run `<command or action>` and confirm `<expected observable result>`.
 - [ ] Exercise `<relevant failure or regression case, if applicable>` and confirm `<expected result>`.
 
-<!-- Include actual results: sanitized console output, screenshots, or CI links. For module behavior changes, include check output (if supported) and run/exploit output. Note anything untested. -->
+### Results and evidence
+
+<!-- Describe what you actually tested and what happened. Include sanitized console output, screenshots, or CI links. For module behavior changes, include check output (if supported) and run/exploit output. For documentation changes, a brief inspection or preview result is enough. Note anything untested. -->
