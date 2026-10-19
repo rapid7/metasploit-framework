@@ -146,43 +146,157 @@ class MetasploitModule < Msf::Auxiliary
 
   class Tn5250ProtocolError < RuntimeError; end
 
-  def perform_tn5250_negotiation(sock, term_type, timeout)
-    opening = sock.get_once(-1, timeout).to_s
-    do_newenv = [IAC, DO, OPT_NEWENV].pack('C*')
-    do_termtype = [IAC, DO, OPT_TERMTYPE].pack('C*')
-    unless opening.include?(do_newenv) && opening.include?(do_termtype)
-      raise Tn5250ProtocolError, 'did not open with DO NEW-ENVIRON / DO TERMINAL-TYPE, not a 5250 host'
+  # Walk a telnet byte stream once and separate negotiation from application
+  # data. TCP gives us a byte stream, not framed messages: the server may split
+  # one reply across segments or coalesce several (including the start of the
+  # Write-To-Display record) into a single read. Parsing the stream rather than
+  # treating each socket read as one complete reply is what makes negotiation
+  # and record framing reliable against both behaviors.
+  #
+  # In TN5250E BINARY mode a 0xFF data byte is doubled (IAC IAC) and a record
+  # ends with IAC EOR, so this also unescapes IAC IAC and stops at IAC EOR.
+  #
+  # Returns a hash:
+  #   :options  => [[verb, option], ...] from IAC DO/DONT/WILL/WONT
+  #   :subneg   => [payload, ...] for each IAC SB ... IAC SE (option byte first,
+  #                IAC SE excluded)
+  #   :data     => decoded application bytes (IAC IAC collapsed to one 0xFF)
+  #   :eor      => true once an IAC EOR record terminator was reached
+  #   :consumed => bytes consumed; a trailing incomplete command or
+  #                unterminated subnegotiation is left unconsumed for more data
+  def parse_telnet_stream(buf)
+    options = []
+    subneg = []
+    data = ''.b
+    i = 0
+    len = buf.bytesize
+    consumed = 0
+
+    while i < len
+      b = buf.getbyte(i)
+      unless b == IAC
+        data << b
+        i += 1
+        consumed = i
+        next
+      end
+
+      break if i + 1 >= len # dangling IAC: wait for the next byte
+
+      case buf.getbyte(i + 1)
+      when IAC # escaped 0xFF data byte
+        data << IAC
+        i += 2
+      when EOR_CMD # end of record
+        return { options: options, subneg: subneg, data: data, eor: true, consumed: i + 2 }
+      when SB # subnegotiation: find the terminating IAC SE
+        se = nil
+        j = i + 2
+        while j + 1 < len
+          if buf.getbyte(j) == IAC && buf.getbyte(j + 1) == SE
+            se = j + 2
+            break
+          end
+          j += 1
+        end
+        break if se.nil? # subnegotiation not terminated yet: wait for more
+
+        subneg << buf.byteslice(i + 2, (se - 2) - (i + 2))
+        i = se
+      when DO, DONT, WILL, WONT # 3-byte option command
+        break if i + 2 >= len # incomplete: wait for more
+
+        options << [buf.getbyte(i + 1), buf.getbyte(i + 2)]
+        i += 3
+      else # other 2-byte IAC command
+        i += 2
+      end
+
+      consumed = i
     end
 
+    { options: options, subneg: subneg, data: data, eor: false, consumed: consumed }
+  end
+
+  # Read more bytes into buf until the block is satisfied, raising timeout_msg
+  # if the deadline passes or the peer closes first.
+  def fill_until(sock, buf, timeout, timeout_msg)
+    deadline = Time.now + timeout
+    until yield(buf)
+      remaining = deadline - Time.now
+      raise Tn5250ProtocolError, timeout_msg if remaining <= 0
+
+      chunk = sock.get_once(-1, remaining)
+      raise Tn5250ProtocolError, timeout_msg if chunk.nil? || chunk.empty?
+
+      buf << chunk
+    end
+    buf
+  end
+
+  def perform_tn5250_negotiation(sock, term_type, timeout)
+    buf = ''.b
+
+    # Phase 1: a 5250 host opens with DO NEW-ENVIRON and DO TERMINAL-TYPE. Wait
+    # until both have arrived even if they are split across segments.
+    fill_until(sock, buf, timeout, 'did not open with DO NEW-ENVIRON / DO TERMINAL-TYPE, not a 5250 host') do |b|
+      opts = parse_telnet_stream(b)[:options]
+      opts.include?([DO, OPT_NEWENV]) && opts.include?([DO, OPT_TERMTYPE])
+    end
     sock.put([IAC, WILL, OPT_NEWENV, IAC, WILL, OPT_TERMTYPE].pack('C*'))
 
-    send_reply = sock.get_once(-1, timeout).to_s
-    new_environ_info = parse_new_environ_send(send_reply)
+    # Phase 2: server asks us to SEND our NEW-ENVIRON values (SB NEW-ENVIRON ...
+    # IAC SE). Wait for the complete subnegotiation, then read its flags.
+    fill_until(sock, buf, timeout, 'timed out waiting for NEW-ENVIRON SEND') do |b|
+      parse_telnet_stream(b)[:subneg].any? { |s| s.getbyte(0) == OPT_NEWENV }
+    end
+    send_subneg = parse_telnet_stream(buf)[:subneg].find { |s| s.getbyte(0) == OPT_NEWENV }
+    new_environ_info = parse_new_environ_send(send_subneg)
 
     sock.put(new_environ_empty_is_reply)
     sock.put(terminal_type_is_reply(term_type))
 
-    eor_binary_reply = sock.get_once(-1, timeout).to_s
-    enhanced = eor_binary_reply.include?([IAC, DO, OPT_EOR].pack('C*')) &&
-               eor_binary_reply.include?([IAC, DO, OPT_BINARY].pack('C*'))
+    # Phase 3 (best effort): the DO EOR / DO BINARY offer usually follows and may
+    # be coalesced with the start of the signon record. Wait until the offer
+    # arrives or application data begins; a plain (non-E) TN5250 host that skips
+    # the offer is still fingerprinted from its panel, so this never hard-fails.
+    fill_until(sock, buf, timeout, 'timed out waiting for TN5250E negotiation') do |b|
+      parsed = parse_telnet_stream(b)
+      parsed[:options].include?([DO, OPT_EOR]) || parsed[:options].include?([DO, OPT_BINARY]) ||
+        !parsed[:data].empty? || parsed[:eor]
+    end
+    parsed = parse_telnet_stream(buf)
+    enhanced = parsed[:options].include?([DO, OPT_EOR]) && parsed[:options].include?([DO, OPT_BINARY])
 
     sock.put([IAC, WILL, OPT_EOR, IAC, DO, OPT_EOR, IAC, WILL, OPT_BINARY, IAC, DO, OPT_BINARY].pack('C*')) if enhanced
 
-    {
+    info = {
       enhanced: enhanced,
       device_type: term_type,
       signon_bypass_offered: new_environ_info[:ibmrseed_offered],
       codepage_offered: new_environ_info[:codepage_offered],
       kbdtype_offered: new_environ_info[:kbdtype_offered]
     }
+
+    # Hand back everything still buffered: it may already hold the start of the
+    # WTD record that arrived coalesced with the negotiation replies.
+    [info, buf]
   end
 
-  def read_wtd_record(sock, timeout)
-    buf = ''.b
-    eor_marker = [IAC, EOR_CMD].pack('C*')
+  # Returns the decoded application bytes of the signon record. seed carries any
+  # bytes already pulled from the socket during negotiation so a record that
+  # arrived coalesced with the DO EOR/BINARY offer is not lost. Leftover telnet
+  # commands in the stream are skipped, IAC IAC is unescaped, and reading stops
+  # at IAC EOR -- the returned bytes contain neither the terminator nor any
+  # trailing telnet data.
+  def read_wtd_record(sock, timeout, seed = ''.b)
+    buf = seed.dup
     deadline = Time.now + timeout
 
-    until buf.include?(eor_marker)
+    loop do
+      parsed = parse_telnet_stream(buf)
+      return parsed[:data] if parsed[:eor]
+
       remaining = deadline - Time.now
       raise Tn5250ProtocolError, 'timed out waiting for signon record' if remaining <= 0
 
@@ -191,8 +305,6 @@ class MetasploitModule < Msf::Auxiliary
 
       buf << chunk
     end
-
-    buf
   end
 
   ORDER_RA = 0x02
@@ -322,8 +434,8 @@ class MetasploitModule < Msf::Auxiliary
     ::Timeout.timeout(datastore['TIMEOUT'].to_i) do
       connect
 
-      negotiation = perform_tn5250_negotiation(sock, datastore['TERM_TYPE'], datastore['TIMEOUT'].to_i)
-      record = read_wtd_record(sock, datastore['TIMEOUT'].to_i)
+      negotiation, record_seed = perform_tn5250_negotiation(sock, datastore['TERM_TYPE'], datastore['TIMEOUT'].to_i)
+      record = read_wtd_record(sock, datastore['TIMEOUT'].to_i, record_seed)
       payload = extract_wtd_payload(record)
 
       if payload.nil?
