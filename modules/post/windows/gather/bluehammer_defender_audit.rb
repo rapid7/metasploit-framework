@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Post
       $o.dir_version=if($plat){$plat.Name}else{$null}
       $mpcmd=if($plat){Join-Path $plat.FullName 'MpCmdRun.exe'}else{$null}
       $o.file_version=if($mpcmd -and (Test-Path $mpcmd)){(Get-Item $mpcmd).VersionInfo.ProductVersion}else{$null}
-      $o.shadow_count=@(Get-CimInstance Win32_ShadowCopy).Count
+      $sc=$null; try { $sc=@(Get-CimInstance Win32_ShadowCopy -ErrorAction Stop).Count } catch {}; $o.shadow_count=$sc
       $o.detections=@()
       $o.staged=@()
       if (__HUNT_LOG__) {
@@ -192,7 +192,9 @@ class MetasploitModule < Msf::Post
       behavior: c['behavior'],
       onaccess: c['onaccess'],
       sig_age_days: c['sig_age_days'],
-      vss_present: c['shadow_count'].to_i.positive?
+      # nil shadow_count = the query failed (unknown), not a confirmed zero, so it
+      # must not read as "no shadow copies" for the HARDENED positive-evidence check.
+      vss_present: c['shadow_count'].nil? ? nil : c['shadow_count'].to_i.positive?
     }
   end
 
