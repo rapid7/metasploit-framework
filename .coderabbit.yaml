@@ -6,8 +6,6 @@ knowledge_base:
     filePatterns:
       - files: "AGENTS.md"
         applyTo: "**/*"
-      - files: ".github/agent-module-examples.md"
-        applyTo: "modules/exploits/**/*.rb,modules/auxiliary/**/*.rb,modules/post/**/*.rb"
 
 reviews:
   profile: chill

@@ -1,6 +1,6 @@
 # AI Agent Instructions for Metasploit Framework
 
-This file defines the shared repository instructions for coding and review agents. Apply [.rubocop.yml](.rubocop.yml) when linting Ruby. CodeRabbit loads this file repository-wide; `.coderabbit.yaml` also maps the module examples to module reviews. `CONTRIBUTING.md` is written for human contributors.
+This file defines the shared repository instructions for coding and review agents. Apply [.rubocop.yml](.rubocop.yml) when linting Ruby. CodeRabbit loads this file repository-wide. `CONTRIBUTING.md` is written for human contributors.
 
 ## Project Overview
 
@@ -53,7 +53,7 @@ Public library methods, module names/options/aliases, and documented return shap
 
 ### Exploit Module Template
 
-- Start with the standard Metasploit source header, then `class MetasploitModule < Msf::Exploit::Remote` and an exploit-only `Rank`.
+- Start with the standard Metasploit source header, the appropriate `Msf::Exploit::Remote` or `Msf::Exploit::Local` superclass, and an exploit-only `Rank`.
 - Order mixins as specified below, then `initialize(info = {})` calling `super(update_info(info, ...))`, `check` when supported, and `exploit`.
 - Metadata includes `Name` (vendor, product, vulnerability type), ASCII `Description` using `%q{}`, authors with role comments, `MSF_LICENSE`, advisory/CVE references, `Targets`, `DefaultTarget`, `DisclosureDate`, and `Notes`.
 - Each target has a display name and applicable `Platform`, `Arch`, and delivery `Type` (such as `:cmd`, `:dropper`, or `:psh_stager`). `DefaultTarget` indexes that array; an automatic first target uses index `0`.
@@ -71,7 +71,16 @@ Public library methods, module names/options/aliases, and documented return shap
 - Initialize with `super(update_info(info, ...))`; include name, description, author, license, `Platform`, supported `SessionTypes`, and Notes.
 - Access the session through `session`; use APIs such as `create_process`, `file_exist?`, and `read_file`. Declare only session types whose APIs the module handles.
 
-The module generator supplies complete source and documentation skeletons. Expanded examples are retained in [.github/agent-module-examples.md](.github/agent-module-examples.md); the rules above and below apply without importing that file.
+Before creating or reviewing a module, read the relevant source example below and nearby modules using the same protocol, platform, and session APIs:
+
+| Category | Existing source examples |
+|---|---|
+| Remote exploit | [TCP](modules/exploits/example.rb), [web application](modules/exploits/example_webapp.rb) |
+| Local exploit | [Linux privilege escalation](modules/exploits/example_linux_priv_esc.rb) |
+| Auxiliary | [Actions and custom commands](modules/auxiliary/example.rb), [UDP scanner](modules/auxiliary/scanner/udp/example.rb) |
+| Post | [Cross-platform environment gathering](modules/post/multi/gather/env.rb) |
+
+For other module types, inspect an existing module in the matching subtree and its generator template. Use the module generator for new source and documentation skeletons; its maintained category templates live in [lib/tasks/templates](lib/tasks/templates). Examples illustrate structure and APIs, but may contain intentional stubs or legacy patterns. Follow the current rules in this file; do not copy placeholder metadata, legacy APIs, or simulated check results into a real module.
 
 ### Notes Hash Reference
 
