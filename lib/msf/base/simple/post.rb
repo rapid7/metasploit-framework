@@ -84,8 +84,11 @@ module Post
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
     else
-      self.job_run_proc(ctx)
-      self.job_cleanup_proc(ctx)
+      begin
+        self.job_run_proc(ctx)
+      ensure
+        self.job_cleanup_proc(ctx)
+      end
     end
   end
 
@@ -170,9 +173,12 @@ protected
   #
   def self.job_cleanup_proc(ctx)
     mod = ctx[0]
-    mod.framework.events.on_module_complete(mod)
-    # Allow the exploit to cleanup after itself, that messy bugger.
-    mod.cleanup
+    begin
+      mod.framework.events.on_module_complete(mod)
+    ensure
+      # Allow the exploit to cleanup after itself, that messy bugger.
+      mod.cleanup
+    end
   end
 
 end

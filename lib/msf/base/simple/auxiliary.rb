@@ -154,10 +154,13 @@ module Auxiliary
       [run_uuid, mod.job_id]
     else
       # Run check if it exists
-      result = self.job_run_proc(ctx) do |m|
-        m.check
+      begin
+        result = self.job_run_proc(ctx) do |m|
+          m.check
+        end
+      ensure
+        self.job_cleanup_proc(ctx)
       end
-      self.job_cleanup_proc(ctx)
 
       result
     end
@@ -265,9 +268,12 @@ protected
   #
   def self.job_cleanup_proc(ctx)
     mod = ctx[0]
-    mod.framework.events.on_module_complete(mod)
-    # Allow the exploit to cleanup after itself, that messy bugger.
-    mod.cleanup
+    begin
+      mod.framework.events.on_module_complete(mod)
+    ensure
+      # Allow the exploit to cleanup after itself, that messy bugger.
+      mod.cleanup
+    end
   end
 
 end
