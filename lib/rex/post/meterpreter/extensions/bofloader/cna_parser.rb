@@ -87,22 +87,24 @@ module Rex
             end
 
             def import_alias(alias_name, body, registration)
+              assignments = variable_assignments(body)
               execute_calls = function_calls(body, 'beacon_inline_execute')
               raise Unsupported, 'multiple beacon_inline_execute calls are not statically supported' unless execute_calls.length == 1
               raise Unsupported, 'beacon_inline_execute must be an unconditional top-level call' unless function_calls(body, 'beacon_inline_execute', top_level: true).length == 1
+              raise Unsupported, 'conditional return or throw can prevent beacon_inline_execute' if flow_control_exit_before_call?(body, 'beacon_inline_execute')
 
               execute_arguments = execute_calls.first
               raise Unsupported, 'beacon_inline_execute does not specify a BOF and entry point' if execute_arguments.length < 3
               raise Unsupported, 'beacon_inline_execute has unsupported extra arguments' if execute_arguments.length > 4
-              raise Unsupported, 'beacon_inline_execute must target the alias Beacon' unless unwrap_parentheses(execute_arguments[0]) == '$1'
+              raise Unsupported, 'beacon_inline_execute must target the alias Beacon' unless unmodified_parameter?(execute_arguments[0], assignments, '$1')
 
-              template, replacements = bof_template(body, execute_arguments[1])
+              template, replacements = bof_template(execute_arguments[1], assignments)
               files = bof_files(template, replacements)
               entry = literal(execute_arguments[2])
               raise Unsupported, 'the BOF entry point is dynamic' unless entry.is_a?(String) && !entry.empty?
 
               usage = registration && registration['usage']
-              packed_arguments = packed_arguments(body, execute_arguments[3])
+              packed_arguments = packed_arguments(execute_arguments[3], assignments)
               decorate_arguments!(packed_arguments, usage)
 
               {
@@ -131,17 +133,17 @@ module Rex
               end
             end
 
-            def packed_arguments(body, argument_expression)
+            def packed_arguments(argument_expression, assignments)
               return [] if argument_expression.nil? || literal(argument_expression).nil?
 
               expression = argument_expression.strip
               if expression.match?(VARIABLE_PATTERN)
-                expression = assignment_value(variable_assignments(body), expression)
+                expression = assignment_value(assignments, expression)
               end
 
               pack_arguments = exact_function_call(expression, 'bof_pack')
               raise Unsupported, 'arguments are not assigned by one bof_pack call' unless pack_arguments
-              raise Unsupported, 'bof_pack must target the alias Beacon' unless unwrap_parentheses(pack_arguments[0]) == '$1'
+              raise Unsupported, 'bof_pack must target the alias Beacon' unless unmodified_parameter?(pack_arguments[0], assignments, '$1')
 
               format = literal(pack_arguments[1])
               unless format.is_a?(String) && !format.empty? && format.match?(/\A[biszZ]+\z/)
@@ -151,7 +153,6 @@ module Rex
                 raise Unsupported, 'bof_pack format and argument counts do not match'
               end
 
-              assignments = variable_assignments(body)
               definitions = format.chars.zip(pack_arguments.drop(2)).map do |format_character, value_expression|
                 packed_value(format_character, value_expression, assignments, [])
               end
@@ -173,6 +174,8 @@ module Rex
               end
 
               if (match = expression.strip.match(PARAMETER_PATTERN))
+                raise Unsupported, "#{match[0]} has a dynamic assignment" if assignments.key?(match[0])
+
                 position = match[1].to_i - 2
                 raise Unsupported, 'Beacon ID cannot be used as a BOF argument' if position.negative?
 
@@ -230,6 +233,8 @@ module Rex
                 return file_position(arguments.first, assignments, seen, :parameter) if arguments&.length == 1
               when :parameter
                 if (match = variable.match(PARAMETER_PATTERN))
+                  raise Unsupported, "#{match[0]} has a dynamic assignment" if assignments.key?(match[0])
+
                   position = match[1].to_i - 2
                   raise Unsupported, 'Beacon ID cannot identify a local file' if position.negative?
 
@@ -313,11 +318,11 @@ module Rex
               count == 1 ? base_name : "#{base_name}_#{count}"
             end
 
-            def bof_template(body, data_expression)
-              expression = resolve_bof_expression(data_expression, variable_assignments(body), [])
+            def bof_template(data_expression, assignments)
+              expression = resolve_bof_expression(data_expression, assignments, [])
               resource = exact_function_call(expression, 'script_resource')
               if resource&.length == 1
-                validate_architecture_variables!(resource.first, variable_assignments(body))
+                validate_architecture_variables!(resource.first, assignments)
                 return [resource.first, {}]
               end
 
@@ -480,10 +485,10 @@ module Rex
                 raise Unsupported, "#{variable} must be assigned by barch" unless barch_arguments&.length == 1
 
                 beacon_expression = barch_arguments.first
-                if invocation
-                  parameter = unwrap_parentheses(beacon_expression).match(PARAMETER_PATTERN)
-                  beacon_expression = invocation[parameter[1].to_i - 1] if parameter
-                end
+                parameter = unwrap_parentheses(beacon_expression).match(PARAMETER_PATTERN)
+                raise Unsupported, "#{parameter[0]} has a dynamic assignment" if parameter && assignments.key?(parameter[0])
+
+                beacon_expression = invocation[parameter[1].to_i - 1] if invocation && parameter && parameter[1].to_i.positive?
                 unless beacon_expression && unwrap_parentheses(beacon_expression) == '$1'
                   raise Unsupported, "#{variable} must resolve the alias Beacon architecture"
                 end
@@ -505,7 +510,7 @@ module Rex
               result = Hash.new { |hash, key| hash[key] = [] }
               masked_code = mask_string_literals(code)
               offset = 0
-              pattern = %r{(\$[a-zA-Z_]\w*)\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)\s*}
+              pattern = %r{(\$(?:[a-zA-Z_]\w*|\d+))\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)\s*}
               while (match = pattern.match(masked_code, offset))
                 unless match[2] == '=' && top_level_offset?(masked_code, match.begin(0))
                   result[match[1]] << NULL
@@ -588,6 +593,19 @@ module Rex
                 index += 1
               end
               calls
+            end
+
+            def flow_control_exit_before_call?(code, function_name)
+              masked_code = mask_string_literals(code)
+              call = /(?<![a-zA-Z0-9_])&?#{Regexp.escape(function_name)}\s*\(/.match(masked_code)
+              return false unless call
+
+              masked_code[0...call.begin(0)].match?(/(?<![a-zA-Z0-9_$%@&.-])(?:return|throw)(?![a-zA-Z0-9_-])/)
+            end
+
+            def unmodified_parameter?(expression, assignments, expected)
+              parameter = unwrap_parentheses(expression).match(PARAMETER_PATTERN)
+              parameter && parameter[0] == expected && !assignments.key?(parameter[0])
             end
 
             def exact_function_call(code, function_name)
@@ -824,10 +842,18 @@ module Rex
               content = value[1...-1]
               return content if value.start_with?("'")
 
-              content.gsub(/\\(.)/m) do
-                character = ::Regexp.last_match(1)
+              content.gsub(/\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|(.))/m) do
+                byte_escape = ::Regexp.last_match(1)
+                unicode_escape = ::Regexp.last_match(2)
+                character = ::Regexp.last_match(3) unless byte_escape || unicode_escape
+
+                next byte_escape.to_i(16).chr(::Encoding::UTF_8) if byte_escape
+                next unicode_escape.to_i(16).chr(::Encoding::UTF_8) if unicode_escape
+
                 { 'n' => "\n", 'r' => "\r", 't' => "\t" }.fetch(character, character)
               end
+            rescue RangeError
+              raise Unsupported, 'string contains an unsupported Unicode surrogate escape'
             end
           end
         end

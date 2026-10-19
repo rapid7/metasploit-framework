@@ -342,6 +342,62 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     end
   end
 
+  it 'rejects execution calls guarded by an earlier return or throw' do
+    catalog = parse_cna(<<~'CNA')
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias guarded_return {
+        if (-istrue $2) {
+          return;
+        }
+        beacon_inline_execute($1, readb(openf(script_resource("guarded_return.o")), -1), "go", $null);
+      }
+      alias guarded_throw {
+        if (-istrue $2) {
+          throw "unsupported target";
+        }
+        beacon_inline_execute($1, readb(openf(script_resource("guarded_throw.o")), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings'].length).to eq(2)
+    expect(catalog['warnings']).to all(include('conditional return or throw can prevent beacon_inline_execute'))
+  end
+
+  it 'rejects reassigned positional arguments and Beacon IDs' do
+    catalog = parse_cna(<<~'CNA')
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias reassigned_argument {
+        $2 = uc($2);
+        $args = bof_pack($1, "z", $2);
+        beacon_inline_execute($1, readb(openf(script_resource("reassigned_argument.o")), -1), "go", $args);
+      }
+      alias reassigned_beacon {
+        $1 = $2;
+        beacon_inline_execute($1, readb(openf(script_resource("reassigned_beacon.o")), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings']).to include(/\$2 has a dynamic assignment/)
+    expect(catalog['warnings']).to include(/beacon_inline_execute must target the alias Beacon/)
+  end
+
+  it 'decodes hexadecimal and Unicode escapes in parsed literals' do
+    catalog = parse_cna(<<~'CNA')
+      alias escaped {
+        $args = bof_pack($1, "z", "A\x42C\u0044");
+        beacon_inline_execute($1, readb(openf(script_resource("escaped.o")), -1), "go", $args);
+      }
+    CNA
+
+    expect(catalog['bofs']['escaped']['arguments'].first['fixed']).to eq('ABCD')
+  end
+
   it 'detects binary arguments read from local files' do
     catalog = parse_cna(<<~'CNA')
       alias load {
