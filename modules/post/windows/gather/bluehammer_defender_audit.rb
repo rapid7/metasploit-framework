@@ -279,13 +279,16 @@ class MetasploitModule < Msf::Post
     Array(iocs['path_regexes']).any? || hash_iocs?
   end
 
+  # Returns true/false, or nil when the comparison cannot be performed (empty or
+  # malformed version) so an unconfirmable result stays UNKNOWN rather than reading
+  # as a confirmed "patched".
   def version_below?(installed, fixed)
-    return false if installed.to_s.empty?
+    return nil if installed.to_s.empty?
 
     Rex::Version.new(installed) < Rex::Version.new(fixed)
   rescue ArgumentError
     print_warning("Could not compare version '#{installed}' to '#{fixed}'.")
-    false
+    nil
   end
 
   #
