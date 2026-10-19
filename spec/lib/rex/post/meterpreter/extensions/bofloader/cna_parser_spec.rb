@@ -398,6 +398,19 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     expect(catalog['bofs']['escaped']['arguments'].first['fixed']).to eq('ABCD')
   end
 
+  it 'preserves hexadecimal byte escapes in fixed binary arguments' do
+    catalog = parse_cna(<<~'CNA')
+      alias escaped_bytes {
+        $args = bof_pack($1, "bz", "\x00\x7f\x80\xff", "\x80\xff");
+        beacon_inline_execute($1, readb(openf(script_resource("escaped_bytes.o")), -1), "go", $args);
+      }
+    CNA
+
+    fixed_values = catalog['bofs']['escaped_bytes']['arguments'].map { |argument| argument['fixed'] }
+    expect(fixed_values[0].bytes).to eq([0x00, 0x7f, 0x80, 0xff])
+    expect(fixed_values[1].bytes).to eq([0xc2, 0x80, 0xc3, 0xbf])
+  end
+
   it 'detects binary arguments read from local files' do
     catalog = parse_cna(<<~'CNA')
       alias load {
@@ -599,5 +612,228 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
         }
       CNA
     end.to raise_error(described_class::Error, /cannot statically evaluate packed expression/)
+  end
+end
+
+RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
+  def parse_cna(script)
+    Tempfile.create(['bofloader', '.cna']) do |file|
+      file.write(script)
+      file.flush
+      return described_class.parse(path: file.path)
+    end
+  end
+
+  it 'rejects assignments that occur after their values are consumed' do
+    catalog = parse_cna(<<~'CNA')
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias late {
+        beacon_inline_execute($1, $data, "go", $args);
+        $data = readb(openf(script_resource("late.o")), -1);
+        $args = bof_pack($1, "z", "after");
+      }
+      alias late_dependency {
+        $path = script_resource("late_dependency. $+ $barch $+ .o");
+        $barch = barch($1);
+        $data = readb(openf($path), -1);
+        beacon_inline_execute($1, $data, "go", $null);
+      }
+      alias mutated_named_value {
+        $argument = $2;
+        while $argument (producer()) { }
+        beacon_inline_execute($1, readb(openf(script_resource("mutated_named_value.o")), -1), "go", bof_pack($1, "z", $argument));
+      }
+      alias redeclared_named_value {
+        $data = readb(openf(script_resource("redeclared_named_value.o")), -1);
+        global('$data');
+        beacon_inline_execute($1, $data, "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings']).to include(/CNA alias 'late' was skipped: \$data has a dynamic assignment/)
+    expect(catalog['warnings']).to include(/CNA alias 'late_dependency' was skipped: \$barch has a dynamic assignment/)
+    expect(catalog['warnings']).to include(/CNA alias 'mutated_named_value' was skipped: \$argument has a dynamic assignment/)
+    expect(catalog['warnings']).to include(/CNA alias 'redeclared_named_value' was skipped: \$data has a dynamic assignment/)
+  end
+
+  it 'rejects mutations of helper parameters used in resource paths' do
+    catalog = parse_cna(<<~'CNA')
+      sub mutated_path {
+        $2 = "wrong";
+        return readb(openf(script_resource("$2 $+ .o")), -1);
+      }
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias mutated_helper {
+        beacon_inline_execute($1, mutated_path($1, "right"), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings']).to include(/CNA alias 'mutated_helper' was skipped: \$2 has a dynamic assignment/)
+  end
+
+  it 'requires exactly one BOF content read across helper calls' do
+    catalog = parse_cna(<<~'CNA')
+      sub loaded_bof {
+        return readb(openf(script_resource("loaded.o")), -1);
+      }
+      alias good {
+        beacon_inline_execute($1, loaded_bof($1), "go", $null);
+      }
+      alias direct_path {
+        beacon_inline_execute($1, script_resource("path.o"), "go", $null);
+      }
+      alias double_read {
+        beacon_inline_execute($1, readb(openf(loaded_bof($1)), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings'].length).to eq(2)
+    expect(catalog['warnings']).to all(include('BOF data must use exactly one readb(openf(path), -1)'))
+  end
+
+  it 'rejects alternate writes to positional parameters' do
+    catalog = parse_cna(<<~'CNA')
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias tuple_write {
+        ($1, $ignored) = @("different Beacon", 0);
+        beacon_inline_execute($1, readb(openf(script_resource("tuple.o")), -1), "go", $null);
+      }
+      alias assignment_loop {
+        while $2 (producer()) { }
+        beacon_inline_execute($1, readb(openf(script_resource("loop.o")), -1), "go", bof_pack($1, "z", $2));
+      }
+      alias argument_array_write {
+        @_[0] = "different Beacon";
+        beacon_inline_execute($1, readb(openf(script_resource("argument_array_write.o")), -1), "go", $null);
+      }
+      alias argument_array_iteration {
+        foreach $argument (@_) { $argument = "different"; }
+        beacon_inline_execute($1, readb(openf(script_resource("argument_array_iteration.o")), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings'].count { |warning| warning.include?('beacon_inline_execute must target the alias Beacon') }).to eq(3)
+    expect(catalog['warnings']).to include(/\$2 has a dynamic assignment/)
+  end
+
+  it 'rejects assertions and early exits in BOF helpers' do
+    catalog = parse_cna(<<~'CNA')
+      sub guarded_helper {
+        if ($2) { throw "stop"; }
+        return readb(openf(script_resource("guarded.o")), -1);
+      }
+      alias good {
+        beacon_inline_execute($1, readb(openf(script_resource("good.o")), -1), "go", $null);
+      }
+      alias asserted {
+        assert size(@_) > 1;
+        beacon_inline_execute($1, readb(openf(script_resource("asserted.o")), -1), "go", bof_pack($1, "z", $2));
+      }
+      alias guarded_helper_alias {
+        beacon_inline_execute($1, guarded_helper($1, $2), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to eq(['good'])
+    expect(catalog['warnings']).to include(/assert can prevent beacon_inline_execute/)
+    expect(catalog['warnings']).to include(/flow control can prevent the BOF helper return/)
+  end
+
+  it 'does not treat inert control-flow words as early exits' do
+    catalog = parse_cna(<<~'CNA')
+      sub load_bof {
+        %metadata = %(return => "value", throw => "value", assert => "value");
+        return readb(openf(script_resource("helper.o")), -1);
+      }
+      alias direct {
+        %metadata = %(return => "value", throw => "value", assert => "value");
+        beacon_inline_execute($1, readb(openf(script_resource("direct.o")), -1), "go", $null);
+      }
+      alias helper {
+        beacon_inline_execute($1, load_bof($1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs'].keys).to contain_exactly('direct', 'helper')
+  end
+
+  it 'rejects scripts that override required importer functions' do
+    expect do
+      parse_cna(<<~'CNA')
+        sub beacon_inline_execute {
+          blog($1, "Not executing a BOF");
+        }
+        alias shadowed {
+          beacon_inline_execute($1, readb(openf(script_resource("shadowed.o")), -1), "go", $null);
+        }
+      CNA
+    end.to raise_error(described_class::Error, /overrides required functions: beacon_inline_execute/)
+  end
+
+  it 'allows valid aliases when an overridden intrinsic is not used by their import path' do
+    catalog = parse_cna(<<~'CNA')
+      sub iff {
+        return "custom";
+      }
+      sub beacon_command_register {
+        return;
+      }
+      beacon_command_register("example", "Not registration metadata", "example [opt: value]");
+      alias example {
+        beacon_inline_execute($1, readb(openf(script_resource("example.o")), -1), "go", bof_pack($1, "z", $2));
+      }
+    CNA
+
+    expect(catalog['bofs']['example']).to include(
+      'description' => a_string_starting_with('Imported from'),
+      'usage' => 'example'
+    )
+    expect(catalog['bofs']['example']['arguments'].first).to include('required' => true)
+  end
+
+  it 'uses only top-level registrations to classify optional arguments' do
+    catalog = parse_cna(<<~'CNA')
+      beacon_command_register("metadata", "Active", "metadata <value>");
+      if (false) {
+        beacon_command_register("metadata", "Inactive", "metadata <opt:value>");
+      }
+      alias metadata {
+        beacon_inline_execute($1, readb(openf(script_resource("metadata.o")), -1), "go", bof_pack($1, "z", $2));
+      }
+    CNA
+
+    expect(catalog['bofs']['metadata']).to include('description' => 'Active', 'usage' => 'metadata <value>')
+    expect(catalog['bofs']['metadata']['arguments'].first).to include('required' => true)
+  end
+
+  it 'handles quoted escapes without aborting compatible aliases' do
+    catalog = parse_cna(<<~'CNA')
+      beacon_command_register("escaped", "Smile: \uD83D\uDE00", "escaped");
+      beacon_command_register("ignored", "\uD800", "ignored");
+      alias escaped {
+        beacon_inline_execute($1, readb(openf(script_resource("escaped.o")), -1), "go", bof_pack($1, "zz", 'a\\b', "\uD83D\uDE00"));
+      }
+      alias invalid_path {
+        beacon_inline_execute($1, readb(openf(script_resource("bad\x00.o")), -1), "go", $null);
+      }
+      alias encoded_dollar {
+        beacon_inline_execute($1, readb(openf(script_resource("static.\u0024barch.o")), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs']['escaped']['description']).to eq("Smile: \u{1F600}")
+    expect(catalog['bofs']['escaped']['arguments'].map { |argument| argument['fixed'] }).to eq(['a\\b', "\u{1F600}"])
+    expect(catalog['warnings']).to include(/CNA alias 'invalid_path' was skipped: BOF path contains a null byte/)
+    expect(catalog['warnings']).to include(/CNA alias 'encoded_dollar' was skipped: BOF path contains an encoded dollar sign/)
   end
 end

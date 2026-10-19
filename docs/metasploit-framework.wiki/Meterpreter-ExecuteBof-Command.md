@@ -117,7 +117,8 @@ and a fixed integer. The importer supports:
 
 * One direct `beacon_inline_execute` call in an alias.
 * Literal entry points and `script_resource` paths, including `$barch` or `$arch` values assigned by `barch` for the
-  alias Beacon.
+  alias Beacon. The alias and its helper together must convert the resource path to BOF content exactly once with
+  `readb(openf(path), -1)`.
 * Conventional helper functions such as `readbof($1, "hello")` when their resource path is static.
 * Omitted or `$null` arguments, or one `bof_pack` call with a literal `b`, `i`, `s`, `z`, or `Z` format.
 * Direct positional arguments (`$2`, `$3`, and so on), fixed strings or integers, simple single assignments, and
@@ -142,6 +143,8 @@ importer statically translates launcher aliases; it does not execute Sleep/Aggre
 * Aliases that delegate `beacon_inline_execute` to another function or issue multiple execution calls.
 * Dynamic BOF paths, entry points, or `bof_pack` format strings.
 * Packed values built with arbitrary functions, arithmetic, joins, maps, loops, or multi-branch conditionals.
+* Values used before assignment, mutated positional parameters, early-exit flow control, or scripts that override
+  functions required by the importer.
 * Aggressor callbacks, event handlers, UI/menu definitions, logging, task messages, and commands other than
   `beacon_inline_execute`.
 
