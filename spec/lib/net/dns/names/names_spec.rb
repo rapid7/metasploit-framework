@@ -48,6 +48,48 @@ RSpec.describe Net::DNS::Names do
         expect { subject.dn_expand(packet, offset) }.to raise_exception(ExpandError)
       end
     end
+
+    context 'when a compression pointer references itself' do
+      let(:packet) do
+        "\xc0\x00"
+      end
+
+      it 'raises an ExpandError exception' do
+        expect { subject.dn_expand(packet, 0) }.to raise_exception(ExpandError, 'Compression pointer loop detected')
+      end
+    end
+
+    context 'when compression pointers form a cycle' do
+      let(:packet) do
+        "\xc0\x02\xc0\x00"
+      end
+
+      it 'raises an ExpandError exception' do
+        expect { subject.dn_expand(packet, 0) }.to raise_exception(ExpandError, 'Compression pointer loop detected')
+      end
+    end
+
+    context 'when a label is followed by a pointer back to that label offset' do
+      let(:packet) do
+        # offset 0: label "foo" (len=3, data at 1..3, next offset=4)
+        # offset 4: pointer back to offset 0 → infinite loop without visited_offsets tracking
+        "\x03foo\xc0\x00"
+      end
+
+      it 'raises an ExpandError exception' do
+        expect { subject.dn_expand(packet, 0) }.to raise_exception(ExpandError, 'Compression pointer loop detected')
+      end
+    end
+
+    context 'when a compression pointer references a valid name' do
+      let(:packet) do
+        "\xc0\x02\x03www\x00"
+      end
+
+      it 'expands the name and returns the offset following the pointer' do
+        expect(subject.dn_expand(packet, 0)).to eq(['www.', 2])
+      end
+    end
   end
 
   describe '#pack_name' do

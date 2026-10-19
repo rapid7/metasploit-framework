@@ -43,6 +43,10 @@ on:
 #  schedule:
 #    - cron: '*/15 * * * *'
 
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
+
 jobs:
   postgres:
     runs-on: ${{ matrix.os }}
@@ -93,7 +97,7 @@ jobs:
         env:
           # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
           BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
@@ -155,7 +159,7 @@ jobs:
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true

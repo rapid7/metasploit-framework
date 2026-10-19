@@ -12,6 +12,8 @@ module Rex
       #
       ###
       class Client
+        attr_accessor :datasocket
+
         #
         # Creates a new client instance.
         #
@@ -180,21 +182,31 @@ module Rex
           end
 
           # force datasocket to renegotiate
-          self.datasocket.shutdown if self.datasocket != nil
+          if datasocket
+            old_datasocket = datasocket
+            self.datasocket = nil
+            old_datasocket.shutdown
+            old_datasocket.close
+          end
 
           res = send_cmd(['PASV'], true, nsock)
           return nil if not res =~ /^227/
 
           # 227 Entering Passive Mode (127,0,0,1,196,5)
-          if res =~ /\((\d+)\,(\d+),(\d+),(\d+),(\d+),(\d+)/
-            # convert port to FTP syntax
-            datahost = "#{$1}.#{$2}.#{$3}.#{$4}"
-            dataport = ($5.to_i * 256) + $6.to_i
-            self.datasocket = Rex::Socket::Tcp.create(
-              'PeerHost' => datahost,
-              'PeerPort' => dataport
-            )
-          end
+          match = res.match(/\((\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3}),(\d{1,3})\)/)
+          return nil unless match
+
+          values = match.captures.map(&:to_i)
+          return nil unless values.all? { |value| value.between?(0, 255) }
+
+          dataport = (values[4] * 256) + values[5]
+          return nil if dataport.zero?
+
+          # Prefer the original control connection host over the host advertised in the PASV response.
+          self.datasocket = Rex::Socket::Tcp.create(
+            'PeerHost' => nsock.peerhost,
+            'PeerPort' => dataport
+          )
           self.datasocket
         end
 

@@ -20213,6 +20213,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/4gaboards_users_info_disclosure_cve_2026_53959": {
+    "name": "4gaBoards Mass User Information Disclosure (CVE-2026-53959)",
+    "fullname": "auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-06-05",
+    "type": "auxiliary",
+    "author": [
+      "lucquach (GitHub)",
+      "de3erve (GitHub)",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits a broken access control vulnerability in 4gaBoards versions 3.3.8 or less.\n          The /api/users endpoint allows any authenticated user to enumerate account information for every user.\n          Responses expose email, phone, organization, name, isAdmin, ssoGoogleEmail, ssoGithubEmail, and other SSO-linked email fields.\n\n          The module first creates a new user with the supplied email to obtain an access token.\n          The access token is then used to dump information of all users registered on the application.\n          If valid administrator credentials are provided, the module also performs cleanup by deleting the newly created user account.",
+    "references": [
+      "CVE-2026-53959",
+      "GHSA-p77f-p47g-h72p"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-29 07:46:50 +0000",
+    "path": "/modules/auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959.rb",
+    "is_install_path": true,
+    "ref_name": "gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/acronis_cyber_protect_machine_info_disclosure": {
     "name": "Acronis Cyber Protect/Backup machine info disclosure",
     "fullname": "auxiliary/gather/acronis_cyber_protect_machine_info_disclosure",
@@ -23526,6 +23585,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/gitlab_file_read_cve_2026_85706": {
+    "name": "GitLab Unauthenticated Arbitrary File Read",
+    "fullname": "auxiliary/gather/gitlab_file_read_cve_2026_85706",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-10",
+    "type": "auxiliary",
+    "author": [
+      "s3ntago",
+      "guneykabel",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits CVE-2026-85706, an unauthenticated arbitrary file read\n          in the GitLab repository commits and files APIs. A path parsing discrepancy\n          between GitLab Workhorse and Rails allows unsigned upload metadata to reach\n          the Rails handler, where an attacker-controlled local path is read before\n          authentication.\n\n          The response disclosure is conditional. GitLab returns a fragment of file\n          data in an error only when the file contains a percent sign that is not\n          followed by two hexadecimal characters. URL-form delimiters can further\n          bound the returned fragment. Files without a malformed percent sequence are\n          read but are not returned to the attacker.\n\n          GitLab CE and EE versions from 18.7 before 19.1.8, 19.2 before 19.2.6, and\n          19.3 before 19.3.2 are affected.",
+    "references": [
+      "CVE-2026-85706",
+      "URL-https://github.com/guneykabel/cve-2026-85706",
+      "URL-https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-3-2-released/",
+      "URL-https://gitlab.com/gitlab-org/gitlab/-/commit/0d9ce3e758a85f0690be751e213625f7902c0361",
+      "URL-https://www.rapid7.com/blog/post/etr-cve-2026-85706-critical-gitlab-path-traversal-exploited-in-the-wild/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-17 15:22:33 +0000",
+    "path": "/modules/auxiliary/gather/gitlab_file_read_cve_2026_85706.rb",
+    "is_install_path": true,
+    "ref_name": "gather/gitlab_file_read_cve_2026_85706",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/gitlab_tags_rss_feed_email_disclosure": {
     "name": "GitLab Tags RSS feed email disclosure",
     "fullname": "auxiliary/gather/gitlab_tags_rss_feed_email_disclosure",
@@ -23858,7 +23976,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/hikvision_info_disclosure_cve_2017_7921.rb",
     "is_install_path": true,
     "ref_name": "gather/hikvision_info_disclosure_cve_2017_7921",
@@ -25151,6 +25269,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/langflow_auth_bypass_cve_2026_93680": {
+    "name": "Langflow AI Authentication Bypass",
+    "fullname": "auxiliary/gather/langflow_auth_bypass_cve_2026_93680",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-22",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.11.4 allow unauthenticated\n          connections to the MCP SSE endpoint, allowing attackers to initialize\n          MCP sessions and retrieve privileged MCP-related information.\n\n          The MCP information collected from this module is stored in Metasploit\n          loot as a JSON document.",
+    "references": [
+      "CVE-2026-93680"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-02 13:54:04 +0000",
+    "path": "/modules/auxiliary/gather/langflow_auth_bypass_cve_2026_93680.rb",
+    "is_install_path": true,
+    "ref_name": "gather/langflow_auth_bypass_cve_2026_93680",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/lansweeper_collector": {
     "name": "Lansweeper Credential Collector",
     "fullname": "auxiliary/gather/lansweeper_collector",
@@ -25664,7 +25835,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-10 16:13:38 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/magento_xxe_cve_2024_34102.rb",
     "is_install_path": true,
     "ref_name": "gather/magento_xxe_cve_2024_34102",
@@ -28360,7 +28531,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-09-19 13:42:07 +0000",
     "path": "/modules/auxiliary/gather/shodan_search.rb",
     "is_install_path": true,
     "ref_name": "gather/shodan_search",
@@ -30100,7 +30271,7 @@
       "Yvain",
       "Grant Willcox"
     ],
-    "description": "The module use the ZoomEye API to search ZoomEye. ZoomEye is a search\n          engine for cyberspace that lets the user find specific network\n          components(ip, services, etc.).\n\n          Setting facets will output a simple report on the overall search. It's values are:\n          Host search: app, device, service, os, port, country, city\n          Web search: webapp, component, framework, frontend, server, waf, os, country, city\n\n          Possible filters values are:\n          Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn\n          Web search: app, header, keywords, desc, title, ip, site, city, country\n\n          When using multiple filters, you must enclose individual filter values in double quotes, separating filters with the '+' symbol as follows:\n          'country:\"FR\" + os:\"Linux\"'",
+    "description": "The module use the ZoomEye API to search ZoomEye. ZoomEye is a search\n          engine for cyberspace that lets the user find specific network\n          components(ip, services, etc.).\n\n          Setting facets will output a simple report on the overall search. It's values are:\n          Host search: app, device, service, os, port, country, city\n          Web search: webapp, component, framework, frontend, server, waf, os, country, city\n\n          Possible filters values are:\n          Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn\n          Web search: app, header, keywords, desc, title, ip, site, city, country",
     "references": [
       "URL-https://github.com/knownsec/ZoomEye-python",
       "URL-https://www.zoomeye.ai/api/doc",
@@ -30125,7 +30296,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-09-11 22:27:22 +0000",
     "path": "/modules/auxiliary/gather/zoomeye_search.rb",
     "is_install_path": true,
     "ref_name": "gather/zoomeye_search",
@@ -36413,7 +36584,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-21 15:18:58 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/scanner/http/elasticsearch_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/elasticsearch_traversal",
@@ -46510,6 +46681,61 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/vllm_multimodal_info_leak": {
+    "name": "vLLM Multimodal Heap-Address Information Leak Scanner",
+    "fullname": "auxiliary/scanner/http/vllm_multimodal_info_leak",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-02-02",
+    "type": "auxiliary",
+    "author": [
+      "Kenneth LaCroix"
+    ],
+    "description": "This module detects vLLM OpenAI-compatible servers affected by\n          CVE-2026-22778. When an invalid image is sent to a multimodal endpoint,\n          Pillow (PIL) raises UnidentifiedImageError whose message includes the\n          Python repr of the underlying BytesIO buffer\n          (\"<_io.BytesIO object at 0x...>\"), exposing a live heap address.\n          Vulnerable versions return that error message directly to the client,\n          which weakens ASLR and forms the first stage of a chain that ends in a\n          JPEG2000 heap overflow in the bundled FFmpeg/OpenCV video decoder.\n          Affected versions are 0.8.3 through 0.14.0 (fixed in 0.14.1, which\n          sanitizes the address out of the message).\n\n          The module first reads the unauthenticated /version banner and compares\n          it against the affected range. It then issues a single benign request to\n          the chat completions endpoint containing a deliberately malformed\n          base64 image. If the response leaks a \"0x\" heap address the target is\n          reported vulnerable with high confidence; if the address is stripped the\n          fix is present; if the server reports that the model has no image support\n          the leak path is not reachable as deployed. The probe never sends a\n          video URL and never reaches the heap-overflow code path.",
+    "references": [
+      "CVE-2026-22778",
+      "GHSA-4r2x-xpjr-7cvv",
+      "URL-https://orca.security/resources/blog/cve-2026-22778-vllm-rce-vulnerability/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 8000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-06-25 09:30:10 +0000",
+    "path": "/modules/auxiliary/scanner/http/vllm_multimodal_info_leak.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/vllm_multimodal_info_leak",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/wangkongbao_traversal": {
     "name": "WANGKONGBAO CNS-1000 and 1100 UTM Directory Traversal",
     "fullname": "auxiliary/scanner/http/wangkongbao_traversal",
@@ -51246,6 +51472,49 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/mongodb/mongodb_hashdump": {
+    "name": "MongoDB Hash Extractor",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_hashdump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module extracts password hashes from a MongoDB instance and stores\n          them in the database for later cracking. By default, it dumps system user\n          credentials from the 'system.users' collection. Alternatively,\n          it can dump application user hashes from a specified collection.\n          On MongoDB 3.0+ all users are stored in admin.system.users regardless\n          of their authentication database, so the default DB of 'admin' is\n          normally correct, and the querying user needs privileges\n          (root, userAdminAnyDatabase, readAnyDatabase) to read them.\n\n          The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)\n          and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's\n          auxiliary/analyze cracking modules -- use hashcat directly against the\n          exported hash, or 'creds -o' to export it, for now.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
+      "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/",
+      "URL-https://hashcat.net/wiki/doku.php?id=example_hashes"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_hashdump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_hashdump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/mongodb/mongodb_login": {
     "name": "MongoDB Login Utility",
     "fullname": "auxiliary/scanner/mongodb/mongodb_login",
@@ -51254,9 +51523,11 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "Gregory Man <man.gregory@gmail.com>"
+      "Gregory Man <man.gregory@gmail.com>",
+      "h00die",
+      "prithvee07"
     ],
-    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          Note that, by default, MongoDB does not require authentication.",
+    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy\n          MONGODB-CR authentication if SCRAM is unsupported by the target server.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
     "references": [
       "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
       "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/"
@@ -51267,7 +51538,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-09-15 09:00:29 +0000",
     "path": "/modules/auxiliary/scanner/mongodb/mongodb_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mongodb/mongodb_login",
@@ -51275,14 +51546,95 @@
     "post_auth": true,
     "default_credential": false,
     "notes": {
-      "Reliability": [
-        "unknown-reliability"
-      ],
+      "Reliability": [],
       "Stability": [
-        "unknown-stability"
+        "crash-safe"
       ],
       "SideEffects": [
-        "unknown-side-effects"
+        "ioc-in-logs",
+        "account-lockouts"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_schemadump": {
+    "name": "MongoDB Schema Enumerator",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_schemadump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to an unauthenticated or authenticated MongoDB instance,\n          authenticates using SCRAM-SHA-1 if credentials are provided, enumerates\n          databases and collections via wire protocol, samples documents, and dumps\n          the inferred schema structure.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_schemadump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_schemadump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_version": {
+    "name": "MongoDB Version Detector",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to a MongoDB instance and retrieves the server version\n          using the buildInfo command. Through MongoDB 8.0 this command requires no\n          authentication; MongoDB 8.1+ requires authentication for buildInfo, so the\n          module reports '8.1+' unless USERNAME is set, in which case it authenticates\n          and retrieves the actual version string.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/command/buildInfo/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -53859,7 +54211,7 @@
       "postgres"
     ],
     "targets": null,
-    "mod_time": "2025-09-02 16:31:33 +0000",
+    "mod_time": "2026-10-07 19:04:03 +0000",
     "path": "/modules/auxiliary/scanner/postgres/postgres_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/postgres/postgres_login",
@@ -57700,6 +58052,57 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/smb/cve_2000_0979": {
+    "name": "CVE-2000-0979 SMB Share Password Enumerator",
+    "fullname": "auxiliary/scanner/smb/cve_2000_0979",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2000-10-10",
+    "type": "auxiliary",
+    "author": [
+      "Zoltan Balazs <zoltan1.balazs <Zoltan Balazs <zoltan1.balazs@gmail.com> @zh4ck>",
+      "Azbil SecurityFriday Co Ltd"
+    ],
+    "description": "This module exploits CVE-2000-0979, an information disclosure vulnerability\n          in the share-level password authentication of Microsoft Windows 9x/Me SMB\n          servers. The server validates passwords one character at a time, allowing an\n          attacker to enumerate the correct password byte-by-byte based on the server\n          response. A zero-length password is always accepted, and each subsequent\n          character can be brute-forced individually, significantly reducing the search\n          space required to recover the full share password.",
+    "references": [
+      "CVE-2000-0979",
+      "URL-http://www.securityfriday.com/tools/SPC.html"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 139,
+    "autofilter_ports": [
+      139,
+      445
+    ],
+    "autofilter_services": [
+      "netbios-ssn",
+      "microsoft-ds"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-01 21:59:14 +0000",
+    "path": "/modules/auxiliary/scanner/smb/cve_2000_0979.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/smb/cve_2000_0979",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "AKA": [
+        "Share Password Checker"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -64520,6 +64923,57 @@
       }
     ]
   },
+  "auxiliary_spoof/dhcp/dhcpv6_dns_takeover": {
+    "name": "DHCPv6 DNS Takeover (mitm6-style IPv6 DNS coercion)",
+    "fullname": "auxiliary/spoof/dhcp/dhcpv6_dns_takeover",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Pushpender Rathore"
+    ],
+    "description": "This module runs a rogue DHCPv6 server that hands the attacker to IPv6\n          clients as their DNS server (the classic mitm6 primitive), and a paired\n          DNS server that poisons names under a target domain to point at the\n          attacker while transparently forwarding all other lookups so the victim\n          stays functional.\n\n          Once a client resolves a target service through the attacker, it can be\n          coerced into authenticating to the attacker. Paired with a Kerberos relay\n          target (for example ESC8 AD CS web enrollment), this is the native\n          coercion half of the Kerberos relay via DNS technique (CVE-2026-20929),\n          removing the dependency on external tooling such as mitm6.\n\n          IPv6 is preferred by Windows over IPv4, so becoming the client's IPv6 DNS\n          server is enough to intercept its name resolution even on IPv4 networks.",
+    "references": [
+      "CVE-2026-20929",
+      "URL-https://github.com/dirkjanm/mitm6",
+      "ATT&CK-T1557"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 53,
+    "autofilter_ports": [
+      53
+    ],
+    "autofilter_services": [
+      "dns"
+    ],
+    "targets": null,
+    "mod_time": "2026-07-17 13:26:09 +0000",
+    "path": "/modules/auxiliary/spoof/dhcp/dhcpv6_dns_takeover.rb",
+    "is_install_path": true,
+    "ref_name": "spoof/dhcp/dhcpv6_dns_takeover",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "Service",
+        "description": "Run the DHCPv6 and DNS takeover services"
+      }
+    ]
+  },
   "auxiliary_spoof/dns/bailiwicked_domain": {
     "name": "DNS BailiWicked Domain Attack",
     "fullname": "auxiliary/spoof/dns/bailiwicked_domain",
@@ -64685,6 +65139,58 @@
       {
         "name": "Service",
         "description": "Serve DNS entries"
+      }
+    ]
+  },
+  "auxiliary_spoof/ipv6/ipv6_ra_dns_takeover": {
+    "name": "IPv6 Router Advertisement DNS Takeover (RDNSS IPv6 DNS coercion)",
+    "fullname": "auxiliary/spoof/ipv6/ipv6_ra_dns_takeover",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Pushpender Rathore"
+    ],
+    "description": "This module runs a rogue IPv6 router that advertises the attacker as the\n          recursive DNS server (RDNSS, RFC 8106) inside Router Advertisements, and a\n          paired DNS server that poisons names under a target domain to point at the\n          attacker while transparently forwarding all other lookups so the victim\n          stays functional.\n\n          It is the Router Advertisement equivalent of the mitm6 DHCPv6 DNS\n          takeover: instead of answering DHCPv6 Solicits, it multicasts RAs\n          carrying an RDNSS option, which modern Windows (and other RFC 8106\n          clients) adopt as their IPv6 resolver. It also listens for Router\n          Solicitations and replies with a unicast RA immediately, so a client is\n          coerced the moment it boots or refreshes rather than waiting for the next\n          unsolicited advertisement. By default the RA does not claim to be a\n          default router (router lifetime 0), so routing is left untouched and only\n          DNS is taken over.\n\n          Once a client resolves a target service through the attacker, it can be\n          coerced into authenticating to the attacker. Paired with a Kerberos relay\n          target (for example ESC8 AD CS web enrollment), this is a native coercion\n          half of the Kerberos relay via DNS technique (CVE-2026-20929), removing\n          the dependency on external tooling such as mitm6.\n\n          IPv6 is preferred by Windows over IPv4, so becoming the client's IPv6 DNS\n          server is enough to intercept its name resolution even on IPv4 networks.\n          Layer 2 adjacency (same segment) and root privileges to inject raw\n          packets are required.",
+    "references": [
+      "CVE-2026-20929",
+      "URL-https://www.rfc-editor.org/rfc/rfc8106",
+      "URL-https://github.com/dirkjanm/mitm6",
+      "ATT&CK-T1557"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 53,
+    "autofilter_ports": [
+      53
+    ],
+    "autofilter_services": [
+      "dns"
+    ],
+    "targets": null,
+    "mod_time": "2026-08-21 01:21:16 +0000",
+    "path": "/modules/auxiliary/spoof/ipv6/ipv6_ra_dns_takeover.rb",
+    "is_install_path": true,
+    "ref_name": "spoof/ipv6/ipv6_ra_dns_takeover",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "Service",
+        "description": "Run the RA/RDNSS and DNS takeover services"
       }
     ]
   },
@@ -82752,6 +83258,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/nable_ncentral_unauth_rce_cve_2026_86218": {
+    "name": "N-able N-central Struts BeanUtils Unauthenticated RCE",
+    "fullname": "exploit/linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-09-05",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "N-able N-central before 2026.3.1.14 uses a session-scoped Struts form on\n          an unauthenticated action. Two concurrent multipart requests can race the\n          form's multipart handler and expose Jetty's live configuration to Commons\n          BeanUtils property population.\n\n          This module changes a lazy N-central servlet holder into Jetty's bundled\n          CGI servlet, configures it to invoke /bin/sh, and sends a command payload\n          through the holder's existing URL mapping. By default, a second CGI\n          request uses N-central's local JMX service and installed Java libraries to\n          stop only the changed holder and restore its original servlet in memory.",
+    "references": [
+      "CVE-2026-86218",
+      "URL-https://me.n-able.com/s/security-advisory/aArVy0000002Ld3KAE/cve202686218-preauthentication-remote-code-execution",
+      "URL-https://documentation.n-able.com/N-central/Release_Notes/GA/Content/N-central_2026.3_HF4_Release_Notes.htm"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-18 14:55:32 +0000",
+    "path": "/modules/exploits/linux/http/nable_ncentral_unauth_rce_cve_2026_86218.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "service-resource-loss"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/nagios_xi_autodiscovery_webshell": {
     "name": "Nagios XI Autodiscovery Webshell Upload",
     "fullname": "exploit/linux/http/nagios_xi_autodiscovery_webshell",
@@ -84377,6 +84944,65 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/opencti_notifier_rce": {
+    "name": "OpenCTI Authentication Bypass and Notifier EJS Remote Code Execution",
+    "fullname": "exploit/linux/http/opencti_notifier_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-05-04",
+    "type": "exploit",
+    "author": [
+      "Jean-Marie Bourbon"
+    ],
+    "description": "This module chains CVE-2026-27960 and CVE-2026-39980 to achieve\n          unauthenticated remote command execution against vulnerable OpenCTI\n          instances.\n\n          CVE-2026-27960 allows an unauthenticated attacker to authenticate to\n          the GraphQL API using the UUID of an existing user as a bearer token.\n          By default, this module uses OpenCTI's deterministic default\n          administrator UUID. A different user UUID can be supplied with USER_ID.\n\n          After confirming the authentication bypass, the module locates the\n          Platform mailer notification connector and exploits CVE-2026-39980,\n          an EJS notifier template sanitizer bypass, to execute a Unix command in\n          the OpenCTI Node.js process context.\n\n          The full unauthenticated chain applies where the affected version\n          ranges overlap: OpenCTI 6.6.0 through 6.9.4.",
+    "references": [
+      "CVE-2026-27960",
+      "CVE-2026-39980",
+      "GHSA-6vvv-vmfr-xhrx",
+      "GHSA-jv9r-jw2f-rhrf"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 16:53:50 +0000",
+    "path": "/modules/exploits/linux/http/opencti_notifier_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/opencti_notifier_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -94343,6 +94969,56 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_linux/local/cve_2026_3888": {
+    "name": "Local Privilege Escalation in snapd",
+    "fullname": "exploit/linux/local/cve_2026_3888",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-17",
+    "type": "exploit",
+    "author": [
+      "msutovsky-r7",
+      "Qualys Security Advisory Team"
+    ],
+    "description": "The `snap-confine` in some Ubuntu versions is vulnerable to race condition, when setting up snap sandbox and creating mimic of /usr/lib/x86_64-linux-gnu.\n          The snapd package is vulnerable up to version 2.74.1+ubuntu26.04.3 - however, each minor version has its own patch.\n          The time window between creating bind-mounted copies of real libraries and copying them into sandbox /usr/lib/x86_64-linux-gnu allows the attacker to take control of content of those libraries by recreating /tmp/.snap folder.\n          This folder is owned by root, but it's auto-deleted after 30 days without activity (by default on Ubuntu 24.04+).\n          The attacker can recreate this folder once it is deleted and take over the sandboxed libraries.\n          After gaining root inside sandbox, it can escape the sandbox by copying setuid binary into host filesystem.",
+    "references": [
+      "URL-https://blog.qualys.com/vulnerabilities-threat-research/2026/03/17/cve-2026-3888-important-snap-flaw-enables-local-privilege-escalation-to-root",
+      "URL-https://cdn2.qualys.com/advisory/2026/03/17/snap-confine-systemd-tmpfiles.txt",
+      "CVE-2026-3888"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-09-22 18:03:09 +0000",
+    "path": "/modules/exploits/linux/local/cve_2026_3888.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/cve_2026_3888",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
   "exploit_linux/local/cve_2026_43284_dirty_frag": {
     "name": "xfrm-ESP Page-Cache Write via CVE-2026-43284",
     "fullname": "exploit/linux/local/cve_2026_43284_dirty_frag",
@@ -94540,6 +95216,57 @@
       "meterpreter"
     ],
     "needs_cleanup": null,
+    "actions": []
+  },
+  "exploit_linux/local/dirtyclone_cve_2026_43503": {
+    "name": "Sample Linux Priv Esc",
+    "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-21",
+    "type": "exploit",
+    "author": [
+      "Eddy Tsalolikhin",
+      "Or Peles",
+      "msutovsky-r7"
+    ],
+    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "references": [
+      "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
+      "CVE-2026-43503"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-09-09 14:35:45 +0000",
+    "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/dirtyclone_cve_2026_43503",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-down"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
     "actions": []
   },
   "exploit_linux/local/docker_cgroup_escape": {
@@ -100627,7 +101354,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-01-08 21:00:39 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/apt_package_manager.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/apt_package_manager",
@@ -100781,7 +101508,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/docker_image.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/docker_image",
@@ -100936,7 +101663,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/init_openrc.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_openrc",
@@ -100992,7 +101719,7 @@
       "systemd",
       "systemd user"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/init_systemd.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/init_systemd",
@@ -101310,7 +102037,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/udev.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/udev",
@@ -101462,7 +102189,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/linux/persistence/yum_package_manager.rb",
     "is_install_path": true,
     "ref_name": "linux/persistence/yum_package_manager",
@@ -111497,6 +112224,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/dizquetv_rce": {
+    "name": "dizqueTV Unauthenticated Remote Code Execution",
+    "fullname": "exploit/multi/http/dizquetv_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-09-21",
+    "type": "exploit",
+    "author": [
+      "Muhammad Sulthon Nurbahari",
+      "Ahmed Said Saud Al-Busaidi"
+    ],
+    "description": "dizqueTV, a Node.js-based IPTV streaming server, is vulnerable to\n          unauthenticated remote code execution via the ffmpegPath configuration\n          parameter. On Linux, an attacker can inject a command into the ffmpegPath value.\n          On Windows, an attacker can upload a malicious batch script through the image\n          upload endpoint and set the ffmpegPath setting to the uploaded file. Requesting\n          the version API triggers execution on both platforms.\n\n          The ffmpegPath value is used by Node's child process APIs without adequate\n          validation, allowing arbitrary command execution as the Node.js process user.",
+    "references": [
+      "CVE-2024-58286",
+      "EDB-52079"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "cmd",
+    "rport": 8000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command",
+      "Windows Command"
+    ],
+    "mod_time": "2026-09-18 07:49:35 +0000",
+    "path": "/modules/exploits/multi/http/dizquetv_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/dizquetv_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/dompdf_rce_cve_2022_28368": {
     "name": "Dompdf RCE via Malicious Font Caching (CVE-2022-28368)",
     "fullname": "exploit/multi/http/dompdf_rce_cve_2022_28368",
@@ -113854,6 +114642,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/grafana_sql_expressions_rce_cve_2024_9264": {
+    "name": "Grafana SQL Expressions DuckDB Command Injection",
+    "fullname": "exploit/multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-10-17",
+    "type": "exploit",
+    "author": [
+      "Özcan Ersan (@ozcanpng) <ozcanersan@proton.me>"
+    ],
+    "description": "This module exploits an authenticated command injection vulnerability in Grafana's\n          experimental SQL Expressions feature. Affected Grafana releases are 11.0.0 through\n          11.0.6, 11.1.0 through 11.1.7, and 11.2.0 through 11.2.2. They pass attacker-controlled\n          SQL expressions to DuckDB without sufficient sanitization.\n\n          Successful command execution requires the duckdb binary to be available in the Grafana\n          process PATH. This module uses DuckDB's shellfs community extension and Unix pipe syntax,\n          so it is limited to Unix-like targets with shellfs available. The extension installation\n          may download and cache files on the target.",
+    "references": [
+      "CVE-2024-9264",
+      "URL-https://grafana.com/security/security-advisories/cve-2024-9264/",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-9264",
+      "URL-https://github.com/ozcanpng/CVE-2024-9264"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-14 12:06:46 +0000",
+    "path": "/modules/exploits/multi/http/grafana_sql_expressions_rce_cve_2024_9264.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_multi/http/grav_admin_direct_install_rce_cve_2025_50286": {
     "name": "Grav CMS Admin Direct Install Authenticated Plugin Upload RCE",
     "fullname": "exploit/multi/http/grav_admin_direct_install_rce_cve_2025_50286",
@@ -115880,6 +116728,122 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_auth_rce_cve_2026_7873": {
+    "name": "Langflow AI Code Validation Authenticated RCE",
+    "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_7873",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-30",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "n0k0"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.10.0 are susceptible to authenticated remote code\n          execution due to improper validation of code in the `/api/v1/validate/code` endpoint.\n\n          Arbitrary code is executed under the context of the backend Langflow process.",
+    "references": [
+      "CVE-2026-7873",
+      "URL-https://www.ibm.com/support/pages/node/7278441"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 08:39:45 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_rce_cve_2026_7873.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_rce_cve_2026_7873",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_rce_cve_2026_0770": {
+    "name": "Langflow Unauthenticated RCE (validate endpoint)",
+    "fullname": "exploit/multi/http/langflow_rce_cve_2026_0770",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-05-23",
+    "type": "exploit",
+    "author": [
+      "Diamorphine",
+      "bhaskarbhar"
+    ],
+    "description": "Langflow versions up to and including 1.7.3 contain a remote code\n          execution vulnerability in the `validate` endpoint where unsanitized\n          values in `exec_globals`/`code` allow an attacker to execute arbitrary\n          Python code. This module abuses the `/api/v1/auto_login` (or\n          `/api/v1/login`) and `/api/v1/validate/code` endpoints to execute an\n          arbitrary Metasploit command payload.",
+    "references": [
+      "CVE-2026-0770",
+      "EDB-52597"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-09-07 21:49:25 +0000",
+    "path": "/modules/exploits/multi/http/langflow_rce_cve_2026_0770.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_rce_cve_2026_0770",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_rce_cve_2026_27966": {
     "name": "Langflow RCE",
     "fullname": "exploit/multi/http/langflow_rce_cve_2026_27966",
@@ -115992,6 +116956,120 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0768": {
+    "name": "Langflow AI Validate Code Injection unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0768",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-02",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.4.2 is susceptible to unauthenticated\n          remote code execution due to improper handling of the code\n          parameter provided to the `/validate` endpoint.\n\n          Arbitrary code is executed under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0768"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-01 18:21:13 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0768.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0768",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0769": {
+    "name": "Langflow AI Custom Component Eval Injection Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0769",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-01-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.3.2 is susceptible to\n          unauthenticated remote code execution due to improper\n          input validation in the eval_custom_component_code() function.\n\n          Arbitrary code executes under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0769"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 11:52:00 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -116295,6 +117373,64 @@
       ],
       "Reliability": [
         "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/litellm_mcp_test_cmd_injection": {
+    "name": "BerriAI LiteLLM Proxy MCP Test Endpoint Command Execution",
+    "fullname": "exploit/multi/http/litellm_mcp_test_cmd_injection",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-21",
+    "type": "exploit",
+    "author": [
+      "Kenneth LaCroix"
+    ],
+    "description": "This module exploits CVE-2026-42271, a command execution vulnerability\n          in the BerriAI LiteLLM proxy. The MCP \"test\" REST endpoints\n          (POST /mcp-rest/test/connection and POST /mcp-rest/test/tools/list),\n          used by the admin UI to preview an MCP server before saving it, accept\n          a full server configuration in the request body. When the supplied\n          transport is \"stdio\", LiteLLM builds an MCP client that spawns the\n          provided command with its args as a subprocess on the proxy host.\n\n          On affected versions both endpoints are gated only by\n          user_api_key_auth and the stdio command is unrestricted, so any caller\n          holding a valid virtual key - including a low-privilege, non-admin key -\n          can reach the spawn path and run arbitrary commands as the LiteLLM proxy\n          process. LiteLLM 1.83.7 fixed this with two controls: it requires the\n          PROXY_ADMIN role on both endpoints (a non-admin key now receives HTTP\n          403), and it restricts the stdio command to an allowlist of interpreters\n          (deno, docker, node, npx, python, python3, uvx), so an arbitrary command\n          such as /bin/sh is rejected with HTTP 422 regardless of role.\n\n          Affected versions are 1.74.2 through 1.83.6 (fixed in 1.83.7). This\n          module targets the privilege boundary the CVE describes and expects a\n          non-admin APIKEY. When chained with the Starlette host-header\n          authentication bypass (CVE-2026-48710) the same primitive becomes\n          pre-authentication; that bypass is out of scope for this module, which\n          requires a valid virtual key.\n\n          The command runs blind: the spawned process is not an MCP server, so the\n          endpoint reports a connection failure after the command has already\n          executed. Use a payload that calls back (for example a reverse shell or\n          a fetched stager) rather than one whose output is read from the\n          response.",
+    "references": [
+      "CVE-2026-42271",
+      "GHSA-v4p8-mg3p-g94g"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 06:46:45 +0000",
+    "path": "/modules/exploits/multi/http/litellm_mcp_test_cmd_injection.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/litellm_mcp_test_cmd_injection",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
       ]
     },
     "session_types": false,
@@ -119400,6 +120536,63 @@
         "artifacts-on-disk",
         "ioc-in-logs",
         "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/opencti_jsonmapper_safeejs_rce": {
+    "name": "OpenCTI JSON Mapper safeEjs Sandbox Escape RCE",
+    "fullname": "exploit/multi/http/opencti_jsonmapper_safeejs_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-21",
+    "type": "exploit",
+    "author": [
+      "Ege Balci"
+    ],
+    "description": "OpenCTI is an open source cyber threat intelligence platform built as a Node.js\n          GraphQL application. Its data-mapping feature lets a user attach an EJS \"formula\"\n          to a JSON mapper attribute, which the backend renders through a home-grown sandbox\n          (safeEjs) that is intended to allow only arithmetic and property access over the\n          mapped data.\n\n          The sandbox verifier permits assignment to identifiers it merely allow-lists, such\n          as the String global. Because the generated EJS runs in sloppy mode inside a\n          `with(locals)` block, that assignment reaches the global object, and the sandbox's\n          own runtime property guard then calls the now-attacker-controlled String() when it\n          normalises property names. Poisoning String defeats the guard's constructor\n          deny-list, and `({})['constructor']['constructor']` yields Function, giving\n          arbitrary JavaScript execution in the OpenCTI API process. The formula is rendered\n          synchronously in the main process rather than in the isolated worker used by the\n          other render sites, so execution lands in the process that holds the platform's\n          Elasticsearch, object-store and message-queue clients.\n\n          The jsonMapperTest GraphQL mutation reaches this render path and requires only the\n          CSVMAPPERS (\"Manage data mappers\") capability. The GraphQL endpoint is authenticated,\n          so the module offers three ways to obtain a context that satisfies it. AUTH_MODE=password\n          logs in with USERNAME and PASSWORD through the public `token` mutation and reuses the\n          resulting opencti_session cookie, optionally completing 2FA with OTP_CODE. AUTH_MODE=token\n          sends a pre-existing OpenCTI API token as a bearer credential. When a target has the\n          header-based authentication strategy enabled without a proxy-source restriction,\n          AUTH_MODE=header obtains a session for an arbitrary user (for example the platform\n          administrator) with no credential at all.",
+    "references": [
+      "GHSA-f56m-h35g-vfg5",
+      "URL-https://github.com/OpenCTI-Platform/opencti"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 8080,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-17 11:36:10 +0000",
+    "path": "/modules/exploits/multi/http/opencti_jsonmapper_safeejs_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencti_jsonmapper_safeejs_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -134553,7 +135746,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-07 06:56:30 +0000",
     "path": "/modules/exploits/multi/persistence/at.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/at",
@@ -134726,6 +135919,55 @@
     "path": "/modules/exploits/multi/persistence/joplin_plugin.rb",
     "is_install_path": true,
     "ref_name": "multi/persistence/joplin_plugin",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
+  "exploit_multi/persistence/kate_plugin": {
+    "name": "Kate Plugin Persistence",
+    "fullname": "exploit/multi/persistence/kate_plugin",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2025-05-11",
+    "type": "exploit",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module installs a malicious Kate (KTextEditor) plugin that executes the payload\n          each time Kate is launched.\n\n          Linux: a pre-built template SO is patched with raw x64 shellcode and uploaded\n          to the target. If the session has write access to the system Qt plugin directory\n          the plugin is installed there directly (no environment changes needed). Otherwise\n          it is installed user-locally with QT_PLUGIN_PATH persisted via KDE Plasma startup\n          scripts, systemd user environment files, and a .desktop file override so the\n          plugin is visible in Kate's plugin manager for both terminal and GUI launches.\n\n          Windows: a pre-compiled template DLL is patched with raw x64 shellcode and\n          dropped directly into Kate's own kf6/ktexteditor plugin directory. The directory\n          is located by finding kate.exe then searching for katefilebrowserplugin.dll\n          relative to it. Qt scans Kate's own plugin directory unconditionally at startup\n          - no environment variable or registry changes needed. Kate's install directory is\n          auto-detected.\n\n          Tested on 26.04.0 on Kali, 26.07.70 on Windows 10",
+    "references": [
+      "URL-https://develop.kde.org/docs/apps/kate/plugin/"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "x64",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Windows",
+      "Linux"
+    ],
+    "mod_time": "2026-09-19 18:17:26 +0000",
+    "path": "/modules/exploits/multi/persistence/kate_plugin.rb",
+    "is_install_path": true,
+    "ref_name": "multi/persistence/kate_plugin",
     "check": true,
     "post_auth": false,
     "default_credential": false,
@@ -208401,7 +209643,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/accessibility_features_debugger.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/accessibility_features_debugger",
@@ -208453,7 +209695,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-17 16:32:34 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/assistive_technology.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/assistive_technology",
@@ -208504,7 +209746,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-05-25 12:53:27 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/bits.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/bits",
@@ -208608,7 +209850,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/image_exec_options.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/image_exec_options",
@@ -208731,6 +209973,59 @@
     "session_types": [
       "meterpreter",
       "shell"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
+  "exploit_windows/persistence/ollama_auto_update": {
+    "name": "Ollama Windows Auto-Update Path Traversal Persistence",
+    "fullname": "exploit/windows/persistence/ollama_auto_update",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-04-29",
+    "type": "exploit",
+    "author": [
+      "Bartłomiej Dmitruk",
+      "h00die"
+    ],
+    "description": "Ollama for Windows versions 0.12.10 through 0.22.1 are vulnerable to a\n          path traversal attack (CVE-2026-42249) in the auto-update download mechanism,\n          combined with a completely absent signature verification function\n          (CVE-2026-42248). Payloads are written to the startup folder\n          and executed at next login.",
+    "references": [
+      "CVE-2026-42248",
+      "CVE-2026-42249",
+      "URL-https://www.striga.ai/research/ollama-windows-auto-update-rce",
+      "ATT&CK-T1547.001",
+      "ATT&CK-T1546"
+    ],
+    "platform": "Windows",
+    "arch": "x64, x86",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-06-08 08:39:59 +0000",
+    "path": "/modules/exploits/windows/persistence/ollama_auto_update.rb",
+    "is_install_path": true,
+    "ref_name": "windows/persistence/ollama_auto_update",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ],
+      "Reliability": [
+        "event-dependent",
+        "repeatable-session"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
     ],
     "needs_cleanup": null,
     "actions": []
@@ -208969,7 +210264,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-21 12:21:09 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/registry_userinit.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/registry_userinit",
@@ -209025,7 +210320,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service",
@@ -209082,7 +210377,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/event.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/event",
@@ -209139,7 +210434,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/lock_unlock.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/lock_unlock",
@@ -209196,7 +210491,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/logon.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/logon",
@@ -209252,7 +210547,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-05-25 12:05:13 +0000",
+    "mod_time": "2026-09-29 09:32:06 +0000",
     "path": "/modules/exploits/windows/persistence/service_for_user/schedule.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/service_for_user/schedule",
@@ -209353,7 +210648,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-02-17 16:32:34 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/task_scheduler.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/task_scheduler",
@@ -209503,7 +210798,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-03-31 23:49:08 +0000",
+    "mod_time": "2026-09-20 14:34:58 +0000",
     "path": "/modules/exploits/windows/persistence/userinit_mpr_logon_script.rb",
     "is_install_path": true,
     "ref_name": "windows/persistence/userinit_mpr_logon_script",
@@ -239451,6 +240746,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/ftp/aarch64/exec": {
+    "name": "FTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/ftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/ftp/aarch64/shell/reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/ftp/aarch64/shell_reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/ftp/x64/custom/bind_ipv6_tcp": {
     "name": "FTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/ftp/x64/custom/bind_ipv6_tcp",
@@ -251189,6 +252597,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/http/aarch64/exec": {
+    "name": "HTTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/http/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/http/aarch64/shell/reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/http/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/http/aarch64/shell_reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/http/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/http/x64/custom/bind_ipv6_tcp": {
     "name": "HTTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/http/x64/custom/bind_ipv6_tcp",
@@ -262895,6 +264416,119 @@
     "staged": true,
     "stage_refname": "windows/vncinject",
     "stager_refname": "windows/reverse_winhttp"
+  },
+  "payload_cmd/windows/https/aarch64/exec": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/https/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/https/aarch64/shell/reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/https/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/https/aarch64/shell_reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/https/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
   },
   "payload_cmd/windows/https/x64/custom/bind_ipv6_tcp": {
     "name": "HTTPS Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
@@ -289891,6 +291525,119 @@
     "stage_refname": "windows/x64/vncinject",
     "stager_refname": "windows/x64/reverse_winhttps"
   },
+  "payload_cmd/windows/tftp/aarch64/exec": {
+    "name": "TFTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/tftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/tftp/aarch64/shell/reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/tftp/aarch64/shell_reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/tftp/x64/custom/bind_ipv6_tcp": {
     "name": "TFTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/tftp/x64/custom/bind_ipv6_tcp",
@@ -315939,7 +317686,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-30 17:51:41 +0000",
+    "mod_time": "2026-10-02 16:10:00 +0000",
     "path": "/modules/post/linux/gather/enum_protections.rb",
     "is_install_path": true,
     "ref_name": "linux/gather/enum_protections",
@@ -317078,6 +318825,64 @@
     ],
     "needs_cleanup": null,
     "actions": []
+  },
+  "post_linux/manage/pam_backdoor": {
+    "name": "Linux PAM Backdoor",
+    "fullname": "post/linux/manage/pam_backdoor",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "post",
+    "author": [
+      "h00die"
+    ],
+    "description": "Installs a malicious PAM shared library (.so) on the target that\n          silently accepts a configured master password for ANY local account,\n          including root. Normal passwords continue to work, so the backdoor\n          is transparent. Works with ssh, su, sudo, login, and any other\n          service that routes through PAM.\n\n          On x86_64 targets the pre-compiled binary is patched in-memory and\n          uploaded directly - no compiler needed on the target. On other\n          architectures the module falls back to compiling the .c source on\n          the target (requires gcc).\n\n          The module drops the .so into the system PAM module directory and\n          inserts an \"auth sufficient\" line at the top of the selected PAM\n          config so it is checked before the real authentication stack.\n          Patching common-auth (Debian) or system-auth (RHEL) automatically\n          covers sudo, because those configs are @include'd by /etc/pam.d/sudo.\n\n          Run with ACTION=Cleanup (and identical options) to remove all\n          artifacts.",
+    "references": [
+      "URL-https://github.com/zephrax/linux-pam-backdoor",
+      "URL-https://unit42.paloaltonetworks.com/analysis-of-a-pam-backdoor/",
+      "URL-https://www.cyberark.com/resources/blog/plague-malware-exploits-pluggable-authentication-module-to-breach-linux-systems",
+      "ATT&CK-T1556.003"
+    ],
+    "platform": "Linux",
+    "arch": "",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-02 11:41:43 +0000",
+    "path": "/modules/post/linux/manage/pam_backdoor.rb",
+    "is_install_path": true,
+    "ref_name": "linux/manage/pam_backdoor",
+    "check": false,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes"
+      ],
+      "Reliability": [],
+      "AKA": [
+        "PamDOORa",
+        "Plague"
+      ]
+    },
+    "session_types": [
+      "meterpreter",
+      "shell"
+    ],
+    "needs_cleanup": null,
+    "actions": [
+      {
+        "name": "Cleanup",
+        "description": "Remove the backdoor .so and restore PAM config"
+      },
+      {
+        "name": "Install",
+        "description": "Install PAM backdoor (default)"
+      }
+    ]
   },
   "post_linux/manage/pseudo_shell": {
     "name": "Pseudo-Shell Post-Exploitation Module",
