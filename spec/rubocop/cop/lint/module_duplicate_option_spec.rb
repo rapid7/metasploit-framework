@@ -49,6 +49,38 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
     RUBY
   end
 
+  it 'recognizes namespaced option registrations' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::HttpClient
+
+        def initialize(info = {})
+          super(update_info(info, 'Name' => 'Example'))
+          register_options([
+            Msf::Opt::RPORT(443),
+            ^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+            ::Msf::OptBool.new('SSL', [false, 'Negotiate SSL/TLS for outgoing connections', true])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing SSL option again; set its value in DefaultOptions instead.
+          ])
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::HttpClient
+
+        def initialize(info = {})
+          super(update_info(info, 'DefaultOptions' => {
+                                    'RPORT' => 443,
+                                    'SSL' => true
+                                  },
+                                  'Name' => 'Example'))
+        end
+      end
+    RUBY
+  end
+
   it 'flags an option already registered by the UDP mixin' do
     expect_offense(<<~RUBY)
       class MetasploitModule < Msf::Auxiliary
@@ -345,7 +377,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
           super(update_info(
             info,
             'DefaultOptions' => {
-              'RPORT' => 8080,
+              'RPORT' => 1234,
               'VERBOSE' => true,
               'RHOST' => '192.0.2.1'
             }

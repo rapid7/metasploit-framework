@@ -99,7 +99,7 @@ module RuboCop
         def option_name(node)
           return unless node.send_type?
 
-          if node.receiver&.const_name == 'Opt'
+          if option_receiver_name(node) == 'Opt'
             node.method_name.to_s
           elsif node.method?(:new) && node.first_argument&.str_type?
             node.first_argument.value
@@ -107,7 +107,7 @@ module RuboCop
         end
 
         def description_unchanged?(node, inherited_description)
-          description = if node.receiver&.const_name == 'Opt'
+          description = if option_receiver_name(node) == 'Opt'
                           node.arguments[2]
                         elsif node.method?(:new)
                           node.arguments[1]&.values&.[](1)
@@ -117,7 +117,7 @@ module RuboCop
         end
 
         def option_type(node)
-          node.receiver&.const_name if node.method?(:new)
+          option_receiver_name(node) if node.method?(:new)
         end
 
         def requiredness_changed?(node, inherited_requiredness)
@@ -130,7 +130,7 @@ module RuboCop
         end
 
         def option_requiredness(node)
-          if node.receiver&.const_name == 'Opt'
+          if option_receiver_name(node) == 'Opt'
             node.arguments[1]
           elsif node.method?(:new)
             node.arguments[1]&.values&.[](0)
@@ -165,7 +165,7 @@ module RuboCop
         end
 
         def option_default(node)
-          if node.receiver&.const_name == 'Opt'
+          if option_receiver_name(node) == 'Opt'
             node.first_argument
           elsif node.method?(:new)
             node.arguments[1]&.values&.[](2)
@@ -242,12 +242,7 @@ module RuboCop
           existing = hash.pairs.filter_map { |pair| [pair.key.value, pair] if pair.key.str_type? }.to_h
           missing = []
           defaults.each do |name, value|
-            if existing[name]
-              corrector.replace(existing[name].value, value[:source])
-              corrector.insert_before(existing[name], "#{value[:comment]}\n#{' ' * existing[name].source_range.column}") if value[:comment]
-            else
-              missing << [name, value]
-            end
+            missing << [name, value] unless existing[name]
           end
           return if missing.empty?
 
@@ -288,6 +283,10 @@ module RuboCop
               send_node.source_range.begin_pos < register_node.source_range.begin_pos &&
               send_node.arguments.any? { |argument| argument.str_type? && argument.value == option_name }
           end
+        end
+
+        def option_receiver_name(node)
+          node.receiver&.const_name&.delete_prefix('::')&.delete_prefix('Msf::')
         end
       end
     end
