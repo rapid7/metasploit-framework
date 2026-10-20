@@ -1,5 +1,7 @@
 # AI Agent Instructions for Metasploit Framework
 
+This file defines the shared repository instructions for coding and review agents. Apply [.rubocop.yml](.rubocop.yml) when linting Ruby. CodeRabbit loads this file repository-wide. `CONTRIBUTING.md` is written for human contributors.
+
 ## Project Overview
 
 Metasploit Framework is an open-source penetration testing and exploitation framework written in Ruby. It provides infrastructure for developing, testing, and executing exploit code against remote targets.
@@ -19,193 +21,66 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 ## Coding Conventions
 
-- Ruby (see `.ruby-version` for the current version). Minimum supported: 3.2+
-- Follow the project's `.rubocop.yml` configuration — run `rubocop` on changed files before submitting
-- Run `ruby tools/dev/msftidy.rb <module_file_path>` to catch common module issues
-- `# frozen_string_literal: true` — add to new **library** files (`lib/`); use `String.new` where a mutable string is needed. Do NOT add to module files or spec files (the framework extensively mutates string buffers via instance variables, and the RuboCop cop `Style/FrozenStringLiteralComment` is disabled project-wide). Existing files that already have it are fine to leave
-- No enforced line length limit, but keep code readable
-- Use `%q{}` for long multi-line strings (curly braces preferred for module descriptions)
-- Multiline block comments are acceptable for embedded code snippets/payloads
-- Don't use `get_`/`set_` prefixes for accessor-style methods in new code (Ruby convention: use the attribute name directly, e.g. `def version` not `def get_version`)
-- Method parameter names must be at least 2 characters (exception for well-known crypto abbreviations)
-- Keep method return contracts consistent. A method should return the same type and data shape on every successful path, including cached and uncached paths. Use a documented exception or unambiguous sentinel for failure, and ensure every caller handles it; don't return a `String` on one path and a `Hash` on another
-- Use `String#include?`, `start_with?`, or `end_with?` for literal substring, prefix, and suffix checks. Reserve regular expressions for pattern matching
-- Use a non-capturing regular expression group (`(?:...)`) when the captured result is not consumed
-- Prefer guard clauses and extracted helpers over deeply nested Ruby conditionals. Split combined checks when each failure needs a distinct reason
-- Avoid mutable global and class variables in modules and libraries. Keep cross-callback execution state in instance variables and method-local state in local variables
-- Remove unused variables, options, mixins, methods, unreachable statements, obsolete branches, and debugging remnants. Before removing apparently dead library code, confirm it is not a public API or used by an external consumer
+- Discover the current Ruby version from `.ruby-version` and supported versions from the gemspec.
+- Follow `.rubocop.yml`; lint changed Ruby and run `ruby tools/dev/msftidy.rb <module>` for changed modules. Avoid unrelated style sweeps.
+- Add `# frozen_string_literal: true` to new library files only; use `String.new` for mutable buffers. Do not add it to module/spec files, which mutate buffers extensively. Existing comments may remain; `Style/FrozenStringLiteralComment` is disabled project-wide.
+- Keep lines readable; no line-length limit is enforced. Use `%q{}` for long multiline descriptions; multiline block comments may hold embedded payload/code snippets.
+- Avoid accessor-style `get_`/`set_` names. Parameter names require at least two characters, except established crypto abbreviations.
+- Successful returns must keep one type/shape on cached and uncached paths. Document exceptions or unambiguous failure sentinels and handle them in all callers.
+- Use `include?`, `start_with?`, and `end_with?` for literal string checks; reserve regexes for patterns and use noncapturing `(?:...)` groups when captures are unused.
+- Prefer guards and helpers over deep nesting; separate checks needing distinct failure reasons.
+- Avoid mutable global/class variables. Keep callback state in instance variables and method-local state in locals.
+- Remove unused code/options/mixins, unreachable/obsolete branches, and debugging remnants. Before removing library code, check public API and external consumers.
+- Call `super` from overridden cleanup methods to preserve parent connection/session cleanup.
 
 ## Reuse Before Implementing
 
-Before writing anything from scratch, confirm the functionality doesn't already exist. Work through these options in order and stop at the first one that fits:
+Search before implementing; stop at the first fit:
 
-1. **Reuse Framework code.** Search the code base for an existing library, class, mixin, or helper that already provides the functionality (`lib/msf/`, `lib/rex/`, `lib/metasploit/`, and the existing module mixins). Prefer the framework mixin APIs over hand-rolled equivalents.
-2. **Enhance existing Framework code.** If something close exists but is incomplete, extend the existing library/mixin rather than duplicating it.
-3. **Reuse an existing dependency.** Check whether a gem already listed as a dependency (see `Gemfile` / `metasploit-framework.gemspec`) can do the job.
-4. **Add a new gem.** If no current dependency fits, evaluate whether a new, well-maintained gem covers the requirement.
-5. **Implement it yourself.** Only when nothing above matches. Prefer putting reusable logic in a library under `lib/` (separate from the module code) when it's feasible and makes sense, rather than embedding it directly in a module.
+1. Reuse Framework libraries and mixins in `lib/msf/`, `lib/rex/`, and `lib/metasploit/`.
+2. Extend an existing helper that nearly fits rather than duplicating it.
+3. Reuse a gem already listed in `Gemfile` or `metasploit-framework.gemspec`.
+4. If none fits, explain the gap. Evaluate a well-maintained new gem only when the user requests it; do not add dependencies without direct instruction.
+5. Otherwise implement reusable logic under `lib/` when practical, separate from module code.
 
-This applies to both module and library work. For modules specifically, also check that no existing module or open pull request already covers the same functionality before starting.
-
-Keep shared defaults, ports, addresses, protocol values, and duplicated behavior in one authoritative constant or helper owned by the relevant component. All consumers should reference that source rather than copying values or lookup tables that can drift apart.
+For new modules, also check existing modules and open PRs for duplicate functionality. Keep shared defaults, ports, addresses, protocol values, lookup tables, and duplicated behavior in one component-owned constant/helper used by every consumer.
 
 ## Backward Compatibility
 
-Treat public library methods, module names and options, option aliases, and documented return shapes as compatibility surfaces. Before renaming, removing, or changing them, search the repository and known external consumers. Prefer aliases, compatibility wrappers, module deprecation/replacement metadata, and backward-compatible defaults. When a breaking change is unavoidable, document the impact and migration path explicitly.
+Public library methods, module names/options/aliases, and documented return shapes are compatibility surfaces. Search repository and known external consumers before changes. Prefer aliases, wrappers, module deprecation/replacement metadata, and compatible defaults. Document unavoidable breaking impacts and migration steps.
 
 ## Module Structure Templates
 
 ### Exploit Module Template
 
-New exploit modules should follow this canonical structure and ordering:
-
-```ruby
-##
-# This module requires Metasploit: https://metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-##
-
-class MetasploitModule < Msf::Exploit::Remote
-  Rank = ExcellentRanking
-
-  # 1. Protocol mixins first
-  include Msf::Exploit::Remote::HttpClient
-  # 2. Utility/feature mixins second
-  include Msf::Exploit::FileDropper
-  # 3. Reporting mixins (if needed)
-  # include Msf::Auxiliary::Report
-  # 4. AutoCheck ALWAYS LAST — must be prepend, not include
-  prepend Msf::Exploit::Remote::AutoCheck
-
-  def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'Vendor Product Vulnerability Type',
-        'Description' => %q{
-          Description of the vulnerability and what this module does.
-        },
-        'Author' => [
-          'Discoverer Name', # Vulnerability discovery
-          'Module Author'    # Metasploit module
-        ],
-        'License' => MSF_LICENSE,
-        'References' => [
-          ['CVE', '2024-XXXXX'],
-          ['URL', 'https://example.com/advisory']
-        ],
-        'Targets' => [
-          [
-            'Automatic',
-            {
-              'Platform' => ['linux'], # or 'win', 'osx', 'unix', 'php', 'python', 'java'
-              'Arch' => [ARCH_CMD], # or ARCH_X86, ARCH_X64, ARCH_PHP, ARCH_JAVA, ARCH_PYTHON, ARCH_ARMLE, ARCH_AARCH64, ARCH_MIPSLE — see rex-arch gem for full list
-              'Type' => :cmd # or :dropper, :psh_stager — determines payload delivery
-            }
-          ]
-        ],
-        'DefaultTarget' => 0,
-        'DisclosureDate' => '2024-01-01',
-        'Notes' => {
-          'Stability' => [], # e.g. CRASH_SAFE, CRASH_SERVICE_RESTARTS
-          'SideEffects' => [], # e.g. IOC_IN_LOGS, ARTIFACTS_ON_DISK
-          'Reliability' => [] # e.g. REPEATABLE_SESSION
-        }
-      )
-    )
-  end
-
-  def check
-    # Always return CheckCode with a reason string
-    CheckCode::Safe('Target is not vulnerable')
-  end
-
-  def exploit
-    # Exploitation logic
-  end
-end
-```
+- Start with the standard Metasploit source header, the appropriate `Msf::Exploit::Remote` or `Msf::Exploit::Local` superclass, and an exploit-only `Rank`.
+- Order mixins as specified below, then `initialize(info = {})` calling `super(update_info(info, ...))`, `check` when supported, and `exploit`.
+- Metadata includes `Name` (vendor, product, vulnerability type), ASCII `Description` using `%q{}`, authors with role comments, `MSF_LICENSE`, advisory/CVE references, `Targets`, `DefaultTarget`, `DisclosureDate`, and `Notes`.
+- Each target has a display name and applicable `Platform`, `Arch`, and delivery `Type` (such as `:cmd`, `:dropper`, or `:psh_stager`). `DefaultTarget` indexes that array; an automatic first target uses index `0`.
 
 ### Auxiliary Module Template
 
-Auxiliary modules use `def run` (not `exploit`) and inherit from `Msf::Auxiliary`:
-
-```ruby
-class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Report
-  prepend Msf::Exploit::Remote::AutoCheck
-
-  def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'Vendor Product Scanner/Gatherer',
-        'Description' => %q{
-          Description of what this module discovers or does.
-        },
-        'Author' => ['Author Name'],
-        'License' => MSF_LICENSE,
-        'References' => [['CVE', '2024-XXXXX']],
-        'Notes' => {
-          'Stability' => [], # e.g. CRASH_SAFE
-          'SideEffects' => [], # e.g. IOC_IN_LOGS
-          'Reliability' => [] # e.g. REPEATABLE_SESSION
-        }
-      )
-    )
-
-    register_options([
-      OptString.new('TARGETURI', [true, 'Base path', '/'])
-    ])
-  end
-
-  def check
-    CheckCode::Safe('Target is not affected')
-  end
-
-  def run
-    # Main logic — use report_service, report_vuln, print_good, etc.
-  end
-end
-```
+- Inherit from `Msf::Auxiliary`; use `run` instead of `exploit` and omit `Rank`.
+- Initialize with `super(update_info(info, ...))`; include name, description, author, license, references, and Notes. Register module-specific options after `super`.
+- Include the needed protocol and reporting mixins; prepend AutoCheck last when a check is implemented. Return qualified `Exploit::CheckCode` values with reasons.
+- Report discovered services and vulnerabilities with `report_service` and `report_vuln`.
 
 ### Post Module Template
 
-Post modules inherit from `Msf::Post`, require a session, and declare compatible session types:
+- Inherit from `Msf::Post`; include the needed file and platform/system mixins and implement `run`.
+- Initialize with `super(update_info(info, ...))`; include name, description, author, license, `Platform`, supported `SessionTypes`, and Notes.
+- Access the session through `session`; use APIs such as `create_process`, `file_exist?`, and `read_file`. Declare only session types whose APIs the module handles.
 
-```ruby
-class MetasploitModule < Msf::Post
-  include Msf::Post::File
-  include Msf::Post::Linux::System
+Before creating or reviewing a module, read the relevant source example below and nearby modules using the same protocol, platform, and session APIs:
 
-  def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'Platform Subsystem Gather/Action',
-        'Description' => %q{
-          Description of what this post module does on the target.
-        },
-        'Author' => ['Author Name'],
-        'License' => MSF_LICENSE,
-        'Platform' => ['linux'], # or 'win', 'osx', 'unix', 'bsd', 'solaris'
-        'SessionTypes' => ['meterpreter', 'shell'], # or just ['meterpreter'] if shell won't work
-        'Notes' => {
-          'Stability' => [], # e.g. CRASH_SAFE
-          'SideEffects' => [], # e.g. ARTIFACTS_ON_DISK, CONFIG_CHANGES
-          'Reliability' => []
-        }
-      )
-    )
-  end
+| Category | Existing source examples |
+|---|---|
+| Remote exploit | [TCP](modules/exploits/example.rb), [web application](modules/exploits/example_webapp.rb) |
+| Local exploit | [Linux privilege escalation](modules/exploits/example_linux_priv_esc.rb) |
+| Auxiliary | [Actions and custom commands](modules/auxiliary/example.rb), [UDP scanner](modules/auxiliary/scanner/udp/example.rb) |
+| Post | [Cross-platform environment gathering](modules/post/multi/gather/env.rb) |
 
-  def run
-    # Use create_process, file_exist?, read_file, etc.
-    # Access session via `session` method
-  end
-end
-```
+For other module types, inspect an existing module in the matching subtree and its generator template. Use the module generator for new source and documentation skeletons; its maintained category templates live in [lib/tasks/templates](lib/tasks/templates). Examples illustrate structure and APIs, but may contain intentional stubs or legacy patterns. Follow the current rules in this file; do not copy placeholder metadata, legacy APIs, or simulated check results into a real module.
 
 ### Notes Hash Reference
 
@@ -235,7 +110,7 @@ The same `Stability`, `SideEffects`, and `Reliability` constants apply uniformly
 
 ### Metadata Source Reference
 
-The inline comments in the templates above list common values but are **not exhaustive**. Consult these source files for the full set:
+Metadata examples are not exhaustive. Consult these source files for the full set:
 
 | Field | Source File | Details |
 |-------|------------|-------|
@@ -261,25 +136,20 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 
 ### Metadata and Structure
 
-- Use `bundle exec rake 'msf:generate[TYPE,PATH]'` to scaffold new modules with correct structure and documentation (e.g., `rake 'msf:generate[exploit,linux/http/my_vuln,linux,x64]'`). Set `MSF_MOD_AUTHOR` and `MSF_MOD_CVE` environment variables for metadata. Use `MSF_DRY_RUN=1` to preview output without writing files. Run `bundle exec rake msf:generate:types` to list available module types.
-- After scaffolding or completing a module, verify no placeholder comments remain (`TODO:`, `PLACEHOLDER:`, empty arrays in Notes, placeholder description text). All generated `TODO:` and `PLACEHOLDER:` markers must be resolved before submitting.
-- Prefer writing modules in Ruby. Go and Python modules are accepted, but their external runtimes don't support the full framework API (e.g. network pivoting). Ruby modules do not have this limitation
-- Prefer using hash over an array for return values, and use kwargs for reusable APIs for future extensions
-- Before writing a new module, check that there is not an existing module or open pull request that already covers the same functionality
-- Each module should be in its own file under the appropriate `modules/` subdirectory. In some scenarios adding module actions or targets is preferred
-- Exploits require a `DisclosureDate` field
-- Exploits, auxiliary, and post modules require `Notes` with `Stability`, `SideEffects`, and `Reliability`
-- License new code with `MSF_LICENSE` (the project default, defined in `lib/msf/core/constants.rb`)
-- Define `Rank` only on exploit modules. Rank describes exploit reliability; auxiliary, post, login-scanner, and other non-exploit modules must not declare it
-- Credit everyone listed in the module's `Author` field with an inline comment describing their contribution, such as `# Metasploit module`, `# Vulnerability discovery`, `# Vulnerability research`, or `# PoC`. Distinguish implementation from discovery rather than implying that every listed author performed the same role
-- Include authoritative security advisory and public PoC URLs that informed the module implementation in `References`
-- Determine the affected and fixed version ranges when possible, and keep them consistent across the module description, version-specific targets, `check` logic, and module documentation. Account for products that publish different fixed builds for separate release branches
-- Module descriptions should only use ASCII characters
-- New modules require an associated markdown file in the `documentation/modules` folder with the same structure, including steps to set up the vulnerable environment for testing. If a Dockerfile or docker-compose file is used for the test environment, include the setup commands in the markdown rather than committing separate Docker files. The Scenarios section must be filled out by a human at all times. Follow `documentation/modules/module_doc_template.md` as a template
-- Document only module-specific options under `###` headings. Write `No specific options` when the module has no specialist options to document
-- Keep console output in `Scenarios` synchronized with the current module behavior. Use `run verbose=true` when the verbose trace helps operators reproduce or diagnose execution
-- Add a nearby comment for non-obvious application-specific constants, salts, offsets, fixed names or paths, double encoding, compatibility workarounds, and intentional hardcoding. Explain why the value or workaround is required and link to its source when available; don't merely restate obvious code
-- If there's only one `ACTION` in the exploit, it can likely be omitted
+- Scaffold modules and documentation with `bundle exec rake 'msf:generate[TYPE,PATH]'`, e.g. `rake 'msf:generate[exploit,linux/http/my_vuln,linux,x64]'`. Set `MSF_MOD_AUTHOR`/`MSF_MOD_CVE`; use `MSF_DRY_RUN=1` to preview and `bundle exec rake msf:generate:types` to list types.
+- Resolve generated `TODO:`, `PLACEHOLDER:`, stub descriptions/methods, and empty Notes arrays before submitting.
+- Prefer Ruby; Go/Python modules' external runtimes lack parts of the Framework API, including pivoting.
+- Prefer hashes over arrays for return values and kwargs for extensible reusable APIs.
+- Use one file per module in the appropriate `modules/` subtree; actions/targets may be preferable to separate modules.
+- Exploits require `DisclosureDate` and an exploit-only `Rank`; auxiliary, post, login-scanner, and other non-exploit modules must not declare Rank.
+- Exploit/auxiliary/post modules require Stability, SideEffects, and Reliability Notes. License new code with `MSF_LICENSE`, defined in `lib/msf/core/constants.rb`.
+- Give every Author an inline role comment distinguishing discovery, research, PoC, and module implementation. Reference authoritative advisories and public PoCs that informed implementation.
+- Determine affected and fixed releases, including separate branch fixes; keep description, targets, check logic, and docs consistent. Descriptions must be ASCII.
+- New modules require matching Markdown under `documentation/modules` using `documentation/modules/module_doc_template.md`, with reproducible vulnerable-target setup. Put Docker/Compose lab commands in Markdown rather than separate Docker files. Scenarios must be filled by a human.
+- Module documentation must include `Vulnerable Application` (affected/fixed versions and setup), `Verification Steps` (numbered steps with expected outcomes), and `Scenarios` (human-written real console output). Do not invent scenario results.
+- Document only specialist options under `###`; write `No specific options` when none apply. Keep scenario output current; use `run verbose=true` when useful for diagnosis/reproduction.
+- Explain nonobvious constants, salts, offsets, fixed names/paths, double encoding, hardcoding, and compatibility workarounds nearby; include sources when available.
+- A lone ACTION can usually be omitted.
 
 ### Payloads and Targets
 
@@ -300,12 +170,11 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 
 ### File and Network Operations
 
-- When overriding `cleanup`, always call `super` to ensure the parent mixin chain cleans up connections and sessions properly
-- When a module creates files or directories on the target, include `Msf::Exploit::FileDropper` and call `register_file_for_cleanup` or `register_dir_for_cleanup` after each artifact has been created successfully. Let the mixin perform session cleanup instead of duplicating it manually unless the target requires special removal logic
-- For non-file state, or when cleanup must work even if no session opens, implement a guarded `cleanup` method and retain only the state needed for removal in instance variables. Prefer removal through the target API or vulnerability when that is more reliable than session cleanup. Report cleanup failures and continue the cleanup chain; don't call `fail_with` from `cleanup`
-- When opening a file, make sure the file exists first
-- When you deliberately print a host and port (e.g. a callback address or a secondary host), format it with `#{Rex::Socket.to_authority(ip, port)}` rather than `#{ip}:#{port}`, which doesn't handle IPv6 addresses. This is about correctly formatting a host you intentionally include — it is separate from the Console Output rule against prefixing every message with the target host:port
-- Use the TEST-NET-1 range for example / non-routeable IP addresses in unit tests and spec files: `192.0.2.0`. Local/private IPs are fine in module documentation scenarios
+- For created target artifacts, include FileDropper and register each successfully created file/directory with `register_file_for_cleanup`/`register_dir_for_cleanup`. Let it handle session cleanup unless the target needs special removal.
+- For non-file state or cleanup without a session, keep minimal instance state and use guarded cleanup, preferably through the target API/vulnerability. Report cleanup/disconnect errors at suitable verbosity, continue the chain, and never `fail_with` in cleanup.
+- Check that a file exists before opening it.
+- Format intentionally printed hosts/ports with `Rex::Socket.to_authority(ip, port)` for IPv6. This is separate from avoiding duplicate target prefixes supplied by mixins.
+- Use TEST-NET-1 (`192.0.2.0/24`) for example addresses in specs; private/local IPs are acceptable in documentation lab scenarios.
 
 ### Output and Reporting
 
@@ -327,9 +196,9 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - Use `create_process(executable, args: [], time_out: 15, opts: {})` instead of the deprecated `cmd_exec` with separate arguments
 - Use `Msf::OptionalSession` for modules that work both with and without an existing session (e.g. local exploits that can also run standalone)
 - Use the module mixin APIs — don't reinvent the wheel (see the Reuse Before Implementing section)
-- Declare only session types the module actually supports, and test every declared `SessionTypes` value. Meterpreter, command shell, and PowerShell sessions expose different APIs, quoting behavior, and output; payload compatibility alone does not prove post-module compatibility
-- Test every target, action, supported platform, payload delivery family, and optional authentication mode that reaches a distinct Ruby execution path
-- Run state-changing modules at least twice against the same target to verify that per-run state resets and cleanup permit a second execution
+- Declare only session types the module actually supports. When functional testing is requested, cover each declared `SessionTypes` value. Meterpreter, command shell, and PowerShell sessions expose different APIs, quoting behavior, and output; payload compatibility alone does not prove post-module compatibility
+- When functional testing is requested, cover distinct execution paths across targets, actions, platforms, payload delivery families, and authentication modes
+- When state-changing functional testing is authorized, verify that per-run state resets and cleanup permit a second execution
 
 ### Internationalization Considerations
 
@@ -338,21 +207,14 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 
 ## Check Methods
 
-- `check` methods must only return `CheckCode` values (e.g. `CheckCode::Vulnerable`, `CheckCode::Safe`) — never raise exceptions or call `fail_with`
-- When writing a `check` method, verify it does not produce false positives when run against unrelated software or services
-- Prefer using `Rex::Version` for version checks
-- Use `fail_with(Failure::UnexpectedReply, '...')` (and other `Failure::*` constants) to bail out of `exploit`/`run` methods — don't use `raise` or bare `return` for error conditions
-- Any method that returns, gathers, or compares version numbers of a type supported by REX version (`Rex::Version`) must use a REX version
-- `CheckCode::Vulnerable` is only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output or evidence of a sleep for the required time from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability.
-- `CheckCode::Appears` is only used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnerable.
-- Always provide a human-readable reason string when returning a CheckCode, e.g. `CheckCode::Safe("Target is running patched version #{version}")` — never return a bare constant or empty call
-- Use specific regular expressions or `res.get_html_document` for version extraction with CSS selectors. Don't use generic selectors like `href .*` to grab the version — be more precise
-- Catch exceptions that may be raised and ensure a valid CheckCode is returned
-- Research and determine a minimum version where the application is vulnerable; mark prior versions as safe
-- Check helper methods used by both `#check` and `#exploit` (or `#run`) — ensure there is no condition (exception, return, etc.) where `#check` could return something other than a CheckCode
-- Share stable discovery and authentication used by both `#check` and `#exploit` (or `#run`) through one helper. Cache the result within the module instance when this prevents duplicate target operations
-- Keep `#exploit` and `#run` functional when AutoCheck is disabled. Populate required state without assuming that `#check` already ran
-- Prefer `prepend Msf::Exploit::Remote::AutoCheck` over manually calling `check` inside `exploit` (see the Mixin Ordering section)
+- Return only reason-bearing CheckCode values from `check`; never raise or call `fail_with`. Handle expected exceptions and ensure shared helpers cannot bypass that contract.
+- Avoid false positives on unrelated products/services. Extract versions with precise regexes or HTML CSS selectors, not generic matches such as `href .*`.
+- Use `Rex::Version` whenever gathering, returning, or comparing a supported version format. Research the minimum vulnerable release and mark earlier versions Safe; account for fixed release branches.
+- `CheckCode::Vulnerable` requires hard evidence from using the bug, such as command output, a timed sleep, or reading a file. Do not prove it through denial of service. Passive version/banner/resource detection supports `CheckCode::Appears`.
+- Every result needs a human-readable reason, e.g. `CheckCode::Safe("Target is running patched version #{version}")`; no bare constants or empty calls.
+- Share stable discovery/authentication between check and run/exploit; cache per instance when it avoids duplicate target operations.
+- Initialize state needed by run/exploit even with AutoCheck disabled; never assume check already ran.
+- Prefer `prepend Msf::Exploit::Remote::AutoCheck` over manually invoking check; follow the Mixin Ordering rules.
 
 ## Library Code
 
@@ -360,7 +222,7 @@ When writing or modifying code in `lib/`:
 
 ### Error Handling
 - Use specific error classes (`Rex::RuntimeError`, `Rex::ConnectionError`, `ArgumentError`, `Rex::TimeoutError`) — never `raise "bare string"` which makes targeted rescue impossible
-- Use `rescue StandardError => e` or a more specific class — never bare `rescue` (it discards the exception object, making debugging impossible) and never `rescue Exception` (it catches `SignalException` and `SystemExit`, hiding Ctrl-C and kill signals)
+- Use `rescue StandardError => e` or a more specific class so the handled exception and its context are explicit. Bare `rescue` also catches `StandardError`; avoid it here for clarity. Do not rescue `Exception`, which also catches signals and exits.
 - Propagate errors with context: `raise Rex::ConnectionError, "Failed to connect to #{host}: #{e.message}"`
 
 ### Documentation and Style
@@ -369,7 +231,7 @@ When writing or modifying code in `lib/`:
 - Note: new library files also need `# frozen_string_literal: true`, and the no-`get_`/`set_` accessor convention applies here too (see Coding Conventions)
 
 ### Quality
-- Write RSpec tests for any library changes (see the Testing section)
+- Write focused RSpec tests for library behavior changes (see the Testing section)
 - Follow [Better Specs](https://www.betterspecs.org/) conventions
 - Keep PRs focused — small fixes are easier to review
 - Any new hash cracking implementations require adding a test hash to `tools/dev/hash_cracker_validator.rb` and ensuring that passes without error
@@ -379,16 +241,23 @@ When writing or modifying code in `lib/`:
 - Tests live in `spec/` mirroring the `lib/` structure
 - Run a single spec file: `bundle exec rspec spec/path/to/spec.rb`
 - Run a single example by line: `bundle exec rspec spec/path/to/spec.rb:42`
-- Run the full suite: `bundle exec rake spec` (slow — prefer targeted runs during development)
-- Module functional tests live under `spec/modules/` and test end-to-end behavior
-- Always run specs relevant to your change before submitting
+- Run the full suite only when explicitly requested: `bundle exec rake spec`
+- Module functional tests live under `spec/modules/` and test end-to-end behavior, including `check` and `exploit`/`run` methods
+- Require and run relevant specs for library behavior changes. Verify other changes with proportionate syntax, lint, output, or behavior checks; CI and build changes do not require automated tests unless requested. Do not require module or application tests unless requested.
+- Use `described_class`, `let`/`let!` for setup, and `before` for side effects where consistent with the existing suite. Keep examples focused, deterministic, and example-based; avoid randomized/property-based loops.
+- Prefer one expectation per example when practical.
+- Use explicit test data and TEST-NET-1 (`192.0.2.0/24`) for example addresses. Existing Faker usage for account data must not make an example nondeterministic.
+- When an example specifically needs generated random data, use `Rex::Text.rand_text_alphanumeric` for strings and `Faker` for usernames/accounts; keep the example deterministic.
+- Cover changed public inputs/outputs, error contracts, parsing (including round-trip encode/decode), and version boundaries when relevant.
+- Derive output expectations from real captures rather than assumptions. Prefer stable structural/anchored matches and include meaningful negative cases.
+- Report checks actually run, results, and limitations; distinguish pre-existing failures.
 
 ## Preferred Libraries
 
-- Use the `RubySMB` library for SMB modules
+- Use the `RubySMB` library for SMB operations
 - Use `Rex::Stopwatch.elapsed_time` to track elapsed time
 - Use the `Rex::MIME::Message` class for MIME messages instead of hardcoding XML
-- When creating random variable names prefer `Rex::RandomIdentifier::Generator` and specify the runtime language used. This avoids generating language keywords that would break the script
+- Use `Rex::RandomIdentifier::Generator` with the target runtime language for identifiers embedded in generated code.
 - Use `Msf::Exploit::SQLi` when exploiting SQL injection vulnerabilities
 
 ## Common Patterns
@@ -415,12 +284,10 @@ register_advanced_options([
 
 ### Console Output
 
-- Use `print_status`, `print_good`, `print_error`, `print_warning` for console output
-- Use `vprint_*` variants for verbose-only output (shown when user sets `VERBOSE true`)
-- Use `vprint_*` for routine per-target or per-credential attempts, expected negative results, and diagnostic details. Reserve normal errors and warnings for conditions the operator should act on
-- Do not prefix messages with `#{peer}`, `#{rhost}:#{rport}`, or `#{Rex::Socket.to_authority(rhost, rport)}` when the `Tcp` mixin or a scanner mixin is included — those mixins override `print_prefix` to auto-prepend host:port, so a manual prefix is redundant
-- Note: `Msf::Exploit::Remote::HttpClient` does NOT include `Tcp` and does not auto-prepend host:port on its own. In an `HttpClient`-only module, `print_prefix` resolves to `Msf::Module::UI::Message#print_prefix` (timestamp/module-name only, both off by default), so a manual `#{peer}`/`#{rhost}:#{rport}` prefix is NOT redundant there. Many modules still omit it for consistency, but it is not a correctness issue.
-
+- Use `print_status`, `print_good`, `print_error`, and `print_warning`; start messages with a capital letter.
+- Use `vprint_*` (enabled with `VERBOSE true`) for routine target/credential attempts, expected negatives, and diagnostics. Reserve normal errors/warnings for actionable conditions.
+- Tcp and scanner mixins prepend host:port through `print_prefix`; do not duplicate `#{peer}`, `#{rhost}:#{rport}`, or authority strings in messages. `Lint/RedundantPeerInPrint` is syntactic and may false-positive on HttpClient-only modules.
+- HttpClient alone does not include Tcp or add target host:port. Its default `Msf::Module::UI::Message#print_prefix` contains only optional timestamp/module name. A manual target prefix there is not redundant, though many modules omit it for consistency; inspect the actual mixin chain.
 
 ### HTTP Response Handling
 
@@ -450,52 +317,52 @@ version = html.at_css('meta[name="version"]')&.[]('content')
 
 ### Network Operations
 
-- Use `send_request_cgi` for HTTP requests in modules
-- Use `connect` / `disconnect` for TCP socket operations
+- Use `send_request_cgi` for HTTP requests and `connect` / `disconnect` for TCP socket operations
 - Use the `srvhost` method to access the server host — don't use `datastore['SRVHOST']` directly (enforced by `Lint/DatastoreSrvhostUsage` cop)
 - For eventually consistent operations, use `Msf::Exploit::Retry.retry_until_truthy` or the appropriate bounded polling helper with incremental backoff. Avoid unconditional sleeps and hand-written attempt loops so fast targets continue immediately while slow targets retain sufficient time
 
 ## Legacy Patterns (Migration Guidance)
 
-These patterns exist in older code but should not be used in new modules or library code. When touching existing code that uses these patterns, prefer modernizing it:
+Modernize these patterns when touching existing code; the detailed API rules above still apply:
 
-| Legacy Pattern | Modern Replacement | Notes |
-|---------------|-------------------|-------|
-| `print_status("#{peer} - message")` | `print_status("message")` | When the `Tcp` mixin or a scanner mixin is included, `print_prefix` auto-prepends host:port; also applies to `#{rhost}:#{rport}`, `#{ip}:#{rport}`, `#{Rex::Socket.to_authority(...)}` at message start. Enforced by `Lint/RedundantPeerInPrint` cop. NOTE: the cop is syntactic and does not inspect the mixin chain, so it may false-positive on `HttpClient`-only modules, which do not auto-prepend host:port |
-| `HttpFingerprint = { :pattern => [...] }` | Implement a `check` method + `prepend AutoCheck` | HttpFingerprint is a passive fingerprinting mechanism that predates the check API |
-| `cmd_exec("command #{user_input}")` or `cmd_exec(cmd, args_string, timeout)` | `create_process("command", args: [user_input], time_out: timeout)` | String interpolation in `cmd_exec` is a command injection risk; `create_process` separates the executable from its arguments by design. The multi-arg `cmd_exec` form is also flagged by the `Lint/DetectOutdatedCmdExecApi` cop |
-| `DefaultOptions => { 'PAYLOAD' => '...' }` | Remove — let the framework choose automatically | Only acceptable when the module genuinely only works with a single specific payload |
-| `include Msf::Exploit::Remote::AutoCheck` | `prepend Msf::Exploit::Remote::AutoCheck` | Include raises NotImplementedError; prepend is required |
-| Bare `rescue` in library code | `rescue StandardError => e` | Bare rescue discards the exception object; `rescue Exception` is worse — it catches signals/exits |
-| `raise "error message"` in library code | `raise Rex::RuntimeError, "message"` | Specific classes enable targeted error handling |
-| Manual `check` call inside `exploit` | `prepend AutoCheck` + separate `check` method | Let the framework handle check-before-exploit |
+| Legacy pattern | Replacement |
+|---|---|
+| Manual target prefix with a Tcp/scanner mixin | Let `print_prefix` supply it; account for the HttpClient-only exception |
+| `HttpFingerprint = { :pattern => [...] }` | Check method plus prepended AutoCheck |
+| `cmd_exec("command #{input}")` or `cmd_exec(cmd, args_string, timeout)` | `create_process(cmd, args: [input], time_out: timeout)`; separate arguments to avoid injection; `Lint/DetectOutdatedCmdExecApi` flags the old multi-argument API |
+| DefaultOptions `PAYLOAD` | Automatic payload selection, except genuinely single-payload modules |
+| Included AutoCheck or manual check in exploit | Prepend AutoCheck; include raises `NotImplementedError` |
+| Bare rescue or string raise in libraries | Explicit expected rescue class/context and a specific exception class |
 
 ### Modernizing Existing Modules
 
-When updating an existing module, the lowest-effort improvement is adding AutoCheck:
+For an existing module with check, adding `prepend Msf::Exploit::Remote::AutoCheck` after the includes enables automatic check-before-exploit. It aborts on a nonvulnerable target unless the operator uses `set ForceExploit true`.
 
-```ruby
-# If the module already has a `def check` method, just add this line
-# after the other includes:
-prepend Msf::Exploit::Remote::AutoCheck
-```
+## Code Review Rules
 
-This single addition gives users the ability to verify vulnerability before exploitation, with automatic abort if the target is not vulnerable (overridable with `set ForceExploit true`).
+- Review the full PR description and available linked issues, module documentation, and review discussion alongside the diff. Prioritize correctness, security, regressions, compatibility, and reproducible validation of changed behavior.
+- Ground each finding in a concrete trigger, affected code, and observable consequence. Distinguish verified behavior from inference; do not flag unrelated pre-existing issues or speculative style preferences.
+- Request missing setup/reproduction details when needed: OS and exact target versions, required configuration, lab authentication, and steps showing the original failure for reproducible bug fixes.
+- Request missing concrete verification commands/actions, expected observable outcomes, actual results/evidence, or applicable untested limits. For module behavior changes, look for supported check output and run/exploit output. Empty template text, placeholder tasks, generic "tested/works" claims, and generated bot summaries do not establish validation. Explain exactly what is missing and why it matters; do not invent results.
+- Accept information already supplied through links or discussion. Do not flag missing headings, checkbox formatting, or unchecked boxes alone. If required linked evidence is inaccessible, explain that limitation instead of claiming the information is absent. Consolidate related PR-information gaps into one actionable request and avoid duplicating existing feedback.
+- Keep requests proportional to the change: inspection or preview can validate typo/comment/docs changes. Do not demand a runtime lab for these changes or automated tests for non-library changes; follow the Testing section for library behavior changes.
 
 ## Before Submitting
 
-- Work on a topic branch — don't commit directly to `master`
-- Follow the [50/72 rule](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for Git commit messages (50 char subject, 72 char body wrap)
-- Ensure `rubocop` and `msftidy` pass on any changed files with no new offenses
-- Ensure `ruby tools/dev/msftidy_docs.rb <documentation_file>` passes on any changed documentation markdown docs with no new offenses
-- Include console output (especially `msfconsole` demonstrations) in your pull request when the changes have observable effects
-- Include verification steps so reviewers can test your changes
-- Reference associated issues in your pull request description (e.g., `See #1234`)
+- Keep each PR to one module, bug fix, or cohesive change. Describe what/why, related issues, breaking impacts/migration, useful reviewer pointers, and deferred scope.
+- Include applicable setup/recreation steps, tested OS, exact target versions, configuration/lab authentication, and Docker/Vagrant details. Existing issue or module-doc links may supply setup instructions.
+- Supply reproducible verification steps/commands, expected observable outcomes, actual results (sanitized console output, screenshots, recording or CI links), and untested limits. Cover relevant success/failure cases; scale checks to typo/comment/docs changes. Do not invent results or human-only Scenarios.
+- For new modules, show supported check output and successful execution/exploitation in a controlled lab. Specialized hardware or complex/licensed/multi-service/multi-version environments need sanitized pcap/video/recording evidence; explain unavailable targets. The project accepts demos at `msfdev@metasploit.com`; remove real IPs, credentials, and hostnames. Sending mail requires user authorization.
+- Disclose AI tools and their role when preparing a PR; write "None" if unused. Mark unfinished work draft/WIP. Missing descriptions, actionable verification, or evidence cause closure; generic "verify it works" steps are insufficient.
+- Check GitHub Actions after submission, inspect failed jobs, and resolve failures relevant to the change. Report actual checks/results and remaining limits.
+- After approximately two weeks without a contributor response/code update to a review request, maintainers may finish the PR and retain contributor co-author credit.
+- Perform Git mutations only when requested; use a topic branch and requested base, never commit directly to master. Use 50-character commit subjects and wrap bodies at 72 characters.
+- Run rubocop and msftidy on changed Ruby/modules, and `ruby tools/dev/msftidy_docs.rb <file>` on changed module docs; resolve new offenses. Include msfconsole demonstrations for observable changes.
 
 ## What NOT to Do
 
-- Don't submit untested code — all code must be manually verified
-- Don't include sensitive information (IPs, credentials, API keys, hashes of credentials) in code or docs
+- Verify changed code with proportionate syntax, lint, output, or behavior checks. Automated test requirements follow the [Testing](#testing) section.
+- Don't include sensitive information (IPs, credentials, API keys, hashes of credentials) in code or docs; local/private IPs are acceptable in documentation lab scenarios
 - Don't include more than one module per pull request
 - Don't add new scripts to `scripts/` — use post modules instead
 - Don't use `pack`/`unpack` with invalid directives (enforced by linter)
