@@ -33071,6 +33071,57 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/apache_solr_version": {
+    "name": "Apache Solr Version Scanner",
+    "fullname": "auxiliary/scanner/http/apache_solr_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for Apache Solr instances and fingerprints the\n          running version. It reads the /admin/info/system handler (JSON)\n          beneath the configured TARGETURI (/solr by default, Solr's built-in\n          hostContext) and extracts the solr-spec-version field. When the\n          handler is protected by basic authentication the module retries with\n          the configured credentials, which default to the secure-by-default\n          solr:SolrRocks account introduced in Solr 9.8.0, reporting when they\n          are accepted. If the handler stays unreadable the module falls back\n          to the admin UI pages, whose asset URLs leak the running version\n          even before authentication. The result is recorded as service\n          evidence for the host.\n\n          Tested against 8.1.1-10.0.0 on major and minor versions.",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8983,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-11 18:41:51 +0000",
+    "path": "/modules/auxiliary/scanner/http/apache_solr_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/apache_solr_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/apache_userdir_enum": {
     "name": "Apache \"mod_userdir\" User Enumeration",
     "fullname": "auxiliary/scanner/http/apache_userdir_enum",
