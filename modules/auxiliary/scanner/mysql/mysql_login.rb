@@ -64,6 +64,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Use the standard verbose error helper instead of AuthBrute's
+  # target-formatting wrapper, since the TCP mixin already adds the target.
+  def vprint_error(msg = '')
+    print_error(msg) if datastore['VERBOSE'] || (!framework.nil? && framework.datastore['VERBOSE'])
+  end
+
   def target
     [rhost, rport].join(":")
   end

@@ -37,6 +37,28 @@ RSpec.describe 'MySQL Login Scanner' do
     allow(mod).to receive(:create_session?).and_return(false)
   end
 
+  describe '#vprint_error' do
+    it 'prints exactly one target prefix when verbose error output is enabled' do
+      message = 'Unsupported target version of MySQL detected. Skipping.'
+      output = double('output', prompting?: false)
+      allow(mod).to receive(:user_output).and_return(output)
+
+      expect(output).to receive(:print_error)
+        .with("#{host}:#{port}        - #{message}")
+
+      mod.vprint_error(message)
+    end
+
+    it 'suppresses output when module and framework verbosity are disabled' do
+      mod.datastore['VERBOSE'] = false
+      allow(mod.framework.datastore).to receive(:[]).and_call_original
+      allow(mod.framework.datastore).to receive(:[]).with('VERBOSE').and_return(false)
+
+      expect(mod).not_to receive(:print_error)
+      mod.vprint_error('Unsupported target version of MySQL detected. Skipping.')
+    end
+  end
+
   describe '#mysql_version_check' do
     it 'does not manually include the target prefix when version checking raises an error' do
       allow(mod).to receive(:mysql_version_check).and_call_original
