@@ -118,20 +118,17 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
     RUBY
   end
 
-  it 'flags an inherited option when its required value changes but its description does not' do
-    expect_offense(<<~RUBY)
+  it 'does not flag an inherited option when only its required value changes' do
+    expect_no_offenses(<<~RUBY)
       class MetasploitModule < Msf::Auxiliary
         include Msf::Exploit::Remote::Tcp
 
         def initialize(info = {})
           super
           register_options([OptPort.new('RPORT', [false, 'The target port', 4840])])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change whether the pre-existing RPORT option is required without deregistering it first.
         end
       end
     RUBY
-
-    expect_no_corrections
   end
 
   it 'flags an inherited option when its type and description change without autocorrecting it' do
@@ -164,20 +161,50 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
     RUBY
   end
 
-  it 'flags an Opt helper call that changes requiredness without autocorrecting it' do
-    expect_offense(<<~RUBY)
+  it 'does not flag an Opt helper call that changes requiredness' do
+    expect_no_offenses(<<~RUBY)
       class MetasploitModule < Msf::Auxiliary
         include Msf::Exploit::Remote::Tcp
 
         def initialize(info = {})
           super
           register_options([Opt::RPORT(4840, false, 'The application port')])
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not change whether the pre-existing RPORT option is required without deregistering it first.
+        end
+      end
+    RUBY
+  end
+
+  it 'autocorrects a default-only redefinition while retaining a requiredness change' do
+    expect_offense(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::HttpClient
+
+        def initialize(info = {})
+          super(update_info(info, 'Name' => 'Example'))
+          register_options([
+            Opt::RPORT(443),
+            ^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
+            OptBool.new('SSL', [true, 'Use SSL', true])
+          ])
         end
       end
     RUBY
 
-    expect_no_corrections
+    expect_correction(<<~RUBY)
+      class MetasploitModule < Msf::Auxiliary
+        include Msf::Exploit::Remote::HttpClient
+
+        def initialize(info = {})
+          super(update_info(info, 'DefaultOptions' => {
+                                    'RPORT' => 443
+                                  },
+                                  'Name' => 'Example'))
+          register_options([
+            OptBool.new('SSL', [true, 'Use SSL', true])
+          ])
+        end
+      end
+    RUBY
   end
 
   it 'does not flag new options' do
@@ -303,7 +330,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
           register_options([
             Opt::RPORT(8080),
             ^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RPORT option again; set its value in DefaultOptions instead.
-            Opt::RHOST('127.0.0.1')
+            Opt::RHOST('192.0.2.1')
             ^^^^^^^^^^^^^^^^^^^^^^^ Lint/ModuleDuplicateOption: Do not register the pre-existing RHOST option again; set its value in DefaultOptions instead.
           ])
         end
@@ -320,7 +347,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDuplicateOption do
             'DefaultOptions' => {
               'RPORT' => 8080,
               'VERBOSE' => true,
-              'RHOST' => '127.0.0.1'
+              'RHOST' => '192.0.2.1'
             }
           ))
         end

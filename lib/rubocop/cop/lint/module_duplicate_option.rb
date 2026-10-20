@@ -4,8 +4,8 @@ module RuboCop
   module Cop
     module Lint
       # Detects options registered by a mixin that are registered again without
-      # providing a more specific description. Use DefaultOptions to change only
-      # the value of an inherited option.
+      # changing their description or requiredness. Use DefaultOptions to change
+      # only the value of an inherited option.
       #
       # @example
       #   # bad
@@ -46,7 +46,6 @@ module RuboCop
         }.freeze
 
         MSG = 'Do not register the pre-existing %<option>s option again; set its value in DefaultOptions instead.'
-        REQUIREDNESS_MSG = 'Do not change whether the pre-existing %<option>s option is required without deregistering it first.'
         TYPE_MSG = 'Do not change the type of the pre-existing %<option>s option from %<expected>s to %<actual>s.'
 
         def on_class(class_node)
@@ -62,24 +61,18 @@ module RuboCop
 
               type_changed = type_changed?(option_node, inherited_options[option_name][:type])
               requiredness_changed = requiredness_changed?(option_node, inherited_options[option_name][:required])
-              next unless type_changed || requiredness_changed || description_unchanged?(option_node, inherited_options[option_name][:description])
+              next unless type_changed || (!requiredness_changed && description_unchanged?(option_node, inherited_options[option_name][:description]))
               next if deregistered_before?(class_node, register_node, option_name)
 
-              [option_node, option_name, inherited_options[option_name], type_changed, requiredness_changed]
+              [option_node, option_name, inherited_options[option_name], type_changed]
             end
           end
 
-          correctable_offenses = offenses.reject { |_option_node, _option_name, _option, type_changed, requiredness_changed| type_changed || requiredness_changed }
-          offenses.each do |option_node, option_name, option, type_changed, requiredness_changed|
-            message = if type_changed
-                        format(TYPE_MSG, option: option_name, expected: option[:type], actual: option_type(option_node))
-                      elsif requiredness_changed
-                        format(REQUIREDNESS_MSG, option: option_name)
-                      else
-                        format(MSG, option: option_name)
-                      end
+          correctable_offenses = offenses.reject(&:last)
+          offenses.each do |option_node, option_name, option, type_changed|
+            message = type_changed ? format(TYPE_MSG, option: option_name, expected: option[:type], actual: option_type(option_node)) : format(MSG, option: option_name)
             add_offense(option_node, message: message) do |corrector|
-              autocorrect(corrector, class_node, correctable_offenses) if !type_changed && !requiredness_changed && option_node == correctable_offenses.first&.first
+              autocorrect(corrector, class_node, correctable_offenses) if !type_changed && option_node == correctable_offenses.first&.first
             end
           end
         end
