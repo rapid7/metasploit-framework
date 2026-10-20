@@ -9,16 +9,22 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
     )
   end
 
-  # Linux TFTP fetches always store the payload under its served URI. Since
-  # LinuxOptions may register destination options after this mixin initializes,
-  # remove them after each batch of options is registered.
+  # Native Linux TFTP fetches always store the payload under its served URI,
+  # while curl's tftp:// support can use the configured destination. Since
+  # LinuxOptions registers destination options after this mixin initializes,
+  # update their display conditions after each batch of options is registered.
   #
   # @param registered_options [Array<Msf::OptBase>] Options to register.
   # @param owner [Class] Class that owns the options.
   # @return [void]
   def register_options(registered_options, owner = self.class)
-    super
-    deregister_options('FETCH_FILENAME', 'FETCH_WRITABLE_DIR') if linux?
+    result = super
+    if linux?
+      %w[FETCH_FILENAME FETCH_WRITABLE_DIR].each do |option_name|
+        options[option_name]&.conditions = ['FETCH_COMMAND', '==', 'CURL']
+      end
+    end
+    result
   end
   protected :register_options
 

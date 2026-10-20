@@ -42,6 +42,7 @@ RSpec.describe 'modules/payloads/singles/linux/loongarch64/shell_reverse_tcp' do
 
     it 'resolves a hostname to an IPv4 callback address' do
       subject.datastore['LHOST'] = 'callback.example'
+      allow(Rex::Socket).to receive(:getaddress).and_call_original
       allow(Rex::Socket).to receive(:getaddress).with('callback.example', false).and_return('192.0.2.128')
 
       words = subject.generate.unpack('V*')

