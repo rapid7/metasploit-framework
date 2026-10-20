@@ -51,6 +51,7 @@ module MetasploitModule
     lhost = datastore['LHOST'] || '127.127.127.127'
     lport = datastore['LPORT'].to_i
 
+    lhost = Rex::Socket.getaddress(lhost, false).to_s
     raise ArgumentError, 'LHOST must be in IPv4 format.' unless Rex::Socket.is_ipv4?(lhost)
 
     encoded_host = Rex::Socket.addr_aton(lhost).unpack1('V')
