@@ -97,7 +97,6 @@ msf auxiliary(scanner/http/apache_solr_version) > run
 
 ```
 msf > use auxiliary/scanner/http/apache_solr_version 
-[*] Using configured payload cmd/linux/http/x64/meterpreter/reverse_tcp
 msf auxiliary(scanner/http/apache_solr_version) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 msf auxiliary(scanner/http/apache_solr_version) > run
