@@ -117186,6 +117186,63 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_10134": {
+    "name": "Langflow AI Public Flow Build Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_10134",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.9.3 are susceptible to unauthenticated remote code\n          execution due to improper handling of a public flow's `tool_code` field and a lack\n          of required authentication for the `/api/v1/build_public_tmp/<flow_id>/flow` endpoint.\n\n          If a target instance exposes a public flow and its UUID, an unauthenticated remote attacker\n          can supply malicious code payloads via parameters like tool_code targeting paths under\n          /api/v1/ without needing any valid credentials. If no flow UUIDs are exposed, an authenticated\n          attacker can create one in order to exploit this vulnerability.\n\n          Arbitrary code is executed under the context of the Langflow backend process.",
+    "references": [
+      "CVE-2026-10134",
+      "URL-https://www.ibm.com/support/pages/security-bulletin-unauthenticated-server-side-rce-pythoncodestructuredtool-public-flows"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-06 08:15:48 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_10134.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_10134",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_unauth_rce_cve_2026_33017": {
     "name": "Langflow Unauth RCE",
     "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_33017",
