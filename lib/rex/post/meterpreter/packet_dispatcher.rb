@@ -796,6 +796,7 @@ module HttpPacketDispatcher
     else
       resp.body = ""
       body = req.body
+      cli.send_response(resp)
       if body && body.length > 0
         body = self.unwrap_packet(body) if self.respond_to?(:unwrap_packet)
         packet = Packet.new(0)
@@ -804,7 +805,6 @@ module HttpPacketDispatcher
         packet = decrypt_inbound_packet(packet)
         dispatch_inbound_packet(packet)
       end
-      cli.send_response(resp)
     end
 
     rescue ::Exception => e

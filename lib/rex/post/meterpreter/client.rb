@@ -568,14 +568,14 @@ class Client
     return false unless @async_lease_enabled
     return true unless @async_lease_deadline
 
-    active = Process.clock_gettime(Process::CLOCK_MONOTONIC) < @async_lease_deadline
+    active = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) < @async_lease_deadline
     self.async_lease_enabled = false unless active
     active
   end
 
   def async_lease_renewed(ttl)
     self.async_lease_enabled = true
-    @async_lease_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + ttl
+    @async_lease_deadline = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) + ttl
   end
 
   def async_lease_enabled=(enabled)
