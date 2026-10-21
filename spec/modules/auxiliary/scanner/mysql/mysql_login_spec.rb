@@ -71,6 +71,37 @@ RSpec.describe 'MySQL Login Scanner' do
     end
   end
 
+  describe 'unhandled login scanner errors' do
+    it 'prints the target prefix exactly once in the warning' do
+      output = double('output', prompting?: false)
+      allow(mod).to receive(:user_output).and_return(output)
+
+      allow(Metasploit::Framework::LoginScanner::MySQL)
+        .to receive(:new).and_call_original
+
+      scanner = Metasploit::Framework::LoginScanner::MySQL.new(
+        framework: mod.framework,
+        framework_module: mod,
+        host: host,
+        port: port,
+        cred_details: [credential],
+        connection_timeout: 1,
+        stop_on_success: false
+      )
+
+      allow(scanner).to receive(:attempt_login)
+        .and_raise(RuntimeError, 'unexpected scanner failure')
+
+      expect(output).to receive(:print_warning) do |message|
+        expect(message.scan(/#{Regexp.escape("#{host}:#{port}")}/).length).to eq(1)
+        expect(message).to include('Unhandled error')
+        expect(message).to include('unexpected scanner failure')
+      end
+
+      scanner.scan!
+    end
+  end
+
   describe '#run_host' do
     context 'when authentication succeeds' do
       let(:result) do
