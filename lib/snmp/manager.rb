@@ -8,6 +8,7 @@
 #
 
 require 'snmp/pdu'
+require 'snmp/usm'
 require 'snmp/mib'
 require 'socket'
 require 'timeout'
@@ -59,7 +60,7 @@ class RexUDPTransport
 
     def send(data, host, port, flags = 0)
         begin
-            @socket.sendto(data, host, port, flags)
+            @socket.send(data, flags, host, port)
         rescue NoMethodError
             @socket.send(data, 0, host, port)
         rescue ::Errno::EISCONN
@@ -162,6 +163,13 @@ class Manager
         :Community => 'public',
         :WriteCommunity => nil,
         :Version => :SNMPv2c,
+        :Username => '',
+        :SecurityLevel => 'authPriv',
+        :AuthProtocol => 'SHA256',
+        :AuthPassword => '',
+        :PrivProtocol => 'AES',
+        :PrivPassword => '',
+        :ContextName => '',
         :Timeout => 1,
         :Retries => 5,
         :Transport => UDPTransport,
@@ -194,6 +202,14 @@ class Manager
         @community = @config[:Community]
         @write_community = @config[:WriteCommunity]
         @snmp_version = @config[:Version]
+        @usm = UserBasedSecurityModel.new(
+            username: @config[:Username],
+            security_level: @config[:SecurityLevel],
+            auth_protocol: @config[:AuthProtocol],
+            auth_password: @config[:AuthPassword],
+            priv_protocol: @config[:PrivProtocol],
+            priv_password: @config[:PrivPassword],
+            context_name: @config[:ContextName]) if @snmp_version == :SNMPv3
         @timeout = @config[:Timeout]
         @retries = @config[:Retries]
         @transport = @config[:Transport].new(@socket)
@@ -494,6 +510,8 @@ class Manager
     end
 
     def try_request(request, community=@community, host=@host, port=@port)
+        return try_v3_request(request, host, port) if @snmp_version == :SNMPv3
+
         (@retries.to_i + 1).times do |n|
             send_request(request, community, host, port)
             begin
@@ -524,6 +542,75 @@ class Manager
             response = message.pdu
         end until request.request_id == response.request_id
         response
+    end
+
+    def try_v3_request(request, host, port)
+        discover_v3_engine(host, port) unless @usm.engine_known?
+
+        attempts = @retries.to_i + 1
+        resynchronized = false
+        while attempts > 0
+            message_id = @@request_id.next
+            packet = @usm.request_message(request, message_id, @max_bytes)
+            @transport.send(packet, host, port)
+            begin
+                message = Timeout.timeout(@timeout) do
+                    receive_v3_message(request, message_id)
+                end
+            rescue Timeout::Error
+                attempts -= 1
+                next
+            end
+
+            if message.report?
+                if !resynchronized && @usm.resynchronization_report?(message.pdu)
+                    @usm.forget_engine
+                    discover_v3_engine(host, port)
+                    resynchronized = true
+                    next
+                end
+                raise SecurityError, "SNMPv3 report: #{@usm.report_description(message.pdu)}"
+            end
+
+            return message.pdu
+        end
+        raise RequestTimeout, "host #{@config[:Host]} not responding", caller
+    end
+
+    def discover_v3_engine(host, port)
+        discovery_request = GetRequest.new(@@request_id.next, VarBindList.new([]))
+        (@retries.to_i + 1).times do
+            message_id = @@request_id.next
+            @transport.send(@usm.discovery_message(discovery_request, message_id, @max_bytes), host, port)
+            begin
+                Timeout.timeout(@timeout) do
+                    loop do
+                        packet = @transport.recv(@max_bytes)
+                        message = @usm.process_discovery_response(
+                            packet,
+                            expected_message_id: message_id,
+                            expected_request_id: discovery_request.request_id
+                        )
+                        next unless message
+
+                        return
+                    end
+                end
+            rescue Timeout::Error
+                # no action - try again
+            end
+        end
+        raise RequestTimeout, "host #{@config[:Host]} not responding to SNMPv3 discovery", caller
+    end
+
+    def receive_v3_message(request, message_id)
+        loop do
+            packet = @transport.recv(@max_bytes)
+            message = @usm.process_response(packet)
+            next unless message.message_id == message_id && message.pdu.request_id == request.request_id
+
+            return message
+        end
     end
 end
 
