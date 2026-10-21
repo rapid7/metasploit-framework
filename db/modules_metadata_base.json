@@ -95270,7 +95270,7 @@
     "actions": []
   },
   "exploit_linux/local/dirtyclone_cve_2026_43503": {
-    "name": "Sample Linux Priv Esc",
+    "name": "Linux Kernel DirtyClone Local Privilege Escalation",
     "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
     "aliases": [],
     "rank": 300,
@@ -95281,7 +95281,7 @@
       "Or Peles",
       "msutovsky-r7"
     ],
-    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "description": "This module exploits CVE-2026-43503 (DirtyClone), a Linux kernel\n          local privilege escalation vulnerability. Refer to the module's\n          references for vulnerability details and affected configurations.",
     "references": [
       "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
       "CVE-2026-43503"
@@ -95294,7 +95294,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-09-09 14:35:45 +0000",
+    "mod_time": "2026-10-09 06:46:35 +0000",
     "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
     "is_install_path": true,
     "ref_name": "linux/local/dirtyclone_cve_2026_43503",
