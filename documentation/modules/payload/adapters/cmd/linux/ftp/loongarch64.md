@@ -10,8 +10,8 @@ Linux LoongArch64 system with FTP or TNFTP installed.
 1. Start `./msfconsole` and select `use exploit/multi/handler`.
 1. Set `PAYLOAD` to `cmd/linux/ftp/loongarch64/shell_reverse_tcp`.
 1. Set `LHOST`, `LPORT`, `FETCH_COMMAND` to `FTP` or `TNFTP`, and `VERBOSE` to `true`.
-1. Run the handler and execute the printed fetch command on the test host.
-1. In the resulting shell, run `id` and `uname -a`.
+1. Run the handler and execute the printed fetch command on the test host; the handler should open a command-shell session.
+1. In the resulting shell, run `id` and `uname -a`; verify that they report the test host's identity and LoongArch64 architecture.
 
 ## Options
 

@@ -19,14 +19,28 @@ RSpec.describe Msf::Payload::Adapter::Fetch::Fileless do
       expect(syscall_numbers).to eq([279, 46, 172, 129])
     end
 
-    it 'loads an aligned 64-bit destination and jumps through it' do
+    def generated_jump(injection_address)
       fragment = harness._generate_jmp_instruction('loongarch64')
-      encoded = IO.popen(['sh', '-c', "vdso_addr=0x123456789abc; echo #{fragment}"], &:read).strip
-      instructions = [encoded].pack('H*')
+      encoded = IO.popen(['sh', '-c', "addr=#{injection_address}; vdso_addr=0x123456789abc; echo #{fragment}"], &:read).strip
+      [encoded].pack('H*')
+    end
+
+    it 'loads an aligned 64-bit destination when the injection address is 8-byte aligned' do
+      injection_address = 0x1000
+      instructions = generated_jump(injection_address)
       expect(instructions.bytesize).to eq(24)
+      expect((injection_address + 16) % 8).to eq(0)
       expect(instructions[16, 8].unpack1('Q<')).to eq(0x123456789abc)
-      # PCADDI establishes a PC-relative base; LD.D reads the aligned literal.
       expect(instructions[0, 16].unpack('V*')).to eq([0x1800000c, 0x28c0418c, 0x4c000180, 0x03400000])
+    end
+
+    it 'loads an aligned 64-bit destination when the injection address is 4 mod 8' do
+      injection_address = 0x1004
+      instructions = generated_jump(injection_address)
+      expect(instructions.bytesize).to eq(28)
+      expect((injection_address + 20) % 8).to eq(0)
+      expect(instructions[20, 8].unpack1('Q<')).to eq(0x123456789abc)
+      expect(instructions[0, 20].unpack('V*')).to eq([0x03400000, 0x1800000c, 0x28c0418c, 0x4c000180, 0x03400000])
     end
   end
 

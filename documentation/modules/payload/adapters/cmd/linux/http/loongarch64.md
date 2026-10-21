@@ -12,8 +12,8 @@ on a Linux LoongArch64 system with the selected download utility installed.
 1. Set `PAYLOAD` to `cmd/linux/http/loongarch64/shell_reverse_tcp`.
 1. Set `LHOST` to the listener address and `LPORT` to the callback port.
 1. Set `FETCH_COMMAND` to `WGET`, `FETCH_FILELESS` to `shell`, and `VERBOSE` to `true`.
-1. Run the handler and execute the printed fetch command on the test host.
-1. In the resulting shell, run `id` and `uname -a`.
+1. Run the handler and execute the printed fetch command on the test host; the handler should open a command-shell session.
+1. In the resulting shell, run `id` and `uname -a`; verify that they report the test host's identity and LoongArch64 architecture.
 
 ## Options
 
