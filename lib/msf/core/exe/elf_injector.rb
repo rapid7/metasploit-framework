@@ -7,7 +7,13 @@ require 'stringio'
 
 module Msf
   module Exe
-    # Injects a forked payload into an ELF code cave or a reusable program header.
+    # Injects a forked payload into an ELF executable while preserving its original entry point.
+    #
+    # Code-cave injection extends the file and memory sizes of an executable PT_LOAD into zero-filled,
+    # unallocated padding. The existing segment becomes writable because injected payloads may need
+    # writable memory. If no suitable cave exists, a PT_NULL or an unprotected PT_NOTE is replaced by
+    # a new RWX PT_LOAD. Segment and section handling follows the System V ABI program-loading rules:
+    # https://refspecs.linuxfoundation.org/elf/gabi4+/ch5.pheader.html
     class ElfInjector
       ET_EXEC = ELFTools::Constants::ET::ET_EXEC
       ET_DYN = ELFTools::Constants::ET::ET_DYN
@@ -39,6 +45,11 @@ module Msf
 
       EXPECTED_SECTION_HEADER_SIZES = {
         32 => 40,
+        64 => 64
+      }.freeze
+
+      EXPECTED_HEADER_SIZES = {
+        32 => 52,
         64 => 64
       }.freeze
 
@@ -142,6 +153,7 @@ module Msf
 
         @type = header.e_type.to_i
         raise ArgumentError, 'ELF must be ET_EXEC or ET_DYN' unless [ET_EXEC, ET_DYN].include?(@type)
+        raise ArgumentError, 'ELF has an invalid header size' unless header.e_ehsize.to_i == EXPECTED_HEADER_SIZES[@bits]
 
         @word_size = @bits / 8
         @entrypoint_offset = header.offset + header.e_entry.abs_offset
@@ -273,18 +285,18 @@ module Msf
 
       def memory_code_cave_capacity(segment, address)
         return 0 if load_segments.any? do |header|
-          !header.equal?(segment) && header[:virtual_address] < address && header[:virtual_address] + header[:memory_size] > address
+          !header.equal?(segment) && header[:virtual_address] <= address && header[:virtual_address] + header[:memory_size] > address
         end
         return 0 if @nobits_section_ranges.any? { |range_start, range_end| range_start <= address && range_end > address }
 
-        nobits_boundary = @nobits_section_ranges.filter_map { |range_start, _range_end| range_start if range_start >= address }.min
+        boundaries = @nobits_section_ranges.filter_map { |range_start, _range_end| range_start if range_start >= address }
+        boundaries.concat(load_segments.filter_map do |header|
+          header[:virtual_address] if !header.equal?(segment) && header[:virtual_address] >= address
+        end)
 
         mapped_capacity = segment[:virtual_address] + segment[:memory_size] - address
-        return [mapped_capacity, nobits_boundary - address].min if mapped_capacity.positive? && nobits_boundary
-        return mapped_capacity if mapped_capacity.positive?
-
-        boundary = load_segments.filter_map { |header| header[:virtual_address] if header[:virtual_address] > address }.min
-        boundary = [boundary, nobits_boundary].compact.min
+        boundaries << address + mapped_capacity if mapped_capacity.positive?
+        boundary = boundaries.min
         boundary ? boundary - address : 0
       end
 
@@ -308,7 +320,8 @@ module Msf
       end
 
       def segment_alignment
-        alignment = [0x1000, *load_segments.map { |segment| segment[:alignment] }].max
+        minimum_alignment = architecture == :aarch64 ? 0x10000 : 0x1000
+        alignment = [minimum_alignment, *load_segments.map { |segment| segment[:alignment] }].max
         unless alignment.positive? && (alignment & (alignment - 1)).zero? && alignment <= MAX_ALIGNMENT
           raise ArgumentError, 'ELF segment alignment is unsupported'
         end

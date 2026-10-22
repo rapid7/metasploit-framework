@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
+require 'msf/core/assembly/a_arch64'
+
 module Msf
   module Exe
     class ElfInjector
       # Builds an AArch64 trampoline that clones before running the payload.
+      #
+      # Metasm 1.0.6 cannot parse all instructions used here as AArch64 assembly text. The shared
+      # encoder therefore selects opcodes and populates internal fields that may change in future
+      # Metasm releases.
       class AArch64
         # @param entrypoint [Integer] Original ELF entry point.
         # @param injected_address [Integer] Virtual address of the injected segment.
@@ -17,21 +23,23 @@ module Msf
           save = save_registers
           restore = restore_registers
           clone = [
-            instruction('mov', rt: 0, i16_5: 17),
-            instruction('mov', rt: 1, i16_5: 0),
-            instruction('mov', rt: 2, i16_5: 0),
-            instruction('mov', rt: 3, i16_5: 0),
-            instruction('mov', rt: 4, i16_5: 0),
-            instruction('mov', rt: 8, i16_5: 220),
-            instruction('svc', i16_5: 0)
+            Msf::Assembly::AArch64.instruction('mov', rt: 0, i16_5: 17), # mov x0, #0x11 (SIGCHLD)
+            Msf::Assembly::AArch64.instruction('mov', rt: 1, i16_5: 0),  # mov x1, #0 (child_stack)
+            Msf::Assembly::AArch64.instruction('mov', rt: 2, i16_5: 0),  # mov x2, #0 (parent_tid)
+            Msf::Assembly::AArch64.instruction('mov', rt: 3, i16_5: 0),  # mov x3, #0 (child_tid)
+            Msf::Assembly::AArch64.instruction('mov', rt: 4, i16_5: 0),  # mov x4, #0 (tls)
+            Msf::Assembly::AArch64.instruction('mov', rt: 8, i16_5: 220), # mov x8, #220 (clone)
+            Msf::Assembly::AArch64.instruction('svc', i16_5: 0) # svc #0
           ]
 
           prefix_size = save.bytesize + clone.sum(&:bytesize) + 4
           parent_branch_address = @injected_address + prefix_size + restore.bytesize
-          parent = restore + branch_instruction('b', parent_branch_address, @entrypoint, bits: 26, field: :i26_0)
+          # restore; b entrypoint
+          parent = restore + Msf::Assembly::AArch64.branch('b', instruction_address: parent_branch_address, destination: @entrypoint, bits: 26, field: :i26_0)
           child_address = @injected_address + prefix_size + parent.bytesize
           clone_branch_address = @injected_address + save.bytesize + clone.sum(&:bytesize)
-          clone << branch_instruction('cbz', clone_branch_address, child_address, bits: 19, field: :i19_5, rt: 0)
+          # cbz x0, child
+          clone << Msf::Assembly::AArch64.branch('cbz', instruction_address: clone_branch_address, destination: child_address, rt: 0)
 
           save + clone.join + parent + restore
         end
@@ -39,10 +47,13 @@ module Msf
         private
 
         def save_registers
-          instructions = [instruction('sub', rt: 31, rn: 31, i12_10_s1: 256)]
+          # sub sp, sp, #0x100
+          instructions = [Msf::Assembly::AArch64.instruction('sub', rt: 31, rn: 31, i12_10_s1: 256)]
           (0..28).step(2) do |register|
+            # stp xN, xN+1, [sp, #offset]
             instructions << stack_pair('stp', register, register + 1, register * 8)
           end
+          # stp x30, xzr, [sp, #0xf0]
           instructions << stack_pair('stp', 30, 31, 240)
           instructions.join
         end
@@ -50,44 +61,18 @@ module Msf
         def restore_registers
           instructions = []
           (0..28).step(2) do |register|
+            # ldp xN, xN+1, [sp, #offset]
             instructions << stack_pair('ldp', register, register + 1, register * 8)
           end
+          # ldp x30, xzr, [sp, #0xf0]
           instructions << stack_pair('ldp', 30, 31, 240)
-          instructions << instruction('add', rt: 31, rn: 31, i12_10_s1: 256)
+          # add sp, sp, #0x100
+          instructions << Msf::Assembly::AArch64.instruction('add', rt: 31, rn: 31, i12_10_s1: 256)
           instructions.join
         end
 
         def stack_pair(name, first_register, second_register, offset)
-          instruction(name, rt: first_register, rt2: second_register, m_rn_s7: ((offset / 8) << 10) | 31)
-        end
-
-        def branch_instruction(name, instruction_address, destination, bits:, field:, **fields)
-          displacement = destination - instruction_address
-          raise RangeError, 'AArch64 branch destination is not instruction-aligned' unless (displacement % 4).zero?
-
-          immediate = displacement / 4
-          minimum = -(1 << (bits - 1))
-          maximum = (1 << (bits - 1)) - 1
-          raise RangeError, 'ELF entry point is too far from the injected segment' unless immediate.between?(minimum, maximum)
-
-          instruction(name, **fields.merge(field => immediate))
-        end
-
-        def instruction(name, **fields)
-          opcode = processor.opcode_list_byname.fetch(name).find do |candidate|
-            candidate.args == fields.keys && !candidate.props[:r_32] && !candidate.props[:mem_incr]
-          end
-          raise Metasm::EncodeError, "Unsupported AArch64 instruction: #{name}" unless opcode
-
-          word = fields.reduce(opcode.bin) do |encoded, (field, value)|
-            mask, shift = opcode.fields.fetch(field)
-            encoded | ((value & mask) << shift)
-          end
-          [word].pack('V')
-        end
-
-        def processor
-          @processor ||= Metasm::ARM64.new
+          Msf::Assembly::AArch64.instruction(name, rt: first_register, rt2: second_register, m_rn_s7: ((offset / 8) << 10) | 31)
         end
       end
     end
