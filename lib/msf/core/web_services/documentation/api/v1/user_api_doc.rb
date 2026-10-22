@@ -41,7 +41,7 @@ module Msf::WebServices::Documentation::Api::V1::UserApiDoc
     property :phone, type: :string, description: PHONE_DESC, example: PHONE_EXAMPLE
     property :company, type: :string, description: COMPANY_DESC, example: COMPANY_EXAMPLE
     property :prefs, type: :string, description: PREFS_DESC, example: PREFS_EXAMPLE
-    property :admin, type: :string, description: ADMIN_DESC, example: ADMIN_EXAMPLE
+    property :admin, type: :boolean, description: ADMIN_DESC, example: ADMIN_EXAMPLE
   end
 
   swagger_path '/api/v1/users' do
@@ -95,6 +95,7 @@ module Msf::WebServices::Documentation::Api::V1::UserApiDoc
           property :phone, type: :string, description: PHONE_DESC, example: PHONE_EXAMPLE
           property :company, type: :string, description: COMPANY_DESC, example: COMPANY_EXAMPLE
           property :prefs, type: :string, description: PREFS_DESC, example: PREFS_EXAMPLE
+          property :admin, type: :boolean, description: ADMIN_DESC, example: ADMIN_EXAMPLE
         end
       end
 
