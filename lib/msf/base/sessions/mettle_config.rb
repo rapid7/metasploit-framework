@@ -95,30 +95,33 @@ module Msf
         end
 
         opts[:uuid] ||= generate_payload_uuid
-        
-        if opts[:override_uri]
-          opts[:uri] = opts[:override_uri]
-        else
-          case opts[:scheme]
-          when 'http'
-            opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
-          when 'https'
-            opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
-          when 'tcp'
-            opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
+
+        unless opts[:inherited_transport]
+          if opts[:override_uri]
+            opts[:uri] = opts[:override_uri]
           else
-            raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
+            case opts[:scheme]
+            when 'http'
+              opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
+            when 'https'
+              opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
+            when 'tcp'
+              opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
+            else
+              opts[:uri] = nil
+            end
           end
         end
 
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
-        guid = "\x00" * 16
-        unless opts[:stageless] == true
-          guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
-        end
+        guid = opts[:session_guid]
+        guid ||= if opts[:stageless] == true
+                   "\x00" * 16
+                 else
+                   [SecureRandom.uuid.gsub('-', '')].pack('H*')
+                 end
         opts[:session_guid] = Base64.encode64(guid).strip
-
-        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name, :background, :config_block)
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name, :background).compact
       end
 
       # Stage encoding is not safe for Mettle (doesn't apply to stageless)

