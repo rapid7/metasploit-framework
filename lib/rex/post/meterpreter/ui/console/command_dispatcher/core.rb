@@ -1205,7 +1205,13 @@ class Console::CommandDispatcher::Core
         print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
-      
+
+      command_collisions = CommandMapper.get_commands(md).values & client.micro_commands
+      unless command_collisions.empty?
+        print_error("Cannot load #{md}: command IDs already provided by microextensions: #{micro_command_names(command_collisions)}")
+        next
+      end
+
       if extensions.include?('stdapi') && md.starts_with?('stdapi_')
         print_error("Full extension of stdapi has already been loaded.")
         next
@@ -1218,9 +1224,9 @@ class Console::CommandDispatcher::Core
         next
       end
 
-      client_load = (md == 'stdapi_audio' && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
-                    (md == 'stdapi_sys'   && loaded_stdapi_namespaces.select {|e| ['stdapi_webcam', 'stdapi_ui'].include?(e)}.any?)
-                    (md == 'stdapi_webcam' && loaded_stdapi_namespaces.select {|e| ['stdapi_ui'].include?(e)}.any?)
+      client_load = (md == 'stdapi_audio' && loaded_stdapi_namespaces.select { |e| ['stdapi_webcam', 'stdapi_ui'].include?(e) }.any?) ||
+                    (md == 'stdapi_sys' && loaded_stdapi_namespaces.select { |e| ['stdapi_webcam', 'stdapi_ui'].include?(e) }.any?) ||
+                    (md == 'stdapi_webcam' && loaded_stdapi_namespaces.select { |e| ['stdapi_ui'].include?(e) }.any?)
 
       print("Loading extension #{md}...")
 
@@ -1454,6 +1460,7 @@ class Console::CommandDispatcher::Core
       print_good("Loaded #{object[:name]} as #{result[:handle]}: #{micro_extension_features(result)}")
     end
 
+    micro_refresh_commands
     loaded.each { |entry| micro_load_client_helper(entry) if entry[:helper] }
 
     loaded.reject { |entry| entry[:adapter].nil? }.group_by { |entry| entry[:adapter] }.each do |adapter, entries|
@@ -1816,13 +1823,13 @@ class Console::CommandDispatcher::Core
     duplicate_command = ui_commands.find { |command| @micro_manifest_commands.key?(command[:name]) }
     raise Rex::RuntimeError, "YAML UI command #{duplicate_command[:name]} is already loaded" if duplicate_command
 
-    micro_refresh_commands
     if adapter
       raise Rex::RuntimeError, "Client adapter #{adapter} is already active" if extensions.include?(adapter) || @micro_dispatchers.key?(adapter)
 
       client.add_extension(adapter, [])
       dispatchers = []
-      unless exposed_commands.empty?
+      requested_commands = (exposed_commands + hidden_commands).uniq
+      unless requested_commands.empty?
         previous_dispatchers = shell.dispatcher_stack.dup
         dispatcher = add_extension_client(adapter)
         raise Rex::RuntimeError, "Failed to initialize #{adapter}" unless dispatcher

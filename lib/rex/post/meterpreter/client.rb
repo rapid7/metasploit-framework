@@ -149,11 +149,13 @@ class Client
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
     self.ext_aliases  = ObjectAliases.new
+    @extension_client_aliases = {}
     self.alive        = true
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
     self.micro_commands = []
+    self.micro_channels = []
     self.last_checkin = ::Time.now
 
     self.conn_id      = opts[:conn_id]
@@ -360,10 +362,13 @@ class Client
       self.class.set_ext_hash(name.downcase, klass)
     end
 
+    client_aliases_before = self.ext_aliases.aliases.keys
+
     # Create a new instance of the extension
     inst = klass.new(self)
 
     self.ext.aliases[inst.name] = inst
+    @extension_client_aliases[inst.name] = self.ext_aliases.aliases.keys - client_aliases_before
 
     return true
   end
@@ -373,6 +378,9 @@ class Client
   #
   def deregister_extension(name)
     self.ext.aliases.delete(name)
+    (@extension_client_aliases.delete(name) || []).each do |client_alias|
+      deregister_extension_alias(client_alias)
+    end
   end
 
   #
