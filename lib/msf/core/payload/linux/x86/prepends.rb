@@ -89,8 +89,7 @@ module Msf::Payload::Linux::X86::Prepends
         int 0x80
         xor eax, eax
         push eax
-        sub esp, 2
-        mov word [esp], 0x2e2e
+        db 0x66, 0x68, 0x2e, 0x2e ; push word 0x2e2e (not supported by Metasm 1.0.6)
         mov ebx, esp
         push 0x3d
         pop ecx
