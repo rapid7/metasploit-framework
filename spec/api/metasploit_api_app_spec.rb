@@ -9,8 +9,6 @@ RSpec.describe Msf::WebServices::MetasploitApiApp do
 
   before(:example) do
     header 'Content-Type', 'application/json'
-    # Create a user so authentication is enforced (auth_initialized = true).
-    # Without this, the API auto-succeeds auth for all requests.
     Mdm::User.where(username: 'test_user').first_or_create!(
       crypted_password: BCrypt::Password.create('test_password'),
       admin: false
@@ -39,38 +37,43 @@ RSpec.describe Msf::WebServices::MetasploitApiApp do
     end
   end
 
-  describe 'initial account bootstrap' do
-    # msfdb creates the first web service user by POSTing to /api/v1/users before any
-    # credentials exist, so the API must allow unauthenticated access while no users are
-    # present. Regression test for that flow.
-    # rubocop:disable Style/ClassVars -- the app memoises this in a class variable,
-    # so the test has to reach for it directly to exercise the uninitialized state.
+  describe 'when no users exist' do
+    # msfdb creates the first web service user directly in the database before the service
+    # starts, so no request may create an account unauthenticated - even with an empty users
+    # table, which is otherwise a window for anyone who can reach the service first.
     before do
       Mdm::User.delete_all
-      # The app latches this on for the lifetime of the process, so reset it here.
-      described_class.class_variable_set(:@@auth_initialized, false)
     end
 
-    after do
-      described_class.class_variable_set(:@@auth_initialized, false)
-    end
-    # rubocop:enable Style/ClassVars
-
-    it 'allows the initial user account to be created unauthenticated' do
+    it 'does not allow a user account to be created unauthenticated' do
       post '/api/v1/users', { username: 'bootstrap_user', password: 'bootstrap_password' }.to_json,
            { 'CONTENT_TYPE' => 'application/json' }
-      expect(last_response.status).not_to eq(401)
+      expect(last_response.status).to eq(401)
     end
 
-    # The exemption exists only so that msfdb can create the first account. Anything else
-    # must still be authenticated, otherwise an unexpectedly empty users table - a restored
-    # blank database, a failover onto a fresh instance - exposes the whole API.
-    it 'still requires authentication for other endpoints while no users exist' do
+    context 'when a client tries to create an admin with a token of its choosing' do
+      before do
+        post '/api/v1/users',
+             { username: 'attacker', password: 'Pw123456!', admin: true, persistence_token: 'attacker_token' }.to_json,
+             { 'CONTENT_TYPE' => 'application/json' }
+      end
+
+      it 'does not create the account' do
+        expect(Mdm::User.where(username: 'attacker')).not_to exist
+      end
+
+      it 'does not accept the chosen token' do
+        get '/api/v1/users', {}, { 'HTTP_AUTHORIZATION' => 'Bearer attacker_token' }
+        expect(last_response.status).to eq(401)
+      end
+    end
+
+    it 'requires authentication for other endpoints' do
       get '/api/v1/hosts'
       expect(last_response.status).to eq(401)
     end
 
-    it 'still requires authentication to list users while no users exist' do
+    it 'requires authentication to list users' do
       get '/api/v1/users'
       expect(last_response.status).to eq(401)
     end
