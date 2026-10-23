@@ -2,7 +2,12 @@ name: Shared Meterpreter Acceptance
 on:
   workflow_call:
     inputs:
-      # Defaults set as '' will use the current branch as their commit
+      metasploit_framework_repository:
+        description: "metasploit-framework repository to test"
+        default: 'rapid7/metasploit-framework'
+        required: false
+        type: string
+      # Empty commit inputs use the corresponding repository's default branch.
       metasploit_framework_commit:
         description: "metasploit-framework commit to build with"
         default: ''
@@ -41,6 +46,8 @@ jobs:
     name: Build Meterpreter Gem (optional)
     runs-on: ubuntu-latest
     if: ${{ inputs.build_metasploit_payloads }}
+    outputs:
+      metasploit_payloads_commit: ${{ steps.payloads_revision.outputs.commit }}
 
     steps:
       - name: Checkout metasploit-payloads
@@ -50,11 +57,16 @@ jobs:
           path: metasploit-payloads
           ref: ${{ inputs.metasploit_payloads_commit }}
 
-      - name: Build Meterpreter payloads
+      - name: Record metasploit-payloads revision
+        id: payloads_revision
+        working-directory: metasploit-payloads
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build Java, PHP and Python payloads
         run: |
-          mkdir $(pwd)/meterpreter-artifacts
-          docker run --rm -w $(pwd) -v $(pwd):$(pwd) rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/gem && rake create_dir && rake win_copy && rake php_prep && rake java_prep && rake python_prep && rake create_manifest && rake build"
-          cp $(pwd)/metasploit-payloads/gem/pkg/metasploit-payloads-* $(pwd)/meterpreter-artifacts
+          mkdir "$(pwd)/meterpreter-artifacts"
+          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/gem && rake create_dir && rake php_prep && rake java_prep && rake python_prep && rake create_manifest && rake build"
+          cp "$(pwd)"/metasploit-payloads/gem/pkg/metasploit-payloads-* "$(pwd)/meterpreter-artifacts"
 
       - name: Store Meterpreter artifacts
         uses: actions/upload-artifact@v4
@@ -109,7 +121,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     # Source builds and the full acceptance suite share this job budget.
-    timeout-minutes: ${{ inputs.build_mettle && matrix.meterpreter.name == 'mettle' && 75 || 60 }}
+    timeout-minutes: ${{ ((inputs.build_mettle && matrix.meterpreter.name == 'mettle') || (inputs.build_metasploit_payloads && matrix.meterpreter.name == 'windows_meterpreter')) && 75 || 60 }}
 
     env:
       RAILS_ENV: test
@@ -212,7 +224,7 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-framework
+          repository: ${{ inputs.metasploit_framework_repository }}
           path: metasploit-framework
           ref: ${{ inputs.metasploit_framework_commit }}
 
@@ -249,27 +261,10 @@ jobs:
 
       - uses: actions/download-artifact@v4
         name: Download Meterpreter
-        id: download_meterpreter
         if: ${{ matrix.meterpreter.name != 'mettle' && inputs.build_metasploit_payloads }}
         with:
-          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
-          path: raw-data
-
-      - name: Extract Meterpreter (Unix)
-        if: ${{ matrix.meterpreter.name != 'mettle' && runner.os != 'Windows' && inputs.build_metasploit_payloads }}
-        shell: bash
-        run: |
-          set -x
-          download_path=${{steps.download_meterpreter.outputs.download-path}}
-          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
-
-      - name: Extract Meterpreter (Windows)
-        if: ${{ matrix.meterpreter.name != 'mettle' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
-        shell: bash
-        run: |
-          set -x
-          download_path=$(cygpath -u '${{steps.download_meterpreter.outputs.download-path}}')
-          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
+          name: meterpreter-artifacts
+          path: metasploit-framework
 
       - name: Install mettle gem
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
@@ -288,82 +283,124 @@ jobs:
         with:
           repository: rapid7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          # Match the artifact's checkout even if the requested branch moves during the run.
+          ref: ${{ needs.meterpreter_compilation.outputs.metasploit_payloads_commit }}
+          submodules: ${{ matrix.meterpreter.name == 'windows_meterpreter' && 'recursive' || 'false' }}
 
-      - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
-        shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && inputs.build_metasploit_payloads }}
-        run: |
-          cd c/meterpreter
-          git submodule init && git submodule update
-          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat
-        working-directory: metasploit-payloads
-
-      - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
+      - name: Install Windows Meterpreter build dependencies
         shell: pwsh
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && inputs.build_metasploit_payloads }}
         run: |
-          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
-          dir
-        # $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-        # $WorkLoads = '--config "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter\vs-configs\vs2022.vsconfig"'
-        # $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $WorkLoads, '--quiet', '--norestart', '--nocache')
-        # $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-        # if ($process.ExitCode -eq 0) {
-        #   Write-Host "components have been successfully added"
-        # } else {
-        #   Write-Host "components were not installed"
-        #   exit 1
-        # }
-        # Set-Location "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter"
-        # $r = Invoke-Command -ScriptBlock { cmd.exe /c 'git submodule init && git submodule update' }
-        # Write-Host $r
-        # $r = Invoke-Command -ScriptBlock { cmd.exe /c '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat' }
-        # Write-Host $r
+          $installPath = "$env:ProgramFiles\Microsoft Visual Studio\2022\Enterprise"
+          $configPath = (Resolve-Path 'c/meterpreter/vs-configs/vs2022.vsconfig').Path
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+          $arguments = @('modify', '--installPath', "`"$installPath`"", '--config', "`"$configPath`"", '--add', 'Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64', '--quiet', '--norestart', '--nocache')
+          $process = Start-Process -FilePath $installer -ArgumentList $arguments -Wait -PassThru
+          if ($process.ExitCode -eq 3010) {
+            throw 'Windows Meterpreter build dependencies require a reboot. Compilation cannot continue on this hosted runner; provision the components in the runner image.'
+          }
+          if ($process.ExitCode -ne 0) {
+            throw "Installing Windows Meterpreter build dependencies failed with exit code $($process.ExitCode)"
+          }
         working-directory: metasploit-payloads
 
-      - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
+      - name: Build Windows Meterpreter DLLs
         shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2025' && inputs.build_metasploit_payloads }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && inputs.build_metasploit_payloads }}
         run: |
-          cd c/meterpreter
-          git submodule init && git submodule update
-          make.bat
-        working-directory: metasploit-payloads
+          call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+          if errorlevel 1 exit /b %errorlevel%
+          rem Keep the source-compatible legacy SDK and the published compiler family.
+          rem The legacy SDK selection does not establish XP compatibility.
+          rem The default 14.16 build fails to reflectively load Kiwi on x64 release builds.
+          msbuild.exe make.msbuild /target:all /p:PlatformToolset=v141_xp /p:VCToolsVersion=14.29.30133 /p:XPDeprecationWarning=false
+        working-directory: metasploit-payloads/c/meterpreter/workspace
+
+      - name: Package Windows Meterpreter DLLs
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && inputs.build_metasploit_payloads }}
+        shell: bash
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/metasploit-framework/Gemfile
+        run: |
+          bundle exec rake --rakefile "$PWD/Rakefile" -Ilib create_dir win_copy create_manifest build
+          cp pkg/metasploit-payloads-*.gem ../../metasploit-framework/
+        working-directory: metasploit-payloads/gem
 
       - name: Get metasploit-payloads version
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         shell: bash
-        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a $GITHUB_ENV
+        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a "$GITHUB_ENV"
         working-directory: metasploit-payloads
 
-      - name: Install metasploit-payloads gem
+      - name: Use the candidate metasploit-payloads package
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
         run: |
-          bundle exec gem install metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem
-        working-directory: metasploit-framework
+          ruby <<'RUBY'
+          require 'fileutils'
+          require 'rubygems/package'
 
-      - name: Remove metasploit-payloads version from metasploit-framework.gemspec
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' && runner.os != 'Windows' }}
-        run: |
-          ruby -pi -e "gsub(/metasploit-payloads', '\d+.\d+.\d+/, 'metasploit-payloads')" metasploit-framework.gemspec
-        working-directory: metasploit-framework
+          version = ENV.fetch('METASPLOIT_PAYLOADS_VERSION')
+          package = Gem::Package.new("metasploit-payloads-#{version}.gem")
+          spec = package.spec
+          abort 'Unexpected candidate payloads package' unless spec.name == 'metasploit-payloads' && spec.version.to_s == version
 
-      - name: Remove metasploit-payloads version from metasploit-framework.gemspec (Windows)
-        if: ${{ inputs.build_metasploit_payloads && (runner.os == 'Windows' && matrix.meterpreter.name != 'windows_meterpreter') && matrix.meterpreter.name != 'mettle' }}
-        shell: cmd
-        run: |
-          ruby -pi.bak -e "gsub(/metasploit-payloads', '\d+.\d+.\d+/, 'metasploit-payloads')" metasploit-framework.gemspec
+          # A path source also selects this candidate when RubyGems has the same version.
+          candidate_path = File.join('vendor', 'payloads-candidate', spec.full_name)
+          FileUtils.mkdir_p(candidate_path)
+          package.extract_files(candidate_path)
+          File.write(File.join(candidate_path, "#{spec.name}.gemspec"), spec.to_ruby)
+
+          gemspec_path = 'metasploit-framework.gemspec'
+          gemspec = File.read(gemspec_path)
+          dependency = /^(\s*spec\.add_runtime_dependency 'metasploit-payloads', )'[^']+'/
+          abort 'Framework payloads dependency not found' unless gemspec.match?(dependency)
+          File.write(gemspec_path, gemspec.sub(dependency) { "#{Regexp.last_match(1)}'#{version}'" })
+          File.open('Gemfile', 'a') { |file| file.puts "\ngem 'metasploit-payloads', path: #{candidate_path.inspect}" }
+          RUBY
         working-directory: metasploit-framework
 
       - name: Bundle update/install metasploit-payloads gem
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
         run: |
           bundle config unset deployment
           # Keep the payload-gem update on the precompiled Windows gem platform.
           ${{ runner.os == 'Windows' && 'bundle lock --add-platform x64-mingw-ucrt' || 'echo "Skipping Windows Bundler platform lock"' }}
           bundle update metasploit-payloads
           bundle install --deployment
+        working-directory: metasploit-framework
+
+      - name: Verify the candidate payloads are selected
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        env:
+          METASPLOIT_PAYLOADS_COMMIT: ${{ needs.meterpreter_compilation.outputs.metasploit_payloads_commit }}
+        run: |
+          bundle exec ruby -rmetasploit-payloads <<'RUBY'
+          version = ENV.fetch('METASPLOIT_PAYLOADS_VERSION')
+          candidate_path = File.realpath(File.join('vendor', 'payloads-candidate', "metasploit-payloads-#{version}"))
+          spec = Gem.loaded_specs.fetch('metasploit-payloads')
+          abort "Expected payloads #{version}, loaded #{spec.version}" unless spec.version.to_s == version
+          abort "Payloads loaded from #{spec.full_gem_path}" unless File.realpath(spec.full_gem_path) == candidate_path
+
+          errors = MetasploitPayloads.manifest_errors
+          abort "Candidate payload manifest errors: #{errors.inspect}" unless errors.empty?
+          puts "Using payloads #{version} from #{spec.full_gem_path}, built from #{ENV.fetch('METASPLOIT_PAYLOADS_COMMIT')}"
+
+          if ENV.fetch('SESSION') == 'meterpreter/windows_meterpreter'
+            %w[x86 x64].each do |arch|
+              [false, true].each do |debug|
+                %w[metsrv ext_server_stdapi ext_server_kiwi].each do |name|
+                  path = MetasploitPayloads.meterpreter_path(name, "#{arch}.dll", debug: debug)
+                  abort "Missing required Windows Meterpreter DLL: #{name} #{arch} (debug=#{debug})" unless path && File.file?(path)
+                  abort "DLL outside candidate payloads: #{path}" unless File.realpath(path).start_with?("#{candidate_path}/")
+                  puts path
+                end
+              end
+            end
+          end
+          RUBY
         working-directory: metasploit-framework
 
       - name: Acceptance
@@ -377,8 +414,10 @@ jobs:
         #   bundle exec rspec .\spec\acceptance
         # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
         # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        # A failed native extension can leave the shared console blocked; stop that job
+        # while the other matrix jobs finish.
         run: |
-          bundle exec rspec spec/acceptance/meterpreter_spec.rb
+          bundle exec rspec spec/acceptance/meterpreter_spec.rb ${{ matrix.meterpreter.name == 'windows_meterpreter' && '--fail-fast' || '' }}
         working-directory: metasploit-framework
 
       - name: Archive results
@@ -401,7 +440,7 @@ jobs:
         uses: actions/checkout@v4
         if: always()
         with:
-          repository: rapid7/metasploit-framework
+          repository: ${{ inputs.metasploit_framework_repository }}
           ref: ${{ inputs.metasploit_framework_commit }}
 
       - name: Install system dependencies (Linux)
