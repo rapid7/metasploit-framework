@@ -836,4 +836,32 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     expect(catalog['warnings']).to include(/CNA alias 'invalid_path' was skipped: BOF path contains a null byte/)
     expect(catalog['warnings']).to include(/CNA alias 'encoded_dollar' was skipped: BOF path contains an encoded dollar sign/)
   end
+
+  it 'uses a readable BOF header before inferring architecture from its path' do
+    Dir.mktmpdir do |directory|
+      resource_directory = ::File.join(directory, 'x64')
+      ::Dir.mkdir(resource_directory)
+      ::File.binwrite(::File.join(resource_directory, 'example.o'), [0x014c].pack('v'))
+      script_path = ::File.join(directory, 'example.cna')
+      ::File.write(script_path, <<~'CNA')
+        alias example {
+          beacon_inline_execute($1, readb(openf(script_resource("x64/example.o")), -1), "go", $null);
+        }
+      CNA
+
+      catalog = described_class.parse(path: script_path)
+
+      expect(catalog['bofs']['example']['files'].keys).to eq(['x86'])
+    end
+  end
+
+  it 'infers architecture from the path when the BOF cannot be read' do
+    catalog = parse_cna(<<~'CNA')
+      alias example {
+        beacon_inline_execute($1, readb(openf(script_resource("x64/example.o")), -1), "go", $null);
+      }
+    CNA
+
+    expect(catalog['bofs']['example']['files'].keys).to eq(['x64'])
+  end
 end

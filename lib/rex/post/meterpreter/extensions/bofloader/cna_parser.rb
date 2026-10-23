@@ -515,15 +515,18 @@ module Rex
             end
 
             def path_architecture(path)
+              begin
+                if ::File.file?(path) && ::File.readable?(path)
+                  machine = ::File.binread(path, 2).unpack1('v')
+                  return { 0x8664 => 'x64', 0x014c => 'x86' }[machine]
+                end
+              rescue SystemCallError
+                # Fall through to path-name inference when the file cannot be read.
+              end
+
               normalized_path = path.downcase.tr('\\', '/')
               return 'x64' if normalized_path.match?(%r{(?:\A|[._/-])x64(?:[._/-]|\z)})
               return 'x86' if normalized_path.match?(%r{(?:\A|[._/-])x86(?:[._/-]|\z)})
-              return unless ::File.file?(path) && ::File.readable?(path)
-
-              machine = ::File.binread(path, 2).unpack1('v')
-              { 0x8664 => 'x64', 0x014c => 'x86' }[machine]
-            rescue SystemCallError
-              nil
             end
 
             def validate_architecture_variables!(template, analysis, before:, invocation: nil)
