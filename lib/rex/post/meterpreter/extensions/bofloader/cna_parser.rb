@@ -26,6 +26,7 @@ module Rex
             ].freeze
             NULL = Object.new.freeze
             PARAMETER_PATTERN = /\A\$(\d+)\z/
+            USAGE_MARKER_PATTERN = /\A(?:(?<optional>optional|opt)|required)(?=\s|:|\z)\s*:?\s*/i
             VARIABLE_PATTERN = /\A\$[a-zA-Z_]\w*\z/
 
             # Parses an Aggressor script.
@@ -175,7 +176,7 @@ module Rex
                 packed_value(format_character, value_expression, analysis, [], before: before)
               end
               positions = definitions.filter_map { |definition| definition['position'] }.uniq.sort
-              if positions.any? && positions != (0..positions.max).to_a
+              if positions.each_with_index.any? { |position, index| position != index }
                 raise Unsupported, 'CNA positional arguments are transformed outside bof_pack'
               end
 
@@ -208,12 +209,15 @@ module Rex
                 return packed_value(format_character, assignment.fetch('value'), analysis, seen + [variable], before: assignment.fetch('offset'))
               end
 
+              optional = optional_value(format_character, expression, analysis, seen, before: before)
+              return optional if optional
+
               if format_character == 'b'
                 position = file_position(expression, analysis, seen, before: before)
                 return packed_definition(format_character).merge('type' => 'file', 'raw' => false, 'position' => position, 'required' => true)
               end
 
-              optional_value(format_character, expression, analysis, seen, before: before) || raise(
+              raise(
                 Unsupported,
                 "cannot statically evaluate packed expression #{expression.strip}"
               )
@@ -313,8 +317,9 @@ module Rex
 
               usage.scan(/<([^>]+)>|\[([^\]]+)\]/).map do |angle, square|
                 description = angle || square
-                optional = description.match?(/\A(?:optional|opt)\s*:?\s*/i)
-                description = description.sub(/\A(?:optional|required|opt)\s*:?\s*/i, '')
+                marker = description.match(USAGE_MARKER_PATTERN)
+                optional = !marker&.[](:optional).nil?
+                description = description.delete_prefix(marker[0]) if marker
                 candidate = description[/[a-zA-Z][a-zA-Z0-9_-]*/]
                 next unless candidate
 
@@ -574,7 +579,7 @@ module Rex
               result = Hash.new { |hash, key| hash[key] = [] }
               masked_code = mask_string_literals(code)
               offset = 0
-              pattern = %r{(\$(?:[a-zA-Z_]\w*|\d+))\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)\s*}
+              pattern = %r{(\$(?:[a-zA-Z_]\w*|\d+))\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)}
               while (match = pattern.match(masked_code, offset))
                 unless match[2] == '=' && top_level_offset?(masked_code, match.begin(0))
                   result[match[1]] << { 'value' => NULL, 'offset' => match.begin(0) }

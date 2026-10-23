@@ -16,6 +16,8 @@ module Rex
           Klass = Console::CommandDispatcher::Bofloader
           CNA_SUBCOMMANDS = %w[info list load reload run unload].freeze
 
+          class BofParseError < Rex::RuntimeError; end
+
           include Console::CommandDispatcher
 
           #
@@ -354,8 +356,8 @@ module Rex
               return false
             end
 
-            parsed = Metasm::COFF.decode_header(bof_data[0...20])
-            bof_arch = { 'AMD64' => ARCH_X64, 'I386' => ARCH_X86 }.fetch(parsed.header.machine, nil)
+            parsed_bof = parse_bof(bof_data)
+            bof_arch = parsed_bof['architecture']
             unless bof_arch
               print_error('Unable to determine the file architecture.')
               return false
@@ -365,8 +367,8 @@ module Rex
               return false
             end
 
-            parsed = Metasm::COFF.decode(bof_data)
-            unless (executable_symbols = get_executable_symbols(parsed)).include?(entry)
+            executable_symbols = parsed_bof['executable_symbols']
+            unless executable_symbols.include?(entry)
               print_error("The specified entry point was not found: #{entry}")
               print_error("Available symbols: #{executable_symbols.join(', ')}")
               return false
@@ -375,9 +377,28 @@ module Rex
             output = client.bofloader.execute(bof_data, args_format: args_format, args: args, entry: entry)
             output.nil? ? print_status('No output returned from bof') : print_line(output)
             true
+          rescue BofParseError => e
+            print_error("Unable to parse the BOF: #{e.message}")
+            false
           rescue Rex::Post::Meterpreter::Extensions::Bofloader::BofPackingError => e
             print_error("Error processing the specified arguments: #{e.message}")
             false
+          end
+
+          def parse_bof(bof_data)
+            header = Metasm::COFF.decode_header(bof_data[0...20])
+            architecture = { 'AMD64' => ARCH_X64, 'I386' => ARCH_X86 }.fetch(header.header.machine, nil)
+            return { 'architecture' => nil, 'executable_symbols' => [] } unless architecture
+
+            coff = Metasm::COFF.decode(bof_data)
+            raise BofParseError, 'COFF symbol table is missing' unless coff.symbols.is_a?(Array)
+            raise BofParseError, 'COFF section table is missing' unless coff.sections.is_a?(Array)
+
+            { 'architecture' => architecture, 'executable_symbols' => get_executable_symbols(coff) }
+          rescue BofParseError
+            raise
+          rescue StandardError => e
+            raise BofParseError, e.message
           end
 
           def compile_c(source)

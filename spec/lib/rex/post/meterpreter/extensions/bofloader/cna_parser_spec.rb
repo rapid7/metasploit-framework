@@ -513,6 +513,31 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     expect(catalog['bofs']['echo']['arguments'].first).to include('type' => 'bytes', 'position' => 0)
   end
 
+  it 'preserves string literals assigned through variables' do
+    catalog = parse_cna(<<~'CNA')
+      alias echo {
+        $message = "hello";
+        $args = bof_pack($1, "z", $message);
+        beacon_inline_execute($1, readb(openf(script_resource("echo.o")), -1), "go", $args);
+      }
+    CNA
+
+    expect(catalog['bofs']['echo']['arguments'].first).to include('fixed' => 'hello')
+  end
+
+  it 'supports optional direct binary arguments' do
+    catalog = parse_cna(<<~'CNA')
+      alias echo {
+        $args = bof_pack($1, "b", iff(-istrue $2, $2, ""));
+        beacon_inline_execute($1, readb(openf(script_resource("echo.o")), -1), "go", $args);
+      }
+    CNA
+
+    expect(catalog['bofs']['echo']['arguments'].first).to include(
+      'type' => 'bytes', 'position' => 0, 'required' => false, 'default' => ''.b
+    )
+  end
+
   it 'uses explicit optional usage hints for direct positional arguments' do
     catalog = parse_cna(<<~'CNA')
       beacon_command_register("services", "Enumerate services", "services [opt: hostname]");
@@ -525,6 +550,29 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
     expect(catalog['bofs']['services']['arguments'].first).to include(
       'name' => 'hostname', 'required' => false, 'default' => ''
     )
+  end
+
+  it 'does not treat usage names beginning with opt as optional markers' do
+    catalog = parse_cna(<<~'CNA')
+      beacon_command_register("demo", "Display an option", "demo <option>");
+      alias demo {
+        $args = bof_pack($1, "i", $2);
+        beacon_inline_execute($1, readb(openf(script_resource("demo.o")), -1), "go", $args);
+      }
+    CNA
+
+    expect(catalog['bofs']['demo']['arguments'].first).to include('name' => 'option', 'required' => true)
+  end
+
+  it 'rejects impractical positional values without materializing their range' do
+    expect do
+      parse_cna(<<~'CNA')
+        alias example {
+          $args = bof_pack($1, "z", $999999999999999999999);
+          beacon_inline_execute($1, readb(openf(script_resource("example.o")), -1), "go", $args);
+        }
+      CNA
+    end.to raise_error(described_class::Error, /CNA positional arguments are transformed outside bof_pack/)
   end
 
   it 'parses octal and hexadecimal integer literals' do
