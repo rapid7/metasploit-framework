@@ -380,11 +380,16 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::CnaParser do
         $1 = $2;
         beacon_inline_execute($1, readb(openf(script_resource("reassigned_beacon.o")), -1), "go", $null);
       }
+      alias exponentiated_argument {
+        $2 **= 2;
+        beacon_inline_execute($1, readb(openf(script_resource("exponentiated.o")), -1), "go", bof_pack($1, "i", $2));
+      }
     CNA
 
     expect(catalog['bofs'].keys).to eq(['good'])
     expect(catalog['warnings']).to include(/\$2 has a dynamic assignment/)
     expect(catalog['warnings']).to include(/beacon_inline_execute must target the alias Beacon/)
+    expect(catalog['warnings']).to include(/CNA alias 'exponentiated_argument' was skipped: \$2 has a dynamic assignment/)
   end
 
   it 'decodes hexadecimal and Unicode escapes in parsed literals' do

@@ -579,7 +579,7 @@ module Rex
               result = Hash.new { |hash, key| hash[key] = [] }
               masked_code = mask_string_literals(code)
               offset = 0
-              pattern = %r{(\$(?:[a-zA-Z_]\w*|\d+))\s*(=(?!=|~|>)|(?:\.|\+|-|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)}
+              pattern = %r{(\$(?:[a-zA-Z_]\w*|\d+))\s*(=(?!=|~|>)|(?:\.|\+|-|\*\*|\*|/|%|&|\||\^|<<|>>)=|\+\+|--)}
               while (match = pattern.match(masked_code, offset))
                 unless match[2] == '=' && top_level_offset?(masked_code, match.begin(0))
                   result[match[1]] << { 'value' => NULL, 'offset' => match.begin(0) }
