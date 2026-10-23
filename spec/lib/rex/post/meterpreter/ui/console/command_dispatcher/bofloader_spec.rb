@@ -37,4 +37,12 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Bofloader
 
     expect(dispatcher.send(:compile_c, '/tmp/example.c')).to be_nil
   end
+
+  it 'returns false when a BOF has a malformed symbol table' do
+    malformed_bof = [0x8664, 0, 0, 0, 0, 0, 0].pack('vvVVVvv')
+    allow(dispatcher).to receive(:print_error)
+
+    expect(dispatcher.send(:execute_bof_data, malformed_bof, args_format: nil, args: nil, entry: 'go')).to be(false)
+    expect(dispatcher).to have_received(:print_error).with(/Unable to parse the BOF: COFF symbol table is missing/)
+  end
 end

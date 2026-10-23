@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/bofloader/bofloader'
 
 RSpec.describe Rex::Post::Meterpreter::Extensions::Bofloader::Bofloader do
