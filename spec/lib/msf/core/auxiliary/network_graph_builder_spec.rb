@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 # Output-encoding coverage for Msf::Auxiliary::NetworkGraphBuilder#inline_json,
@@ -356,6 +358,16 @@ RSpec.describe Msf::Auxiliary::NetworkGraphBuilder do
       target = host_struct.new('10.0.0.5', 9)
       routes = { '172.28.57.0/255.255.255.0' => 7 }
       expect(builder.send(:find_pivot_for_host, target, routes)).to be_nil
+    end
+
+    it 'selects the longest matching route instead of insertion order' do
+      target = host_struct.new('192.0.2.10', 9)
+      routes = {
+        '192.0.2.0/255.255.255.0' => 7,
+        '192.0.2.0/255.255.255.128' => 8
+      }
+
+      expect(builder.send(:find_pivot_for_host, target, routes)).to eq(8)
     end
   end
 

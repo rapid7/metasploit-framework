@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'ipaddr'
+Object.autoload(:Set, 'set') unless defined?(Set)
+require 'socket'
 
 module Msf
   # Methods for building the network-graph node/link data used by the
@@ -8,6 +11,12 @@ module Msf
   # including the output sanitization its HTML embedding relies on.
   module Auxiliary::NetworkGraphBuilder
     MSF_NODE_ID = '__msf__'
+    SNMP_NOTE_TYPES = %w[
+      snmp.Hostname snmp.Description snmp.Contact snmp.Location
+      snmp.Network\ information snmp.Network\ interfaces
+      snmp.LLDP\ Neighbors snmp.CDP\ Neighbors
+      snmp.MAC\ Address\ Table
+    ].freeze
 
     def load_workspace_data(ws)
       hosts = ws.hosts.includes(:services, :sessions).all.to_a
@@ -20,11 +29,7 @@ module Msf
       end.uniq
       cve_module_map = build_cve_module_map(all_cve_names)
 
-      snmp_notes = ws.notes.where(ntype: %w[
-        snmp.Hostname snmp.Description snmp.Contact snmp.Location
-        snmp.Network\ interfaces snmp.LLDP\ Neighbors snmp.CDP\ Neighbors
-        snmp.MAC\ Address\ Table
-      ]).includes(:host).to_a
+      snmp_notes = ws.notes.where(ntype: SNMP_NOTE_TYPES).includes(:host).to_a
       snmp_by_host = snmp_notes.each_with_object(Hash.new { |h, k| h[k] = {} }) do |n, m|
         next unless n.host_id
 
@@ -133,12 +138,19 @@ module Msf
         m[h.mac.downcase] = h
       end
 
-      host_behind_switch = {}
+      switch_candidates = Hash.new { |hash, host_id| hash[host_id] = [] }
       snmp_by_host.each do |switch_host_id, snmp_data|
         mac_table_text = snmp_data['MAC Address Table']
         next if mac_table_text.nil? || mac_table_text.empty?
 
-        parse_snmp_table(mac_table_text).each do |entry|
+        entries = parse_snmp_table(mac_table_text).reject do |entry|
+          entry['MAC Address'].to_s.empty? || %w[invalid self].include?(entry['Status'].to_s.downcase)
+        end
+        port_occupancy = entries.each_with_object(Hash.new(0)) do |entry, counts|
+          counts[entry['Port'].to_s] += 1
+        end
+
+        entries.each do |entry|
           mac = entry['MAC Address'].to_s.downcase
           next if mac.empty?
 
@@ -146,7 +158,34 @@ module Msf
           next unless matched
           next if matched.id == switch_host_id
 
-          host_behind_switch[matched.id] ||= switch_host_id
+          switch_candidates[matched.id] << {
+            switch_host_id: switch_host_id,
+            port_occupancy: port_occupancy[entry['Port'].to_s]
+          }
+        end
+      end
+
+      creates_cycle = lambda do |child_id, parent_id, parents|
+        visited = Set.new([child_id])
+        current_id = parent_id
+        while current_id
+          return true if visited.include?(current_id)
+
+          visited.add(current_id)
+          current_id = parents[current_id]
+        end
+        false
+      end
+
+      host_behind_switch = {}
+      switch_candidates.sort_by { |host_id, _candidates| host_id }.each do |host_id, candidates|
+        candidates.uniq { |candidate| candidate[:switch_host_id] }
+                  .sort_by { |candidate| [candidate[:port_occupancy], candidate[:switch_host_id]] }
+                  .each do |candidate|
+          next if creates_cycle.call(host_id, candidate[:switch_host_id], host_behind_switch)
+
+          host_behind_switch[host_id] = candidate[:switch_host_id]
+          break
         end
       end
 
@@ -193,7 +232,8 @@ module Msf
                          node_id
                        end
 
-          links_set.add([prev_id, current_id])
+          switched_host = host_behind_switch_node_ids.include?(current_id)
+          links_set.add([prev_id, current_id]) unless prev_id == current_id || switched_host
           prev_id = current_id
         end
 
@@ -203,6 +243,16 @@ module Msf
           target_id = host_id_by_addr[target_addr]
           links_set.add([prev_id, target_id]) unless prev_id == target_id || host_behind_switch_node_ids.include?(target_id)
         end
+      end
+
+      topology_parent = host_behind_switch.dup
+      hosts.sort_by(&:id).each do |host|
+        next if topology_parent.key?(host.id) || hosts_with_traceroute.include?(host.address.to_s)
+
+        pivot_host_id = find_pivot_for_host(host, subnet_to_pivot)
+        next if pivot_host_id.nil? || creates_cycle.call(host.id, pivot_host_id, topology_parent)
+
+        topology_parent[host.id] = pivot_host_id
       end
 
       hosts.each do |host|
@@ -230,10 +280,8 @@ module Msf
         display_loots = display_loots.last(loot_limit) if loot_limit > 0
         loot_data = display_loots.map { |l| { ltype: l.ltype || '', name: l.name || '', info: l.info || '', path: l.path || '' } }
 
-        vuln_data = (vuln_by_host[host.id] || []).filter_map do |v|
+        vuln_data = (vuln_by_host[host.id] || []).map do |v|
           cve_refs = v.refs.map(&:name).select { |r| r.upcase.start_with?('CVE-') }.map(&:upcase)
-          next if cve_refs.empty?
-
           modules_for_vuln = cve_refs.flat_map { |cve| cve_module_map[cve] || [] }.uniq.sort
           {
             name: v.name || '', info: v.info || '',
@@ -269,7 +317,12 @@ module Msf
                           else
                             host.name || host.address.to_s
                           end
-        snmp_type = snmp_device_type(snmp['Description'])
+        snmp_type = if !snmp['MAC Address Table'].to_s.empty?
+                      'switch'
+                    else
+                      snmp_device_type(snmp['Description']) ||
+                        ('router' if parse_snmp_table(snmp['Network information']).any? { |row| row['IP forwarding enabled'].to_s.casecmp?('yes') })
+                    end
 
         snmp_mac_table = parse_snmp_table(snmp['MAC Address Table'])
         port_host_map = snmp_mac_table.filter_map do |entry|
@@ -294,7 +347,7 @@ module Msf
           arch: host.arch || '', compromised: active_sessions.any?,
           ever_compromised: host_sessions.any?, session_count: active_sessions.count,
           sessions: session_data, services: service_data, loots: loot_data,
-          vulns: vuln_data, vuln_cve_count: vuln_data.length,
+          vulns: vuln_data, vuln_cve_count: vuln_data.count { |vuln| vuln[:cve_refs].any? },
           vuln_module_count: vuln_data.count { |v| v[:msf_modules].any? },
           event_modules: event_modules_by_ip[host.address.to_s].to_a.sort,
           module_runs: host_module_runs, creds: cred_data,
@@ -310,10 +363,8 @@ module Msf
 
         next if hosts_with_traceroute.include?(host.address.to_s) && !host_behind_switch.key?(host.id)
 
-        source_id = if host_behind_switch.key?(host.id)
-                      "host_#{host_behind_switch[host.id]}"
-                    elsif (pivot_host_id = find_pivot_for_host(host, subnet_to_pivot))
-                      "host_#{pivot_host_id}"
+        source_id = if topology_parent.key?(host.id)
+                      "host_#{topology_parent[host.id]}"
                     else
                       MSF_NODE_ID
                     end
@@ -363,16 +414,21 @@ module Msf
 
     def find_pivot_for_host(host, subnet_to_pivot)
       ip = IPAddr.new(host.address.to_s)
+      best_pivot_host_id = nil
+      best_prefix = -1
       subnet_to_pivot.each do |cidr, pivot_host_id|
         next if pivot_host_id == host.id # a pivot never routes behind itself
 
         subnet_ip, netmask = cidr.split('/')
         net = IPAddr.new("#{subnet_ip}/#{netmask}")
-        return pivot_host_id if net.include?(ip)
+        next unless net.include?(ip) && net.prefix > best_prefix
+
+        best_pivot_host_id = pivot_host_id
+        best_prefix = net.prefix
       rescue ArgumentError
         next
       end
-      nil
+      best_pivot_host_id
     rescue ArgumentError
       nil
     end
@@ -381,8 +437,8 @@ module Msf
       return nil if description.nil? || description.empty?
 
       desc = description.downcase
-      return 'router' if desc.match?(/router|cisco ios|junos|ios xe|ios xr|vyos|pfsense|opnsense|routeros/)
       return 'switch' if desc.match?(/switch|catalyst|nexus|arista eos|juniper ex|procurve/)
+      return 'router' if desc.match?(/router|cisco ios|junos|ios xe|ios xr|vyos|pfsense|opnsense|routeros/)
       return 'firewall' if desc.match?(/firewall|fortigate|asa|checkpoint|sonicwall|palo alto/)
       return 'printer' if desc.match?(/printer|jetdirect/)
 
@@ -405,7 +461,10 @@ module Msf
 
     def utf8_sanitize(obj)
       case obj
-      when Hash then obj.transform_values { |v| utf8_sanitize(v) }
+      when Hash
+        obj.each_with_object({}) do |(key, value), sanitized|
+          sanitized[utf8_sanitize(key)] = utf8_sanitize(value)
+        end
       when Array then obj.map { |v| utf8_sanitize(v) }
       when String
         return obj if obj.encoding == ::Encoding::UTF_8 && obj.valid_encoding?

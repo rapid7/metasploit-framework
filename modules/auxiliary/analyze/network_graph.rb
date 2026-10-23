@@ -1,13 +1,11 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Report
   include Msf::Auxiliary::NetworkGraphBuilder
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
@@ -22,7 +20,9 @@ class MetasploitModule < Msf::Auxiliary
           OS-specific icons, compromise indicators, path highlighting back to the MSF
           node, and a details panel showing host information.
         },
-        'Author' => ['h00die'],
+        'Author' => [
+          'h00die' # Module implementation
+        ],
         'License' => MSF_LICENSE,
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptBool.new('EMBED_JS', [false, 'Embed D3.js inline for a fully self-contained offline HTML file', false]),
+        OptBool.new('EMBED_JS', [false, 'Embed D3.js inline for a fully self-contained offline HTML file', true]),
         OptInt.new('LIMIT_SESSION', [false, 'Max sessions to include per host (0 = unlimited, most recent first)', 0]),
         OptInt.new('LIMIT_LOOT', [false, 'Max loot items to include per host (0 = unlimited, most recent first)', 0]),
         OptInt.new('LIMIT_CRED', [false, 'Max credentials to include per host (0 = unlimited)', 0])
@@ -88,17 +88,19 @@ class MetasploitModule < Msf::Auxiliary
 
   TEMPLATE_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'network_map_template.html')
   D3_LOCAL_PATH = File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js')
-  D3_CDN_TAG = '<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>'
+  D3_CDN_ORIGIN = 'https://cdnjs.cloudflare.com'
+  D3_CDN_INTEGRITY = 'sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A=='
+  D3_CDN_TAG = "<script src=\"#{D3_CDN_ORIGIN}/ajax/libs/d3/7.9.0/d3.min.js\" integrity=\"#{D3_CDN_INTEGRITY}\" crossorigin=\"anonymous\"></script>"
 
   def generate_html(nodes, links)
+    fail_with(Failure::BadConfig, "Network graph template not found at #{TEMPLATE_PATH}") unless File.file?(TEMPLATE_PATH)
+
     template = File.binread(TEMPLATE_PATH).force_encoding('UTF-8')
+    use_cdn = !datastore['EMBED_JS']
     d3_tag = if datastore['EMBED_JS']
-               if File.exist?(D3_LOCAL_PATH)
-                 "<script>#{File.read(D3_LOCAL_PATH)}</script>"
-               else
-                 print_warning("D3 local file not found at #{D3_LOCAL_PATH}, falling back to CDN")
-                 D3_CDN_TAG
-               end
+               fail_with(Failure::BadConfig, "D3 local file not found at #{D3_LOCAL_PATH}") unless File.file?(D3_LOCAL_PATH)
+
+               "<script>#{File.binread(D3_LOCAL_PATH).force_encoding(::Encoding::UTF_8)}</script>"
              else
                D3_CDN_TAG
              end
@@ -109,6 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     # markup-significant characters so no database string can terminate the
     # <script> element the payloads are embedded in.
     template
+      .sub('%%D3_CSP_ORIGIN%%') { use_cdn ? " #{D3_CDN_ORIGIN}" : '' }
       .sub('%%D3_SCRIPT%%') { d3_tag }
       .sub('%%NODES%%') { inline_json(nodes) }
       .sub('%%LINKS%%') { inline_json(links) }

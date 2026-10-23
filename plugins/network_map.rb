@@ -5,8 +5,8 @@
 #
 # Companion to the auxiliary/analyze/network_graph module (PR #21482), which
 # renders a one-shot snapshot of the workspace as a self-contained HTML file.
-# This plugin serves the same visualization from a tiny HTTP server inside
-# msfconsole and pushes updates to connected browsers over a websocket as
+# This plugin uses the snapshot module's shared graph builder from a tiny HTTP
+# server inside msfconsole and pushes updates to connected browsers as
 # hosts, services, sessions, loot, vulns, creds, and module runs land in the
 # database - so the graph builds itself while you work.
 #
@@ -17,9 +17,10 @@
 #   network_map_stop
 #
 # Every request - page, JSON, websocket - requires a password (HTTP Basic;
-# the browser prompts for it).  A three-word passphrase is generated at
-# startup and printed; pass --password to network_map_start, rotate it with
-# network_map_password, and see the current one in network_map_status.
+# the browser prompts for it).  A five-word passphrase is generated at
+# startup and printed; pass --password to network_map_start or rotate it with
+# network_map_password. Shared listeners pin requests and WebSockets to the
+# configured browser origin.
 #
 # The Ruby stdlib has no websocket server and MSF does not ship one, so a
 # minimal RFC 6455 implementation (handshake + frame codec) is included below.
@@ -30,9 +31,12 @@
 require 'socket'
 require 'ipaddr'
 require 'digest/sha1'
+require 'digest/sha2'
 require 'base64'
 require 'json'
 require 'securerandom'
+require 'uri'
+require 'msf/core/auxiliary/network_graph_builder'
 
 module Msf
   # Live-updating network topology web server.  Serves the network_graph
@@ -92,13 +96,36 @@ module Msf
     # One instance lives for the plugin's lifetime; start/stop toggle it.
     #
     class LiveServer
-      attr_reader :framework, :plugin, :host, :port, :interval, :limits, :password
+      include Msf::Auxiliary::NetworkGraphBuilder
+
+      attr_reader :framework, :plugin, :host, :port, :interval, :limits
 
       WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
       MSF_NODE_ID = '__msf__'
+      MAX_CONNECTIONS = 64
+      MAX_HTTP_HEADER_BYTES = 32_768
+      MAX_HTTP_HEADER_LINE_BYTES = 8_192
+      MAX_HTTP_HEADERS = 64
+      HTTP_HEADER_TIMEOUT = 10.0
+      HTTP_WRITE_TIMEOUT = 5.0
+      MAX_WEBSOCKET_FRAME_BYTES = 65_536
+      WEBSOCKET_FRAME_TIMEOUT = 300.0
+      WEBSOCKET_WRITE_TIMEOUT = 5.0
+      MAX_PENDING_WEBSOCKET_FRAMES = 2
+
+      # An HTTP protocol error that can safely be returned to the client.
+      class HttpRequestError < StandardError
+        attr_reader :code, :reason
+
+        def initialize(code, reason)
+          @code = code
+          @reason = reason
+          super(reason)
+        end
+      end
 
       # Word pool for generated browser passwords - short lowercase words
-      # composed into passphrases like "harbor_lynx_gravel".  Memorable by
+      # composed into passphrases like "harbor_lynx_gravel_ember_satin". Memorable by
       # design; operators wanting more entropy can pass --password.
       PASSWORD_WORDS = %w[
         amber anchor apple arbor arrow aspen atlas aurora azure bacon badger banjo basil beacon
@@ -124,9 +151,8 @@ module Msf
         wolf wren xenon yacht yak zebra zenith zephyr zinc zodiac
       ].freeze
 
-      # Places a local copy of d3 may live, so the page can render offline.
-      # The PR's data dir is checked first; the page falls back to the CDN
-      # with a 404 here.
+      # Places a local copy of d3 may live, so the sensitive page never runs
+      # third-party JavaScript in its origin.
       D3_CANDIDATES = [
         File.join(::Msf::Config.data_directory, 'auxiliary', 'analyze', 'network_map', 'd3.v7.9.0.min.js'),
         File.expand_path('../data/auxiliary/analyze/network_map/d3.v7.9.0.min.js', __dir__)
@@ -146,7 +172,10 @@ module Msf
         @last_push_mono = 0.0
         @warned = {}
         @password_digest = nil
-        @allowed_hosts = nil
+        @allowed_origin = nil
+        @allowed_host = nil
+        @connection_mutex = ::Mutex.new
+        @connection_count = 0
       end
 
       def running?
@@ -154,11 +183,14 @@ module Msf
       end
 
       def url
-        "http://#{display_host}:#{@port}/"
+        "#{@allowed_origin}/"
       end
 
       def display_host
-        (@host == '0.0.0.0') ? Rex::Socket.source_address : @host
+        bind_ip = IPAddr.new(@host.to_s)
+        bind_ip.to_i.zero? ? Rex::Socket.source_address : @host
+      rescue IPAddr::InvalidAddressError
+        @host
       end
 
       def loopback?
@@ -174,37 +206,40 @@ module Msf
         @clients_mutex.synchronize { @clients.length }
       end
 
+      def console_feed?
+        @running && @console_feed == true
+      end
+
       # Snapshot of connected browsers for network_map_clients: where they
       # came from, when they connected, and when they were last active.
       def clients_info
         @clients_mutex.synchronize do
           @clients.map do |c|
-            { addr: c[:addr], port: c[:port],
-              connected_at: c[:connected_at], last_seen: c[:last_seen] }
+            {
+              addr: c[:addr], port: c[:port],
+              connected_at: c[:connected_at], last_seen: c[:last_seen]
+            }
           end
         end
       end
 
-      def start(host: DEFAULT_HOST, port: DEFAULT_PORT, interval: DEFAULT_INTERVAL, limits: {}, password: nil)
+      def start(host: DEFAULT_HOST, port: DEFAULT_PORT, interval: DEFAULT_INTERVAL, limits: {}, password: nil, origin: nil, console_feed: false)
         raise 'server already running' if @running
 
         @host = host || DEFAULT_HOST
         @port = port
         @interval = interval
         @limits = { session: 0, loot: 0, cred: 0 }.merge(limits || {})
+        @console_feed = console_feed
         @last_json = nil
         @dirty = true
         @running = true
+        @plugin.reset_console_snapshot
         password = set_password(password)
-        # DNS-rebinding defense: only the loopback names and the address we
-        # actually bound may appear in the Host header.  Bound to 0.0.0.0 the
-        # interface addresses cannot be enumerated here, so any Host is
-        # accepted (the password still gates everything).
-        @allowed_hosts = @host == '0.0.0.0' ? nil : (%w[127.0.0.1 localhost ::1 [::1]] + [@host]).uniq
-
         begin
           @tcp_server = TCPServer.new(@host, @port)
           @port = @tcp_server.addr[1] # actual port when 0 (ephemeral) was requested
+          set_allowed_origin(origin)
           @accept_thread = thread_named('network_map:accept') { accept_loop }
           @poll_thread = thread_named('network_map:poll') { poll_loop }
         rescue StandardError
@@ -226,13 +261,13 @@ module Msf
 
       # Sets (or, given nil/blank, generates) the browser password and
       # returns the effective password so the caller can print it.  The
-      # plaintext is kept in memory for network_map_status; comparisons
-      # always run against the SHA-256 digest in constant time.  Takes
-      # effect immediately.
+      # plaintext is returned once so the caller can print it locally;
+      # comparisons use only the SHA-256 digest in constant time. Takes effect
+      # immediately.
       def set_password(pw)
         pw = pw.nil? || pw.strip.empty? ? generate_password : pw.strip
-        @password = pw
         @password_digest = ::Digest::SHA256.digest(pw)
+        disconnect_clients
         pw
       end
 
@@ -246,14 +281,7 @@ module Msf
         rescue StandardError
           nil
         end
-        @clients_mutex.synchronize do
-          @clients.each do |c|
-            c[:sock].close
-          rescue StandardError
-            nil
-          end
-          @clients.clear
-        end
+        disconnect_clients
         [@accept_thread, @poll_thread].each do |t|
           t&.join(2)
         rescue StandardError
@@ -262,6 +290,7 @@ module Msf
         @accept_thread = nil
         @poll_thread = nil
         @last_json = nil
+        @console_feed = false
       end
 
       # Nudge the poller so framework events (new host, session, module run)
@@ -276,6 +305,8 @@ module Msf
 
       # Console command capture entry point for the event relay.
       def record_console_command(line)
+        return unless console_feed?
+
         @plugin.record_console_command(line)
         trigger
       end
@@ -305,7 +336,7 @@ module Msf
         {
           running: @running, host: @host, port: @port, interval: @interval,
           clients: client_count, db_active: db_active, workspace: ws_name,
-          auth_required: !@password_digest.nil?, password: @password, counts: counts
+          auth_required: !@password_digest.nil?, console_feed: console_feed?, counts: counts
         }
       end
 
@@ -314,24 +345,46 @@ module Msf
       # ------------------------------------------------------------------
       # Browser authentication (HTTP Basic).  The map exposes engagement
       # data, so every request - page, JSON, websocket - requires the
-      # operator's password.  Only a SHA-256 digest is kept in memory and
-      # digest comparisons run in constant time.
+      # operator's password. Only a SHA-256 digest is kept after it is printed
+      # to the local console, and digest comparisons run in constant time.
       # ------------------------------------------------------------------
 
-      # Memorable three-word passphrase (e.g. "harbor_lynx_gravel").  Chosen
+      # Memorable five-word passphrase (e.g. "harbor_lynx_gravel_ember_satin"). Chosen
       # for operator ergonomics over raw entropy; pass --password to
       # network_map_start for something stronger when the map is exposed.
       def generate_password
-        Array.new(3) { PASSWORD_WORDS[::SecureRandom.random_number(PASSWORD_WORDS.length)] }.join('_')
+        Array.new(5) { PASSWORD_WORDS[::SecureRandom.random_number(PASSWORD_WORDS.length)] }.join('_')
+      end
+
+      def disconnect_clients
+        clients = @clients_mutex.synchronize { @clients.dup }
+        clients.each { |client| close_client(client) }
+      end
+
+      def set_allowed_origin(origin)
+        requested_origin = origin || "http://#{Rex::Socket.to_authority(display_host, @port)}"
+        origin_uri = ::URI.parse(requested_origin)
+        unless origin_uri.is_a?(::URI::HTTP) && origin_uri.host && !origin_uri.userinfo &&
+               (origin_uri.path.empty? || origin_uri.path == '/') && !origin_uri.query && !origin_uri.fragment
+          raise ArgumentError, 'Origin must be an HTTP(S) origin without credentials, path, query, or fragment'
+        end
+
+        @allowed_origin = origin_uri.normalize.to_s.delete_suffix('/')
+        @allowed_host = @allowed_origin.split('://', 2).last.downcase
       end
 
       def authorized?(headers)
         return false if @password_digest.nil?
 
-        supplied = ::Base64.decode64(headers['authorization'].to_s[/\ABasic (.+)\z/, 1].to_s)
+        credentials = headers['authorization'].to_s[%r{\ABasic ([A-Za-z0-9+/]*={0,2})\z}i, 1]
+        return false unless credentials
+
+        supplied = ::Base64.strict_decode64(credentials)
         # Username is ignored; everything after the first colon is the secret.
         candidate = ::Digest::SHA256.digest(supplied.split(':', 2)[1].to_s)
         secure_compare(candidate, @password_digest)
+      rescue ArgumentError
+        false
       end
 
       def secure_compare(digest_a, digest_b)
@@ -343,10 +396,7 @@ module Msf
       end
 
       def host_allowed?(headers)
-        return true if @allowed_hosts.nil? # bound to 0.0.0.0
-
-        hostname = headers['host'].to_s.sub(/:\d+\z/, '')
-        !hostname.empty? && @allowed_hosts.include?(hostname)
+        headers['host'].to_s.downcase == @allowed_host
       end
 
       # Cross-site websocket hijacking defense: browsers must originate from
@@ -357,10 +407,13 @@ module Msf
         origin = headers['origin'].to_s
         return true if origin.empty?
 
-        origin_host = origin[%r{\Ahttps?://([^/]+)}, 1].to_s.sub(/:\d+\z/, '')
-        return false if origin_host.empty?
+        origin_uri = ::URI.parse(origin)
+        return false unless origin_uri.is_a?(::URI::HTTP) && origin_uri.host && !origin_uri.userinfo &&
+                            (origin_uri.path.empty? || origin_uri.path == '/') && !origin_uri.query && !origin_uri.fragment
 
-        @allowed_hosts.nil? || @allowed_hosts.include?(origin_host)
+        origin_uri.normalize.to_s.delete_suffix('/') == @allowed_origin
+      rescue ::URI::InvalidURIError
+        false
       end
 
       def thread_named(name)
@@ -379,6 +432,10 @@ module Msf
 
       def warn_console(msg)
         @plugin.tap_warning("network_map: #{msg}")
+      end
+
+      def print_warning(msg)
+        warn_console(msg)
       end
 
       def warn_once(key, msg)
@@ -416,7 +473,8 @@ module Msf
       def build_payload
         meta = {
           generated_at: Time.now.utc.strftime('%Y-%m-%dT%H:%M:%SZ'),
-          clients: client_count
+          clients: client_count,
+          console_feed: console_feed?
         }
         unless db_active?
           return {
@@ -427,10 +485,20 @@ module Msf
           }
         end
 
-        ws_data = with_db_connection { collect_workspace_data }
+        ws_data = with_db_connection do
+          workspace = @framework.db.workspace
+          load_workspace_data(workspace).merge(workspace: workspace)
+        end
         return nil unless ws_data # pool exhausted; skip this round
 
-        nodes, links = build_graph_data(ws_data)
+        nodes, links = build_graph_data(
+          ws_data,
+          session_limit: @limits[:session].to_i,
+          loot_limit: @limits[:loot].to_i,
+          cred_limit: @limits[:cred].to_i
+        )
+        msf_node = nodes.find { |node| node[:id] == MSF_NODE_ID }
+        msf_node&.merge!(live_msf_details)
         {
           type: 'update',
           meta: meta.merge(
@@ -453,44 +521,6 @@ module Msf
         }
       end
 
-      def collect_workspace_data
-        ws = @framework.db.workspace
-        hosts = ws.hosts.includes(:services, :sessions).all.to_a
-        db_sessions = ws.sessions.all.to_a
-        traceroute_notes = ws.notes.where(ntype: 'host.nmap.traceroute').includes(:host).to_a
-        host_loots = ws.loots.where.not(host_id: nil).to_a
-        host_vulns = ws.vulns.includes(:refs).all.to_a
-        module_run_events = ws.events.where(name: 'module_run').all.to_a
-        host_ids = hosts.map(&:id)
-        direct_module_runs = begin
-          MetasploitDataModels::ModuleRun
-            .where(trackable_type: 'Mdm::Host', trackable_id: host_ids)
-            .all.to_a
-        rescue StandardError
-          []
-        end
-        host_cred_logins = begin
-          Metasploit::Credential::Login
-            .in_workspace_including_hosts_and_services(ws)
-            .includes(core: [:realm])
-            .all.to_a
-        rescue StandardError => e
-          warn_once(:cred_query, "credential login query failed: #{e.class}: #{e.message}")
-          []
-        end
-        {
-          workspace: ws,
-          hosts: hosts,
-          db_sessions: db_sessions,
-          traceroute_notes: traceroute_notes,
-          host_loots: host_loots,
-          host_vulns: host_vulns,
-          module_run_events: module_run_events,
-          direct_module_runs: direct_module_runs,
-          host_cred_logins: host_cred_logins
-        }
-      end
-
       def msf_node
         lhost = begin
           Rex::Socket.source_address
@@ -502,7 +532,6 @@ module Msf
         rescue StandardError
           'localhost'
         end
-        console = @plugin.console_snapshot
         {
           id: MSF_NODE_ID,
           label: 'Metasploit',
@@ -521,16 +550,21 @@ module Msf
           sessions: [],
           services: [],
           loots: [],
-          device_type: 'msf',
-          jobs: jobs_data,
-          last_command: console[:last_command],
-          console_tail: console[:tail]
-        }
+          device_type: 'msf'
+        }.merge(live_msf_details)
+      end
+
+      def live_msf_details
+        details = { jobs: jobs_data }
+        return details unless console_feed?
+
+        console = @plugin.console_snapshot
+        details.merge(last_command: console[:last_command], console_tail: console[:tail])
       end
 
       # Background jobs (handlers, servers, ...) for the MSF node sidebar.
       def jobs_data
-        @framework.jobs.map do |jid, job|
+        jobs = @framework.jobs.map do |jid, job|
           {
             id: jid,
             name: job.respond_to?(:name) ? job.name.to_s : job.class.to_s,
@@ -540,282 +574,10 @@ module Msf
               ''
             end
           }
-        end.sort_by { |j| j[:id] }
+        end
+        jobs.sort_by { |job| job[:id] }
       rescue StandardError
         []
-      end
-
-      def build_graph_data(ws_data)
-        hosts = ws_data[:hosts]
-        db_sessions = ws_data[:db_sessions]
-        traceroute_notes = ws_data[:traceroute_notes]
-        host_loots = ws_data[:host_loots]
-        host_vulns = ws_data[:host_vulns]
-        module_run_events = ws_data[:module_run_events]
-        direct_module_runs = ws_data[:direct_module_runs]
-        cred_by_host = (ws_data[:host_cred_logins] || []).group_by { |l| l.service.host_id if l.service }
-
-        nodes = []
-        links_set = Set.new
-        nodes << msf_node
-
-        session_by_host = db_sessions.group_by(&:host_id)
-        loot_by_host = host_loots.group_by(&:host_id)
-        vuln_by_host = host_vulns.group_by(&:host_id)
-        module_run_by_host = direct_module_runs.group_by(&:trackable_id)
-
-        # Build ip -> [module_name] map from module_run events (single-IP RHOST only)
-        ipv4_re = /\A\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/
-        event_modules_by_ip = Hash.new { |h, k| h[k] = Set.new }
-        module_run_events.each do |ev|
-          info = ev.info
-          next unless info.is_a?(Hash)
-
-          mod = info[:module_name] || info['module_name']
-          next unless mod
-
-          ds = info[:datastore] || info['datastore'] || {}
-          rhost = ds['RHOST'] || ds['RHOSTS']
-          next unless rhost.to_s =~ ipv4_re
-
-          event_modules_by_ip[rhost.to_s].add(mod)
-        end
-
-        subnet_to_pivot = {}
-        db_sessions.each do |db_session|
-          next unless db_session.respond_to?(:routes)
-
-          db_session.routes.each do |route|
-            subnet_to_pivot["#{route.subnet}/#{route.netmask}"] = db_session.host_id
-          end
-        end
-
-        # Build addr->node_id map for known hosts (used for traceroute link resolution)
-        host_id_by_addr = hosts.each_with_object({}) { |h, m| m[h.address.to_s] = "host_#{h.id}" }
-
-        # Parse traceroute notes to build intermediate hop nodes and directed
-        # link chains.  Both nmap importers write hops; nmap_document.rb uses
-        # "ipaddr", nmap.rb uses "address".
-        hop_nodes = {}
-        host_rtt = {} # node_id -> rtt (ms) for known hosts seen in traceroute hops
-        hosts_with_traceroute = Set.new
-
-        traceroute_notes.each do |note|
-          next unless note.data.is_a?(Hash)
-
-          hops = note.data['hops'] || []
-          next if hops.empty?
-
-          target_addr = note.host&.address&.to_s
-          prev_id = MSF_NODE_ID
-
-          hops.each do |hop|
-            ip = (hop['address'] || hop['ipaddr']).to_s.strip
-            next if ip.empty? || ip == '*'
-
-            rtt_val = hop['rtt'].to_f
-            rtt_val = nil unless rtt_val > 0
-
-            current_id = if host_id_by_addr.key?(ip)
-                           nid = host_id_by_addr[ip]
-                           host_rtt[nid] ||= rtt_val
-                           nid
-                         elsif hop_nodes.key?(ip)
-                           hop_nodes[ip][:rtt] ||= rtt_val
-                           hop_nodes[ip][:id]
-                         else
-                           node_id = "hop_#{ip.gsub(/[^0-9a-f:]/i, '_')}"
-                           hop_nodes[ip] = {
-                             id: node_id,
-                             label: hop['name'].to_s.empty? ? ip : hop['name'],
-                             address: ip,
-                             name: hop['name'] || '',
-                             mac: '', os_name: '', os_flavor: '', os_sp: '', os_family: '',
-                             purpose: '', arch: '',
-                             compromised: false, ever_compromised: false,
-                             session_count: 0, sessions: [], services: [], loots: [],
-                             device_type: 'router',
-                             rtt: rtt_val
-                           }
-                           node_id
-                         end
-
-            links_set.add([prev_id, current_id])
-            prev_id = current_id
-          end
-
-          hosts_with_traceroute.add(target_addr) if target_addr
-
-          # Ensure last hop connects to the known target host node when they differ
-          if target_addr && host_id_by_addr.key?(target_addr)
-            target_id = host_id_by_addr[target_addr]
-            links_set.add([prev_id, target_id]) unless prev_id == target_id
-          end
-        end
-
-        if subnet_to_pivot.empty? && traceroute_notes.empty?
-          warn_once(:no_topology, 'no session routes or traceroute data found - all hosts will hang directly off the MSF node. Run nmap with --traceroute or "route add" behind a pivot session for real topology.')
-        end
-
-        hosts.each do |host|
-          host_sessions = session_by_host[host.id] || []
-          active_sessions = host_sessions.select { |s| s.closed_at.nil? }
-
-          session_limit = @limits[:session].to_i
-          display_sessions = session_limit > 0 ? host_sessions.sort_by { |s| s.opened_at || Time.at(0) }.last(session_limit) : host_sessions
-
-          session_data = display_sessions.map do |s|
-            ds = s.datastore.is_a?(Hash) ? s.datastore : {}
-            {
-              id: s.id,
-              type: s.stype || 'unknown',
-              via_exploit: s.via_exploit || '',
-              via_payload: s.via_payload || '',
-              lhost: ds['LHOST'] || '',
-              lport: ds['LPORT'] || '',
-              rport: ds['RPORT'] || '',
-              opened_at: s.opened_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
-              closed_at: s.closed_at&.strftime('%Y-%m-%d %H:%M:%S') || '',
-              active: s.closed_at.nil?
-            }
-          end
-
-          service_data = host.services
-                             .sort_by(&:port)
-                             .map { |svc| { port: svc.port, proto: svc.proto, name: svc.name || '', state: svc.state || '' } }
-
-          loot_limit = @limits[:loot].to_i
-          display_loots = loot_by_host[host.id] || []
-          display_loots = display_loots.last(loot_limit) if loot_limit > 0
-
-          loot_data = display_loots.map do |l|
-            {
-              ltype: l.ltype || '',
-              name: l.name || '',
-              info: l.info || '',
-              path: l.path || ''
-            }
-          end
-
-          vuln_data = (vuln_by_host[host.id] || []).map do |v|
-            {
-              name: v.name || '',
-              info: v.info || '',
-              refs: v.refs.map(&:name),
-              exploited_at: v.exploited_at&.strftime('%Y-%m-%d %H:%M:%S') || ''
-            }
-          end
-
-          host_module_runs = (module_run_by_host[host.id] || []).map do |mr|
-            {
-              module_fullname: mr.module_fullname || '',
-              status: mr.status || '',
-              attempted_at: mr.attempted_at&.strftime('%Y-%m-%d %H:%M:%S') || ''
-            }
-          end
-
-          cred_limit = @limits[:cred].to_i
-          display_creds = (cred_by_host[host.id] || []).uniq(&:core_id)
-          display_creds = display_creds.last(cred_limit) if cred_limit > 0
-
-          cred_data = display_creds.map do |login|
-            core = login.core
-            {
-              type: core.private&.type&.split('::')&.last || 'Unknown',
-              username: core.public&.username || '',
-              domain: core.realm&.value || '',
-              status: login.status || ''
-            }
-          end
-
-          nodes << {
-            id: "host_#{host.id}",
-            label: (host.name || host.address.to_s),
-            address: host.address.to_s,
-            name: host.name || '',
-            mac: host.mac || '',
-            os_name: host.os_name || '',
-            os_flavor: host.os_flavor || '',
-            os_sp: host.os_sp || '',
-            os_family: host.os_family || '',
-            purpose: host.purpose || '',
-            arch: host.arch || '',
-            compromised: active_sessions.any?,
-            ever_compromised: host_sessions.any?,
-            session_count: active_sessions.count,
-            sessions: session_data,
-            services: service_data,
-            loots: loot_data,
-            vulns: vuln_data,
-            event_modules: event_modules_by_ip[host.address.to_s].to_a.sort,
-            module_runs: host_module_runs,
-            creds: cred_data,
-            device_type: infer_device_type(host),
-            rtt: host_rtt["host_#{host.id}"]
-          }
-
-          # Traceroute takes precedence; only add a default link if no
-          # traceroute covers this host
-          next if hosts_with_traceroute.include?(host.address.to_s)
-
-          pivot_host_id = find_pivot_for_host(host, subnet_to_pivot)
-          source_id = pivot_host_id ? "host_#{pivot_host_id}" : MSF_NODE_ID
-          links_set.add([source_id, "host_#{host.id}"])
-        end
-
-        nodes.concat(hop_nodes.values)
-        links = links_set.map { |s, t| { source: s, target: t } }
-
-        [nodes, links]
-      end
-
-      def infer_device_type(host)
-        purpose = host.purpose.to_s.downcase
-        return 'router' if purpose.match?(/router/)
-        return 'switch' if purpose.match?(/switch/)
-        return 'firewall' if purpose.match?(/firewall/)
-        return 'printer' if purpose.match?(/print/)
-        return 'phone' if purpose.match?(/phone|mobile/)
-        return 'server' if purpose.match?(/server/)
-        return 'computer' if purpose.match?(/client|workstation/)
-
-        ports = host.services.map(&:port)
-        return 'server' if (ports & [80, 443, 8080, 8443, 3306, 5432, 1433]).any?
-        return 'router' if (ports & [179, 520, 521]).any?
-
-        'computer'
-      end
-
-      def find_pivot_for_host(host, subnet_to_pivot)
-        ip = IPAddr.new(host.address.to_s)
-        subnet_to_pivot.each do |cidr, pivot_host_id|
-          next if pivot_host_id == host.id # a pivot never routes behind itself
-
-          subnet_ip, netmask = cidr.split('/')
-          net = IPAddr.new("#{subnet_ip}/#{netmask}")
-          return pivot_host_id if net.include?(ip)
-        rescue ArgumentError
-          next
-        end
-        nil
-      rescue ArgumentError
-        nil
-      end
-
-      # Recursively re-encodes all strings in a nested Hash/Array as valid
-      # UTF-8.  DB strings (SSH keys, binary fields) often come back tagged
-      # ASCII-8BIT; force_encoding reinterprets the bytes as UTF-8, scrub
-      # drops any invalid sequences.
-      def utf8_sanitize(obj)
-        case obj
-        when Hash then obj.transform_values { |v| utf8_sanitize(v) }
-        when Array then obj.map { |v| utf8_sanitize(v) }
-        when String
-          return obj if obj.encoding == ::Encoding::UTF_8 && obj.valid_encoding?
-
-          obj.dup.force_encoding('UTF-8').scrub('?')
-        else obj
-        end
       end
 
       # ------------------------------------------------------------------
@@ -858,8 +620,8 @@ module Msf
           end
           # Sleep out the interval, but wake early when an event triggers.
           @condvar_mutex.synchronize do
-            @pending = false
             @condvar.wait(@condvar_mutex, @interval) unless @pending
+            @pending = false
           end
         end
       end
@@ -872,7 +634,8 @@ module Msf
           @framework.jobs.size
         rescue StandardError
           '?'
-        end}|console:#{@plugin.console_activity_version}"
+        end}"
+        live_sig << "|console:#{@plugin.console_activity_version}" if console_feed?
         return "no-db|#{live_sig}" unless db_active?
 
         ws = @framework.db.workspace
@@ -892,6 +655,7 @@ module Msf
         parts << agg.call('vulns', ws.vulns)
         parts << agg.call('events', ws.events)
         parts << agg.call('notes-tr', ws.notes.where(ntype: 'host.nmap.traceroute'))
+        parts << agg.call('notes-snmp', ws.notes.where(ntype: Msf::Auxiliary::NetworkGraphBuilder::SNMP_NOTE_TYPES))
         begin
           parts << "sess:#{ws.sessions.count}:#{ws.sessions.maximum(:opened_at).to_i}:#{ws.sessions.maximum(:closed_at).to_i}"
         rescue StandardError
@@ -928,6 +692,18 @@ module Msf
             sleep 0.2
             next
           end
+
+          unless claim_connection
+            begin
+              write_http(sock, 503, 'Service Unavailable', 'text/plain', "503 Service Unavailable\n")
+            rescue StandardError
+              nil
+            ensure
+              sock.close
+            end
+            next
+          end
+
           ::Thread.new do
             handle_conn(sock)
           ensure
@@ -936,8 +712,76 @@ module Msf
             rescue StandardError
               nil
             end
+            release_connection
           end
         end
+      end
+
+      def claim_connection
+        @connection_mutex.synchronize do
+          return false if @connection_count >= MAX_CONNECTIONS
+
+          @connection_count += 1
+        end
+        true
+      end
+
+      def release_connection
+        @connection_mutex.synchronize { @connection_count -= 1 }
+      end
+
+      def read_http_request(sock)
+        deadline = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) + HTTP_HEADER_TIMEOUT
+        request = +''.b
+        header_end = nil
+
+        loop do
+          header_end = request.index("\r\n\r\n")
+          break if header_end
+          raise HttpRequestError.new(431, 'Request Header Fields Too Large') if request.bytesize >= MAX_HTTP_HEADER_BYTES
+
+          remaining = deadline - ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+          raise Errno::ETIMEDOUT if remaining <= 0 || !::IO.select([sock], nil, nil, remaining)
+
+          chunk = sock.read_nonblock([4096, MAX_HTTP_HEADER_BYTES + 1 - request.bytesize].min, exception: false)
+          next if chunk == :wait_readable
+          return nil if chunk.nil? && request.empty?
+          raise HttpRequestError.new(400, 'Bad Request') if chunk.nil?
+
+          request << chunk
+        end
+
+        raise HttpRequestError.new(431, 'Request Header Fields Too Large') if header_end + 4 > MAX_HTTP_HEADER_BYTES
+
+        lines = request.byteslice(0, header_end).split("\r\n")
+        request_line = lines.shift
+        raise HttpRequestError.new(400, 'Bad Request') if request_line.nil? || request_line.bytesize > MAX_HTTP_HEADER_LINE_BYTES
+
+        method, target, version = request_line.split(' ')
+        unless method && target && version&.match?(%r{\AHTTP/1\.[01]\z}) && request_line.split(' ').length == 3
+          raise HttpRequestError.new(400, 'Bad Request')
+        end
+        raise HttpRequestError.new(431, 'Request Header Fields Too Large') if lines.length > MAX_HTTP_HEADERS
+
+        headers = lines.each_with_object({}) do |line, parsed|
+          raise HttpRequestError.new(431, 'Request Header Fields Too Large') if line.bytesize > MAX_HTTP_HEADER_LINE_BYTES
+
+          name, value = line.split(':', 2)
+          unless name&.match?(/\A[!#$%&'*+.^_`|~0-9A-Za-z-]+\z/) && value && !parsed.key?(name.downcase)
+            raise HttpRequestError.new(400, 'Bad Request')
+          end
+
+          parsed[name.downcase] = value.strip
+        end
+        [method, target, headers]
+      end
+
+      def websocket_upgrade_valid?(headers)
+        connection_tokens = headers['connection'].to_s.split(',').map { |token| token.strip.downcase }
+        key = ::Base64.strict_decode64(headers['sec-websocket-key'].to_s)
+        connection_tokens.include?('upgrade') && headers['sec-websocket-version'] == '13' && key.bytesize == 16
+      rescue ArgumentError
+        false
       end
 
       def handle_conn(sock)
@@ -946,18 +790,23 @@ module Msf
         rescue StandardError
           nil
         end
-        req_line = sock.gets("\r\n")
-        return unless req_line
+        method, target, headers = read_http_request(sock)
+        return unless method
 
-        method, target, = req_line.split(' ')
-        headers = {}
-        while (line = sock.gets("\r\n"))
-          break if line == "\r\n" || line == "\n"
-
-          k, v = line.split(':', 2)
-          headers[k.to_s.strip.downcase] = v.to_s.strip if v
-        end
         path = target.to_s.split('?').first
+
+        # Reject unexpected authorities before issuing the authentication
+        # challenge, so a DNS-rebinding page cannot prompt for this server's
+        # password under an attacker-controlled name.
+        unless host_allowed?(headers)
+          write_http(sock, 403, 'Forbidden', 'text/plain', "403 Forbidden\n")
+          return
+        end
+
+        unless %w[GET HEAD].include?(method)
+          write_http(sock, 405, 'Method Not Allowed', 'text/plain', "405 Method Not Allowed\n")
+          return
+        end
 
         # Nothing is served without the password - page, assets, JSON,
         # websocket upgrade, everything.
@@ -966,12 +815,12 @@ module Msf
                      extra: ['WWW-Authenticate: Basic realm="network_map", charset="UTF-8"'])
           return
         end
-        unless host_allowed?(headers)
-          write_http(sock, 403, 'Forbidden', 'text/plain', "403 Forbidden\n")
-          return
-        end
 
-        if path == '/ws' && headers['upgrade'].to_s.downcase == 'websocket'
+        if method == 'GET' && path == '/ws' && headers['upgrade'].to_s.downcase == 'websocket'
+          unless websocket_upgrade_valid?(headers)
+            write_http(sock, 400, 'Bad Request', 'text/plain', "400 Bad Request\n")
+            return
+          end
           unless origin_allowed?(headers)
             write_http(sock, 403, 'Forbidden', 'text/plain', "403 Forbidden\n")
             return
@@ -984,37 +833,34 @@ module Msf
         case path
         when '/', '/index.html'
           body = INDEX_HTML
-          if method == 'HEAD'
-            write_http(sock, 200, 'OK', 'text/html; charset=utf-8', body, head_only: true)
-          else
-            write_http(sock, 200, 'OK', 'text/html; charset=utf-8', body)
-          end
+          write_http(sock, 200, 'OK', 'text/html; charset=utf-8', body, head_only: method == 'HEAD')
         when '/d3.js'
           d3_path = D3_CANDIDATES.find { |p| p && File.file?(p) }
           if d3_path
-            write_http(sock, 200, 'OK', 'application/javascript; charset=utf-8', File.binread(d3_path))
+            write_http(sock, 200, 'OK', 'application/javascript; charset=utf-8', File.binread(d3_path), head_only: method == 'HEAD')
           else
-            # The client falls back to the CDN when this 404s.
-            write_http(sock, 404, 'Not Found', 'text/plain', "no local d3.js (using CDN)\n")
+            write_http(sock, 404, 'Not Found', 'text/plain', "local d3.js is unavailable\n", head_only: method == 'HEAD')
           end
         when '/graph.json'
           json = @last_json || begin
             payload = build_payload
             payload ? ::JSON.generate(utf8_sanitize(payload)) : '{}'
           end
-          write_http(sock, 200, 'OK', 'application/json; charset=utf-8', json)
+          write_http(sock, 200, 'OK', 'application/json; charset=utf-8', json, head_only: method == 'HEAD')
         when '/health'
-          write_http(sock, 200, 'OK', 'text/plain', "ok\n")
+          write_http(sock, 200, 'OK', 'text/plain', "ok\n", head_only: method == 'HEAD')
         else
-          write_http(sock, 404, 'Not Found', 'text/plain', "not found\n")
+          write_http(sock, 404, 'Not Found', 'text/plain', "not found\n", head_only: method == 'HEAD')
         end
+      rescue HttpRequestError => e
+        write_http(sock, e.code, e.reason, 'text/plain', "#{e.code} #{e.reason}\n")
       rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::ETIMEDOUT
         nil # client hung up mid-request; normal
       rescue StandardError => e
         warn_console("request handling error: #{e.class}: #{e.message}")
       end
 
-      CSP = "default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " \
+      CSP = "default-src 'none'; script-src 'self' 'unsafe-inline'; " \
             "style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; " \
             "base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 
@@ -1036,8 +882,8 @@ module Msf
                "Cross-Origin-Resource-Policy: same-origin\r\n"
         if ctype.start_with?('text/html')
           # Defense in depth behind the escaping in the page: it only needs
-          # its own scripts/styles, the d3 CDN fallback, and blob/data images
-          # for the PNG export - nothing else may load or connect anywhere.
+          # its own scripts/styles and blob/data images for the PNG export -
+          # nothing else may load or connect anywhere.
           head << "Content-Security-Policy: #{CSP}\r\n"
           head << "Permissions-Policy: #{PERMISSIONS_POLICY}\r\n"
         end
@@ -1046,8 +892,9 @@ module Msf
                 "Connection: close\r\n" \
                 "Cache-Control: no-store\r\n" \
                 "\r\n"
-        sock.write(head)
-        sock.write(body) unless head_only
+        deadline = monotonic_now + HTTP_WRITE_TIMEOUT
+        write_with_deadline(sock, head, deadline)
+        write_with_deadline(sock, body, deadline) unless head_only
       end
 
       # --- RFC 6455 websocket --------------------------------------------
@@ -1057,13 +904,12 @@ module Msf
         return unless key
 
         accept = ::Base64.strict_encode64(::Digest::SHA1.digest(key + WS_GUID))
-        sock.write(
-          "HTTP/1.1 101 Switching Protocols\r\n" \
-          "Upgrade: websocket\r\n" \
-          "Connection: Upgrade\r\n" \
-          "Sec-WebSocket-Accept: #{accept}\r\n" \
-          "\r\n"
-        )
+        response = "HTTP/1.1 101 Switching Protocols\r\n" \
+                   "Upgrade: websocket\r\n" \
+                   "Connection: Upgrade\r\n" \
+                   "Sec-WebSocket-Accept: #{accept}\r\n" \
+                   "\r\n"
+        write_with_deadline(sock, response, monotonic_now + HTTP_WRITE_TIMEOUT)
 
         peer = begin
           sock.peeraddr
@@ -1072,10 +918,12 @@ module Msf
         end
         client = {
           sock: sock, write_lock: ::Mutex.new,
+          outbox: [], outbox_lock: ::Mutex.new, outbox_condvar: ::ConditionVariable.new, closed: false,
           addr: peer ? peer[3] : 'unknown', port: peer ? peer[1] : 0,
           connected_at: ::Time.now, last_seen: ::Time.now
         }
         @clients_mutex.synchronize { @clients << client }
+        writer_thread = thread_named('network_map:websocket-writer') { ws_writer_loop(client) }
         info_console("browser connected (#{client_count} watching)")
 
         # Push the current snapshot immediately so the first paint can come
@@ -1085,7 +933,7 @@ module Msf
             payload = build_payload
             payload ? ::JSON.generate(utf8_sanitize(payload)) : nil
           end
-          ws_send_frame(client, json) if json
+          enqueue_frame(client, json) if json
         rescue StandardError => e
           warn_console("initial snapshot failed: #{e.class}: #{e.message}")
         end
@@ -1112,12 +960,8 @@ module Msf
       rescue StandardError => e
         warn_console("websocket client error: #{e.class}: #{e.message}")
       ensure
-        @clients_mutex.synchronize { @clients.delete(client) }
-        begin
-          sock.close
-        rescue StandardError
-          nil
-        end
+        close_client(client) if client
+        writer_thread&.join(WEBSOCKET_WRITE_TIMEOUT + 1)
         info_console("browser disconnected (#{client_count} watching)") if @running
       end
 
@@ -1137,8 +981,57 @@ module Msf
         # frame writes must not interleave with pong/close writes from the
         # reader thread on the same socket
         client[:write_lock].synchronize do
-          client[:sock].write(header.pack('C*'))
-          client[:sock].write(data)
+          deadline = monotonic_now + WEBSOCKET_WRITE_TIMEOUT
+          write_with_deadline(client[:sock], header.pack('C*'), deadline)
+          write_with_deadline(client[:sock], data, deadline)
+        end
+      end
+
+      # Give each viewer its own bounded output queue. Graph refreshes never
+      # wait for socket I/O; a viewer that cannot keep up is disconnected.
+      def enqueue_frame(client, data, opcode = 0x1)
+        client[:outbox_lock].synchronize do
+          return false if client[:closed] || client[:outbox].length >= MAX_PENDING_WEBSOCKET_FRAMES
+
+          client[:outbox] << [data, opcode]
+          client[:outbox_condvar].signal
+        end
+        true
+      end
+
+      def ws_writer_loop(client)
+        loop do
+          frame = client[:outbox_lock].synchronize do
+            client[:outbox_condvar].wait(client[:outbox_lock]) while @running && !client[:closed] && client[:outbox].empty?
+            client[:outbox].shift
+          end
+          break unless frame
+
+          ws_send_frame(client, *frame)
+        end
+      rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::ETIMEDOUT
+        nil
+      rescue StandardError => e
+        warn_console("websocket writer error: #{e.class}: #{e.message}")
+      ensure
+        close_client(client)
+      end
+
+      def close_client(client)
+        return unless client
+
+        client[:outbox_lock].synchronize do
+          return if client[:closed]
+
+          client[:closed] = true
+          client[:outbox].clear
+          client[:outbox_condvar].broadcast
+        end
+        @clients_mutex.synchronize { @clients.delete(client) }
+        begin
+          client[:sock].close
+        rescue StandardError
+          nil
         end
       end
 
@@ -1152,6 +1045,8 @@ module Msf
         h0, h1 = b.unpack('C2')
         opcode = h0 & 0x0f
         masked = (h1 & 0x80) != 0
+        return nil unless masked
+
         len = h1 & 0x7f
         if len == 126
           ext = read_exact(sock, 2)
@@ -1164,29 +1059,59 @@ module Msf
 
           len = ext.unpack1('Q>')
         end
-        mask = masked ? read_exact(sock, 4)&.unpack('C4') : nil
+        return nil if len > MAX_WEBSOCKET_FRAME_BYTES
+        return nil if opcode >= 0x8 && ((h0 & 0x80).zero? || len > 125)
+
+        mask = read_exact(sock, 4)&.unpack('C4')
+        return nil unless mask
+
         payload = len.positive? ? read_exact(sock, len) : +''.b
         return nil if payload.nil?
 
-        if mask
-          payload = payload.bytes.each_with_index.map { |byte, i| byte ^ mask[i % 4] }.pack('C*')
-        end
+        payload = payload.bytes.each_with_index.map { |byte, i| byte ^ mask[i % 4] }.pack('C*')
         { opcode: opcode, payload: payload }
       end
 
-      def read_exact(sock, n)
-        data = sock.read(n)
-        return nil if data.nil? || data.bytesize != n
+      def read_exact(sock, length)
+        deadline = monotonic_now + WEBSOCKET_FRAME_TIMEOUT
+        data = +''.b
+        while data.bytesize < length
+          remaining = deadline - ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+          raise Errno::ETIMEDOUT if remaining <= 0 || !::IO.select([sock], nil, nil, remaining)
+
+          chunk = sock.read_nonblock(length - data.bytesize, exception: false)
+          next if chunk == :wait_readable
+          return nil if chunk.nil?
+
+          data << chunk
+        end
 
         data
-      rescue IOError, Errno::ECONNRESET # client vanished mid-frame
+      rescue IOError # client vanished mid-frame
         nil
+      end
+
+      def write_with_deadline(sock, data, deadline)
+        written = 0
+        while written < data.bytesize
+          remaining = deadline - monotonic_now
+          raise Errno::ETIMEDOUT if remaining <= 0 || !::IO.select(nil, [sock], nil, remaining)
+
+          chunk = sock.write_nonblock(data.byteslice(written, data.bytesize - written), exception: false)
+          next if chunk == :wait_writable
+
+          written += chunk
+        end
+      end
+
+      def monotonic_now
+        ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       end
 
       def broadcast(json)
         dead = []
         @clients_mutex.synchronize { @clients.dup }.each do |client|
-          ws_send_frame(client, json)
+          dead << client unless enqueue_frame(client, json)
         rescue StandardError
           dead << client
         end
@@ -1252,6 +1177,14 @@ module Msf
         @server&.trigger
       end
 
+      def on_session_route(_session, _route)
+        @server&.trigger
+      end
+
+      def on_session_route_remove(_session, _route)
+        @server&.trigger
+      end
+
       # Console commands, relayed by the driver's standard on_command_proc
       # through framework.events - immune to the hook clobbering every
       # dispatcher instantiation does.
@@ -1272,8 +1205,7 @@ module Msf
       # general subscriber must implement this even to ignore it.  Without
       # this no-op, any lazy module load ("use <uncached module>") raises
       # NoMethodError and breaks the use command.
-      def on_module_load(_name, _mod)
-      end
+      def on_module_load(_name, _mod); end
     end
 
     #
@@ -1284,14 +1216,16 @@ module Msf
 
       DEFAULT_LIMITS = { session: 0, loot: 0, cred: 0 }.freeze
 
-      @@start_opts = Rex::Parser::Arguments.new(
+      START_OPTIONS = Rex::Parser::Arguments.new(
         ['-h', '--help'] => [false, 'Help banner'],
         ['--host'] => [true, 'Interface to bind (default 127.0.0.1; 0.0.0.0 exposes your engagement data to the network)'],
+        ['--origin'] => [true, 'Exact browser origin for a shared or proxied listener (e.g. http://192.0.2.10:4646)'],
         ['--interval'] => [true, 'Database poll interval in seconds (default 2.0)'],
         ['--limit-session'] => [true, 'Max sessions included per host (0 = unlimited, default 0)'],
         ['--limit-loot'] => [true, 'Max loot items included per host (0 = unlimited, default 0)'],
         ['--limit-cred'] => [true, 'Max credentials included per host (0 = unlimited, default 0)'],
-        ['--password'] => [true, 'Browser password (default: generated three-word passphrase, e.g. harbor_lynx_gravel)']
+        ['--console-feed'] => [false, 'Share console output with viewers (default off; may expose secrets)'],
+        ['--password'] => [true, 'Browser password (default: generated five-word passphrase)']
       )
 
       def name
@@ -1316,15 +1250,19 @@ module Msf
         print_line 'Usage: network_map_start [port] [options]'
         print_line
         print_line 'Starts a local web server serving a live-updating network graph of the'
-        print_line 'current workspace (same visualization as auxiliary/analyze/network_graph).'
+        print_line 'current workspace using the topology builder from auxiliary/analyze/network_graph.'
         print_line 'Open the printed URL in a browser; it updates over a websocket as hosts,'
         print_line 'services, sessions, loot, vulns, creds and module runs hit the database.'
         print_line
-        print_line 'A password (HTTP Basic) is required for every request.  A three-word'
+        print_line 'A password (HTTP Basic) is required for every request. A five-word'
         print_line 'passphrase is generated and printed at startup, or supply your own with'
         print_line '--password; rotate it later with network_map_password.'
+        print_line 'For a shared/reverse-proxied listener, set --origin to the exact HTTP(S)'
+        print_line 'origin viewers use. The Host and WebSocket Origin must both match it.'
+        print_line 'Console output is excluded by default because it may contain secrets;'
+        print_line 'enable --console-feed only when every viewer is trusted with that output.'
         print_line
-        print_line @@start_opts.usage
+        print_line START_OPTIONS.usage
       end
 
       def cmd_network_map_start(*args)
@@ -1333,36 +1271,65 @@ module Msf
         interval = Plugin::NetworkMapLive::DEFAULT_INTERVAL
         limits = DEFAULT_LIMITS.dup
         password = nil
-        consumed = []
+        origin = nil
+        console_feed = false
+        positionals = []
+        help_requested = false
+        parse_error = nil
 
-        @@start_opts.parse(args) do |opt, _idx, val|
+        START_OPTIONS.parse(args) do |opt, _idx, val|
+          if opt && START_OPTIONS.arg_required?(opt) && val.nil?
+            parse_error = "Missing value for #{opt}"
+            next
+          end
+          next if parse_error
+
           case opt
           when '-h', '--help'
-            return cmd_network_map_start_help
+            help_requested = true
+          when nil
+            positionals << val
           when '--host'
             host = val
+          when '--origin'
+            origin = val
           when '--interval'
             interval = begin
               Float(val)
-            rescue ArgumentError
-              print_error("Invalid interval: #{val}")
-              return
+            rescue ArgumentError, TypeError
+              parse_error = "Invalid interval: #{val}"
+              interval
             end
           when '--limit-session'
-            limits[:session] = val.to_i
+            limits[:session] = parse_limit(opt, val) { |error| parse_error = error }
           when '--limit-loot'
-            limits[:loot] = val.to_i
+            limits[:loot] = parse_limit(opt, val) { |error| parse_error = error }
           when '--limit-cred'
-            limits[:cred] = val.to_i
+            limits[:cred] = parse_limit(opt, val) { |error| parse_error = error }
+          when '--console-feed'
+            console_feed = true
           when '--password'
             password = val
-            consumed << val
           end
         end
 
-        port_arg = args.find { |a| a =~ /\A\d+\z/ && !consumed.include?(a) }
-        if port_arg
-          port = port_arg.to_i
+        return cmd_network_map_start_help if help_requested
+
+        if parse_error
+          print_error(parse_error)
+          return
+        end
+
+        if positionals.length > 1
+          print_error("Unexpected arguments: #{positionals.drop(1).join(' ')}")
+          return
+        elsif positionals.first
+          begin
+            port = Integer(positionals.first, 10)
+          rescue ArgumentError
+            print_error("Invalid port: #{positionals.first}")
+            return
+          end
         end
         unless port.between?(1, 65_535)
           print_error("Invalid port: #{port}")
@@ -1379,12 +1346,12 @@ module Msf
           return
         end
         if svr.running?
-          print_error("Already running at http://#{svr.host}:#{svr.port}/ - run network_map_stop first")
+          print_error("Already running at #{svr.url} - run network_map_stop first")
           return
         end
 
         begin
-          password = svr.start(host: host, port: port, interval: interval, limits: limits, password: password)
+          password = svr.start(host: host, port: port, interval: interval, limits: limits, password: password, origin: origin, console_feed: console_feed)
         rescue Errno::EADDRINUSE
           print_error("Port #{port} is already in use on #{host}")
           return
@@ -1397,14 +1364,25 @@ module Msf
           print_status("Serving live network graph at #{svr.url} (loopback only)")
         else
           print_warning("Serving live network graph at #{svr.url} bound to #{host}")
-          print_warning('Anyone who can reach this port can watch your engagement data - bind 127.0.0.1 unless you mean it')
+          print_warning('The HTTP Basic password is sent in cleartext without HTTPS; use a trusted reverse proxy on untrusted networks')
         end
         print_status("Browser password: #{password} (no username)")
         print_status("Polling the database every #{interval}s and pushing changes to browsers over websockets")
+        print_warning('Console output sharing is enabled and may expose secrets or target data to viewers') if console_feed
         unless framework.db.active
           print_warning('No database connected yet - the map will stay empty until db_connect and data exists')
         end
         print_good("Live network map started on port #{port}")
+      end
+
+      def parse_limit(name, value)
+        parsed = Integer(value, 10)
+        raise ArgumentError if parsed.negative?
+
+        parsed
+      rescue ArgumentError, TypeError
+        yield "Invalid value for #{name}: #{value}"
+        nil
       end
 
       def cmd_network_map_stop
@@ -1418,8 +1396,8 @@ module Msf
       end
 
       # Set or rotate the browser password for the running server.  Called
-      # with no argument a fresh three-word passphrase is generated.  Takes
-      # effect immediately for all subsequent requests.
+      # with no argument a fresh five-word passphrase is generated. Existing
+      # WebSockets are closed so revoked viewers cannot keep receiving data.
       def cmd_network_map_password(*args)
         svr = server
         if svr.nil? || !svr.running?
@@ -1448,12 +1426,12 @@ module Msf
         print_status("#{clients.length} browser(s) connected:")
         now = ::Time.now
         clients.each do |c|
-          print_line(format('  %-22s connected %s (%s ago), last activity %s (%s ago)',
-                            "#{c[:addr]}:#{c[:port]}",
-                            c[:connected_at].strftime('%H:%M:%S'),
-                            fmt_age(now - c[:connected_at]),
-                            c[:last_seen].strftime('%H:%M:%S'),
-                            fmt_age(now - c[:last_seen])))
+          print_line(format('  %<authority>-22s connected %<connected_at>s (%<connected_age>s ago), last activity %<last_seen>s (%<last_age>s ago)',
+                            authority: Rex::Socket.to_authority(c[:addr], c[:port]),
+                            connected_at: c[:connected_at].strftime('%H:%M:%S'),
+                            connected_age: fmt_age(now - c[:connected_at]),
+                            last_seen: c[:last_seen].strftime('%H:%M:%S'),
+                            last_age: fmt_age(now - c[:last_seen])))
         end
       end
 
@@ -1474,9 +1452,10 @@ module Msf
         st = svr.status
         if st[:running]
           print_line 'Status:    running'
-          print_line "URL:       http://#{st[:host]}:#{st[:port]}/"
+          print_line "URL:       #{svr.url}"
           print_line "Clients:   #{st[:clients]} browser(s) connected"
-          print_line "Password:  #{st[:password]} (no username)"
+          print_line 'Authentication: password required; rotate it with network_map_password if lost'
+          print_line "Console feed: #{st[:console_feed] ? 'enabled (may expose secrets)' : 'disabled'}"
           print_line "Interval:  #{st[:interval]}s poll"
           print_line "Database:  #{st[:db_active] ? "active (workspace #{st[:workspace]})" : 'not connected'}"
           if st[:db_active] && st[:counts]
@@ -1517,6 +1496,9 @@ module Msf
     # on_ui_command event instead of the driver hook, which every dispatcher
     # instantiation overwrites (see EventRelay).
     def record_console_command(line)
+      return unless self.class.server&.console_feed?
+
+      line = redact_network_map_command(line)
       record_console_line("> #{line}")
       @console_mutex.synchronize do
         @console_state[:last_command] = line
@@ -1526,6 +1508,12 @@ module Msf
     end
 
     def record_console_line(line)
+      return unless self.class.server&.console_feed?
+
+      line = redact_embedded_network_map_command(line.to_s)
+             .sub(/(Browser password: ).*?( \(no username\))/, '\\1[redacted]\\2')
+             .sub(/(\bPassword:\s+).*?( \(no username\))/, '\\1[redacted]\\2')
+             .sub(/(Network map browser password set to: ).*/, '\\1[redacted]')
       @console_mutex.synchronize do
         st = @console_state
         st[:tail].push(line)
@@ -1534,6 +1522,36 @@ module Msf
       end
     rescue StandardError
       nil
+    end
+
+    def reset_console_snapshot
+      @console_mutex.synchronize do
+        @console_state = { version: 0, last_command: nil, tail: [] }
+      end
+    rescue StandardError
+      nil
+    end
+
+    def redact_embedded_network_map_command(line)
+      command_index = [line.index('network_map_start '), line.index('network_map_password ')].compact.min
+      return line unless command_index
+
+      line.byteslice(0, command_index) + redact_network_map_command(line.byteslice(command_index, line.bytesize))
+    end
+
+    def redact_network_map_command(line)
+      stripped = line.to_s.strip
+      return 'network_map_password [redacted]' if stripped.start_with?('network_map_password ')
+      return stripped unless stripped.start_with?('network_map_start ') && stripped.include?('--password')
+
+      args = Rex::Parser::Arguments.from_s(stripped)
+      password_index = args.index('--password')
+      return stripped.sub(/--password(?:=|\s+).*/, '--password [redacted]') unless password_index
+
+      args[password_index + 1] = '[redacted]' if password_index && args[password_index + 1]
+      args.join(' ')
+    rescue ArgumentError
+      stripped.sub(/--password.*/, '--password [redacted]')
     end
 
     def console_snapshot
@@ -1566,6 +1584,8 @@ module Msf
       @console_driver&.instance_variable_set(:@network_map_tap, nil)
       self.class.server = nil
       remove_console_dispatcher('network_map')
+    ensure
+      super
     end
 
     # Plugin prints normally bypass the driver (Plugin#output is the raw
@@ -1573,7 +1593,7 @@ module Msf
     # of the captured tail.  Route them through the driver when present so
     # the browser console shows exactly what the operator's terminal does.
     def tap_status(msg)
-      if @console_driver&.respond_to?(:print_status)
+      if @console_driver.respond_to?(:print_status)
         @console_driver.print_status(msg)
       else
         print_status(msg)
@@ -1581,7 +1601,7 @@ module Msf
     end
 
     def tap_warning(msg)
-      if @console_driver&.respond_to?(:print_warning)
+      if @console_driver.respond_to?(:print_warning)
         @console_driver.print_warning(msg)
       else
         print_warning(msg)
@@ -1606,18 +1626,27 @@ class Msf::Plugin::NetworkMapLive
   # updates.
   INDEX_HTML = <<~'HTML'
     <!DOCTYPE html>
+    <!--
+    D3.js v7.9.0, Copyright 2010-2023 Mike Bostock
+
+    Permission to use, copy, modify, and/or distribute this software for any purpose
+    with or without fee is hereby granted, provided that the above copyright notice
+    and this permission notice appear in all copies.
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+    FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+    OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+    THIS SOFTWARE.
+    -->
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>MSF Network Graph - Live</title>
-      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'">
       <script src="/d3.js"></script>
-      <script>
-        if (typeof d3 === 'undefined') {
-          document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"><\/script>');
-        }
-      </script>
       <style>
         :root {
           --bg-canvas:        #0d1117;
@@ -2734,7 +2763,8 @@ class Msf::Plugin::NetworkMapLive
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       }
 
       function getOsKey(node) {
@@ -3206,20 +3236,25 @@ class Msf::Plugin::NetworkMapLive
           meta.clients !== undefined ? `${meta.clients} viewer${meta.clients === 1 ? '' : 's'}` : '';
         document.getElementById('nodb-banner').style.display = meta.db_active === false ? 'block' : 'none';
         const msf = (payload.nodes || []).find(n => n.id === '__msf__');
-        if (msf) updateConsolePanel(msf);
+        if (msf) updateConsolePanel(msf, meta.console_feed === true);
       }
 
       // Bottom console strip: last command preview in the header, full tail
       // in the expandable body.  Lives outside the sidebar so it stays
       // visible while inspecting any node.
-      function updateConsolePanel(msf) {
+      function updateConsolePanel(msf, consoleFeedEnabled) {
         const tail = msf.console_tail || [];
         const preview = document.getElementById('console-preview');
+        const body = document.getElementById('console-body');
+        if (!consoleFeedEnabled) {
+          preview.textContent = 'console feed disabled';
+          body.textContent = '(restart with --console-feed to share console output)';
+          return;
+        }
         preview.textContent = msf.last_command
           ? `> ${msf.last_command}`
           : (tail.length ? tail[tail.length - 1] : 'no console activity yet');
 
-        const body = document.getElementById('console-body');
         if (!tail.length) {
           body.textContent = '(no console activity yet)';
           return;
