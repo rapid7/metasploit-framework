@@ -33071,6 +33071,57 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/apache_solr_version": {
+    "name": "Apache Solr Version Scanner",
+    "fullname": "auxiliary/scanner/http/apache_solr_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for Apache Solr instances and fingerprints the\n          running version. It reads the /admin/info/system handler (JSON)\n          beneath the configured TARGETURI (/solr by default, Solr's built-in\n          hostContext) and extracts the solr-spec-version field. When the\n          handler is protected by basic authentication the module retries with\n          the configured credentials, which default to the secure-by-default\n          solr:SolrRocks account introduced in Solr 9.8.0, reporting when they\n          are accepted. If the handler stays unreadable the module falls back\n          to the admin UI pages, whose asset URLs leak the running version\n          even before authentication. The result is recorded as service\n          evidence for the host.\n\n          Tested against 8.1.1-10.0.0 on major and minor versions.",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8983,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-11 18:41:51 +0000",
+    "path": "/modules/auxiliary/scanner/http/apache_solr_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/apache_solr_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/apache_userdir_enum": {
     "name": "Apache \"mod_userdir\" User Enumeration",
     "fullname": "auxiliary/scanner/http/apache_userdir_enum",
@@ -70256,6 +70307,73 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_freebsd/http/citrix_netscaler_cve_2026_88771": {
+    "name": "Citrix NetScaler Unauthenticated Login Log Command Injection (CVE-2026-88771)",
+    "fullname": "exploit/freebsd/http/citrix_netscaler_cve_2026_88771",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-27",
+    "type": "exploit",
+    "author": [
+      "watchTowr",
+      "CERT-EU",
+      "Scyrix LLC",
+      "sfewer-r7"
+    ],
+    "description": "NetScaler ADC and Gateway 13.1 before build 64.23 and 14.1 before\n          build 73.37 copy an unauthenticated failed-login username into system\n          logs. During a later diagnostic run, ns_monuploadd_err.pl mistakes a\n          crafted login record for a packet-engine failure and inserts\n          attacker-controlled text into a shell command as root. The diagnostic\n          can run up to 24 hours later. On a NetScaler Gateway with DTLS, the optional\n          CVE-2026-88772 trigger can restart the packet engine forcing the diagnostic run\n          to occur much sooner (around five minutes on a 13.1.x target).",
+    "references": [
+      "CVE-2026-88771",
+      "CVE-2026-88772",
+      "CVE-2026-88773",
+      "URL-https://support.citrix.com/external/article/CTX697096",
+      "URL-https://www.cert.europa.eu/blog/taking-execute-logging-a-bit-too-literally-cve-2026-88771",
+      "URL-https://labs.watchtowr.com/oh-look-the-foot-gun-went-off-again-citrix-netscaler-preauth-command-injection-cve-2026-88771/",
+      "URL-https://labs.watchtowr.com/here-we-go-again-citrix-netscaler-dtls-preauth-memory-overflow-cve-2026-88772/",
+      "URL-https://github.com/Scyrix-LLC/CVE-2026-88773"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Default"
+    ],
+    "mod_time": "2026-10-22 15:37:05 +0000",
+    "path": "/modules/exploits/freebsd/http/citrix_netscaler_cve_2026_88771.rb",
+    "is_install_path": true,
+    "ref_name": "freebsd/http/citrix_netscaler_cve_2026_88771",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_freebsd/http/junos_phprc_auto_prepend_file": {
     "name": "Junos OS PHPRC Environment Variable Manipulation RCE",
     "fullname": "exploit/freebsd/http/junos_phprc_auto_prepend_file",
@@ -95219,7 +95337,7 @@
     "actions": []
   },
   "exploit_linux/local/dirtyclone_cve_2026_43503": {
-    "name": "Sample Linux Priv Esc",
+    "name": "Linux Kernel DirtyClone Local Privilege Escalation",
     "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
     "aliases": [],
     "rank": 300,
@@ -95230,7 +95348,7 @@
       "Or Peles",
       "msutovsky-r7"
     ],
-    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "description": "This module exploits CVE-2026-43503 (DirtyClone), a Linux kernel\n          local privilege escalation vulnerability. Refer to the module's\n          references for vulnerability details and affected configurations.",
     "references": [
       "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
       "CVE-2026-43503"
@@ -95243,7 +95361,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-09-09 14:35:45 +0000",
+    "mod_time": "2026-10-09 06:46:35 +0000",
     "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
     "is_install_path": true,
     "ref_name": "linux/local/dirtyclone_cve_2026_43503",
@@ -116613,6 +116731,62 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_multi/http/langflow_auth_command_injection_cve_2026_93674": {
+    "name": "Langflow AI Auth Blind Command Injection",
+    "fullname": "exploit/multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.9.0 are susceptible to\n          authenticated blind command injection due to a flaw in how\n          the Langflow STDIO service launches processes through system shells.\n\n          OS commands are executed under the context of the running Langflow process.",
+    "references": [
+      "CVE-2026-93674"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-02 14:27:36 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_command_injection_cve_2026_93674.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_auth_rce_cve_2026_18729": {
     "name": "Langflow AI Custom Component Authenticated RCE",
     "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_18729",
@@ -117062,6 +117236,63 @@
     "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
     "is_install_path": true,
     "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_10134": {
+    "name": "Langflow AI Public Flow Build Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_10134",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.9.3 are susceptible to unauthenticated remote code\n          execution due to improper handling of a public flow's `tool_code` field and a lack\n          of required authentication for the `/api/v1/build_public_tmp/<flow_id>/flow` endpoint.\n\n          If a target instance exposes a public flow and its UUID, an unauthenticated remote attacker\n          can supply malicious code payloads via parameters like tool_code targeting paths under\n          /api/v1/ without needing any valid credentials. If no flow UUIDs are exposed, an authenticated\n          attacker can create one in order to exploit this vulnerability.\n\n          Arbitrary code is executed under the context of the Langflow backend process.",
+    "references": [
+      "CVE-2026-10134",
+      "URL-https://www.ibm.com/support/pages/security-bulletin-unauthenticated-server-side-rce-pythoncodestructuredtool-public-flows"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-06 08:15:48 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_10134.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_10134",
     "check": true,
     "post_auth": false,
     "default_credential": false,
@@ -301779,7 +302010,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/php/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "php/meterpreter_reverse_tcp",
@@ -307864,7 +308095,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_named_pipe",
@@ -307899,7 +308130,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_tcp",
@@ -308004,7 +308235,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_ipv6_tcp",
@@ -308039,7 +308270,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_tcp",
@@ -314058,7 +314289,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-08-20 17:22:11 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
@@ -314093,7 +314324,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_tcp",
@@ -314198,7 +314429,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_ipv6_tcp",
@@ -314233,7 +314464,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_tcp",

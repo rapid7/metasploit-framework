@@ -19,6 +19,7 @@ module ReverseUdp
 
   include Msf::Handler
   include Msf::Handler::Reverse::Comm
+  include Msf::Handler::Reverse::Bind
 
   #
   # Returns the string representation of the handler type, in this case
@@ -105,7 +106,7 @@ module ReverseUdp
 
     comm = select_comm
     local_port = bind_port
-    addrs = bind_address
+    addrs = bind_addresses
 
     addrs.each { |ip|
       begin
@@ -253,34 +254,6 @@ protected
   def bind_port
     port = datastore['ReverseListenerBindPort'].to_i
     port > 0 ? port : datastore['LPORT'].to_i
-  end
-
-  def bind_address
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      bind_addr = datastore['ReverseListenerBindAddress']
-      any = Rex::Socket.is_ipv6?(bind_addr) ? '::0' : '0.0.0.0'
-      return [ Rex::Socket.addr_atoi(bind_addr) == 0 ? any : bind_addr ]
-    end
-
-    begin
-      addr_nbo = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    rescue StandardError
-      print_warning("LHOST '#{datastore['LHOST']}' is not locally resolvable. Binding to 0.0.0.0. Set ReverseListenerBindAddress to override.")
-      return ['0.0.0.0']
-    end
-    addr = Rex::Socket.addr_ntoa(addr_nbo)
-    any = Rex::Socket.is_ipv4?(addr) ? '0.0.0.0' : '::0'
-
-    begin
-      ip = IPAddr.new(addr.to_s)
-      if IPAddr.new('127.0.0.1/8').include?(ip) || IPAddr.new('::1').include?(ip)
-        print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
-      end
-    rescue IPAddr::Error
-      # addr is derived from addr_ntoa and should always be valid; ignore
-    end
-
-    [ addr, any ]
   end
 
   attr_accessor :listener_sock # :nodoc:

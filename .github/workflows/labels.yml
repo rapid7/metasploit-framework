@@ -139,7 +139,15 @@ jobs:
                 'needs-pull-request-template': {
                   close: false,
                   comment: `
-                    When creating a pull request, please ensure that the default pull request template has been updated with the required details.
+                    Thanks for your pull request! Please add the missing information so another contributor can review and validate the change:
+
+                    - What changes and why it is needed
+                    - Setup or reproduction steps when applicable, including relevant target versions and configuration
+                    - Concrete verification commands or actions, expected outcomes, actual results, and relevant untested limits
+
+                    Existing issue or module documentation links and evidence in review discussion count; you do not need to repeat them or use particular headings. For typo, comment, or documentation fixes, a brief account of inspection or preview and its result is enough.
+
+                    See the [contribution guidelines](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) for details.
                   `
                 },
               },
