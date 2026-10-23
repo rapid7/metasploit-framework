@@ -87,8 +87,11 @@ module Auxiliary
       omod.job_id = mod.job_id
       return [run_uuid, mod.job_id]
     else
-      result = self.job_run_proc(ctx, &:run)
-      self.job_cleanup_proc(ctx)
+      begin
+        result = self.job_run_proc(ctx, &:run)
+      ensure
+        self.job_cleanup_proc(ctx)
+      end
 
       return result
     end
@@ -151,10 +154,13 @@ module Auxiliary
       [run_uuid, mod.job_id]
     else
       # Run check if it exists
-      result = self.job_run_proc(ctx) do |m|
-        m.check
+      begin
+        result = self.job_run_proc(ctx) do |m|
+          m.check
+        end
+      ensure
+        self.job_cleanup_proc(ctx)
       end
-      self.job_cleanup_proc(ctx)
 
       result
     end
@@ -193,7 +199,6 @@ protected
         raise
       end
     rescue Msf::Auxiliary::Complete
-      mod.cleanup
       return
     rescue Msf::Auxiliary::Failed => e
       mod.error = e
@@ -205,21 +210,18 @@ protected
       end
       mod.fail_detail ||= e.to_s
 
-      mod.cleanup
       return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.fail_reason = Msf::Module::Failure::TimeoutExpired
       mod.fail_detail ||= e.to_s
       mod.print_error("Auxiliary triggered a timeout exception")
-      mod.cleanup
       return
     rescue ::Interrupt => e
       mod.error = e
       mod.fail_reason = Msf::Module::Failure::UserInterrupt
       mod.fail_detail ||= e.to_s
       mod.print_error("Stopping running against current target...")
-      mod.cleanup
       mod.print_status("Control-C again to force quit all targets.")
       begin
         Rex.sleep(0.5)
@@ -246,7 +248,6 @@ protected
       end
 
       elog('Auxiliary failed', error: e)
-      mod.cleanup
 
     end
     return result
@@ -267,9 +268,12 @@ protected
   #
   def self.job_cleanup_proc(ctx)
     mod = ctx[0]
-    mod.framework.events.on_module_complete(mod)
-    # Allow the exploit to cleanup after itself, that messy bugger.
-    mod.cleanup
+    begin
+      mod.framework.events.on_module_complete(mod)
+    ensure
+      # Allow the exploit to cleanup after itself, that messy bugger.
+      mod.cleanup
+    end
   end
 
 end
