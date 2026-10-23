@@ -96,6 +96,12 @@ class MetasploitModule < Msf::Post
       sysinfo = session.sys.config.sysinfo
       true
     end
+
+    it "should complete repeated synchronous requests without retaining response waiters" do
+      10.times.all? do
+        session.sys.config.sysinfo.is_a?(Hash) && session.send(:waiters).empty?
+      end
+    end
   end
 
   def test_net_config
