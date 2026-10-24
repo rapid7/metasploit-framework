@@ -47,6 +47,38 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
 
   it { is_expected.to respond_to :bruteforce_speed }
 
+  describe '#scan! error reporting' do
+    it 'uses the default warning prefix when the framework module has no peer' do
+      credential = Metasploit::Framework::Credential.new(
+        public: 'user',
+        private: 'pass'
+      )
+      framework_module = double('framework module')
+      allow(framework_module).to receive(:print_warning)
+
+      scanner_class = Class.new(base_class) do
+        const_set(:REALM_KEY, nil)
+        const_set(:DEFAULT_REALM, nil)
+      end
+
+      scanner = scanner_class.new(options.merge(
+        framework_module: framework_module,
+        cred_details: [credential]
+      ))
+
+      allow(scanner).to receive(:attempt_login)
+        .and_raise(RuntimeError, 'unexpected scanner failure')
+
+      expect(framework_module).to receive(:print_warning) do |message, **kwargs|
+        expect(kwargs).to be_empty
+        expect(message).to start_with('LOGIN FAILED:')
+        expect(message).to include('unexpected scanner failure')
+      end
+
+      scanner.scan!
+    end
+  end
+
   context 'validations' do
 
     it 'is valid!' do
