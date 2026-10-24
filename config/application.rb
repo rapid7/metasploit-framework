@@ -5,9 +5,10 @@ require 'rails'
 require File.expand_path('../boot', __FILE__)
 
 require 'action_view'
-# Monkey patch https://github.com/rails/rails/blob/v8.0.5/actionview/lib/action_view/helpers/tag_helper.rb#L51
-# Last verified against ActionView 8.0.5 — re-check if this patch is still needed on 8.1+
-raise "ActionView version mismatch: expected 8.0.x, got #{ActionView::VERSION::STRING}" unless ActionView::VERSION::STRING.start_with?('8.0.')
+# Monkey patch https://github.com/rails/rails/blob/v8.1.4/actionview/lib/action_view/helpers/tag_helper.rb#L47
+# Re-check the inherited-method guard before upgrading to another ActionView minor version.
+raise "ActionView version mismatch: expected 8.1.x, got #{ActionView::VERSION::STRING}" unless ActionView::VERSION::STRING.start_with?('8.1.')
+
 module ActionView::Helpers::TagHelper
   class TagBuilder
     def self.define_element(name, code_generator:, method_name: name)
@@ -60,7 +61,7 @@ module Metasploit
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
 
-      config.load_defaults 8.0
+      config.load_defaults 8.1
 
       config.eager_load = false
     end

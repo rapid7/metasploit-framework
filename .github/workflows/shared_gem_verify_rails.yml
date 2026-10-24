@@ -12,6 +12,11 @@ on:
         required: false
         default: "[]"
         type: string
+      rails_versions:
+        description: 'Base Rails version requirements as a JSON array'
+        required: false
+        default: '["~> 7.0.0","~> 7.1.0","~> 7.2.0","~> 8.1.4"]'
+        type: string
       additional_rails_versions:
         description: 'Additional Rails version requirements as a JSON array (for example: ["~> 8.1.0"])'
         required: false
@@ -33,13 +38,13 @@ jobs:
     steps:
       - name: Build Rails version matrix
         id: merge_rails_versions
+        env:
+          DEFAULT_RAILS_VERSIONS: ${{ inputs.rails_versions }}
+          ADDITIONAL_RAILS_VERSIONS: ${{ inputs.additional_rails_versions }}
         run: |
-          default_rails_versions='["~> 7.0.0","~> 7.1.0","~> 7.2.0"]'
-          additional_rails_versions='${{ inputs.additional_rails_versions }}'
-
           rails_versions=$(jq -cn \
-            --argjson defaults "$default_rails_versions" \
-            --argjson extras "$additional_rails_versions" \
+            --argjson defaults "$DEFAULT_RAILS_VERSIONS" \
+            --argjson extras "$ADDITIONAL_RAILS_VERSIONS" \
             '$defaults + $extras | unique')
 
           echo "rails_versions=$rails_versions" >> "$GITHUB_OUTPUT"

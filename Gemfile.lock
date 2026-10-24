@@ -18,9 +18,9 @@ PATH
     metasploit-framework (6.5.9)
       aarch64
       abbrev
-      actionpack (~> 8.0.5)
-      activerecord (~> 8.0.5)
-      activesupport (~> 8.0.5)
+      actionpack (~> 8.1.4)
+      activerecord (~> 8.1.4)
+      activesupport (~> 8.1.4)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
@@ -88,7 +88,7 @@ PATH
       pg
       puma
       rack (~> 3.1)
-      railties (~> 8.0.5)
+      railties (~> 8.1.4)
       rasn1 (= 0.14.0)
       rb-readline
       recog
@@ -145,9 +145,9 @@ GEM
     aarch64 (2.1.0)
       racc (~> 1.6)
     abbrev (0.1.2)
-    actionpack (8.0.5)
-      actionview (= 8.0.5)
-      activesupport (= 8.0.5)
+    actionpack (8.1.4)
+      actionview (= 8.1.4)
+      activesupport (= 8.1.4)
       nokogiri (>= 1.8.5)
       rack (>= 2.2.4)
       rack-session (>= 1.0.1)
@@ -155,26 +155,26 @@ GEM
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
       useragent (~> 0.16)
-    actionview (8.0.5)
-      activesupport (= 8.0.5)
+    actionview (8.1.4)
+      activesupport (= 8.1.4)
       builder (~> 3.1)
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activemodel (8.0.5)
-      activesupport (= 8.0.5)
-    activerecord (8.0.5)
-      activemodel (= 8.0.5)
-      activesupport (= 8.0.5)
+    activemodel (8.1.4)
+      activesupport (= 8.1.4)
+    activerecord (8.1.4)
+      activemodel (= 8.1.4)
+      activesupport (= 8.1.4)
       timeout (>= 0.4.0)
-    activesupport (8.0.5)
+    activesupport (8.1.4)
       base64
-      benchmark (>= 0.3)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.3.1)
       connection_pool (>= 2.2.5)
       drb
       i18n (>= 1.6, < 2)
+      json
       logger (>= 1.4.2)
       minitest (>= 5.1)
       securerandom (>= 0.3)
@@ -190,8 +190,8 @@ GEM
       mime-types (>= 3.3, < 4)
       require_all (>= 2, < 4)
       rspec-expectations (~> 3.12)
-    arel-helpers (2.16.0)
-      activerecord (>= 3.1.0, < 8.1)
+    arel-helpers (2.17.0)
+      activerecord (>= 3.1.0)
     ast (2.4.3)
     aws-eventstream (1.3.2)
     aws-partitions (1.1065.0)
@@ -345,12 +345,12 @@ GEM
       json_schemer (>= 2.4)
     memory_profiler (1.1.0)
     metasm (1.0.6)
-    metasploit-concern (5.0.6)
-      activemodel (>= 7.0, < 8.1)
-      activesupport (>= 7.0, < 8.1)
+    metasploit-concern (5.0.7)
+      activemodel (>= 7.0, < 9.0)
+      activesupport (>= 7.0, < 9.0)
       drb
       mutex_m
-      railties (>= 7.0, < 8.1)
+      railties (>= 7.0, < 9.0)
       zeitwerk
     metasploit-credential (6.0.25)
       bigdecimal
@@ -366,17 +366,17 @@ GEM
       rex-socket
       rubyntlm
       rubyzip (>= 3.1.1, < 4.0)
-    metasploit-model (5.0.5)
-      activemodel (>= 7.0, < 8.1)
-      activesupport (>= 7.0, < 8.1)
+    metasploit-model (5.0.6)
+      activemodel (>= 7.0, < 9.0)
+      activesupport (>= 7.0, < 9.0)
       bigdecimal
       drb
       mutex_m
-      railties (>= 7.0, < 8.1)
+      railties (>= 7.0, < 9.0)
     metasploit-payloads (2.0.257)
-    metasploit_data_models (6.0.18)
-      activerecord (>= 7.0, < 8.1)
-      activesupport (>= 7.0, < 8.1)
+    metasploit_data_models (6.0.19)
+      activerecord (>= 7.0, < 9.0)
+      activesupport (>= 7.0, < 9.0)
       arel-helpers
       bigdecimal
       drb
@@ -384,7 +384,7 @@ GEM
       metasploit-model (>= 5.0.4)
       mutex_m
       pg
-      railties (>= 7.0, < 8.1)
+      railties (>= 7.0, < 9.0)
       recog
       webrick
     metasploit_payloads-mettle (1.0.48)
@@ -485,9 +485,9 @@ GEM
     rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (8.0.5)
-      actionpack (= 8.0.5)
-      activesupport (= 8.0.5)
+    railties (8.1.4)
+      actionpack (= 8.1.4)
+      activesupport (= 8.1.4)
       irb (~> 1.13)
       rackup (>= 1.0.0)
       rake (>= 12.2)
