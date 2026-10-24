@@ -230,6 +230,8 @@ mcp:
   auth_token: null # DISABLE HTTP AUTHENTICATION
 ```
 
+The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TOKEN="" ./msfmcpd --mcp-transport http`.
+
 ### Enabling HTTPS
 
 By default the HTTP transport is served in clear text. If the MCP client connects from another host, enable TLS so the
@@ -265,8 +267,6 @@ mcp:
 The same can be done with `MSF_MCP_SSL_CERT` and `MSF_MCP_SSL_KEY`. `ssl_cert` and `ssl_key` must either both be set
 (to existing, readable files) or both be left unset (to use the auto-generated certificate) -- setting only one is a
 configuration error. The MCP client must use an `https://` URL and trust whichever certificate is in use.
-
-The same can be achieved through the environment variable, e.g. `MSF_MCP_AUTH_TOKEN="" ./msfmcpd --mcp-transport http`.
 
 ## MCP Tools
 

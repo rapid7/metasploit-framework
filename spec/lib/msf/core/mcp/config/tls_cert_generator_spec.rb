@@ -37,6 +37,18 @@ RSpec.describe Msf::MCP::Config::TlsCertGenerator do
       expect(mode).to eq(0o600)
     end
 
+    it 'corrects permissions on a pre-existing key file with wider permissions' do
+      File.write(@key_path, 'placeholder')
+      File.chmod(0o644, @key_path)
+
+      _, key_path = described_class.ensure_self_signed_certificate(
+        host: 'localhost', cert_path: @cert_path, key_path: @key_path
+      )
+
+      mode = File.stat(key_path).mode & 0o777
+      expect(mode).to eq(0o600)
+    end
+
     it 'includes the given host in the certificate SAN' do
       cert_path, = described_class.ensure_self_signed_certificate(
         host: '192.168.1.50', cert_path: @cert_path, key_path: @key_path
@@ -55,6 +67,19 @@ RSpec.describe Msf::MCP::Config::TlsCertGenerator do
       second_pem = File.read(@cert_path)
 
       expect(second_pem).to eq(first_pem)
+    end
+
+    it 'regenerates when the cached key does not match the cached certificate' do
+      described_class.ensure_self_signed_certificate(host: 'localhost', cert_path: @cert_path, key_path: @key_path)
+      first_pem = File.read(@cert_path)
+
+      mismatched_key = OpenSSL::PKey::RSA.new(2048)
+      File.write(@key_path, mismatched_key.to_pem)
+
+      described_class.ensure_self_signed_certificate(host: 'localhost', cert_path: @cert_path, key_path: @key_path)
+      second_pem = File.read(@cert_path)
+
+      expect(second_pem).not_to eq(first_pem)
     end
 
     it 'regenerates when the cached certificate does not cover the requested host' do

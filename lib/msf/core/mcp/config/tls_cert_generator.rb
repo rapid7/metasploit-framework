@@ -60,7 +60,9 @@ module Msf::MCP
         return false unless File.file?(key_path) && File.readable?(key_path)
 
         cert = OpenSSL::X509::Certificate.new(File.read(cert_path))
-        OpenSSL::PKey::RSA.new(File.read(key_path))
+        key = OpenSSL::PKey::RSA.new(File.read(key_path))
+
+        return false unless cert.check_private_key(key)
 
         return false if cert.not_after < (Time.now + (RENEWAL_WINDOW_DAYS * 24 * 3600))
         return false unless san_covers_host?(cert, host)
@@ -105,8 +107,12 @@ module Msf::MCP
         FileUtils.mkdir_p(File.dirname(key_path))
 
         File.write(cert_path, cert.to_pem)
-        File.write(key_path, key.to_pem)
-        # Private key should only be readable by the owner.
+        # Private key should only be readable by the owner. Set the mode at creation time to avoid a
+        # race condition where the file briefly exists with default (wider) permissions before chmod runs.
+        File.open(key_path, File::WRONLY | File::CREAT | File::TRUNC, 0o600) do |fd|
+          fd.write(key.to_pem)
+        end
+        # Also correct permissions on a pre-existing file that may have wider permissions.
         File.chmod(0o600, key_path)
       end
       private_class_method :write
