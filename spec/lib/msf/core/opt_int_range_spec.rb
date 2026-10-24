@@ -43,6 +43,38 @@ RSpec.describe Msf::OptIntRange do
       expect(described_class.parse('1-5,!2-3').to_a).to eq [1, 4, 5]
     end
   end
+
+  describe '#valid? with a maximum' do
+    subject { described_class.new('RIDS', [true, 'The RIDs to enumerate'], maximum: 100) }
+
+    it 'rejects a single value above the maximum' do
+      expect(subject.valid?('150')).to be false
+    end
+
+    it 'rejects a range that extends above the maximum' do
+      expect(subject.valid?('1-200')).to be false
+    end
+
+    it 'accepts a value at the maximum' do
+      expect(subject.valid?('100')).to be true
+    end
+
+    it 'accepts ranges within the maximum' do
+      expect(subject.valid?('1-50,60-100')).to be true
+    end
+
+    it 'ignores excluded numbers above the maximum' do
+      expect(subject.valid?('1-50,!200')).to be true
+    end
+  end
+
+  describe '#valid? without a maximum' do
+    subject { described_class.new('RIDS', [true, 'The RIDs to enumerate']) }
+
+    it 'does not constrain how large a value may be' do
+      expect(subject.valid?('1-1000000')).to be true
+    end
+  end
 end
 
 
