@@ -1,0 +1,91 @@
+schema: meterpreter-micro/v1
+profile: micro-stdapi
+platform: windows
+architecture: [x64, x86]
+metapi_source_commit: 0aa09117dcee240eb92b3d559a01593dccd44c14
+objects:
+  - name: micro-stdapi-sysinfo
+    file:
+      x64: ../../build/sysinfo.x64.o
+      x86: ../../build/sysinfo.x86.o
+    commands:
+      - { id: 1059, name: stdapi_sys_config_sysinfo }
+    client:
+      adapter: stdapi_sys
+      expose: [sysinfo]
+  - name: micro-stdapi-listing
+    file:
+      x64: ../../build/listing.x64.o
+      x86: ../../build/listing.x86.o
+    commands:
+      - { id: 1008, name: stdapi_fs_getwd }
+      - { id: 1009, name: stdapi_fs_ls }
+      - { id: 1016, name: stdapi_fs_stat }
+    client:
+      adapter: stdapi_fs
+      expose: [getwd, pwd, ls, dir]
+  - name: micro-stdapi-file-channel
+    file:
+      x64: ../../build/fs_file.x64.o
+      x86: ../../build/fs_file.x86.o
+    channels: [stdapi_fs_file]
+    commands: []
+    client:
+      adapter: stdapi_fs
+      expose: [cat, download, edit, upload]
+  - name: micro-stdapi-fs-operations
+    file:
+      x64: ../../build/fs_operations.x64.o
+      x86: ../../build/fs_operations.x86.o
+    commands:
+      - { id: 1001, name: stdapi_fs_chdir }
+      - { id: 1002, name: stdapi_fs_chmod }
+      - { id: 1003, name: stdapi_fs_delete_dir }
+      - { id: 1004, name: stdapi_fs_delete_file }
+      - { id: 1005, name: stdapi_fs_file_copy }
+      - { id: 1006, name: stdapi_fs_file_expand_path }
+      - { id: 1007, name: stdapi_fs_file_move }
+      - { id: 1011, name: stdapi_fs_mkdir }
+      - { id: 1014, name: stdapi_fs_separator }
+    client:
+      adapter: stdapi_fs
+      expose: [cd, chmod, cp, del, mkdir, mv, rm, rmdir]
+  - name: micro-stdapi-fs-hash
+    file:
+      x64: ../../build/fs_hash.x64.o
+      x86: ../../build/fs_hash.x86.o
+    commands:
+      - { id: 1010, name: stdapi_fs_md5 }
+      - { id: 1015, name: stdapi_fs_sha1 }
+    client:
+      adapter: stdapi_fs
+      expose: [checksum]
+  - name: micro-stdapi-fs-mount
+    file:
+      x64: ../../build/fs_mount.x64.o
+      x86: ../../build/fs_mount.x86.o
+    commands:
+      - { id: 1012, name: stdapi_fs_mount_show }
+    client:
+      adapter: stdapi_fs
+      expose: [show_mount]
+  - name: micro-stdapi-fs-search
+    file:
+      x64: ../../build/fs_search.x64.o
+      x86: ../../build/fs_search.x86.o
+    commands:
+      - { id: 1013, name: stdapi_fs_search }
+    client:
+      adapter: stdapi_fs
+      expose: [search]
+  - name: micro-stdapi-railgun-api
+    file:
+      x64: ../../build/railgun_api.x64.o
+      x86: ../../build/railgun_api.x86.o
+    limits:
+      max_arguments: 16
+    commands:
+      - { id: 1028, name: stdapi_railgun_api }
+    client:
+      adapter: stdapi_railgun
+      expose: []
