@@ -12,6 +12,10 @@ module MsfdbHelpers
       super(options)
     end
 
+    # @param msf_pass [String] password for the primary database user
+    # @param msftest_pass [String] password for the test database user
+    # @return [Boolean] whether the configured database restarted successfully
+    # @raise [PG::ConnectionBad] if PostgreSQL cannot start before user creation
     def init(msf_pass, msftest_pass)
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
@@ -35,7 +39,9 @@ module MsfdbHelpers
         print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC flags. Database initialization failed.")
       end
 
-      start
+      unless start
+        raise PG::ConnectionBad, "PostgreSQL did not become ready at #{@db}; check #{@db}/log"
+      end
 
       create_db_users(msf_pass, msftest_pass)
 
@@ -91,6 +97,7 @@ module MsfdbHelpers
       end
     end
 
+    # @return [Boolean] whether PostgreSQL started successfully or was already running
     def start
       if status == DatabaseStatus::RUNNING
         puts "Database already started at #{@db}"
@@ -98,24 +105,18 @@ module MsfdbHelpers
       end
 
       print "Starting database at #{@db}..."
-      pg_ctl_spawn_cmd = "pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log start &"
-      puts "spawn_cmd: #{pg_ctl_spawn_cmd}" if @options[:debug]
-      pg_ctl_pid = Process.spawn(pg_ctl_spawn_cmd)
-      Process.detach(pg_ctl_pid)
-      is_database_running = retry_until_truthy(timeout: 60) do
-        status == DatabaseStatus::RUNNING
-      end
+      # Wait for readiness, not just a live postmaster. Avoid captured pipes:
+      # PostgreSQL can inherit them on Windows and keep capture2e waiting for EOF.
+      pg_ctl_spawn_cmd = ['pg_ctl', '-o', "-p #{@options[:db_port]}", '-D', @db, '-l', "#{@db}/log", '-w', '-t', '60', 'start']
+      puts "spawn_cmd: #{pg_ctl_spawn_cmd.shelljoin}" if @options[:debug]
+      pg_ctl_pid = Process.spawn(*pg_ctl_spawn_cmd)
+      startup_status = Process.detach(pg_ctl_pid).value
 
-      if is_database_running
-        puts 'success'.green.bold.to_s
+      if startup_status.success?
+        puts 'success'.green.bold
         true
       else
-        begin
-          Process.kill(:KILL, pg_ctl_pid)
-        rescue => e
-          puts "Failed to kill pg_ctl_pid=#{pg_ctl_pid} - #{e.class} #{e.message}" if @options[:debug]
-        end
-        puts 'failed'.red.bold.to_s
+        puts 'failed'.red.bold
         false
       end
     end
@@ -174,32 +175,5 @@ module MsfdbHelpers
       %w[psql pg_ctl initdb createdb]
     end
 
-    protected
-
-    def retry_until_truthy(timeout:)
-      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
-      ending_time = start_time + timeout
-      retry_count = 0
-      while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
-        result = yield
-        return result if result
-
-        retry_count += 1
-        remaining_time_budget = ending_time - Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
-        break if remaining_time_budget <= 0
-
-        delay = 2**retry_count
-        if delay >= remaining_time_budget
-          delay = remaining_time_budget
-          puts("Final attempt. Sleeping for the remaining #{delay} seconds out of total timeout #{timeout}") if @options[:debug]
-        else
-          puts("Sleeping for #{delay} seconds before attempting again") if @options[:debug]
-        end
-
-        sleep delay
-      end
-
-      nil
-    end
   end
 end
