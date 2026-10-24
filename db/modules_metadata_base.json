@@ -70307,6 +70307,73 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_freebsd/http/citrix_netscaler_cve_2026_88771": {
+    "name": "Citrix NetScaler Unauthenticated Login Log Command Injection (CVE-2026-88771)",
+    "fullname": "exploit/freebsd/http/citrix_netscaler_cve_2026_88771",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-27",
+    "type": "exploit",
+    "author": [
+      "watchTowr",
+      "CERT-EU",
+      "Scyrix LLC",
+      "sfewer-r7"
+    ],
+    "description": "NetScaler ADC and Gateway 13.1 before build 64.23 and 14.1 before\n          build 73.37 copy an unauthenticated failed-login username into system\n          logs. During a later diagnostic run, ns_monuploadd_err.pl mistakes a\n          crafted login record for a packet-engine failure and inserts\n          attacker-controlled text into a shell command as root. The diagnostic\n          can run up to 24 hours later. On a NetScaler Gateway with DTLS, the optional\n          CVE-2026-88772 trigger can restart the packet engine forcing the diagnostic run\n          to occur much sooner (around five minutes on a 13.1.x target).",
+    "references": [
+      "CVE-2026-88771",
+      "CVE-2026-88772",
+      "CVE-2026-88773",
+      "URL-https://support.citrix.com/external/article/CTX697096",
+      "URL-https://www.cert.europa.eu/blog/taking-execute-logging-a-bit-too-literally-cve-2026-88771",
+      "URL-https://labs.watchtowr.com/oh-look-the-foot-gun-went-off-again-citrix-netscaler-preauth-command-injection-cve-2026-88771/",
+      "URL-https://labs.watchtowr.com/here-we-go-again-citrix-netscaler-dtls-preauth-memory-overflow-cve-2026-88772/",
+      "URL-https://github.com/Scyrix-LLC/CVE-2026-88773"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Default"
+    ],
+    "mod_time": "2026-10-22 15:37:05 +0000",
+    "path": "/modules/exploits/freebsd/http/citrix_netscaler_cve_2026_88771.rb",
+    "is_install_path": true,
+    "ref_name": "freebsd/http/citrix_netscaler_cve_2026_88771",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_freebsd/http/junos_phprc_auto_prepend_file": {
     "name": "Junos OS PHPRC Environment Variable Manipulation RCE",
     "fullname": "exploit/freebsd/http/junos_phprc_auto_prepend_file",
@@ -301943,7 +302010,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/php/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "php/meterpreter_reverse_tcp",
@@ -308028,7 +308095,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_named_pipe",
@@ -308063,7 +308130,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_tcp",
@@ -308168,7 +308235,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_ipv6_tcp",
@@ -308203,7 +308270,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_tcp",
@@ -314222,7 +314289,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-08-20 17:22:11 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
@@ -314257,7 +314324,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_tcp",
@@ -314362,7 +314429,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_ipv6_tcp",
@@ -314397,7 +314464,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_tcp",

