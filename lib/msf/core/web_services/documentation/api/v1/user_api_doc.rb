@@ -79,7 +79,8 @@ module Msf::WebServices::Documentation::Api::V1::UserApiDoc
 
     # Swagger documentation for /api/v1/users GET
     operation :post do
-      key :description, 'Create a user.'
+      key :description, 'Create a user. Requires an administrator API token, even when no users exist yet; ' \
+                        'the first user is created by msfdb.'
       key :tags, [ 'user' ]
 
       parameter do
