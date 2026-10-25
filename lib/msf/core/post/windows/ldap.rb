@@ -111,8 +111,8 @@ module Msf
         # @param dn [String] Distinguished Name
         # @return [String] DNS name
         def dn_to_domain(dn)
-          if dn.include? 'DC='
-            return dn.gsub(',', '').split('DC=')[1..-1].join('.')
+          if dn.match?(/DC=/i)
+            return dn.gsub(',', '').split(/DC=/i)[1..].join('.')
           else
             return dn
           end
@@ -138,7 +138,7 @@ module Msf
           if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY)
             return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
           else
-            if domain and domain.include? 'DC='
+            if domain && domain.match?(/DC=/i)
               default_naming_context = domain
               domain = dn_to_domain(domain)
             else
