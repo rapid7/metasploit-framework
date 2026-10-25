@@ -55,13 +55,15 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown("#{peer} - Server did not respond with the expected HTTP 200") unless res&.code == 200
 
     json_body = res&.get_json_document
-    return Exploit::CheckCode::Unknown("#{peer} - Unable to parse JSON response") unless json_body
+    return Exploit::CheckCode::Unknown("#{peer} - Unable to parse JSON response or response is not a valid object") unless json_body.is_a?(Hash)
     return Exploit::CheckCode::Unknown("#{peer} - \"currentVersion\" key not found in response") unless json_body.key?('currentVersion')
 
     version = Rex::Version.new(json_body['currentVersion'])
     return Exploit::CheckCode::Safe("Detected version #{version}, which is not vulnerable") if version < Rex::Version.new('0.2.5')
 
     @target_os = get_server_info
+    return Exploit::CheckCode::Unknown("#{peer} - Could not retrieve server information") unless @target_os
+
     print_status("OpenBullet2 Instance OS: #{@target_os}")
     return Exploit::CheckCode::Safe("Detected vulnerable version #{version}, but the target OS is #{@target_os} (Windows-only module)") unless @target_os.to_s.downcase.include?('windows')
 
@@ -77,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
     json_body = res&.get_json_document
-    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response or response is not a valid object') unless json_body.is_a?(Hash)
     fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response") unless json_body.key?('id')
 
     json_body['id']
@@ -92,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
     json_body = res&.get_json_document
-    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response or response is not a valid array') unless json_body.is_a?(Array)
 
     json_body
   end
@@ -128,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
 
     json_body = res&.get_json_document
-    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the response or response is not a valid object') unless json_body.is_a?(Hash)
     fail_with(Failure::UnexpectedReply, "#{peer} - id key not found in response") unless json_body.key?('id')
 
     json_body['id']
@@ -185,27 +187,44 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'X-Api-Key' => '' },
       'ctype' => 'application/json'
     )
-    fail_with(Failure::UnexpectedReply, "#{peer} Server did not respond with the expected HTTP 200") unless res&.code == 200
+    return nil unless res&.code == 200
 
     json_body = res&.get_json_document
-    fail_with(Failure::UnexpectedReply, 'Unable to parse the response') unless json_body
-    fail_with(Failure::UnexpectedReply, "#{peer} - operatingSystem key not found in response") unless json_body.key?('operatingSystem')
+    return nil unless json_body.is_a?(Hash) && json_body.key?('operatingSystem')
 
     json_body['operatingSystem']
   end
 
   def cleanup
     super
-    delete_config(@config_id) if @config_source == :created
-    abort_job(@job_id) if @job_id
-    delete_job(@job_id) if @job_id
+
+    if @config_source == :created && @config_id
+      begin
+        delete_config(@config_id)
+      rescue StandardError => e
+        print_error("Failed to delete config: #{e.message}")
+      end
+    end
+
+    if @job_id
+      begin
+        abort_job(@job_id)
+      rescue StandardError => e
+        print_error("Failed to abort job: #{e.message}")
+      end
+
+      begin
+        delete_job(@job_id)
+      rescue StandardError => e
+        print_error("Failed to delete job: #{e.message}")
+      end
+    end
   end
 
   def validate_target_os!
     target_os = @target_os || get_server_info
-    unless target_os.to_s.downcase.include?('windows')
-      fail_with(Failure::NoTarget, "This module only supports Windows targets, but the remote server is running #{target_os}.")
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not retrieve server information") unless target_os
+    fail_with(Failure::NoTarget, "This module only supports Windows targets, but the remote server is running #{target_os}.") unless target_os.to_s.downcase.include?('windows')
   end
 
   def run
