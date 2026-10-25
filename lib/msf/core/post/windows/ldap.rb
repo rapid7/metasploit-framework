@@ -1,5 +1,8 @@
 # -*- coding: binary -*-
 
+require 'net/ldap'
+require 'net/ldap/dn'
+
 module Msf
   class Post
     module Windows
@@ -108,14 +111,19 @@ module Msf
 
         # Converts a Distinguished Name to DNS name
         #
-        # @param dn [String] Distinguished Name
+        # @param dn [String] Distinguished Name or DNS domain name
         # @return [String] DNS name
         def dn_to_domain(dn)
-          if dn.match?(/DC=/i)
-            return dn.gsub(',', '').split(/DC=/i)[1..].join('.')
-          else
-            return dn
+          return dn unless dn.include?('=')
+
+          components = []
+          Net::LDAP::DN.new(dn).each_pair do |attribute, value|
+            components << value if attribute.casecmp?('DC')
           end
+          components.empty? ? dn : components.join('.')
+        rescue Net::LDAP::InvalidDNError
+          # Preserve non-DN inputs for the existing DNS domain lookup path.
+          dn
         end
 
         # Performs an ldap query
@@ -138,9 +146,10 @@ module Msf
           if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY)
             return session.extapi.adsi.domain_query(domain, filter, max_results, DEFAULT_PAGE_SIZE, fields)
           else
-            if domain && domain.match?(/DC=/i)
+            dns_domain = dn_to_domain(domain)
+            if dns_domain != domain
               default_naming_context = domain
-              domain = dn_to_domain(domain)
+              domain = dns_domain
             else
               default_naming_context = get_default_naming_context(domain)
             end
