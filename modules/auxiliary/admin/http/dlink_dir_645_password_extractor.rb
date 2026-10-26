@@ -78,19 +78,9 @@ class MetasploitModule < Msf::Auxiliary
           private_type: :password,
           workspace_id: myworkspace_id,
           proof: line,
-          last_attempted_at: DateTime.now, # kept in refactor may not be valid, obtained but do not attempted here
           status: Metasploit::Model::Login::Status::UNTRIED
         }.merge(service_details)
         create_credential_and_login(connection_details)
-
-        report_cred(
-          ip: rhost,
-          port: rport,
-          service_name: 'http',
-          user: @user,
-          password: pass,
-          proof: line
-        )
       end
     end
   rescue ::Rex::ConnectionError
