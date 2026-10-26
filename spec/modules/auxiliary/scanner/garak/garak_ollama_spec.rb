@@ -91,14 +91,13 @@ RSpec.describe 'Garak Ollama target discovery' do
   describe 'capability-based probe suggestions' do
     let(:metadata) do
       {
-        'garak_version' => 'test',
         'probes' => {
-          'probes.test.Text' => { 'inputs' => ['text'] },
-          'probes.test.Image' => { 'inputs' => %w[text image] }
+          'probes.test.Text' => { 'modality' => { 'in' => ['text'] } },
+          'probes.test.Image' => { 'modality' => { 'in' => %w[text image] } }
         },
         'generators' => {
-          'ollama.OllamaGeneratorChat' => { 'inputs' => ['text'] },
-          'ollama.OllamaGenerator' => { 'inputs' => ['text'] }
+          'ollama.OllamaGeneratorChat' => { 'modality' => { 'in' => ['text'] } },
+          'ollama.OllamaGenerator' => { 'modality' => { 'in' => ['text'] } }
         }
       }
     end

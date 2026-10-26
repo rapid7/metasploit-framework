@@ -111,15 +111,15 @@ class MetasploitModule < Msf::Auxiliary
           config['run'] = { 'spec' => { 'include' => probe_names.empty? ? ['probes.none'] : probe_names } }
         end
         config_path = if datastore['OUTPUT_YAML']
-                        store_garak_yaml(ip: ip, namespace: 'langflow', config: config, target_type: ENDPOINT_ALIASES.fetch('rest'), target_name: target[:endpoint], rest_api_key: datastore['API_KEY'])
+                        store_garak_yaml(ip: ip, namespace: 'langflow', config: config, target_type: ENDPOINT_ALIASES.fetch('rest'), target_name: target[:endpoint], key_env_var: 'LANGFLOW_API_KEY')
                       else
-                        store_loot('langflow.garak.config', 'application/json', ip, JSON.pretty_generate(generator_config(target)), "langflow_#{target[:id]}_garak.json", 'Garak Langflow REST configuration')
+                        store_loot('langflow.garak.config', 'application/json', ip, JSON.pretty_generate(config), "langflow_#{target[:id]}_garak.json", 'Garak Langflow REST configuration')
                       end
         unless datastore['OUTPUT_YAML']
-          print_garak_scan_command(config_path: config_path, target_type: ENDPOINT_ALIASES.fetch('rest'), target_name: target[:endpoint], rest_api_key: datastore['API_KEY'])
+          print_garak_scan_command(config_path: config_path, target_type: ENDPOINT_ALIASES.fetch('rest'), target_name: target[:endpoint], key_env_var: 'LANGFLOW_API_KEY')
+          print_good("Garak configuration saved: #{config_path}")
         end
-        print_good("Garak configuration saved: #{config_path}")
-        print_status("Garak values: TARGET_TYPE=rest.RestGenerator TARGET_NAME=#{target[:endpoint]} TARGETURI=#{target[:run_path]} CONFIG_FILE=#{config_path}")
+        print_status("Garak values: TARGET_TYPE=rest.RestGenerator TARGET_NAME=#{target[:endpoint]} CONFIG_FILE=#{config_path}")
       else
         print_warning("Flow #{target[:id]} needs an unambiguous text input and output; select OUTPUT_COMPONENT for multiple text outputs")
       end
@@ -131,10 +131,8 @@ class MetasploitModule < Msf::Auxiliary
     print_warning('No saved flows were returned; specify FLOW_ID or enable INCLUDE_EXAMPLES if appropriate') if targets.empty?
     report_note(host: ip, port: rport, proto: 'tcp', type: 'langflow.garak.targets', update: :unique_data, data: { version: release.to_s, targets: targets })
     unless targets.empty?
-      if datastore['API_KEY'].blank?
-        print_status('Add REST_API_KEY=<existing-langflow-api-key> to the suggested command if flow execution requires authentication')
-      end
-      print_status('Use garak_scan with a saved configuration and the same RHOSTS, RPORT and SSL; flow execution and response extraction remain unverified')
+      print_status('API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass REST_API_KEY explicitly, if flow execution requires authentication')
+      print_status('Run garak_scan while this module is active to inherit RHOSTS, RPORT and SSL; flow execution and response extraction remain unverified')
       if datastore['SUGGEST_PROBES'] && targets.any? { |target| target[:config_file] }
         list_garak_probes(names: probe_names)
         print_status('Available probes are not verified for these flows; validate input compatibility and dependencies before scanning')
@@ -145,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_error("Langflow discovery request failed: #{e.message}")
   rescue SystemCallError, IOError => e
     elog('Garak probe listing failed', error: e)
-    fail_with(Failure::BadConfig, "Could not list garak probes: #{e.message}; check PYTHON and GARAK_PATH, or disable SUGGEST_PROBES")
+    fail_with(Failure::BadConfig, "Could not list garak probes: #{e.message}; check PYTHON and the installed package, or disable SUGGEST_PROBES")
   end
 
   def discover_flows
@@ -194,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
             'RestGenerator' => {
               'uri' => target[:endpoint], 'method' => 'post',
               'request_timeout' => datastore['REST_TIMEOUT'],
-              'headers' => { 'Content-Type' => 'application/json', 'x-api-key' => '$KEY' },
+              'key_env_var' => 'LANGFLOW_API_KEY', 'headers' => { 'Content-Type' => 'application/json', 'x-api-key' => '$KEY' },
               'req_template_json_object' => {
                 'input_value' => '$INPUT', 'input_type' => target[:input_type],
                 'output_type' => target[:output_type], 'output_component' => target[:output_component]

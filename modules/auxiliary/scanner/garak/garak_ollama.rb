@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     super
   rescue SystemCallError, IOError => e
     elog('Garak metadata query failed', error: e)
-    fail_with(Failure::BadConfig, "Could not read garak metadata: #{e.message}; check PYTHON and GARAK_PATH, or disable SUGGEST_PROBES")
+    fail_with(Failure::BadConfig, "Could not read garak metadata: #{e.message}; check PYTHON and the installed package, or disable SUGGEST_PROBES")
   end
 
   def run_host(ip)
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
         store_garak_yaml(ip: ip, namespace: 'ollama', config: config, target_type: adapter, target_name: name)
       end
     end
-    print_status('Use these values with the garak plugin command garak_scan and the same RHOSTS, RPORT, SSL and TARGETURI')
+    print_status('Run garak_scan while this module is active to inherit RHOSTS, RPORT, SSL and TARGETURI')
   rescue Rex::ConnectionError, Rex::TimeoutError => e
     elog('Ollama discovery request failed', error: e)
     vprint_error("Ollama discovery request failed: #{e.message}")
@@ -143,7 +143,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def suggest_model_probes(ip, name)
     capabilities = model_capabilities(name)
-    result = garak_probe_suggestions(capabilities, @probe_metadata)
+    # Ollama capability names originate in server/images.go. Map only the
+    # generation capabilities with a defined garak input modality.
+    # https://github.com/ollama/ollama/blob/main/server/images.go
+    input_types = []
+    input_types << 'text' if capabilities&.include?('completion')
+    input_types << 'image' if capabilities&.include?('vision')
+    input_types = nil if capabilities.nil? || !(capabilities - %w[completion vision embedding tools thinking]).empty?
+    result = garak_probe_suggestions(input_types, @probe_metadata)
     report_garak_probe_suggestions(ip: ip, name: name, capabilities: capabilities, result: result, metadata: @probe_metadata, namespace: 'ollama')
   end
 end

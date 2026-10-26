@@ -9,8 +9,8 @@ RSpec.describe 'Garak llama.cpp discovery' do
   end
   let(:metadata) do
     {
-      'probes' => { 'probes.test.Text' => { 'inputs' => ['text'] }, 'probes.test.Image' => { 'inputs' => %w[text image] } },
-      'generators' => { 'openai.OpenAICompatible' => { 'inputs' => ['text'] } }
+      'probes' => { 'probes.test.Text' => { 'modality' => { 'in' => ['text'] } }, 'probes.test.Image' => { 'modality' => { 'in' => %w[text image] } } },
+      'generators' => { 'openai.OpenAICompatible' => { 'modality' => { 'in' => ['text'] } } }
     }
   end
 
@@ -42,7 +42,7 @@ RSpec.describe 'Garak llama.cpp discovery' do
     expect(mod).to have_received(:report_service).with(hash_including(name: 'https', info: 'llama.cpp'))
     expect(mod).to have_received(:print_status).with(a_string_including('TARGET_NAME', 'example'))
     expect(mod).to have_received(:print_status).with(a_string_including('TARGET_TYPE', 'openai.OpenAICompatible'))
-    expect(mod).to have_received(:print_status).with(a_string_including('TARGETURI /llama/v1/'))
+    expect(mod).to have_received(:print_status).with(a_string_including('TARGETURI=/llama/v1/'))
   end
 
   it 'does not identify another OpenAI-compatible service as llama.cpp' do
@@ -85,7 +85,7 @@ RSpec.describe 'Garak llama.cpp discovery' do
     props = { 'model_alias' => 'example', 'modalities' => { 'vision' => true } }
     caps = mod.llama_capabilities('example', document, props)
     expect(caps).to eq(%w[completion vision])
-    result = mod.garak_probe_suggestions(caps, metadata, target_types: ['openai.OpenAICompatible'])
+    result = mod.garak_probe_suggestions(%w[text image], metadata, target_types: ['openai.OpenAICompatible'])
     expect(result['probes']['probes.test.Image']['openai.OpenAICompatible']).to eq('incompatible')
   end
 
@@ -125,7 +125,11 @@ RSpec.describe 'Garak llama.cpp discovery' do
     config = YAML.safe_load(saved[3])
     expect(config.dig('plugins', 'target_type')).to eq('openai.OpenAICompatible')
     expect(config.dig('plugins', 'target_name')).to eq('example')
-    expect(config.dig('plugins', 'generators', 'openai', 'OpenAICompatible', 'uri')).to eq("https://#{ip}:8443/provider/v1/")
+    generator = config.dig('plugins', 'generators', 'openai', 'OpenAICompatible')
+    expect(generator['uri']).to eq("https://#{ip}:8443/provider/v1/")
+    expect(generator['key_env_var']).to eq('OPENAICOMPATIBLE_API_KEY')
+    expect(generator).not_to have_key('api_key')
     expect(config.to_json).not_to include('secret-discovery-key')
+    expect(mod).to have_received(:print_status).with(a_string_including('REST_API_KEY_ENV=OPENAICOMPATIBLE_API_KEY'))
   end
 end

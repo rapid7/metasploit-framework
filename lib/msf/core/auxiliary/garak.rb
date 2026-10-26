@@ -8,29 +8,20 @@ require 'shellwords'
 
 # Shared adapter metadata for garak execution and service discovery modules.
 module Msf::Auxiliary::Garak
-  # Default sibling checkout used by local garak actions.
-  # @return [String] Checkout path
-  def default_garak_path
-    File.expand_path('../garak', Msf::Config.install_root)
-  end
-
   # Register local runtime and listing controls.
-  # @param checkout_default [String, nil] Explicit option default, if required
   # @return [void]
-  def register_garak_options(checkout_default: nil)
-    register_garak_runtime_options(checkout_default: checkout_default)
+  def register_garak_options
+    register_garak_runtime_options
     register_options([
       Msf::OptString.new('PROBE_FILTER', [false, 'Case-insensitive substring for LIST_PROBES, such as dan or encoding'], conditions: ['ACTION', '==', 'LIST_PROBES'])
     ])
   end
 
   # Register local runtime controls without adding listing actions or filters.
-  # @param checkout_default [String, nil] Explicit checkout option default
   # @return [void]
-  def register_garak_runtime_options(checkout_default: nil)
+  def register_garak_runtime_options
     register_options([
-      Msf::OptPath.new('GARAK_PATH', [!checkout_default.nil?, 'Local garak checkout; defaults to the garak directory beside Metasploit', checkout_default]),
-      Msf::OptString.new('PYTHON', [true, 'Python executable with garak dependencies installed', 'python3'])
+      Msf::OptString.new('PYTHON', [true, 'Python executable with the garak package installed', 'python3'])
     ])
     register_advanced_options([
       Msf::OptInt.new('RunTimeout', [true, 'Maximum garak runtime in seconds', 3600])
@@ -51,21 +42,20 @@ module Msf::Auxiliary::Garak
   # @param config [Hash] Generator configuration containing string keys
   # @param target_type [String] Garak generator name
   # @param target_name [String] Model name or REST URL
-  # @param rest_api_key [String, nil] REST credential to include in copyable commands only
+  # @param key_env_var [String, nil] Environment variable used by the REST configuration
   # @return [String] Saved loot path
-  def store_garak_yaml(ip:, namespace:, config:, target_type:, target_name:, rest_api_key: nil)
+  def store_garak_yaml(ip:, namespace:, config:, target_type:, target_name:, key_env_var: nil)
     settings = config.merge('plugins' => config.fetch('plugins').merge('target_type' => target_type, 'target_name' => target_name))
     path = store_loot("#{namespace}.garak.config.yaml", 'application/x-yaml', ip, YAML.dump(settings), "#{namespace}_garak.yaml", 'Garak target configuration')
     print_good("Garak YAML configuration saved: #{path}")
-    selections = settings.dig('run', 'spec', 'include')
-    probes = selections ? selections.join(',') : 'probes.test.Blank'
+    spec = settings.dig('run', 'spec')
     python = Shellwords.escape(datastore['PYTHON'].presence || 'python3')
-    print_garak_scan_command(config_path: path, target_type: target_type, target_name: target_name, probes: probes, rest_api_key: rest_api_key)
-    python = "REST_API_KEY=#{Shellwords.escape(rest_api_key)} #{python}" if rest_api_key.present?
-    if selections
-      print_status("Or run in a terminal: #{python} -m garak --config #{path}")
+    print_garak_scan_command(config_path: path, target_type: target_type, target_name: target_name, probes: spec ? nil : 'probes.test.Blank', key_env_var: key_env_var)
+    terminal_config = Shellwords.escape(path)
+    if spec
+      print_status("Or run in a terminal: #{python} -m garak --config #{terminal_config}")
     else
-      print_status("Or run in a terminal: #{python} -m garak --config #{path} --spec probes.test.Blank")
+      print_status("Or run in a terminal: #{python} -m garak --config #{terminal_config} --spec probes.test.Blank")
       print_status('This example tests connectivity only; use garak_list_probes to select security probes')
     end
     path
@@ -75,18 +65,13 @@ module Msf::Auxiliary::Garak
   # @param config_path [String] Saved generator configuration
   # @param target_type [String] Garak generator name
   # @param target_name [String] Model name or REST URL
-  # @param probes [String] Probe selection
-  # @param rest_api_key [String, nil] REST credential for the scan child process
+  # @param probes [String, nil] CLI probe selection; omit to retain the configuration spec
+  # @param key_env_var [String, nil] Environment variable used by the REST configuration
   # @return [void]
-  def print_garak_scan_command(config_path:, target_type:, target_name:, probes: 'probes.test.Blank', rest_api_key: nil)
-    options = { 'TARGET_TYPE' => target_type, 'TARGET_NAME' => target_name, 'CONFIG_FILE' => config_path, 'PROBES' => probes, 'PYTHON' => datastore['PYTHON'].presence || 'python3' }
-    selections = probes.split(',').map(&:strip).reject(&:empty?).uniq
-    # Listings contain both family selectors and their individual probes; count
-    # the individual probes without counting the family a second time.
-    probe_count = selections.count { |name| selections.none? { |other| other.start_with?("#{name}.") } }
-    options['RunTimeout'] = (300 * [probe_count, 1].max).to_s
-    options['GARAK_PATH'] = datastore['GARAK_PATH'] if datastore['GARAK_PATH'].present?
-    options['REST_API_KEY'] = rest_api_key if rest_api_key.present?
+  def print_garak_scan_command(config_path:, target_type:, target_name:, probes: 'probes.test.Blank', key_env_var: nil)
+    options = { 'TARGET_TYPE' => target_type, 'TARGET_NAME' => target_name, 'CONFIG_FILE' => config_path, 'PYTHON' => datastore['PYTHON'].presence || 'python3' }
+    options['PROBES'] = probes if probes.present?
+    options['REST_API_KEY_ENV'] = key_env_var if key_env_var.present?
     options['VERBOSE'] = 'true'
     print_status("Use garak_scan #{options.map { |key, value| "#{key}=#{Shellwords.escape(value)}" }.join(' ')}")
   end
@@ -95,65 +80,36 @@ module Msf::Auxiliary::Garak
   # @param target_types [Array<String>] Generator names to inspect
   # @return [Hash] Probe and generator metadata
   def garak_probe_metadata(target_types: OLLAMA_TARGET_TYPES)
-    checkout = validate_garak_runtime
-    script = File.join(Msf::Config.data_directory, 'auxiliary', 'garak', 'probe_metadata.py')
-    Dir.mktmpdir('msf-garak-metadata-') do |directory|
-      destination = File.join(directory, 'metadata.json')
-      output = File.join(directory, 'console.log')
-      status = execute_garak([datastore['PYTHON'], script, destination, *target_types], checkout, output)
-      fail_with(Msf::Module::Failure::TimeoutExpired, 'Garak metadata query exceeded RunTimeout') unless status
-      unless status.success? && File.file?(destination)
-        File.foreach(output) { |line| vprint_status("Garak: #{line.chomp}") } if File.file?(output)
-        fail_with(Msf::Module::Failure::BadConfig, 'Could not read garak metadata; check GARAK_PATH, PYTHON and installed dependencies')
-      end
-      metadata = JSON.parse(File.binread(destination))
-      unless metadata.is_a?(Hash) && metadata['probes'].is_a?(Hash) && !metadata['probes'].empty? && metadata['generators'].is_a?(Hash)
-        fail_with(Msf::Module::Failure::UnexpectedReply, 'Garak returned invalid probe metadata')
-      end
-      metadata
-    end
-  rescue JSON::ParserError => e
-    elog('Could not parse garak probe metadata', error: e)
-    fail_with(Msf::Module::Failure::UnexpectedReply, 'Garak returned malformed metadata JSON')
+    cache = garak_plugin_cache
+    generators = target_types.to_h { |name| [name, cache['generators']["generators.#{name}"]] }
+    { 'probes' => cache['probes'], 'generators' => generators }
   end
 
   # Compare declared probe inputs with model and generator inputs. Unknown
   # capabilities do not imply support or incompatibility.
-  # @param capabilities [Array<String>, nil] Ollama capabilities or unknown
+  # @param input_types [Array<String>, nil] Model input modalities or unknown
   # @param metadata [Hash] Local garak metadata
   # @param target_types [Array<String>] Generator names to compare
   # @return [Hash] Model inputs and per-probe compatibility for each adapter
-  def garak_probe_suggestions(capabilities, metadata, target_types: OLLAMA_TARGET_TYPES)
-    capabilities = nil unless capabilities.is_a?(Array) && !capabilities.empty? && capabilities.all? { |value| value.is_a?(String) }
-    # Ollama capability names originate in server/images.go:
-    # https://github.com/ollama/ollama/blob/main/server/images.go
-    inputs = []
-    inputs << 'text' if capabilities&.include?('completion')
-    inputs << 'image' if capabilities&.include?('vision')
-    # Only these capability names have a defined interpretation here. New
-    # capability names may imply additional inputs, so retain uncertainty.
-    complete = capabilities && (capabilities - %w[completion vision embedding tools thinking]).empty?
+  def garak_probe_suggestions(input_types, metadata, target_types: OLLAMA_TARGET_TYPES)
+    inputs = input_types if input_types.is_a?(Array) && input_types.all? { |value| value.is_a?(String) }
     probes = metadata['probes'].sort.to_h.transform_values do |probe|
       required = garak_input_types(probe)
       target_types.to_h do |adapter|
         supported = garak_input_types(metadata['generators'][adapter])
-        status = if required.nil? || capabilities.nil?
+        status = if required.nil? || inputs.nil?
                    'unknown'
-                 elsif complete && (!capabilities.include?('completion') || !(required - inputs).empty?)
-                   'incompatible'
                  elsif supported.nil?
                    'unknown'
-                 elsif !(required - supported).empty?
+                 elsif !(required - inputs).empty? || !(required - supported).empty?
                    'incompatible'
-                 elsif capabilities.include?('completion') && (required - inputs).empty?
-                   'suggested'
                  else
-                   'unknown'
+                   'suggested'
                  end
         [adapter, status]
       end
     end
-    { 'capabilities' => capabilities, 'input_types' => inputs, 'probes' => probes }
+    { 'input_types' => inputs || [], 'probes' => probes }
   end
 
   # Display and persist a model's input compatibility results.
@@ -165,7 +121,7 @@ module Msf::Auxiliary::Garak
   # @param namespace [String] Provider name for loot and database notes
   # @return [void]
   def report_garak_probe_suggestions(ip:, name:, capabilities:, result:, metadata:, namespace:)
-    result.merge!('target_name' => name, 'garak_version' => metadata['garak_version'])
+    result.merge!('target_name' => name)
     filter = datastore['PROBE_FILTER'].to_s.strip.downcase
     result['probes'].select! { |probe, _| probe.downcase.include?(filter) } unless filter.empty?
     print_status("Model #{name} capabilities: #{capabilities ? capabilities.join(', ') : 'unknown'}; identified input types: #{result['input_types'].presence&.join(', ') || 'unknown'}")
@@ -196,9 +152,8 @@ module Msf::Auxiliary::Garak
   # @param plugin [Hash, nil] Extracted plugin metadata
   # @return [Array<String>, nil] Declared inputs, or nil for unknown metadata
   def garak_input_types(plugin)
-    inputs = plugin['inputs'] if plugin.is_a?(Hash)
+    inputs = plugin.dig('modality', 'in') if plugin.is_a?(Hash)
     return nil unless inputs.is_a?(Array) && !inputs.empty? && inputs.all? { |value| value.is_a?(String) }
-    return nil unless (inputs - %w[text image audio video 3d]).empty?
 
     inputs.uniq.sort
   end
@@ -223,66 +178,61 @@ module Msf::Auxiliary::Garak
     OLLAMA_TARGET_TYPES.include?(ENDPOINT_ALIASES.fetch(target_type, target_type))
   end
 
-  # List plugins using the configured local garak checkout.
+  # List plugins using garak's versioned metadata cache.
   # @param category [String] CLI plugin category
   # @return [Array<String>] Sorted plugin names
   def available_plugins(category)
-    checkout = validate_garak_runtime
-    Dir.mktmpdir('msf-garak-plugins-') do |directory|
-      output_path = File.join(directory, 'plugins.log')
-      # Keep garak's listing in plain-list mode: --verbose changes it to a
-      # metadata table. See garak.command.print_plugins in the local checkout.
-      command = [datastore['PYTHON'], '-u', '-m', 'garak', "--list_#{category}"]
-      status = execute_garak(command, checkout, output_path)
-      output = File.file?(output_path) ? File.binread(output_path).force_encoding(::Encoding::UTF_8).scrub : ''
-      fail_with(Msf::Module::Failure::TimeoutExpired, "Listing garak #{category} exceeded RunTimeout") unless status
-      unless status.success?
-        output.each_line { |line| vprint_status("Garak: #{line.chomp}") }
-        fail_with(Msf::Module::Failure::BadConfig, "Could not list garak #{category}; check PYTHON, GARAK_PATH and installed dependencies")
-      end
-      names = plugin_names(output, category)
-      fail_with(Msf::Module::Failure::UnexpectedReply, "Garak returned no recognizable #{category}; check the installed garak CLI version") if names.empty?
-
-      names
-    end
+    prefix = "#{category}."
+    names = garak_plugin_cache.fetch(category).keys.filter_map { |name| name.delete_prefix(prefix) if name.start_with?(prefix) }
+    (names + names.map { |name| name.split('.', 2).first }).uniq.sort
   end
 
-  # Parse the plain-list garak CLI output.
-  # @param output [String] CLI output
-  # @param category [String] Plugin category
-  # @return [Array<String>] Sorted unique names
-  def plugin_names(output, category)
-    # The CLI prefixes each plugin/alias with its category and may append
-    # activation markers. ANSI colors are presentation, not part of its name.
-    output.gsub(%r{\e\[[0-?]*[ -/]*[@-~]}, '').each_line.filter_map do |line|
-      line.match(/^#{Regexp.escape(category)}:\s+([A-Za-z_][A-Za-z0-9_.]*)\s*.*$/)&.[](1)
-    end.uniq.sort
+  # Build and read garak's plugin cache in an isolated cache directory.
+  # @return [Hash] Plugin metadata keyed by category and fully qualified name
+  def garak_plugin_cache
+    validate_garak_runtime
+    @garak_plugin_cache ||= Dir.mktmpdir('msf-garak-metadata-') do |directory|
+      output_path = File.join(directory, 'console.log')
+      status = execute_garak([datastore['PYTHON'], '-u', '-m', 'garak', '--list_probes'], output_path)
+      fail_with(Msf::Module::Failure::TimeoutExpired, 'Garak metadata query exceeded RunTimeout') unless status
+      unless status.success?
+        File.foreach(output_path) { |line| vprint_status("Garak: #{line.chomp}") } if File.file?(output_path)
+        fail_with(Msf::Module::Failure::BadConfig, 'Could not read garak metadata; check PYTHON and the installed package')
+      end
+
+      cache_path = File.join(directory, 'garak', 'resources', 'plugin_cache.json')
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'Garak did not create its plugin metadata cache') unless File.file?(cache_path)
+
+      cache = JSON.parse(File.binread(cache_path))
+      unless %w[probes detectors generators harnesses buffs].all? { |key| cache[key].is_a?(Hash) } && cache['probes'].present?
+        fail_with(Msf::Module::Failure::UnexpectedReply, 'Garak returned invalid plugin metadata')
+      end
+      cache
+    end
+  rescue JSON::ParserError => e
+    elog('Could not parse garak plugin metadata', error: e)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Garak returned malformed plugin metadata JSON')
   end
 
   # Validate local runtime prerequisites.
-  # @return [String] Absolute checkout path
+  # @return [void]
   def validate_garak_runtime
     fail_with(Msf::Module::Failure::BadConfig, 'Garak process management requires a POSIX host') if Gem.win_platform?
-    checkout = File.expand_path(datastore['GARAK_PATH'].presence || default_garak_path)
-    unless File.file?(File.join(checkout, 'garak', '__main__.py'))
-      fail_with(Msf::Module::Failure::BadConfig, 'GARAK_PATH must contain a garak source checkout')
-    end
     fail_with(Msf::Module::Failure::BadConfig, 'RunTimeout must be positive') unless datastore['RunTimeout'].positive?
-    validate_garak_python(checkout)
-    checkout
+    validate_garak_python
+    nil
   end
 
-  # Check that the configured interpreter can start the checkout's CLI.
-  # @param checkout [String] Absolute garak checkout path
+  # Check that the configured interpreter can start garak's CLI.
   # @return [void]
-  def validate_garak_python(checkout)
+  def validate_garak_python
     python = datastore['PYTHON'].to_s
-    guidance = 'Set PYTHON to the Python executable in an environment with garak dependencies installed (plugin: garak_set PYTHON /path/to/garak/.venv/bin/python). Install dependencies with that interpreter: /path/to/garak/.venv/bin/python -m pip install -e /path/to/garak'
+    guidance = 'Set PYTHON to an interpreter with garak installed (plugin: garak_set PYTHON /path/to/venv/bin/python). Install the released package with that interpreter: /path/to/venv/bin/python -m pip install garak'
     fail_with(Msf::Module::Failure::BadConfig, "PYTHON is empty. #{guidance}") if python.strip.empty?
 
     Dir.mktmpdir('msf-garak-python-') do |directory|
       output_path = File.join(directory, 'python.log')
-      status = execute_garak([python, '-m', 'garak', '--version'], checkout, output_path)
+      status = execute_garak([python, '-m', 'garak', '--version'], output_path)
       fail_with(Msf::Module::Failure::TimeoutExpired, "Garak startup check using PYTHON=#{python} exceeded RunTimeout") unless status
       next if status.success?
 
@@ -298,14 +248,18 @@ module Msf::Auxiliary::Garak
 
   # Run garak with a bounded runtime and process-group cleanup.
   # @param command [Array<String>] Executable and literal arguments
-  # @param checkout [String] Local checkout path
   # @param output_path [String] Destination for console output
   # @param environment [Hash<String, String>] Additional child process environment variables
   # @return [Process::Status, nil] Exit status, or nil on timeout
-  def execute_garak(command, checkout, output_path, environment: {})
+  def execute_garak(command, output_path, environment: {})
+    # Garak stores logs, reports, metadata, and some downloaded resources under
+    # XDG data/cache paths. Give each process an isolated workspace so jobs do
+    # not contend for these files or mutate the operator's Garak state.
+    workspace = File.dirname(output_path)
+    child_environment = environment.merge('XDG_DATA_HOME' => workspace, 'XDG_CACHE_HOME' => workspace)
     # A separate POSIX process group lets cancellation also stop garak workers.
-    pid = Process.spawn(environment.merge('PYTHONPATH' => checkout), *command, chdir: checkout,
-                                                                               in: File::NULL, out: output_path, err: %i[child out], pgroup: true)
+    pid = Process.spawn(child_environment, *command, chdir: workspace,
+                                                     in: File::NULL, out: output_path, err: %i[child out], pgroup: true)
     Timeout.timeout(datastore['RunTimeout']) { Process.wait2(pid).last }
   rescue Timeout::Error
     nil

@@ -5,8 +5,8 @@ It requires the `Ollama is running` banner at the base path, then queries
 [`GET /api/tags`](https://docs.ollama.com/api/tags) for installed model names.
 No vulnerability is required. By default, the scanner queries each model with
 `POST /api/show` and compares its capabilities with local garak probe and adapter
-metadata. This requires a local garak checkout and a Python environment with its
-dependencies installed. Set `SUGGEST_PROBES false` for target discovery without
+metadata. This requires a Python environment with the garak package installed.
+Set `SUGGEST_PROBES false` for target discovery without
 garak. The module does not generate text, execute probes, or download models.
 
 Start a local test instance with Docker:
@@ -37,7 +37,7 @@ exclude image probes even when a model supports images.
 
 The console lists suggested probe names and their matching adapters. A JSON loot
 file and an `ollama.garak.probes` database note retain the model capabilities,
-identified inputs, garak version, and each considered probe's status for each
+identified inputs and each considered probe's status for each
 adapter: `suggested`, `incompatible`, or `unknown`. Unknown model capabilities
 produce no suggestions. Failure to retrieve `/api/show` does not discard the
 already discovered model names.
@@ -45,8 +45,8 @@ already discovered model names.
 These are input-type suggestions, not proof of compatibility or vulnerability.
 They include active and inactive probes present in garak's metadata. Language,
 credentials, dependencies, resource use and behavioral prerequisites still need
-review before running them. Metadata is obtained through garak's plugin API;
-no probes or generators are instantiated by the metadata helper.
+review before running them. Metadata is obtained from garak's plugin cache; no
+probes or generators are instantiated by the metadata query.
 
 ## Verification Steps
 
@@ -54,12 +54,13 @@ no probes or generators are instantiated by the metadata helper.
 1. Start `msfconsole`.
 1. Do: `use auxiliary/scanner/garak/garak_ollama`.
 1. Do: `set RHOSTS 127.0.0.1`.
-1. Set `GARAK_PATH` to the local garak checkout and `PYTHON` to its interpreter.
+1. Set `PYTHON` to an interpreter with the garak package installed.
 1. Do: `run verbose=true`.
 1. Confirm that `TARGET_TYPE` candidates, installed `TARGET_NAME` values and
    capability-based probe suggestions appear.
-1. Use these values with the `garak_scan` command after `load garak`, retaining the
-   same `RHOSTS`, `RPORT`, `SSL` and `TARGETURI`. Select `PROBES` separately.
+1. Use these values with the `garak_scan` command after `load garak`. Run it while
+   this module is active to inherit `RHOSTS`, `RPORT`, `SSL`, and `TARGETURI`.
+   Select `PROBES` separately.
 
 The default port is `11434`. For a reverse proxy mounted at `/ollama/`, set
 `TARGETURI` to `/ollama/`; the model query uses `/ollama/api/tags`.
@@ -87,14 +88,9 @@ Defaults to `true`. Query model capabilities and compare against local garak
 metadata. Set to `false` to discover only target types and names without garak.
 There is no LIST_PROBES action; suggestions are part of the scan.
 
-### GARAK_PATH
-
-Local garak source checkout. If unset, use the `garak` directory beside the
-Metasploit checkout. Used when `SUGGEST_PROBES` is enabled.
-
 ### PYTHON
 
-Python executable with garak's dependencies installed, default `python3`.
+Python executable with the garak package installed, default `python3`.
 For example, a pipx installation may use
 `/home/tmoose/.local/share/pipx/venvs/garak/bin/python`.
 
@@ -112,35 +108,37 @@ Advanced option limiting the local metadata process runtime in seconds, default
 ## Scenarios
 
 ```msf
+
+msf > use auxiliary/scanner/garak/garak_ollama
+msf auxiliary(scanner/garak/garak_ollama) > set RHOSTS 10.5.134.138
+RHOSTS => 10.5.134.138
+msf auxiliary(scanner/garak/garak_ollama) > set RPORT 11434
+RPORT => 11434
+msf auxiliary(scanner/garak/garak_ollama) > set PYTHON /tmp/msf-garak-live-venv/bin/python
+PYTHON => /tmp/msf-garak-live-venv/bin/python
+msf auxiliary(scanner/garak/garak_ollama) > set PROBE_FILTER test.
+PROBE_FILTER => test.
+msf auxiliary(scanner/garak/garak_ollama) > set OUTPUT_YAML true
+OUTPUT_YAML => true
+msf auxiliary(scanner/garak/garak_ollama) > set VERBOSE true
+VERBOSE => true
 msf auxiliary(scanner/garak/garak_ollama) > show options
 
 Module options (auxiliary/scanner/garak/garak_ollama):
 
-   Name            Current Setting                Required  Description
-   ----            ---------------                --------  -----------
-   GARAK_PATH      /home/tmoose/git/garak         no        Local garak checkout; defaults to the garak direct
-                                                            ory beside Metasploit
-   PROBE_FILTER    dan                            no        Optional case-insensitive substring to narrow prob
-                                                            e suggestions
-   PYTHON          /home/tmoose/.local/share/pip  yes       Python executable with garak dependencies installe
-                   x/venvs/garak/bin/python                 d
-   Proxies                                        no        A proxy chain of format type:host:port[,type:host:
-                                                            port][...]. Supported proxies: socks5, socks5h, sa
-                                                            pni, http, socks4
-   RHOSTS          10.5.135.119                   yes       The target host(s), see https://docs.metasploit.co
-                                                            m/docs/using-metasploit/basics/using-metasploit.ht
-                                                            ml
-   RPORT           11434                          yes       The target port (TCP)
-   SSL             false                          no        Negotiate SSL/TLS for outgoing connections
-   SUGGEST_PROBES  true                           yes       Query model capabilities and suggest probes using
-                                                            local garak metadata
-   TARGETURI       /                              yes       Base path to the Ollama service
-   THREADS         1                              yes       The number of concurrent threads (max one per host
-                                                            )
-   VHOST                                          no        HTTP server virtual host
-
-
-View the full module info with the info, or info -d command.
+   Name            Current Setting                      Required  Description
+   ----            ---------------                      --------  -----------
+   OUTPUT_YAML     true                                 yes       Save a garak YAML configuration for each discovered target
+   PROBE_FILTER    test.                                no        Optional case-insensitive substring to narrow probe suggestions
+   PYTHON          /tmp/msf-garak-live-venv/bin/python  yes       Python executable with the garak package installed
+   Proxies                                              no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: socks5, socks5h, http, sapni, socks4
+   RHOSTS          10.5.134.138                         yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT           11434                                yes       The target port (TCP)
+   SSL             false                                no        Negotiate SSL/TLS for outgoing connections
+   SUGGEST_PROBES  true                                 yes       Query model capabilities and suggest probes using local garak metadata
+   TARGETURI       /                                    yes       Base path to the Ollama service
+   THREADS         1                                    yes       The number of concurrent threads (max one per host)
+   VHOST                                                no        HTTP server virtual host
 
 msf auxiliary(scanner/garak/garak_ollama) > run
 [+] Ollama service detected
@@ -158,40 +156,28 @@ msf auxiliary(scanner/garak/garak_ollama) > run
 
   TARGET_NAME
   -----------
-  qwen2.5:3b
+  smollm2:135m
 
-[*] Model qwen2.5:3b capabilities: completion, tools; identified input types: text
-[*] Suggested probes for qwen2.5:3b (input compatibility only)
-==========================================================
+[*] Model smollm2:135m capabilities: completion; identified input types: text
+[*] Suggested probes for smollm2:135m (input compatibility only)
+============================================================
 
-  PROBES                                   Inputs  TARGET_TYPE
-  ------                                   ------  -----------
-  probes.dan.Ablation_Dan_11_0             text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.AntiDAN                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.AutoDAN                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.AutoDANCached                 text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.ChatGPT_Developer_Mode_RANTI  text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.ChatGPT_Developer_Mode_v2     text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.ChatGPT_Image_Markdown        text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.DAN_Jailbreak                 text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.DUDE                          text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.DanInTheWild                  text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.DanInTheWildFull              text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_10_0                      text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_11_0                      text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_6_0                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_6_2                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_7_0                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_8_0                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.Dan_9_0                       text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
-  probes.dan.STAN                          text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
+  PROBES             Inputs  TARGET_TYPE
+  ------             ------  -----------
+  probes.test.Blank  text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
+  probes.test.Test   text    ollama.OllamaGeneratorChat, ollama.OllamaGenerator
 
-[*] Probe comparison for qwen2.5:3b: 19 suggested, 0 with unknown compatibility, 19 considered
+[*] Probe comparison for smollm2:135m: 2 suggested, 0 with unknown compatibility, 2 considered
 [!] Probe suggestions compare declared input types only; dependencies, languages and behavior still need validation
-[*] Full probe compatibility results saved to /home/tmoose/.msf4/loot/20260930111650_default_10.5.135.119_ollama.garak.pro_447447.json
-[*] Use these values with the garak plugin command garak_scan and the same RHOSTS, RPORT, SSL and TARGETURI
+[*] Full probe compatibility results saved to /home/tmoose/.msf4/loot/20261026154636_default_10.5.134.138_ollama.garak.pro_000818.json
+[+] Garak YAML configuration saved: /home/tmoose/.msf4/loot/20261026154636_default_10.5.134.138_ollama.garak.con_775283.yaml
+[*] Use garak_scan TARGET_TYPE=ollama.OllamaGeneratorChat TARGET_NAME=smollm2:135m CONFIG_FILE=/home/tmoose/.msf4/loot/20261026154636_default_10.5.134.138_ollama.garak.con_775283.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python PROBES=probes.test.Blank VERBOSE=true
+[*] Or run in a terminal: /tmp/msf-garak-live-venv/bin/python -m garak --config /home/tmoose/.msf4/loot/20261026154636_default_10.5.134.138_ollama.garak.con_775283.yaml --spec probes.test.Blank
+[*] This example tests connectivity only; use garak_list_probes to select security probes
+[*] Run garak_scan while this module is active to inherit RHOSTS, RPORT, SSL and TARGETURI
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+
 ```
 
 

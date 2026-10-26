@@ -18,10 +18,10 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
         info,
         'Name' => 'Garak AI Scanner Integration',
         'Description' => %q{
-          Runs a local garak checkout to assess an AI target and imports its JSONL
+          Runs an installed garak package to assess an AI target and imports its JSONL
           evaluation report as loot. Displays per-probe detector results without
           treating heuristic detections as confirmed vulnerabilities. Requires a
-          POSIX host and a Python environment with garak's dependencies installed.
+          POSIX host and a Python environment with the garak package installed.
           Target connections are made by garak and do not use Metasploit routing.
         },
         'Author' => ['bwatters-r7'], # Original integration implementation
@@ -49,27 +49,28 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       Msf::OptString.new('TARGETURI', [true, 'Remote API path when RHOSTS is set', '/'], regex: %r{^/[^\s?#]*$}),
       Msf::OptString.new('TARGET_TYPE', [false, 'Garak adapter for SCAN; use garak_list_generators to list available values'], conditions: ['ACTION', '==', 'SCAN']),
       Msf::OptString.new('TARGET_NAME', [false, 'Required for SCAN; leave blank to list models for supported adapters with RHOSTS'], conditions: ['ACTION', '==', 'SCAN']),
-      Msf::OptString.new('PROBES', [false, 'Garak selection spec for SCAN; use garak_list_probes (example: probes.test.Blank)'], conditions: ['ACTION', '==', 'SCAN']),
+      Msf::OptString.new('PROBES', [false, 'Garak selection spec for SCAN; supports families and -prefixed exclusions (example: probes.test.Blank)'], conditions: ['ACTION', '==', 'SCAN']),
       Msf::OptInt.new('GENERATIONS', [true, 'Responses to generate per prompt', 1]),
       Msf::OptPath.new('REPORT_FILE', [false, 'Existing garak JSONL report required for IMPORT'], conditions: ['ACTION', '==', 'IMPORT'])
     ])
     register_advanced_options([
       Msf::OptInt.new('REST_TIMEOUT', [false, 'Override the garak REST generator request timeout in seconds']),
-      Msf::OptString.new('REST_API_KEY', [false, 'API key passed to the garak REST generator through its child environment']),
+      Msf::OptString.new('REST_API_KEY', [false, 'API key passed only through the garak child environment']),
+      Msf::OptString.new('REST_API_KEY_ENV', [false, 'Existing environment variable containing a REST generator API key'], regex: /\A[A-Za-z_][A-Za-z0-9_]*\z/),
       Msf::OptPath.new('CONFIG_FILE', [false, 'Local garak YAML or JSON configuration file']),
       Msf::OptAddress.new('DB_HOST', [false, 'Target address for database attribution (omit for workspace notes)']),
       Msf::OptPort.new('DB_PORT', [false, 'Target TCP service port for database attribution']),
       Msf::OptString.new('DB_SERVICE', [false, 'Target service name for database attribution', 'http'])
     ])
-    register_garak_options(checkout_default: default_garak_path)
+    register_garak_options
   end
 
   def garak_command(prefix, endpoint: nil)
     command = [
       datastore['PYTHON'], '-u', '-m', 'garak',
-      '--target_type', datastore['TARGET_TYPE'], '--spec', datastore['PROBES'],
-      '--generations', datastore['GENERATIONS'].to_s, '--report_prefix', prefix
+      '--target_type', datastore['TARGET_TYPE'], '--generations', datastore['GENERATIONS'].to_s, '--report_prefix', prefix
     ]
+    command.concat(['--spec', datastore['PROBES']]) if datastore['PROBES'].present?
     command.concat(['--target_name', datastore['TARGET_NAME']]) if datastore['TARGET_NAME'].present?
     command.concat(['--config', File.expand_path(datastore['CONFIG_FILE'])]) if datastore['CONFIG_FILE'].present?
     options = {}
@@ -82,6 +83,11 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       options['rest'] ||= {}
       options['rest']['RestGenerator'] ||= {}
       options['rest']['RestGenerator']['request_timeout'] = datastore['REST_TIMEOUT']
+    end
+    if datastore['REST_API_KEY_ENV'].present? && ENDPOINT_ALIASES.fetch(datastore['TARGET_TYPE'], datastore['TARGET_TYPE']) == 'rest.RestGenerator'
+      options['rest'] ||= {}
+      options['rest']['RestGenerator'] ||= {}
+      options['rest']['RestGenerator']['key_env_var'] = datastore['REST_API_KEY_ENV']
     end
     command.concat(['--generator_options', options.to_json]) unless options.empty?
     command << '--verbose' if datastore['VERBOSE']
@@ -117,7 +123,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       fail_with(Failure::BadConfig, "Set TARGET_TYPE to an appropriate generator. Available TARGET_TYPE values: #{available_generators.join(', ')}")
     end
     if datastore['RHOSTS'].present?
-      endpoint_adapter
+      endpoint_adapter if datastore['CONFIG_FILE'].blank?
       return super if datastore['TARGET_NAME'].blank? && model_discovery_supported?
 
       validate_scan
@@ -126,7 +132,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       end
       super
     else
-      scan_garak(File.expand_path(datastore['GARAK_PATH']))
+      scan_garak
     end
   rescue SystemCallError, IOError => e
     elog('Garak execution or report processing failed', error: e)
@@ -145,10 +151,12 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
   def run_host(ip)
     return list_target_names if datastore['TARGET_NAME'].blank? && model_discovery_supported?
 
-    endpoint = "#{datastore['SSL'] ? 'https' : 'http'}://#{Rex::Socket.to_authority(ip, datastore['RPORT'])}#{datastore['TARGETURI']}"
+    endpoint = if datastore['CONFIG_FILE'].blank?
+                 "#{datastore['SSL'] ? 'https' : 'http'}://#{Rex::Socket.to_authority(ip, datastore['RPORT'])}#{datastore['TARGETURI']}"
+               end
     association = { host: ip, port: datastore['RPORT'], proto: 'tcp', sname: datastore['SSL'] ? 'https' : 'http' }
-    print_status("Scanning AI endpoint #{endpoint}")
-    scan_garak(File.expand_path(datastore['GARAK_PATH']), endpoint: endpoint, association: association)
+    print_status("Scanning AI endpoint #{endpoint || datastore['TARGET_NAME']}")
+    scan_garak(endpoint: endpoint, association: association)
   rescue SystemCallError, IOError => e
     elog('Garak execution or report processing failed', error: e)
     fail_with(Failure::BadConfig, "Could not execute garak or access its reports: #{e.message}")
@@ -191,13 +199,12 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     available_plugins('generators')
   end
 
-  def generator_names(output)
-    plugin_names(output, 'generators')
-  end
-
   def validate_scan
-    if datastore['PROBES'].blank?
-      fail_with(Failure::BadConfig, 'PROBES is required for SCAN. Use garak_list_probes and optionally set PROBE_FILTER (for example, dan). Examples: probes.test.Blank for a smoke test, probes.dan.Dan_11_0 for a jailbreak probe. Use garak_scan to run your chosen probes.')
+    if datastore['CONFIG_FILE'].present? && !File.file?(File.expand_path(datastore['CONFIG_FILE']))
+      fail_with(Failure::BadConfig, 'CONFIG_FILE must be an existing local file')
+    end
+    if datastore['PROBES'].blank? && !configured_probe_spec?
+      fail_with(Failure::BadConfig, 'PROBES or CONFIG_FILE run.spec is required for SCAN. Use garak_list_probes and optionally set PROBE_FILTER (for example, dan). Examples: probes.test.Blank for a smoke test, probes.dan,-probes.dan.Dan_11_0 for a family with an exclusion.')
     end
     if datastore['TARGET_NAME'].blank?
       guidance = if model_discovery_supported?
@@ -214,22 +221,30 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'REST_TIMEOUT must be positive') unless datastore['REST_TIMEOUT'].positive?
     end
     validate_garak_runtime
-    if datastore['CONFIG_FILE'].present? && !File.file?(File.expand_path(datastore['CONFIG_FILE']))
-      fail_with(Failure::BadConfig, 'CONFIG_FILE must be an existing local file')
-    end
     fail_with(Failure::BadConfig, 'GENERATIONS must be positive') unless datastore['GENERATIONS'].positive?
   end
 
-  def scan_garak(checkout, association: nil, endpoint: nil)
+  def configured_probe_spec?
+    return false if datastore['CONFIG_FILE'].blank?
+
+    config = YAML.safe_load(File.binread(File.expand_path(datastore['CONFIG_FILE'])), aliases: false)
+    config.is_a?(Hash) && config.dig('run', 'spec').present?
+  rescue Psych::Exception => e
+    elog('Could not parse garak configuration', error: e)
+    fail_with(Failure::BadConfig, 'CONFIG_FILE must contain valid Garak YAML or JSON')
+  end
+
+  def scan_garak(association: nil, endpoint: nil)
     validate_scan
     association ||= database_association
     Dir.mktmpdir('msf-garak-') do |directory|
       prefix = File.join(directory, 'scan')
       output_path = File.join(directory, 'console.log')
       print_status('Running garak locally; this can take several minutes')
+      key_env_var = datastore['REST_API_KEY_ENV'].presence || 'REST_API_KEY'
       environment = {}
-      environment['REST_API_KEY'] = datastore['REST_API_KEY'] if datastore['REST_API_KEY'].present?
-      status = execute_garak(garak_command(prefix, endpoint: endpoint), checkout, output_path, environment: environment)
+      environment[key_env_var] = datastore['REST_API_KEY'] if datastore['REST_API_KEY'].present?
+      status = execute_garak(garak_command(prefix, endpoint: endpoint), output_path, environment: environment)
       if File.file?(output_path)
         console = File.binread(output_path)
         path = store_loot('garak.console', 'text/plain', association[:host], console, 'garak-console.log')

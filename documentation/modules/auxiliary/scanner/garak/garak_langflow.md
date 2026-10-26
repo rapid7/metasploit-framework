@@ -20,12 +20,15 @@ No vulnerability is required. Use an authorized Langflow instance with a saved
 flow. For example, start a local container:
 
 ```sh
-docker run --name garak-langflow -p 127.0.0.1:7860:7860 langflowai/langflow:1.10.0
+docker run -d --name garak-langflow -p 127.0.0.1:7860:7860 \
+  -e LANGFLOW_AUTO_LOGIN=true langflowai/langflow:1.10.0
+docker exec garak-langflow langflow api-key
 ```
 
 Open the UI, create a Basic Prompting flow with Chat Input and Chat Output, configure
-its model provider, and save it. Obtain an existing API key from Langflow's settings.
-Do not expose the lab container to untrusted networks.
+its model provider, and save it. Use the API key printed by the CLI for discovery.
+Automatic login is suitable only for an isolated lab; do not expose this container
+to untrusted networks.
 
 ## Verification Steps
 
@@ -38,34 +41,32 @@ Do not expose the lab container to untrusted networks.
 7. Confirm the flow ID, component types, run endpoint, and saved configuration path.
 8. Inspect the saved JSON before running Garak. Discovery alone does not prove the flow works.
 
-When `API_KEY` is supplied, the suggested `garak_scan` command includes it as
-`REST_API_KEY`, along with the interpreter, configuration, and connectivity probe.
-The key is printed in the command but is not stored in configuration loot or notes.
-Without a discovery key, add `REST_API_KEY=<key>` to the command if needed. Garak
-substitutes this environment variable for `$KEY` in the generated `x-api-key` header.
-An API key can be required to run a flow even if anonymous discovery succeeds.
-The suggested standalone terminal command supplies the same key through its environment.
+Generated configurations set `key_env_var` to `LANGFLOW_API_KEY` and substitute
+that environment value for `$KEY` in the `x-api-key` header. Export the key before
+starting msfconsole so both plugin and terminal commands inherit it. Alternatively,
+append `REST_API_KEY=<key>` to a suggested plugin command; the value is supplied
+only to its child process, but remains visible in console history. Discovery never
+prints or saves the key. Authentication can be required for a flow run even when
+anonymous discovery succeeds.
 
-The suggested `garak_scan` command includes `RunTimeout` with 300 seconds per
-listed probe (300 seconds for the single connectivity probe). Duplicate names and
-family selectors already represented by individual probes are not counted again.
-This is a total scan budget, not a timeout for each prompt. Probes containing many
-prompts can exceed this budget; increase the command's `RunTimeout` when needed.
+`RunTimeout` defaults to one hour for the complete scan. Probe families can expand
+to many active probes, so use `garak_list_probes` (or Garak's `--list_probes -S`
+option) to review a selection and increase the timeout for large suites.
 
 ```text
 load garak
-garak_set GARAK_PATH /path/to/garak
-garak_set PYTHON /path/to/garak/.venv/bin/python
-garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://127.0.0.1:7860/api/v1/run/<flow-id> RHOSTS=127.0.0.1 RPORT=7860 SSL=false TARGETURI=/api/v1/run/<flow-id> CONFIG_FILE=/path/to/saved/config.json PROBES=probes.test.Blank VERBOSE=true
+garak_set PYTHON /path/to/.venv/bin/python
+garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://127.0.0.1:7860/api/v1/run/<flow-id> CONFIG_FILE=/path/to/saved/config.json PROBES=probes.test.Blank REST_API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
 ```
 
 Use the exact discovered values, including the base path. The REST generator uses
-the URL as its target name; the plugin maps `RHOSTS`, `RPORT`, `SSL`, and `TARGETURI`
-to its `uri`. For a virtual host, unset `RHOSTS` in the plugin and retain the URI in
-the saved configuration. Garak makes its own connections; Metasploit routes and
-HTTP client settings do not automatically apply. Garak executes the selected flow,
-which can call external providers and tools. The template omits `session_id` so
-Langflow can assign a fresh session for each request.
+the URL as its target name. When `CONFIG_FILE` is omitted, the plugin maps `RHOSTS`,
+`RPORT`, `SSL`, and `TARGETURI` to its `uri`. In a generated configuration its
+`uri` remains authoritative, while the active module's connection settings are
+used to associate imported database results. Garak makes its own connections;
+Metasploit routes and HTTP client settings do not automatically apply. Garak
+executes the selected flow, which can call external providers and tools. The
+template omits `session_id` so Langflow can assign a fresh session for each request.
 
 ## Options
 
@@ -81,15 +82,10 @@ to discover flows without a local Garak runtime.
 Optional case-insensitive substring to narrow the available probe list, such
 as `dan` or `encoding`. If no probes match, change or unset the filter.
 
-### GARAK_PATH
-
-Local Garak source checkout used to list probes. Defaults to the `garak`
-directory beside the Metasploit checkout. Only used when `SUGGEST_PROBES` is enabled.
-
 ### PYTHON
 
-Python executable with the Garak checkout dependencies installed, used to list
-probes. Defaults to `python3`.
+Python executable with the Garak package installed, used to list probes.
+Defaults to `python3`.
 
 
 ### OUTPUT_YAML
@@ -102,10 +98,11 @@ Defaults to `false`. No local Garak installation is needed to write YAML; disabl
 `SUGGEST_PROBES` to discover without local Garak.
 
 With `SUGGEST_PROBES true`, the YAML includes the listed probe selections under
-`run.spec.include`, narrowed by `PROBE_FILTER`. Running `python -m garak --config`
-uses these selections; the suggested `garak_scan` command supplies the same values.
-A filter with no matches writes `probes.none` rather than selecting all probes.
-With `SUGGEST_PROBES false`, no probe selection is written.
+`run.spec.include`, narrowed by `PROBE_FILTER`. Both the terminal and suggested
+plugin commands leave that complete YAML spec in control. This also preserves
+manually added `run.spec.exclude` selections. A filter with no matches writes
+`probes.none` rather than selecting all probes. With `SUGGEST_PROBES false`, no
+probe selection is written and the suggested command uses `probes.test.Blank`.
 
 When enabled, YAML replaces the default JSON flow configuration. The REST request
 template and `$KEY` authentication placeholder are retained.
@@ -142,4 +139,56 @@ Multiple text inputs still require manual configuration.
 
 ## Scenarios
 
-Human-verified console scenarios are pending.
+### Langflow 1.10.0 on Docker
+
+```msf
+msf > use auxiliary/scanner/garak/garak_langflow
+msf auxiliary(scanner/garak/garak_langflow) > set RHOSTS 10.5.134.138
+RHOSTS => 10.5.134.138
+msf auxiliary(scanner/garak/garak_langflow) > set API_KEY [redacted]
+API_KEY => [redacted]
+msf auxiliary(scanner/garak/garak_langflow) > set FLOW_ID 776f41d8-1649-4a78-a60e-c52edca467ea
+FLOW_ID => 776f41d8-1649-4a78-a60e-c52edca467ea
+msf auxiliary(scanner/garak/garak_langflow) > set PYTHON /tmp/msf-garak-live-venv/bin/python
+PYTHON => /tmp/msf-garak-live-venv/bin/python
+msf auxiliary(scanner/garak/garak_langflow) > set PROBE_FILTER test.
+PROBE_FILTER => test.
+msf auxiliary(scanner/garak/garak_langflow) > set OUTPUT_YAML true
+OUTPUT_YAML => true
+msf auxiliary(scanner/garak/garak_langflow) > run verbose=true
+[+] Langflow 1.10.0 detected
+[*] Candidate target types (generation support has not been tested)
+===============================================================
+
+  TARGET_TYPE
+  -----------
+  rest.RestGenerator
+
+[+] Garak YAML configuration saved: /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
+[*] Use garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python REST_API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
+[*] Or run in a terminal: /tmp/msf-garak-live-venv/bin/python -m garak --config /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
+[*] Garak values: TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
+[*] Candidate target names (generation support has not been tested)
+===============================================================
+
+  TARGET_NAME                                                               Flow ID                               Name
+  -----------                                                               -------                               ----
+  http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea  776f41d8-1649-4a78-a60e-c52edca467ea  Garak Documentation Basic Prompting
+
+[*] Langflow candidate targets (generation has not been tested)
+===========================================================
+
+  Flow ID                               Name                                 Components                                                   Configuration
+  -------                               ----                                 ----------                                                   -------------
+  776f41d8-1649-4a78-a60e-c52edca467ea  Garak Documentation Basic Prompting  ChatInput, ChatOutput, LanguageModelComponent, Prompt, note  /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
+
+[*] API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass REST_API_KEY explicitly, if flow execution requires authentication
+[*] Run garak_scan while this module is active to inherit RHOSTS, RPORT and SSL; flow execution and response extraction remain unverified
+[+] Available PROBES selections from the local garak installation:
+[*] Probe: probes.test.Blank
+[*] Probe: probes.test.Test
+[*] Use garak_scan with PROBES set to a probe, a family, or comma-separated selections
+[*] Available probes are not verified for these flows; validate input compatibility and dependencies before scanning
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```

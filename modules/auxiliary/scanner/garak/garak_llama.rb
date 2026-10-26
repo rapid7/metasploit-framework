@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     super
   rescue SystemCallError, IOError => e
     elog('Garak metadata query failed', error: e)
-    fail_with(Failure::BadConfig, "Could not read garak metadata: #{e.message}; check PYTHON and GARAK_PATH, or disable SUGGEST_PROBES")
+    fail_with(Failure::BadConfig, "Could not read garak metadata: #{e.message}; check PYTHON and the installed package, or disable SUGGEST_PROBES")
   end
 
   def llama_request(*path)
@@ -102,23 +102,33 @@ class MetasploitModule < Msf::Auxiliary
     )
     if datastore['OUTPUT_YAML']
       names.each do |name|
-        options = { 'uri' => full_uri(normalize_uri(target_uri.path, 'v1', '/')) }
-        # The OpenAI client requires a key even when llama.cpp does not authenticate.
-        options['api_key'] = 'unused' if datastore['API_KEY'].blank?
+        # The OpenAI client requires a nonempty credential even when llama.cpp
+        # does not authenticate. Keep that value in the child environment so
+        # generated loot never contains a secret-shaped placeholder.
+        options = {
+          'uri' => full_uri(normalize_uri(target_uri.path, 'v1', '/')),
+          'key_env_var' => 'OPENAICOMPATIBLE_API_KEY'
+        }
         config = { 'plugins' => { 'generators' => { 'openai' => { 'OpenAICompatible' => options } } } }
-        store_garak_yaml(ip: ip, namespace: 'llama', config: config, target_type: OPENAI_COMPATIBLE_TARGET_TYPE, target_name: name)
+        store_garak_yaml(ip: ip, namespace: 'llama', config: config, target_type: OPENAI_COMPATIBLE_TARGET_TYPE, target_name: name, key_env_var: 'OPENAICOMPATIBLE_API_KEY')
       end
-      print_status('Export OPENAICOMPATIBLE_API_KEY before starting Garak when the server requires authentication; API_KEY is not written to YAML') if datastore['API_KEY'].present?
+      print_status('Export OPENAICOMPATIBLE_API_KEY before starting Garak; use the actual key or unused for an unauthenticated server. API_KEY is not written to YAML')
     end
     if datastore['SUGGEST_PROBES']
       properties = llama_properties
       names.each do |name|
         capabilities = llama_capabilities(name, document, properties)
-        result = garak_probe_suggestions(capabilities, @probe_metadata, target_types: [OPENAI_COMPATIBLE_TARGET_TYPE])
+        input_types = nil
+        if capabilities
+          input_types = []
+          input_types << 'text' if capabilities.include?('completion')
+          input_types << 'image' if capabilities.include?('vision')
+        end
+        result = garak_probe_suggestions(input_types, @probe_metadata, target_types: [OPENAI_COMPATIBLE_TARGET_TYPE])
         report_garak_probe_suggestions(ip: ip, name: name, capabilities: capabilities, result: result, metadata: @probe_metadata, namespace: 'llama')
       end
     end
-    print_status("Use these values with the garak plugin command garak_scan, the same RHOSTS/RPORT/SSL and TARGETURI #{normalize_uri(target_uri.path, 'v1', '/')}")
+    print_status("Run garak_scan while this module is active to inherit RHOSTS, RPORT and SSL; without CONFIG_FILE set TARGETURI=#{normalize_uri(target_uri.path, 'v1', '/')}")
     print_status('Garak requires an API key value; provide the actual key or an unused placeholder for an unauthenticated server through CONFIG_FILE or OPENAICOMPATIBLE_API_KEY')
   rescue Rex::ConnectionError, Rex::TimeoutError => e
     elog('llama.cpp discovery request failed', error: e)

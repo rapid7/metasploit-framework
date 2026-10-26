@@ -12,6 +12,11 @@ module Msf
           'scan' => :Runner
         }.freeze
       end
+      unless const_defined?(:INHERITED_OPTIONS, false)
+        # Reuse only connection/runtime controls that have the same meaning for
+        # discovery and execution; provider-specific options remain explicit.
+        INHERITED_OPTIONS = %w[RHOSTS RPORT SSL TARGETURI PYTHON RunTimeout VERBOSE].freeze
+      end
 
       def name
         'Garak'
@@ -34,7 +39,7 @@ module Msf
         print_line('Load with: load garak')
         print_line('Use garak_options [scan] to inspect available options.')
         print_line('Set defaults with garak_set OPTION VALUE; override them per command with OPTION=VALUE.')
-        print_line('Example: garak_scan TARGET_TYPE=test.Blank TARGET_NAME=blank PROBES=probes.test.Blank VERBOSE=true')
+        print_line('Example: garak_scan RHOSTS= TARGET_TYPE=test.Blank TARGET_NAME=blank PROBES=probes.test.Blank VERBOSE=true')
         print_line('Discover models with auxiliary/scanner/garak/garak_ollama or garak_llama.')
         print_line('Example: garak_import REPORT_FILE=/path/to/report.jsonl DB_HOST=192.0.2.1')
         print_line('Garak runs locally and connects directly to models; Metasploit routing does not apply.')
@@ -61,6 +66,8 @@ module Msf
         raise ArgumentError, 'Usage: garak_set OPTION VALUE' unless args.length == 2
 
         key = option_name(args.first)
+        raise ArgumentError, 'REST_API_KEY is only accepted per command; set REST_API_KEY_ENV for inherited credentials' if key == 'REST_API_KEY'
+
         settings[key] = args.last
         print_status("Garak option #{key} set")
       rescue ArgumentError => e
@@ -114,6 +121,14 @@ module Msf
         klass.file_path = __FILE__
         klass.orig_cls = klass
         runner = klass.new
+        if active_module
+          INHERITED_OPTIONS.each do |key|
+            next unless active_module.options.key?(key)
+            next if active_module.datastore[key].nil?
+
+            runner.datastore[key] = active_module.datastore[key]
+          end
+        end
         settings.each { |key, value| runner.datastore[key] = value if runner.options.key?(key) }
         runner
       end

@@ -47,9 +47,12 @@ RSpec.describe 'Garak Langflow discovery' do
     expect(generator['uri']).to eq("http://#{ip}:7860/api/v1/run/#{flow_id}")
     expect(generator['req_template_json_object']).to include('input_value' => '$INPUT', 'output_component' => 'ChatOutput-out', 'input_type' => 'chat')
     expect(generator['response_json_field']).to eq('$.outputs[*].outputs[*].results.message.text')
+    expect(generator['key_env_var']).to eq('LANGFLOW_API_KEY')
     expect(generator['headers']['x-api-key']).to eq('$KEY')
     expect(config.to_json).not_to include('discovery-secret', 'secret-not-for-loot')
     expect(mod).to have_received(:store_loot).with('langflow.garak.config', 'application/json', ip, JSON.pretty_generate(config), "langflow_#{flow_id}_garak.json", anything)
+    expect(mod).to have_received(:print_good).with('Garak configuration saved: /tmp/langflow-config.json').once
+    expect(mod).to have_received(:print_status).with(satisfy { |message| message.start_with?('Garak values:') && !message.include?('TARGETURI=') })
     expect(mod).to have_received(:print_status).with(a_string_including('Candidate target types', 'TARGET_TYPE', 'rest.RestGenerator'))
     expect(mod).to have_received(:print_status).with(a_string_including('TARGET_NAME', generator['uri'], flow_id, 'Example agent'))
     expect(mod).to have_received(:report_note).with(hash_including(type: 'langflow.garak.targets', data: hash_including(targets: [hash_including(components: %w[CSVAgent ChatInput ChatOutput])])))
@@ -231,7 +234,9 @@ RSpec.describe 'Garak Langflow discovery' do
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.Dan_11_0')
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.AntiDAN')
     expect(mod).to have_received(:print_status).with('Or run in a terminal: python3 -m garak --config /tmp/target.yaml')
-    expect(mod).to have_received(:print_status).with(a_string_including('PROBES=probes.dan.Dan_11_0,probes.dan.AntiDAN'))
+    expect(mod).to have_received(:print_status).with(satisfy { |message| message.include?('CONFIG_FILE=/tmp/target.yaml') && message.include?('REST_API_KEY_ENV=LANGFLOW_API_KEY') && !message.include?('PROBES=') })
+    expect(mod).to have_received(:print_good).with('Garak YAML configuration saved: /tmp/target.yaml').once
+    expect(mod).not_to have_received(:print_good).with('Garak configuration saved: /tmp/target.yaml')
   end
 
   it 'explicitly selects no probes in YAML when the filter has no matches' do
