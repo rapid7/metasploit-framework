@@ -107,7 +107,7 @@ enum cli_status_e {
     resource (varnish.rc)> set verbose true
     verbose => true
     resource (varnish.rc)> run
-    [+] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN SUCCESSFUL: No Authentication Required
+    [+] 192.168.2.85:6082     - Login Successful: No Authentication Required
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
     msf auxiliary(varnish_cli_login) >
@@ -124,11 +124,11 @@ enum cli_status_e {
     resource (varnish.rc)> set verbose true
     verbose => true
     resource (varnish.rc)> run
-    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - Authentication Required
+    [*] 192.168.2.85:6082     - Authentication Required
     [!] 192.168.2.85:6082     - No active DB -- Credential data will not be saved!
-    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN FAILED: bad
-    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN FAILED: good
-    [+] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN SUCCESSFUL: secret
+    [-] 192.168.2.85:6082     - LOGIN FAILED: bad
+    [-] 192.168.2.85:6082     - LOGIN FAILED: good
+    [+] 192.168.2.85:6082     - Login Successful: secret
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
