@@ -13,8 +13,16 @@ RSpec.describe Msf::RPC::RPC_Plugin do
     described_class.new(service)
   end
 
+  # Keep a sample.rb in the user's own plugin directory from being picked up first
+  let(:user_plugin_directory) { Dir.mktmpdir }
+
+  before do
+    allow(Msf::Config).to receive(:user_plugin_directory).and_return(user_plugin_directory)
+  end
+
   after do
     framework.plugins.dup.each { |plugin| framework.plugins.unload(plugin) }
+    FileUtils.rm_rf(user_plugin_directory)
   end
 
   describe '#rpc_load' do
