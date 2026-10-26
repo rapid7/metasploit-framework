@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::LoginScanner
   include Metasploit::Framework::Varnish::Client
 
   def initialize
@@ -51,17 +52,18 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if !require_auth?
-        print_good "#{ip}:#{rport} - Login Successful: No Authentication Required"
+        print_good 'Login Successful: No Authentication Required'
         close_session
         disconnect
         return
       else
-        vprint_status "#{ip}:#{rport} - Authentication Required"
+        vprint_status 'Authentication Required'
       end
       close_session
       disconnect
     rescue Rex::ConnectionError, EOFError, Timeout::Error
-      print_error "#{ip}:#{rport} - Unable to connect"
+      print_error 'Unable to connect'
+      return
     end
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
@@ -90,10 +92,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential.private}"
+        print_good "Login Successful: #{result.credential.private}"
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private}"
+        vprint_error "LOGIN FAILED: #{result.credential.private}"
       end
     end
   end
