@@ -27,6 +27,7 @@ exit
 1. Start msfconsole
 1. Have data in your database, or import the example data
 1. Do: `use auxiliary/analyze/network_graph`
+1. Do: `set VERBOSE true`
 1. Do: `run`
 1. Open the loot file in a browser
 
@@ -34,7 +35,11 @@ exit
 
 ### EMBED_JS
 
-Embed D3.js inline for a fully self-contained offline HTML file. Defaults to `false`
+Embed D3.js inline for a fully self-contained offline HTML file. This prevents
+third-party JavaScript from running alongside engagement data. Defaults to
+`true`; a missing vendored bundle is an error instead of triggering a remote
+fallback. Setting it to `false` explicitly loads the pinned bundle from
+cdnjs.cloudflare.com with Subresource Integrity verification.
 
 ### LIMIT_SESSION
 
@@ -50,7 +55,7 @@ Max credentials to include per host (0 = unlimited). Defaults to `0`
 
 ## Scenarios
 
-### Version and OS
+### Metasploit Framework on Linux
 
 ```
 msf > workspace -a network_graph_test
@@ -88,34 +93,34 @@ msf > irb
 [+] Session 10.10.0.20 — ms17_010_psexec
 [+] Session 172.16.5.10 — psexec
 [+] Session 172.16.5.10 — ms14_068_kerberos_checksum
-[+] Cred Administrator@192.168.1.10:445 (ntlm_hash, Successful)
-[+] Cred Administrator@10.10.0.20:445 (ntlm_hash, Untried)
-[+] Cred Administrator@172.16.5.10:445 (ntlm_hash, Successful)
-[+] Cred krbtgt@172.16.5.10:445 (ntlm_hash, Successful)
-[+] Cred jsmith@192.168.1.10:3389 (password, Successful)
-[+] Cred jsmith@10.10.0.20:3389 (password, Untried)
-[+] Cred svc-backup@172.16.5.10:389 (password, Successful)
-[+] Cred svc-backup@10.10.0.20:445 (password, Untried)
-[+] Cred svc-sql@10.10.0.20:1433 (password, Untried)
-[+] Cred svc-sql@172.16.5.10:445 (password, Untried)
-[+] Cred root@192.168.1.20:22 (password, Successful)
-[+] Cred root@10.10.0.10:22 (password, Successful)
-[+] Cred root@172.16.5.20:22 (password, Untried)
-[+] Cred root@10.10.0.30:22 (password, Untried)
-[+] Cred webapp@192.168.1.20:3306 (password, Successful)
-[+] Cred webapp@10.10.0.10:3306 (password, Untried)
-[+] Cred deployer@192.168.1.20:22 (password, Successful)
-[+] Cred deployer@172.16.5.20:22 (password, Untried)
-[+] Cred dbadmin@10.10.0.10:5432 (password, Successful)
-[+] Cred dbadmin@172.16.5.20:5432 (password, Untried)
-[+] Cred postgres@10.10.0.10:5432 (password, Untried)
-[+] Cred postgres@172.16.5.20:5432 (password, Untried)
-[+] Cred root@192.168.1.20:22 (password, Successful)
-[+] Cred deployer@172.16.5.20:22 (password, Untried)
-[+] Cred admin@192.168.1.50:22 (password, Successful)
-[+] Cred cisco@192.168.1.50:23 (password, Untried)
-[+] Cred root@172.16.5.30:22 (password, Untried)
-[+] Cred krbtgt@172.16.5.10:88 (krb_enc_key, Successful)
+[+] Cred faker_domain_admin_claudia@192.168.1.10:445 (ntlm_hash, Successful)
+[+] Cred faker_domain_admin_claudia@10.10.0.20:445 (ntlm_hash, Untried)
+[+] Cred faker_domain_admin_claudia@172.16.5.10:445 (ntlm_hash, Successful)
+[+] Cred faker_ticket_service_wendy_gree@172.16.5.10:445 (ntlm_hash, Successful)
+[+] Cred faker_desktop_user_carmelo@192.168.1.10:3389 (password, Successful)
+[+] Cred faker_desktop_user_carmelo@10.10.0.20:3389 (password, Untried)
+[+] Cred faker_backup_service_migdalia@172.16.5.10:389 (password, Successful)
+[+] Cred faker_backup_service_migdalia@10.10.0.20:445 (password, Untried)
+[+] Cred faker_database_service_aron_hauck@10.10.0.20:1433 (password, Untried)
+[+] Cred faker_database_service_aron_hauck@172.16.5.10:445 (password, Untried)
+[+] Cred faker_linux_admin_jacinda@192.168.1.20:22 (password, Successful)
+[+] Cred faker_linux_admin_jacinda@10.10.0.10:22 (password, Successful)
+[+] Cred faker_linux_admin_jacinda@172.16.5.20:22 (password, Untried)
+[+] Cred faker_linux_admin_jacinda@10.10.0.30:22 (password, Untried)
+[+] Cred faker_web_service_cory_marks@192.168.1.20:3306 (password, Successful)
+[+] Cred faker_web_service_cory_marks@10.10.0.10:3306 (password, Untried)
+[+] Cred faker_deployment_user_adelina@192.168.1.20:22 (password, Successful)
+[+] Cred faker_deployment_user_adelina@172.16.5.20:22 (password, Untried)
+[+] Cred faker_database_admin_lashawnda@10.10.0.10:5432 (password, Successful)
+[+] Cred faker_database_admin_lashawnda@172.16.5.20:5432 (password, Untried)
+[+] Cred faker_database_default_hortensia@10.10.0.10:5432 (password, Untried)
+[+] Cred faker_database_default_hortensia@172.16.5.20:5432 (password, Untried)
+[+] Cred faker_linux_admin_jacinda@192.168.1.20:22 (password, Successful)
+[+] Cred faker_deployment_user_adelina@172.16.5.20:22 (password, Untried)
+[+] Cred faker_network_admin_denverdenv@192.168.1.50:22 (password, Successful)
+[+] Cred faker_network_operator_olga_lowe@192.168.1.50:23 (password, Untried)
+[+] Cred faker_hypervisor_admin_susannah@172.16.5.30:22 (password, Untried)
+[+] Cred faker_ticket_service_wendy_gree@172.16.5.10:88 (krb_enc_key, Successful)
 [+] Traceroute 192.168.1.10 (1 hop)
 [+] Traceroute 192.168.1.20 (1 hop)
 [+] Traceroute 192.168.1.50 (1 hop)
@@ -195,18 +200,18 @@ msf > irb
 => true
 >> exit
 msf > use auxiliary/analyze/network_graph
-[*] Using configured payload windows/meterpreter/reverse_tcp
+msf auxiliary(analyze/network_graph) > set VERBOSE true
+VERBOSE => true
 msf auxiliary(analyze/network_graph) > run
 [*] Building network graph:
 [*]   Hosts:             10
 [*]   Sessions:          6
 [*]   Traceroutes:       10
 [*]   Loot items:        23
-[*]   Vulns:             10
-[*]   Module events:     1
+[*]   SNMP enriched:     2
 [*]   Module runs:       30
 [*]   Credential logins: 28
-[+] Network graph saved to: /root/.msf4/loot/20260521201023_network_graph_te_unknown_network.graph_303089.html
+[+] Network graph saved to: /home/msf/.msf4/loot/<timestamp>_network_graph_te_unknown_network.graph_<id>.html
 [*] Auxiliary module execution completed
-msf auxiliary(analyze/network_graph) > 
+msf auxiliary(analyze/network_graph) >
 ```

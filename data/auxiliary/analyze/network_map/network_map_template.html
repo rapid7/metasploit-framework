@@ -1,10 +1,24 @@
 <!DOCTYPE html>
+<!--
+D3.js v7.9.0, Copyright 2010-2023 Mike Bostock
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MSF Network Graph</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'%%D3_CSP_ORIGIN%%; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
   %%D3_SCRIPT%%
   <style>
     :root {
@@ -736,7 +750,8 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   const DEVICE_TYPES = ['computer', 'server', 'router', 'switch', 'firewall', 'phone', 'printer', 'msf', 'generic'];
@@ -1432,7 +1447,7 @@
       const modBadge = moduleCount > 0 ? ` <span style="color:#f85149;font-size:10px;font-weight:700">(${moduleCount} w/module)</span>` : '';
       html += `<div class="detail-group">
         <div class="detail-label collapsible-label" onclick="toggleSection(this)">
-          <span>CVE Vulnerabilities (${d.vulns.length})${modBadge}</span>
+          <span>Vulnerabilities (${d.vulns.length})${modBadge}</span>
           <button class="section-toggle">&#x25ba;</button>
         </div>
         <div class="collapsible-body collapsed">${vulnHtml}</div>
@@ -1529,7 +1544,7 @@
           const label = e.host_label || e.mac;
           const ipStr = e.host_ip ? ` <span style="color:var(--text-muted)">(${esc(e.host_ip)})</span>` : '';
           const inner = e.host_id
-            ? `<span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="selectNodeById('${e.host_id}')">${esc(label)}</span>${ipStr}`
+            ? `<span style="color:var(--accent);cursor:pointer;text-decoration:underline" data-node-id="${esc(e.host_id)}">${esc(label)}</span>${ipStr}`
             : `<span style="font-family:monospace;font-size:11px">${esc(e.mac)}</span>`;
           return `<div style="margin-left:10px;margin-top:2px;font-size:11px">${inner}</div>`;
         }).join('');
@@ -1577,7 +1592,11 @@
       }
     }
 
-    document.getElementById('sidebar-content').innerHTML = html;
+    const content = document.getElementById('sidebar-content');
+    content.innerHTML = html;
+    content.querySelectorAll('[data-node-id]').forEach(link => {
+      link.addEventListener('click', () => selectNodeById(link.dataset.nodeId));
+    });
   }
 
   function hideSidebar() {
