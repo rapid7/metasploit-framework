@@ -101652,6 +101652,59 @@
     "needs_cleanup": true,
     "actions": []
   },
+  "exploit_linux/persistence/elf": {
+    "name": "Linux ELF Executable Payload Injection Persistence",
+    "fullname": "exploit/linux/persistence/elf",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-27",
+    "type": "exploit",
+    "author": [
+      "dledda-r7"
+    ],
+    "description": "This module injects a payload into an existing Linux ELF executable.\n          The payload runs in a forked process whenever the executable is launched,\n          while the original program continues from its original entry point.\n\n          The target must be a writable x86, x64, or AArch64 ET_EXEC or ET_DYN file\n          with an executable code cave or a reusable PT_NOTE/PT_NULL program header.\n          The original ELF is stored as loot before it is changed.",
+    "references": [
+      "ATT&CK-T1027.009",
+      "ATT&CK-T1546"
+    ],
+    "platform": "Linux",
+    "arch": "x64, x86, aarch64",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Linux x64",
+      "Linux x86",
+      "Linux AArch64"
+    ],
+    "mod_time": "2026-10-23 17:24:13 +0000",
+    "path": "/modules/exploits/linux/persistence/elf.rb",
+    "is_install_path": true,
+    "ref_name": "linux/persistence/elf",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session",
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter",
+      "shell"
+    ],
+    "needs_cleanup": null,
+    "actions": []
+  },
   "exploit_linux/persistence/emacs_extension": {
     "name": "Emacs Extension Persistence",
     "fullname": "exploit/linux/persistence/emacs_extension",
