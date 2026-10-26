@@ -49,7 +49,7 @@ parallelism still applies; each command starts one Garak process.
 | `garak_scan` | Run selected probes and import the report |
 | `garak_import` | Import `REPORT_FILE` without starting Garak |
 | `garak_list_generators` | List installed generator names and aliases |
-| `garak_list_probes` | List probes, optionally narrowed with `PROBE_FILTER` |
+| `garak_list_probes` | List installed probes, including inactive probes that Garak allows selecting explicitly |
 
 Scanning requires explicit `TARGET_TYPE`, `TARGET_NAME`, and either `PROBES` or
 a `run.spec` in `CONFIG_FILE`. Use `GENERATIONS` to choose responses per prompt

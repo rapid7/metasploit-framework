@@ -73,14 +73,14 @@ template omits `session_id` so Langflow can assign a fresh session for each requ
 ### SUGGEST_PROBES
 
 Defaults to `true`. After discovering a flow with a usable REST configuration,
-lists available probes from the local Garak installation. This list does not
+lists active probes from the local Garak installation. This list does not
 establish compatibility with the flow or its underlying model. Set to `false`
 to discover flows without a local Garak runtime.
 
 ### PROBE_FILTER
 
-Optional case-insensitive substring to narrow the available probe list, such
-as `dan` or `encoding`. If no probes match, change or unset the filter.
+Optional case-insensitive substring to narrow the active probe list, such as
+`dan` or `encoding`. If no active probes match, change or unset the filter.
 
 ### PYTHON
 
@@ -97,7 +97,7 @@ and provider settings, so it can also be used with `python -m garak --config <pa
 Defaults to `false`. No local Garak installation is needed to write YAML; disable
 `SUGGEST_PROBES` to discover without local Garak.
 
-With `SUGGEST_PROBES true`, the YAML includes the listed probe selections under
+With `SUGGEST_PROBES true`, the YAML includes active probe selections under
 `run.spec.include`, narrowed by `PROBE_FILTER`. Both the terminal and suggested
 plugin commands leave that complete YAML spec in control. This also preserves
 manually added `run.spec.exclude` selections. A filter with no matches writes

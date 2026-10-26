@@ -186,7 +186,7 @@ RSpec.describe 'Garak Langflow discovery' do
   end
   it 'lists local probes for configured flows and applies a case-insensitive filter on each run' do
     mod.datastore['SUGGEST_PROBES'] = true
-    allow(mod).to receive(:available_plugins).with('probes').and_return(%w[test.Blank dan.Dan_11_0 visual_jailbreak.Test])
+    allow(mod).to receive(:available_plugins).with('probes', active_only: true).and_return(%w[test.Blank dan.Dan_11_0 visual_jailbreak.Test])
     allow(mod).to receive(:read_api).and_return({ 'package' => 'Langflow', 'version' => '1.10.0' }, [flow], { 'package' => 'Langflow', 'version' => '1.10.0' }, [flow])
     mod.datastore['PROBE_FILTER'] = 'DAN'
     mod.run_host(ip)
@@ -195,7 +195,7 @@ RSpec.describe 'Garak Langflow discovery' do
     mod.datastore['PROBE_FILTER'] = 'test.Blank'
     mod.run_host(ip)
     expect(mod).to have_received(:print_status).with('Probe: probes.test.Blank').once
-    expect(mod).to have_received(:available_plugins).with('probes').twice
+    expect(mod).to have_received(:available_plugins).with('probes', active_only: true).twice
     expect(mod).not_to have_received(:print_status).with('Probe: probes.visual_jailbreak.Test')
   end
 
@@ -215,14 +215,20 @@ RSpec.describe 'Garak Langflow discovery' do
 
   it 'explains how to resolve a missing probe-listing executable' do
     mod.datastore['SUGGEST_PROBES'] = true
-    allow(mod).to receive(:available_plugins).and_raise(Errno::ENOENT)
+    allow(mod).to receive(:available_plugins).with('probes', active_only: true).and_raise(Errno::ENOENT)
     expect { mod.run_host(ip) }.to raise_error(Msf::Auxiliary::Failed, /disable SUGGEST_PROBES/)
   end
+
+  it 'does not report loot errors as probe-listing failures' do
+    allow(mod).to receive(:store_loot).and_raise(Errno::ENOSPC)
+    expect { mod.run_host(ip) }.to raise_error(Errno::ENOSPC)
+  end
+
   it 'writes the filtered probe selections into YAML and lists the same probes' do
     mod.datastore['OUTPUT_YAML'] = true
     mod.datastore['SUGGEST_PROBES'] = true
     mod.datastore['PROBE_FILTER'] = 'DAN'
-    allow(mod).to receive(:available_plugins).with('probes').and_return(%w[test.Blank dan.Dan_11_0 dan.AntiDAN])
+    allow(mod).to receive(:available_plugins).with('probes', active_only: true).and_return(%w[test.Blank dan.Dan_11_0 dan.AntiDAN])
     saved = nil
     allow(mod).to receive(:store_loot) do |*args|
       saved = args
@@ -230,7 +236,7 @@ RSpec.describe 'Garak Langflow discovery' do
     end
     mod.run_host(ip)
     expect(YAML.safe_load(saved[3]).dig('run', 'spec', 'include')).to eq(%w[probes.dan.Dan_11_0 probes.dan.AntiDAN])
-    expect(mod).to have_received(:available_plugins).with('probes').once
+    expect(mod).to have_received(:available_plugins).with('probes', active_only: true).once
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.Dan_11_0')
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.AntiDAN')
     expect(mod).to have_received(:print_status).with('Or run in a terminal: python3 -m garak --config /tmp/target.yaml')
@@ -243,7 +249,7 @@ RSpec.describe 'Garak Langflow discovery' do
     mod.datastore['OUTPUT_YAML'] = true
     mod.datastore['SUGGEST_PROBES'] = true
     mod.datastore['PROBE_FILTER'] = 'no-such-probe'
-    allow(mod).to receive(:available_plugins).with('probes').and_return(['test.Blank'])
+    allow(mod).to receive(:available_plugins).with('probes', active_only: true).and_return(['test.Blank'])
     expect(mod).to receive(:store_loot) do |*args|
       expect(YAML.safe_load(args[3]).dig('run', 'spec', 'include')).to eq(['probes.none'])
       '/tmp/target.yaml'

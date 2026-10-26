@@ -180,10 +180,15 @@ module Msf::Auxiliary::Garak
 
   # List plugins using garak's versioned metadata cache.
   # @param category [String] CLI plugin category
+  # @param active_only [Boolean] Omit plugins that Garak marks inactive
   # @return [Array<String>] Sorted plugin names
-  def available_plugins(category)
+  def available_plugins(category, active_only: false)
     prefix = "#{category}."
-    names = garak_plugin_cache.fetch(category).keys.filter_map { |name| name.delete_prefix(prefix) if name.start_with?(prefix) }
+    names = garak_plugin_cache.fetch(category).filter_map do |name, metadata|
+      next if active_only && metadata.is_a?(Hash) && metadata['active'] == false
+
+      name.delete_prefix(prefix) if name.start_with?(prefix)
+    end
     (names + names.map { |name| name.split('.', 2).first }).uniq.sort
   end
 
@@ -279,9 +284,10 @@ module Msf::Auxiliary::Garak
   end
 
   # Read probe selections with the configured substring filter.
+  # @param active_only [Boolean] Omit probes that Garak marks inactive
   # @return [Array<String>] Qualified probe names
-  def garak_probe_names
-    names = available_plugins('probes').map { |name| "probes.#{name}" }
+  def garak_probe_names(active_only: true)
+    names = available_plugins('probes', active_only: active_only).map { |name| "probes.#{name}" }
     filter = datastore['PROBE_FILTER'].to_s.strip.downcase
     names.select! { |name| name.downcase.include?(filter) } unless filter.empty?
     names
@@ -291,7 +297,9 @@ module Msf::Auxiliary::Garak
   # @param names [Array<String>, nil] Already filtered selections, or query Garak
   # @return [void]
   def list_garak_probes(names: nil)
-    names ||= garak_probe_names
+    # Inactive probes remain useful when selected explicitly, so LIST_PROBES
+    # shows every installed selection while generated configs use active probes.
+    names ||= garak_probe_names(active_only: false)
     if names.empty?
       print_warning('No probes matched PROBE_FILTER; change or unset the filter and run again')
       return

@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       names_table << [target[:endpoint], target[:id], target[:name]]
       config_path = nil
       if target[:input_type] && target[:output_type]
-        probe_names ||= garak_probe_names if datastore['SUGGEST_PROBES']
+        probe_names ||= load_garak_probe_names if datastore['SUGGEST_PROBES']
         config = generator_config(target)
         if datastore['OUTPUT_YAML'] && probe_names
           # Explicitly select none when the filter matches nothing; an absent spec selects all active probes.
@@ -141,6 +141,10 @@ class MetasploitModule < Msf::Auxiliary
   rescue Rex::ConnectionError, Rex::TimeoutError => e
     elog('Langflow discovery request failed', error: e)
     vprint_error("Langflow discovery request failed: #{e.message}")
+  end
+
+  def load_garak_probe_names
+    garak_probe_names
   rescue SystemCallError, IOError => e
     elog('Garak probe listing failed', error: e)
     fail_with(Failure::BadConfig, "Could not list garak probes: #{e.message}; check PYTHON and the installed package, or disable SUGGEST_PROBES")

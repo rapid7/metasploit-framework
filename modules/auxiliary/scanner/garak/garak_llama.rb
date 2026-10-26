@@ -150,11 +150,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def llama_capabilities(name, document, properties)
-    # llama.cpp's /v1/models includes an extended models list with capabilities.
+    # Current llama.cpp responses put model input modalities in data entries.
+    data_entries = document['data']
+    data_entry = data_entries.find { |model| model.is_a?(Hash) && model['id'] == name } if data_entries.is_a?(Array)
+    input_modalities = data_entry.dig('architecture', 'input_modalities') if data_entry
+    if input_modalities.is_a?(Array) && !input_modalities.empty? && input_modalities.all? { |value| value.is_a?(String) }
+      capabilities = input_modalities.map { |value| { 'text' => 'completion', 'image' => 'vision' }.fetch(value, value) }
+    end
+
+    # Older llama.cpp responses use an extended models list with capabilities.
     # /props describes the loaded model only; never apply it to other model IDs.
-    entries = document['models']
-    entry = entries.find { |model| model.is_a?(Hash) && model['name'] == name } if entries.is_a?(Array)
-    capabilities = entry['capabilities'] if entry
+    unless capabilities
+      entries = document['models']
+      entry = entries.find { |model| model.is_a?(Hash) && model['name'] == name } if entries.is_a?(Array)
+      capabilities = entry['capabilities'] if entry
+    end
     return nil unless capabilities.is_a?(Array) && !capabilities.empty? && capabilities.all? { |value| value.is_a?(String) }
 
     capabilities = capabilities.dup

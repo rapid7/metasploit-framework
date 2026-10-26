@@ -89,6 +89,11 @@ RSpec.describe 'Garak llama.cpp discovery' do
     expect(result['probes']['probes.test.Image']['openai.OpenAICompatible']).to eq('incompatible')
   end
 
+  it 'reads current per-model input modalities before legacy capabilities' do
+    document['data'][0]['architecture'] = { 'input_modalities' => %w[text image] }
+    expect(mod.llama_capabilities('example', document, {})).to eq(%w[completion vision])
+  end
+
   it 'does not apply one models properties to another' do
     props = { 'model_alias' => 'other', 'modalities' => { 'vision' => true } }
     expect(mod.llama_capabilities('example', document, props)).to eq(['completion'])
