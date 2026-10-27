@@ -108,7 +108,7 @@ PATH
       rex-random_identifier
       rex-registry
       rex-rop_builder
-      rex-socket
+      rex-socket (>= 0.1.68)
       rex-sslscan
       rex-struct2
       rex-text
