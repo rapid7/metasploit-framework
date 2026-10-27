@@ -1,4 +1,4 @@
-FROM ruby:3.3.8-alpine3.21 AS builder
+FROM ruby:3.3.13-alpine3.24 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set force_ruby_platform 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -48,13 +48,13 @@ RUN apk add --no-cache \
 ENV GO111MODULE=off
 RUN mkdir -p $TOOLS_HOME/bin && \
     cd $TOOLS_HOME/bin && \
-    curl -O https://dl.google.com/go/go1.24.0.src.tar.gz && \
-    tar -zxf go1.24.0.src.tar.gz && \
-    rm go1.24.0.src.tar.gz && \
+    curl -O https://dl.google.com/go/go1.27.3.src.tar.gz && \
+    tar -zxf go1.27.3.src.tar.gz && \
+    rm go1.27.3.src.tar.gz && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.3.8-alpine3.21
+FROM ruby:3.3.13-alpine3.24
 LABEL maintainer="Rapid7"
 ARG TARGETARCH
 
@@ -86,6 +86,15 @@ RUN chown -R root:metasploit $APP_HOME/
 RUN chmod 664 $APP_HOME/Gemfile.lock
 RUN gem update --system
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
+
+# Refresh the Mozilla CA bundle, as the base image's copy can be months old
+RUN apk upgrade --no-cache ca-certificates-bundle
+
+# Remove distrusted CAs (eMudhra intermediate CA compromise: the eMudhra roots
+# and the Comodo/Sectigo root the compromised intermediates were cross-signed
+# under) from the system and vendored CA bundles
+RUN find /etc/ssl /usr/lib /usr/local/bundle -type f \( -name 'ca-certificates.crt' -o -name 'cacert*.pem' -o -name 'ca-bundle.crt' \) \
+      -exec ruby $APP_HOME/docker/remove_distrusted_cas.rb {} +
 
 ENV GOPATH=$TOOLS_HOME/go
 ENV GOROOT=$TOOLS_HOME/bin/go

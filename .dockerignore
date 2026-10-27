@@ -6,6 +6,7 @@ docker/
 !docker/msfconsole.rc
 !docker/entrypoint.sh
 !docker/database.yml
+!docker/remove_distrusted_cas.rb
 Dockerfile
 README.md
 .git/
