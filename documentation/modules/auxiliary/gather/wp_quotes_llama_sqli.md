@@ -82,8 +82,6 @@ docker compose cp quotes-llama wordpress:/var/www/html/wp-content/plugins/
 5. Do: `set RPORT 8080`
 6. Optionally set `COUNT` to the number of accounts to retrieve.
 7. Do: `run`
-8. *Verify* that the module reports the plugin version, recovers the public nonce, confirms the injection and
-   dumps usernames and password hashes from the `wp_users` table.
 
 ## Options
 
@@ -111,22 +109,6 @@ msf6 auxiliary(gather/wp_quotes_llama_sqli) > set RPORT 8080
 RPORT => 8080
 msf6 auxiliary(gather/wp_quotes_llama_sqli) > set COUNT 5
 COUNT => 5
-msf6 auxiliary(gather/wp_quotes_llama_sqli) > show options
-
-Module options (auxiliary/gather/wp_quotes_llama_sqli):
-
-   Name            Current Setting  Required  Description
-   ----            ---------------  --------  -----------
-   COUNT           5                yes       Number of user credentials to retrieve
-   Proxies                          no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS          127.0.0.1        yes       The target host(s)
-   RPORT           8080             yes       The target port (TCP)
-   SHORTCODE_PATH                   no        Path to a page rendering the quotes-llama shortcode. Discovered automatically when empty
-   SSL             false            no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI       /                yes       The base path to the wordpress application
-   VHOST                            no        HTTP server virtual host
-
-
 msf6 auxiliary(gather/wp_quotes_llama_sqli) > run
 [*] Running module against 127.0.0.1
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -176,16 +158,3 @@ their password, so a 6.8 or later site can still return them. `Metasploit::Frame
 does not recognize the `$wp$2y$` prefix yet, so those credentials are stored without a John the Ripper
 format. John the Ripper has no native format for them either. Hashcat can crack them through its bridge
 mode. The `$P$` phpass hashes are identified and cracked normally.
-
-### Quotes Llama 3.1.6, the patched version
-
-Against a patched target the automatic check stops at the version comparison and the module does not run the
-injection.
-
-```
-msf6 auxiliary(gather/wp_quotes_llama_sqli) > check
-[*] Checking /wp-content/plugins/quotes-llama/readme.txt
-[*] Found version 3.1.6 in the plugin
-[*] Plugin version check reported: The target is not exploitable.
-[*] 127.0.0.1:8080 - The target is not exploitable.
-```
