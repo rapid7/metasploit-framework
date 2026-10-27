@@ -320,15 +320,17 @@ class MetasploitModule < Msf::Auxiliary
 
     lldp_neighbors = []
     begin
+      # SNMP::Manager#walk drives row iteration off the FIRST column, so the
+      # mandatory lldpRemPortId must lead; lldpRemSysName and lldpRemPortDesc
+      # are optional and arrive as NoSuchInstance when a neighbor omits them.
       snmp.walk([
-        '1.0.8802.1.1.2.1.4.1.1.9', '1.0.8802.1.1.2.1.4.1.1.8',
-        '1.0.8802.1.1.2.1.4.1.1.7', '1.0.8802.1.1.2.1.4.1.1.6'
-      ]) do |remote_sys_name, port_desc, port_id, port_id_subtype|
-        next unless snmp_values_present?(remote_sys_name, port_desc, port_id, port_id_subtype)
+        '1.0.8802.1.1.2.1.4.1.1.6', '1.0.8802.1.1.2.1.4.1.1.7',
+        '1.0.8802.1.1.2.1.4.1.1.8', '1.0.8802.1.1.2.1.4.1.1.9'
+      ]) do |port_id, port_id_subtype, port_desc, remote_sys_name|
+        next unless snmp_values_present?(port_id, port_id_subtype)
 
-        name = remote_sys_name.value.to_s.strip
-        description = port_desc.value.to_s.strip
-        next if name.empty? && description.empty?
+        name = snmp_value(remote_sys_name).strip
+        description = snmp_value(port_desc).strip
 
         raw_port_id = port_id.value.to_s
         display_port_id = if raw_port_id.match?(/\A[[:print:]]+\z/)
@@ -357,10 +359,16 @@ class MetasploitModule < Msf::Auxiliary
         '1.3.6.1.4.1.9.9.23.1.2.1.1.4', '1.3.6.1.4.1.9.9.23.1.2.1.1.7',
         '1.3.6.1.4.1.9.9.23.1.2.1.1.8'
       ]) do |device_id, address_type, address, device_port, platform|
-        next unless snmp_values_present?(device_id, address_type, address, device_port, platform)
+        # Only the Device ID is required; address/port/platform arrive as
+        # NoSuchInstance on devices that do not send those TLVs.
+        next unless snmp_values_present?(device_id)
 
-        raw_address = address.value.to_s
-        display_address = if (address_type.value.to_i == 1 && raw_address.bytesize == 4) || (address_type.value.to_i == 20 && raw_address.bytesize == 16)
+        id = device_id.value.to_s.strip
+        next if id.empty?
+
+        raw_address = snmp_value(address)
+        address_type_value = address_type.value.to_i
+        display_address = if (address_type_value == 1 && raw_address.bytesize == 4) || (address_type_value == 20 && raw_address.bytesize == 16)
                             IPAddr.ntop(raw_address)
                           elsif raw_address.match?(/\A[[:print:]]+\z/)
                             raw_address.strip
@@ -368,10 +376,10 @@ class MetasploitModule < Msf::Auxiliary
                             raw_address.unpack1('H*').scan(/../).join(' ')
                           end
         cdp_neighbors << {
-          'Device ID' => device_id.value.to_s.strip,
+          'Device ID' => id,
           'IP Address' => display_address,
-          'Port' => device_port.value.to_s.strip,
-          'Platform' => platform.value.to_s.strip
+          'Port' => snmp_value(device_port).strip,
+          'Platform' => snmp_value(platform).strip
         }
       end
       output_data['CDP Neighbors'] = cdp_neighbors unless cdp_neighbors.empty?
@@ -991,6 +999,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def snmp_values_present?(*varbinds)
     varbinds.none? { |varbind| varbind.value.to_s.match?(/\A(?:noSuchInstance|noSuchObject|endOfMibView)\z/) }
+  end
+
+  # The string value of a varbind whose instance is absent (optional MIB
+  # columns) is '' rather than the literal error text.
+  def snmp_value(varbind)
+    raw = varbind.value.to_s
+    raw.match?(/\A(?:noSuchInstance|noSuchObject|endOfMibView)\z/) ? '' : raw
   end
 
   def number_to_human_size(size, unit)

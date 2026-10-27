@@ -112,6 +112,9 @@ module Msf
       WEBSOCKET_FRAME_TIMEOUT = 300.0
       WEBSOCKET_WRITE_TIMEOUT = 5.0
       MAX_PENDING_WEBSOCKET_FRAMES = 2
+      # Browsers send nothing unprompted, so the server pings on this cadence
+      # to keep idle viewers' automatic pongs resetting WEBSOCKET_FRAME_TIMEOUT.
+      WEBSOCKET_PING_INTERVAL = 120.0
 
       # An HTTP protocol error that can safely be returned to the client.
       class HttpRequestError < StandardError
@@ -173,7 +176,8 @@ module Msf
         @warned = {}
         @password_digest = nil
         @allowed_origin = nil
-        @allowed_host = nil
+        @allowed_hosts = [].freeze
+        @allowed_origins = [].freeze
         @connection_mutex = ::Mutex.new
         @connection_count = 0
       end
@@ -361,16 +365,52 @@ module Msf
         clients.each { |client| close_client(client) }
       end
 
-      def set_allowed_origin(origin)
-        requested_origin = origin || "http://#{Rex::Socket.to_authority(display_host, @port)}"
-        origin_uri = ::URI.parse(requested_origin)
+      # Raises ArgumentError unless the string is a bare HTTP(S) origin (no
+      # credentials, path, query, or fragment) and returns it parsed.  Used
+      # by start (fail fast, before the socket binds) and by
+      # network_map_start for an operator-readable error.
+      def self.validate_origin!(origin)
+        origin_uri = ::URI.parse(origin.to_s)
         unless origin_uri.is_a?(::URI::HTTP) && origin_uri.host && !origin_uri.userinfo &&
                (origin_uri.path.empty? || origin_uri.path == '/') && !origin_uri.query && !origin_uri.fragment
           raise ArgumentError, 'Origin must be an HTTP(S) origin without credentials, path, query, or fragment'
         end
 
-        @allowed_origin = origin_uri.normalize.to_s.delete_suffix('/')
-        @allowed_host = @allowed_origin.split('://', 2).last.downcase
+        origin_uri
+      rescue ::URI::InvalidURIError => e
+        raise ArgumentError, "invalid origin: #{e.message}"
+      end
+
+      def set_allowed_origin(origin)
+        requested_origin = origin || "http://#{Rex::Socket.to_authority(display_host, @port)}"
+        origin_uri = self.class.validate_origin!(requested_origin)
+        normalized = origin_uri.normalize
+        @allowed_origin = normalized.to_s.delete_suffix('/')
+        @allowed_hosts = allowed_host_variants(origin_uri)
+        @allowed_origins = @allowed_hosts.map do |host|
+          ::URI.parse("#{normalized.scheme}://#{host}").normalize.to_s.delete_suffix('/')
+        end
+      end
+
+      # Host-header values that may reach this server: the configured
+      # origin's authority, the port-less form when the origin uses a
+      # scheme-default port (browsers omit default ports in Host), and -
+      # when the origin host is loopback - the other loopback names a
+      # browser may use interchangeably for the same listener.  Everything
+      # else is a rebinding attempt.
+      def allowed_host_variants(origin_uri)
+        host = origin_uri.host.to_s.downcase
+        names = [host]
+        names.concat(%w[localhost 127.0.0.1 ::1]) if loopback_name?(host)
+        port = origin_uri.port
+        variants = names.map { |name| name.include?(':') ? "[#{name}]:#{port}" : "#{name}:#{port}" }
+        default_port = origin_uri.scheme == 'https' ? 443 : 80
+        variants.concat(names.map { |name| name.include?(':') ? "[#{name}]" : name }) if port == default_port
+        variants.uniq
+      end
+
+      def loopback_name?(host)
+        host == 'localhost' || host == '::1' || host == '127.0.0.1' || host.start_with?('127.')
       end
 
       def authorized?(headers)
@@ -396,7 +436,7 @@ module Msf
       end
 
       def host_allowed?(headers)
-        headers['host'].to_s.downcase == @allowed_host
+        @allowed_hosts.include?(headers['host'].to_s.downcase)
       end
 
       # Cross-site websocket hijacking defense: browsers must originate from
@@ -407,13 +447,13 @@ module Msf
         origin = headers['origin'].to_s
         return true if origin.empty?
 
-        origin_uri = ::URI.parse(origin)
-        return false unless origin_uri.is_a?(::URI::HTTP) && origin_uri.host && !origin_uri.userinfo &&
-                            (origin_uri.path.empty? || origin_uri.path == '/') && !origin_uri.query && !origin_uri.fragment
+        begin
+          origin_uri = self.class.validate_origin!(origin)
+        rescue ArgumentError
+          return false
+        end
 
-        origin_uri.normalize.to_s.delete_suffix('/') == @allowed_origin
-      rescue ::URI::InvalidURIError
-        false
+        @allowed_origins.include?(origin_uri.normalize.to_s.delete_suffix('/'))
       end
 
       def thread_named(name)
@@ -704,11 +744,15 @@ module Msf
             next
           end
 
-          ::Thread.new do
-            handle_conn(sock)
+          # Pass the socket as a block argument: a closure over the loop's
+          # sock local would make every handler's ensure close whatever
+          # connection was accepted most recently, RST-ing newer viewers
+          # whenever an older one disconnects.
+          ::Thread.new(sock) do |conn|
+            handle_conn(conn)
           ensure
             begin
-              sock.close
+              conn.close
             rescue StandardError
               nil
             end
@@ -919,6 +963,7 @@ module Msf
         client = {
           sock: sock, write_lock: ::Mutex.new,
           outbox: [], outbox_lock: ::Mutex.new, outbox_condvar: ::ConditionVariable.new, closed: false,
+          next_ping: monotonic_now + WEBSOCKET_PING_INTERVAL,
           addr: peer ? peer[3] : 'unknown', port: peer ? peer[1] : 0,
           connected_at: ::Time.now, last_seen: ::Time.now
         }
@@ -951,6 +996,8 @@ module Msf
             break
           when 0x9 # ping
             ws_send_frame(client, frame[:payload], 0xA)
+          when 0xA # pong - the reply to our keepalive ping; resets the frame deadline
+            # nothing to act on
           when 0x1, 0x2 # text/binary from client; nothing to act on
             next
           end
@@ -999,10 +1046,33 @@ module Msf
         true
       end
 
+      # Queues an empty server-to-client ping when the cadence elapses, so a
+      # browser - which never sends unprompted - answers with a pong that
+      # keeps the reader's WEBSOCKET_FRAME_TIMEOUT from reaping an otherwise
+      # idle viewer.  Must be called holding client[:outbox_lock]; the ping
+      # yields its slot when the outbox is already at capacity, since that
+      # viewer is moments from being dropped anyway.
+      def queue_keepalive_ping(client)
+        return unless monotonic_now >= client[:next_ping]
+
+        if client[:outbox].length < MAX_PENDING_WEBSOCKET_FRAMES
+          client[:outbox] << [+''.b, 0x9]
+        end
+        client[:next_ping] = monotonic_now + WEBSOCKET_PING_INTERVAL
+      end
+
       def ws_writer_loop(client)
         loop do
           frame = client[:outbox_lock].synchronize do
-            client[:outbox_condvar].wait(client[:outbox_lock]) while @running && !client[:closed] && client[:outbox].empty?
+            queue_keepalive_ping(client)
+            # Wait for a frame, a disconnect, or the next ping deadline; the
+            # 1s cap keeps a close broadcast from parking this thread for a
+            # whole ping interval.
+            while @running && !client[:closed] && client[:outbox].empty?
+              client[:outbox_condvar].wait(client[:outbox_lock], [[client[:next_ping] - monotonic_now, 0.01].max, 1.0].min)
+              queue_keepalive_ping(client)
+            end
+
             client[:outbox].shift
           end
           break unless frame
@@ -1258,7 +1328,8 @@ module Msf
         print_line 'passphrase is generated and printed at startup, or supply your own with'
         print_line '--password; rotate it later with network_map_password.'
         print_line 'For a shared/reverse-proxied listener, set --origin to the exact HTTP(S)'
-        print_line 'origin viewers use. The Host and WebSocket Origin must both match it.'
+        print_line 'origin viewers use. The Host and WebSocket Origin must both match it;'
+        print_line 'loopback listeners also accept the other loopback names.'
         print_line 'Console output is excluded by default because it may contain secrets;'
         print_line 'enable --console-feed only when every viewer is trusted with that output.'
         print_line
@@ -1352,6 +1423,9 @@ module Msf
 
         begin
           password = svr.start(host: host, port: port, interval: interval, limits: limits, password: password, origin: origin, console_feed: console_feed)
+        rescue ArgumentError => e
+          print_error("Invalid --origin #{origin.inspect}: #{e.message}")
+          return
         rescue Errno::EADDRINUSE
           print_error("Port #{port} is already in use on #{host}")
           return
