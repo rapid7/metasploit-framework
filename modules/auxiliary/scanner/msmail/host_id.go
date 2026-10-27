@@ -25,7 +25,7 @@ func main() {
 }
 
 func run_id(params map[string]interface{}) {
-	host := params["RHOSTS"].(string)
+	host := params["rhost"].(string)
 	msmail.HarvestInternalDomain(host, true)
 	urlEnum(host)
 }
