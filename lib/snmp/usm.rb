@@ -72,16 +72,20 @@ module SNMP
       'authPriv' => 0x03
     }.freeze
 
+    NOT_IN_TIME_WINDOW = '1.3.6.1.6.3.15.1.1.2.0'
+    ENGINE_DISCOVERY_OID = '1.3.6.1.6.3.15.1.1.4.0'
+
+    # RFC 3414 Appendix A.2 hashes one megabyte of repeated password bytes.
+    PASSWORD_TO_KEY_BYTES = 1_048_576
+
     REPORT_OIDS = {
       '1.3.6.1.6.3.15.1.1.1.0' => 'unsupported security level',
-      '1.3.6.1.6.3.15.1.1.2.0' => 'not in time window',
+      NOT_IN_TIME_WINDOW => 'not in time window',
       '1.3.6.1.6.3.15.1.1.3.0' => 'unknown username',
-      '1.3.6.1.6.3.15.1.1.4.0' => 'unknown engine ID',
+      ENGINE_DISCOVERY_OID => 'unknown engine ID',
       '1.3.6.1.6.3.15.1.1.5.0' => 'wrong authentication digest',
       '1.3.6.1.6.3.15.1.1.6.0' => 'decryption error'
     }.freeze
-
-    ENGINE_DISCOVERY_OID = '1.3.6.1.6.3.15.1.1.4.0'
 
     # @param username [String] SNMPv3 USM username
     # @param security_level [String] noAuthNoPriv, authNoPriv, or authPriv
@@ -150,8 +154,12 @@ module SNMP
     # @return [V3Message, nil] decoded message, or nil for an unrelated response
     def process_discovery_response(packet, expected_message_id: nil, expected_request_id: nil)
       message = decode_message(packet)
+
       return nil if expected_message_id && message.message_id != expected_message_id
-      return nil if expected_request_id && message.pdu.request_id != expected_request_id
+
+      if expected_request_id && message.pdu.request_id != expected_request_id && !(message.report? && message.pdu.request_id.zero?)
+        return nil
+      end
 
       unless message.report?
         raise InvalidSecurityParameters, 'SNMPv3 discovery requires a Report PDU'
@@ -233,8 +241,14 @@ module SNMP
     def process_response(packet, expected_message_id: nil, expected_request_id: nil)
       message = decode_message(packet)
       return nil if expected_message_id && message.message_id != expected_message_id
-      return nil if expected_request_id && message.pdu.request_id != expected_request_id
 
+      unless message.pdu.is_a?(Response) || message.report?
+        raise InvalidSecurityParameters, 'SNMPv3 response requires a Response or Report PDU'
+      end
+
+      if expected_request_id && message.pdu.request_id != expected_request_id && !(message.report? && message.pdu.request_id.zero?)
+        return nil
+      end
       if !message.authenticated? && !message.report? && authentication?
         raise AuthenticationError, 'SNMPv3 response did not use authentication'
       end
@@ -290,7 +304,7 @@ module SNMP
     # @return [Boolean] whether rediscovery may recover the request
     def resynchronization_report?(report)
       oid = report.varbind_list.first&.name&.to_s
-      oid == '1.3.6.1.6.3.15.1.1.2.0' || oid == ENGINE_DISCOVERY_OID
+      oid == NOT_IN_TIME_WINDOW || oid == ENGINE_DISCOVERY_OID
     end
 
     private
@@ -328,8 +342,8 @@ module SNMP
     end
 
     def password_to_key(password)
-      repetitions = (1_048_576 / password.bytesize) + 1
-      material = (password * repetitions).byteslice(0, 1_048_576)
+      repetitions = (PASSWORD_TO_KEY_BYTES / password.bytesize) + 1
+      material = (password * repetitions).byteslice(0, PASSWORD_TO_KEY_BYTES)
       OpenSSL::Digest.digest(authentication_parameters.fetch(:digest), material)
     end
 

@@ -39,8 +39,21 @@ class UDPTransport
         @socket.send(data, 0, host, port)
     end
 
-    def recv(max_bytes)
-        @socket.recv(max_bytes)
+    def recv(max_bytes, timeout = nil)
+        return @socket.recv(max_bytes) if timeout.nil?
+
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+
+        loop do
+            remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            return nil if remaining <= 0
+            return nil unless IO.select([@socket], nil, nil, remaining)
+
+            packet = @socket.recv_nonblock(max_bytes, exception: false)
+            next if packet == :wait_readable
+
+            return packet
+        end
     end
 end
 
@@ -68,8 +81,26 @@ class RexUDPTransport
         end
     end
 
-    def recv(max_bytes)
-        @socket.recv(max_bytes)
+    def recv(max_bytes, timeout = nil)
+        return @socket.recv(max_bytes) if timeout.nil?
+
+        if @socket.respond_to?(:timed_recvfrom)
+            result = @socket.timed_recvfrom(max_bytes, timeout)
+            return result && result.first
+        end
+
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+
+        loop do
+            remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            return nil if remaining <= 0
+            return nil unless IO.select([@socket], nil, nil, remaining)
+
+            packet = @socket.recv_nonblock(max_bytes, exception: false)
+            next if packet == :wait_readable
+
+            return packet
+        end
     end
 end
 
@@ -579,35 +610,42 @@ class Manager
 
     def discover_v3_engine(host, port)
         discovery_request = GetRequest.new(@@request_id.next, VarBindList.new([]))
+
         (@retries.to_i + 1).times do
             message_id = @@request_id.next
             @transport.send(@usm.discovery_message(discovery_request, message_id, @max_bytes), host, port)
-            begin
-                Timeout.timeout(@timeout) do
-                    loop do
-                        packet = @transport.recv(@max_bytes)
-                        message = @usm.process_discovery_response(
-                            packet,
-                            expected_message_id: message_id,
-                            expected_request_id: discovery_request.request_id
-                        )
-                        next unless message
+            deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + @timeout
 
-                        return
-                    end
-                end
-            rescue Timeout::Error
-                # no action - try again
+            loop do
+                remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+                break if remaining <= 0
+
+                packet = @transport.recv(@max_bytes, remaining)
+                break if packet.nil?
+
+                message = @usm.process_discovery_response(
+                    packet,
+                    expected_message_id: message_id,
+                    expected_request_id: discovery_request.request_id
+                )
+                next unless message
+
+                return
             end
         end
+
         raise RequestTimeout, "host #{@config[:Host]} not responding to SNMPv3 discovery", caller
     end
 
     def receive_v3_message(request, message_id)
         loop do
             packet = @transport.recv(@max_bytes)
-            message = @usm.process_response(packet)
-            next unless message.message_id == message_id && message.pdu.request_id == request.request_id
+            message = @usm.process_response(
+                packet,
+                expected_message_id: message_id,
+                expected_request_id: request.request_id
+            )
+            next unless message
 
             return message
         end
