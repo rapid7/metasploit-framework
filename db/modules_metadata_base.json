@@ -2344,6 +2344,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_admin/http/flowise_auth_bypass_cve_2025_58434": {
+    "name": "Flowise Authentication Bypass",
+    "fullname": "auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2025-09-12",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe",
+      "Isaac David",
+      "Arthur Gervais"
+    ],
+    "description": "In Flowise versions 3.0.1 through 3.0.5, the `forgot-password` endpoint returns sensitive information including\n          a valid password reset `tempToken` without authentication or verification.\n          This enables any attacker to generate a reset token for arbitrary users and directly reset their password, leading to a\n          complete account takeover (ATO).",
+    "references": [
+      "CVE-2025-58434",
+      "EDB-52557",
+      "GHSA-wgpv-6j63-x5ph"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-27 14:26:33 +0000",
+    "path": "/modules/auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/flowise_auth_bypass_cve_2025_58434",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "account-lockouts"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_admin/http/foreman_openstack_satellite_priv_esc": {
     "name": "Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment",
     "fullname": "auxiliary/admin/http/foreman_openstack_satellite_priv_esc",
