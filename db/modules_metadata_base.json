@@ -5132,6 +5132,61 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_admin/http/spip_idor_password_reset": {
+    "name": "SPIP Password Change IDOR Privilege Escalation",
+    "fullname": "auxiliary/admin/http/spip_idor_password_reset",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-02",
+    "type": "auxiliary",
+    "author": [
+      "Julien Voisin",
+      "0xkidz"
+    ],
+    "description": "SPIP before 4.4.23 has a missing authorization check in the\n          mot_de_passe CVT form handler. The traiter function changes\n          any user's password when given a validly-signed form POST,\n          without verifying the caller is authorized for that id_auteur.\n\n          An authenticated user injects a SPIP model tag into a forum\n          message preview. The model <formulaire|mot_de_passe|id_auteur=N>\n          causes the server to render the password form for user N and\n          HMAC-sign the form arguments. The preview replaces <form> tags\n          with <div> but leaves hidden inputs intact, leaking the signed\n          arguments. Submitting them changes the target user's password.",
+    "references": [
+      "URL-https://blog.spip.net/Mise-a-jour-critique-de-securite-sortie-de-SPIP-4-4-23.html"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-03 00:00:43 +0000",
+    "path": "/modules/auxiliary/admin/http/spip_idor_password_reset.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/spip_idor_password_reset",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_admin/http/supra_smart_cloud_tv_rfi": {
     "name": "Supra Smart Cloud TV Remote File Inclusion",
     "fullname": "auxiliary/admin/http/supra_smart_cloud_tv_rfi",
