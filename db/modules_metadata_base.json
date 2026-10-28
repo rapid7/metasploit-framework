@@ -144074,6 +144074,61 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_unix/smtp/cisco_secure_email_gateway_smime_sqli_rce": {
+    "name": "Cisco Secure Email Gateway S/MIME SQL Injection RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an unauthenticated SQL injection in Cisco Secure\n          Email Gateway S/MIME certificate harvesting. A sender-controlled email\n          address in a signing certificate is used in a PostgreSQL query without\n          escaping. The module sends one signed email whose certificate supplies\n          enough addresses to flush the asynchronous database writer, stacks COPY\n          TO PROGRAM, and runs a payload as root through AsyncOS runas and Python.\n\n          The check identifies the product through Cisco SEG's hidden SMTP\n          queue-status command. AsyncOS does not expose a version through a\n          benign SMTP command, so the check can only identify the product but not\n          if it is explicitly vulnerable. Public-key harvesting must be enabled on\n          the inbound mail flow policy for the target to be exploitable.\n\n          The Cisco advisory is vague so attributing this vulnerability to a specific CVE is\n          not obvious, but this appears to be CVE-2026-76443 rather than CVE-2026-76461\n          based on the IOCs available for CVE-2026-76461.",
+    "references": [
+      "CVE-2026-76443",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-hardening-esa-dfCrfXkm"
+    ],
+    "platform": "Python,Unix",
+    "arch": "python, cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Python Payload",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-17 15:59:15 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_unix/smtp/clamav_milter_blackhole": {
     "name": "ClamAV Milter Blackhole-Mode Remote Code Execution",
     "fullname": "exploit/unix/smtp/clamav_milter_blackhole",
