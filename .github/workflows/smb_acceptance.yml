@@ -32,6 +32,7 @@ on:
     paths:
       - 'metasploit-framework.gemspec'
       - 'Gemfile.lock'
+      - '.ruby-version'
       - '**/**smb**'
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'

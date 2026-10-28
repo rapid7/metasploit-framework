@@ -42,6 +42,7 @@ on:
     paths:
       - 'metasploit-framework.gemspec'
       - 'Gemfile.lock'
+      - '.ruby-version'
       - 'data/templates/**'
       - 'modules/payloads/**'
       - 'lib/msf/base/sessions/**'
