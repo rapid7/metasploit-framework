@@ -867,8 +867,13 @@ class Db
     onlyup = false
     output_file = nil
     set_rhosts = false
-    tree_mode = nil
-    tree_style = Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
+
+    # If the services feature is enabled, we print out a unicode tree (-t --tree-style unicode) by default.
+    # But we need to let users override it for e.g. ascii output.
+    hierarchy_default = framework.features.enabled?(Msf::FeatureManager::SERVICES_HIERARCHY_OUTPUT)
+    tree_requested = false
+    tree_mode = hierarchy_default ? Rex::Text::HierarchyTable::MODE_TREE : nil
+    tree_style = hierarchy_default ? :unicode : Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
     col_search = ['port', 'proto', 'name', 'state', 'info']
     extra_columns = ['resource', 'parents']
 
@@ -941,6 +946,7 @@ class Db
         search_term = val
         opts[:search_term] = search_term
       when '-t', '--tree'
+        tree_requested = true
         tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
       when '--tree-style'
         style = val.to_s.strip.downcase
@@ -950,9 +956,11 @@ class Db
         end
         # A connector style only applies to hierarchy output, so it enables the
         # default tree mode when no mode has been selected yet.
+        tree_requested = true
         tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
         tree_style = style.to_sym
       when '--tree-group'
+        tree_requested = true
         tree_mode = Rex::Text::HierarchyTable::MODE_GROUPED
       when '-h', '--help'
         cmd_services_help
@@ -1001,12 +1009,16 @@ class Db
     end
 
     if tree_mode && output_file
-      print_warning('Ignoring --tree, the tree connectors would not survive a round trip through a spreadsheet.')
+      # Only warn when the user actually asked for a tree. When the default came
+      # from the feature flag, quietly fall back so CSV export still works.
+      print_warning('Ignoring --tree/-t. The tree connectors would not survive a round trip through a spreadsheet.') if tree_requested
       tree_mode = nil
     end
 
     if tree_mode && order_by
-      print_warning('Ignoring --order, the tree output is ordered by the service hierarchy.')
+      # As above, respect an explicit --order without noise when the tree was only
+      # the feature-driven default.
+      print_warning('Ignoring --order/-O. The tree output is ordered by the service hierarchy.') if tree_requested
       order_by = nil
     end
 

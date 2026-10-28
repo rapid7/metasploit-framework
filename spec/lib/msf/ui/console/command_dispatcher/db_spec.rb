@@ -382,6 +382,54 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           end
         end
       end
+
+      describe "with the services_hierarchy_output feature enabled" do
+        before(:example) do
+          allow(framework.features).to receive(:enabled?).and_call_original
+          allow(framework.features).to receive(:enabled?).with(Msf::FeatureManager::SERVICES_HIERARCHY_OUTPUT).and_return(true)
+        end
+
+        it "defaults a bare services command to a unicode tree" do
+          db.cmd_services
+          expect(@output.join("\n")).to match_table <<~TABLE
+            Services
+            ========
+
+            host         port  proto  name            state  info  resource
+            ----         ----  -----  ----            -----  ----  --------
+            192.168.0.1  1024  udp    service3        open         {"base_url":"/service3"}
+            192.168.0.1  1024  udp    \u2514\u2500 service2     open         {"base_url":"/service2"}
+            192.168.0.1  1024  udp       \u2514\u2500 service1  open         {"base_url":"/service1"}
+          TABLE
+        end
+
+        it "lets an explicit --tree-style override the unicode default" do
+          db.cmd_services "--tree-style", "ascii"
+
+          expect(@output.join("\n")).to include '\\- service2'
+        end
+
+        it "lets --tree-group override the default tree" do
+          db.cmd_services "--tree-group"
+
+          expect(@output.join("\n")).to include 'host / port / proto / name'
+        end
+
+        it "falls back to a flat table for file output without warning about an unrequested tree" do
+          output_file = ::Tempfile.new('services')
+
+          begin
+            db.cmd_services "-o", output_file.path
+
+            # Nothing should be written to the error channel, so @error stays nil.
+            expect((@error || []).join("\n")).to_not include 'Ignoring --tree'
+            expect(::File.read(output_file.path)).to include 'parents'
+          ensure
+            output_file.close
+            output_file.unlink
+          end
+        end
+      end
     end
 
     describe "-h" do

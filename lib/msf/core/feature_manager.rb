@@ -29,6 +29,7 @@ module Msf
     LDAP_SESSION_TYPE = 'ldap_session_type'
     SHOW_SUCCESSFUL_LOGINS = 'show_successful_logins'
     DISPLAY_MODULE_ACTION = 'display_module_action'
+    SERVICES_HIERARCHY_OUTPUT = 'services_hierarchy_output'
 
     DEFAULTS = [
       {
@@ -132,6 +133,13 @@ module Msf
         requires_restart: false,
         default_value: true,
         developer_notes: 'Added as a feature so users can turn it off if they wish to reduce clutter in their terminal'
+      }.freeze,
+      {
+        name: SERVICES_HIERARCHY_OUTPUT,
+        description: "When enabled the services command defaults to a unicode hierarchy (equivalent to 'services -t --tree-style unicode'), nesting each service beneath the one it runs on top of",
+        requires_restart: false,
+        default_value: false,
+        developer_notes: 'Off by default while the hierarchy output is evaluated; explicit services flags still override the default'
       }.freeze
     ].freeze
 
