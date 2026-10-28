@@ -145,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def submit_credential_batch!(ip, service, pairs, state)
-    userpass_sleep_interval if state[:requests].positive?
+    userpass_sleep_interval
     result = graphql_authenticate(pairs)
     state[:requests] += 1
     fail_for_result!(result, 'classify the credential batch') unless %i[rejected success].include?(result[:status])
