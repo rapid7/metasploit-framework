@@ -282,7 +282,7 @@ RSpec.describe 'Garak integration' do
         output = File.join(directory, 'output')
         status = mod.execute_garak([RbConfig.ruby, '-W0', '-e', 'print [ENV.fetch("REST_API_KEY"), ENV.fetch("XDG_DATA_HOME"), ENV.fetch("XDG_CACHE_HOME"), Dir.pwd].join("|")'], output, environment: { 'REST_API_KEY' => 'test-key' })
         expect(status).to be_success
-        expect(File.read(output)).to eq(['test-key', directory, directory, directory].join('|'))
+        expect(File.read(output)).to eq(['test-key', directory, directory, File.realpath(directory)].join('|'))
         expect(ENV['REST_API_KEY']).to eq(original)
       end
     end

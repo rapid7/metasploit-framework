@@ -66,6 +66,8 @@ starting msfconsole, or append `REST_API_KEY=<value>` to that command.
 
 Optional bearer token for protected servers. This value is used for discovery
 requests only; configure credentials separately for the Garak plugin.
+When `SSL=false`, discovery sends the token over plain HTTP. Use `SSL=true`
+unless the connection is trusted.
 
 ### SUGGEST_PROBES
 
