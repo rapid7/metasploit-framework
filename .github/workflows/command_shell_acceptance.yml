@@ -42,6 +42,7 @@ on:
     paths:
       - 'metasploit-framework.gemspec'
       - 'Gemfile.lock'
+      - '.ruby-version'
       - 'data/templates/**'
       - 'modules/payloads/**'
       - 'lib/msf/core/payload/**'
@@ -151,7 +152,7 @@ jobs:
         # Skip for now to ensure CI passes on Windows server 2025 powershell tests
         #env:
         #  BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -211,7 +212,7 @@ jobs:
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
         with:
           # use the default version from the .ruby-version file
           ruby-version: '.ruby-version'
