@@ -40,8 +40,11 @@ on:
     branches:
       - '*'
     paths:
-      - 'metasploit-framework.gemspec'
+      - '.ruby-version'
+      - 'Gemfile'
       - 'Gemfile.lock'
+      - 'metasploit-framework.gemspec'
+      - 'Dockerfile'
       - 'data/templates/**'
       - 'modules/payloads/**'
       - 'lib/msf/core/payload/**'

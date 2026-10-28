@@ -30,8 +30,11 @@ on:
     branches:
       - '*'
     paths:
-      - 'metasploit-framework.gemspec'
+      - '.ruby-version'
+      - 'Gemfile'
       - 'Gemfile.lock'
+      - 'metasploit-framework.gemspec'
+      - 'Dockerfile'
       - '**/**postgres**'
       - 'lib/metasploit/framework/tcp/**'
       - 'lib/metasploit/framework/login_scanner/**'
