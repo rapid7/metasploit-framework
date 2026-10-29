@@ -39,6 +39,12 @@ class UDPTransport
         @socket.send(data, 0, host, port)
     end
 
+    # Receives a UDP packet, optionally waiting up to the specified timeout.
+    #
+    # @param max_bytes [Integer] maximum number of bytes to receive
+    # @param timeout [Numeric, nil] maximum wait in seconds, or nil to block
+    #   until a packet arrives
+    # @return [String, nil] received packet data, or nil if the timeout expires
     def recv(max_bytes, timeout = nil)
         return @socket.recv(max_bytes) if timeout.nil?
 
@@ -81,6 +87,12 @@ class RexUDPTransport
         end
     end
 
+    # Receives a UDP packet, optionally waiting up to the specified timeout.
+    #
+    # @param max_bytes [Integer] maximum number of bytes to receive
+    # @param timeout [Numeric, nil] maximum wait in seconds, or nil to block
+    #   until a packet arrives
+    # @return [String, nil] received packet data, or nil if the timeout expires
     def recv(max_bytes, timeout = nil)
         return @socket.recv(max_bytes) if timeout.nil?
 
