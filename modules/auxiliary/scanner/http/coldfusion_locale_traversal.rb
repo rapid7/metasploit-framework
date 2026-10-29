@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     trav = datastore['FILE']
 
-    if (trav == '' or datastore['FINGERPINT'])
+    if (trav == '' or datastore['FINGERPRINT'])
       # the user did not specify what they wanted, fingerprint, go after password.properties
 
       url = '/CFIDE/administrator/index.cfm'
