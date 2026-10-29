@@ -224,7 +224,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def prepare_delivery_verification(context)
-    if context[:recipient].casecmp?(context[:attacker]) && !verification_configured?
+    if !verification_configured? &&
+       (context[:recipient].casecmp?(context[:attacker]) || context[:recipient].casecmp?(datastore['USERNAME']))
       return { status: :success, token: context[:token], account: context[:attacker] }
     end
     return unless verification_configured?
