@@ -129,6 +129,7 @@ jobs:
       SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
       SESSION_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
       BUNDLE_WITHOUT: "coverage development"
+      PAYLOADS_GEM_NAME: ${{ matrix.meterpreter.name == 'mettle' && 'metasploit_payloads-mettle' || 'metasploit-payloads' }}
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
     steps:
@@ -266,17 +267,6 @@ jobs:
           name: meterpreter-artifacts
           path: metasploit-framework
 
-      - name: Install mettle gem
-        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
-        run: |
-          set -x
-          bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
-          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
-          bundle config unset deployment
-          bundle update metasploit_payloads-mettle
-          bundle install --deployment
-        working-directory: metasploit-framework
-
       - name: Checkout metasploit-payloads
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
@@ -332,18 +322,23 @@ jobs:
         run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a "$GITHUB_ENV"
         working-directory: metasploit-payloads
 
-      - name: Use the candidate metasploit-payloads package
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+      - name: Use the candidate payloads package
+        if: ${{ (inputs.build_mettle && matrix.meterpreter.name == 'mettle') || (inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle') }}
         shell: bash
         run: |
           ruby <<'RUBY'
           require 'fileutils'
           require 'rubygems/package'
 
-          version = ENV.fetch('METASPLOIT_PAYLOADS_VERSION')
-          package = Gem::Package.new("metasploit-payloads-#{version}.gem")
+          gem_name = ENV.fetch('PAYLOADS_GEM_NAME')
+          version = if gem_name == 'metasploit_payloads-mettle'
+                      "#{ENV.fetch('METTLE_VERSION')}.pre.dev"
+                    else
+                      ENV.fetch('METASPLOIT_PAYLOADS_VERSION')
+                    end
+          package = Gem::Package.new("#{gem_name}-#{version}.gem")
           spec = package.spec
-          abort 'Unexpected candidate payloads package' unless spec.name == 'metasploit-payloads' && spec.version.to_s == version
+          abort 'Unexpected candidate payloads package' unless spec.name == gem_name && spec.version.to_s == version
 
           # A path source also selects this candidate when RubyGems has the same version.
           candidate_path = File.join('vendor', 'payloads-candidate', spec.full_name)
@@ -353,40 +348,61 @@ jobs:
 
           gemspec_path = 'metasploit-framework.gemspec'
           gemspec = File.read(gemspec_path)
-          dependency = /^(\s*spec\.add_runtime_dependency 'metasploit-payloads', )'[^']+'/
+          dependency = /^(\s*spec\.add_runtime_dependency '#{Regexp.escape(gem_name)}', )'[^']+'/
           abort 'Framework payloads dependency not found' unless gemspec.match?(dependency)
           File.write(gemspec_path, gemspec.sub(dependency) { "#{Regexp.last_match(1)}'#{version}'" })
-          File.open('Gemfile', 'a') { |file| file.puts "\ngem 'metasploit-payloads', path: #{candidate_path.inspect}" }
+          File.open('Gemfile', 'a') { |file| file.puts "\ngem #{gem_name.inspect}, path: #{candidate_path.inspect}" }
+          File.open(ENV.fetch('GITHUB_ENV'), 'a') do |file|
+            file.puts "CANDIDATE_PAYLOADS_VERSION=#{version}"
+            file.puts "CANDIDATE_PAYLOADS_PATH=#{candidate_path}"
+          end
           RUBY
         working-directory: metasploit-framework
 
-      - name: Bundle update/install metasploit-payloads gem
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+      - name: Bundle update/install candidate payloads gem
+        if: ${{ (inputs.build_mettle && matrix.meterpreter.name == 'mettle') || (inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle') }}
         shell: bash
         run: |
           bundle config unset deployment
           # Keep the payload-gem update on the precompiled Windows gem platform.
           ${{ runner.os == 'Windows' && 'bundle lock --add-platform x64-mingw-ucrt' || 'echo "Skipping Windows Bundler platform lock"' }}
-          bundle update metasploit-payloads
+          bundle update "$PAYLOADS_GEM_NAME"
           bundle install --deployment
         working-directory: metasploit-framework
 
       - name: Verify the candidate payloads are selected
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        if: ${{ (inputs.build_mettle && matrix.meterpreter.name == 'mettle') || (inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle') }}
         shell: bash
         env:
           METASPLOIT_PAYLOADS_COMMIT: ${{ needs.meterpreter_compilation.outputs.metasploit_payloads_commit }}
         run: |
-          bundle exec ruby -rmetasploit-payloads <<'RUBY'
-          version = ENV.fetch('METASPLOIT_PAYLOADS_VERSION')
-          candidate_path = File.realpath(File.join('vendor', 'payloads-candidate', "metasploit-payloads-#{version}"))
-          spec = Gem.loaded_specs.fetch('metasploit-payloads')
+          bundle exec ruby <<'RUBY'
+          gem_name = ENV.fetch('PAYLOADS_GEM_NAME')
+          version = ENV.fetch('CANDIDATE_PAYLOADS_VERSION')
+          candidate_path = File.realpath(ENV.fetch('CANDIDATE_PAYLOADS_PATH'))
+          spec = Gem.loaded_specs.fetch(gem_name)
           abort "Expected payloads #{version}, loaded #{spec.version}" unless spec.version.to_s == version
           abort "Payloads loaded from #{spec.full_gem_path}" unless File.realpath(spec.full_gem_path) == candidate_path
 
-          errors = MetasploitPayloads.manifest_errors
-          abort "Candidate payload manifest errors: #{errors.inspect}" unless errors.empty?
-          puts "Using payloads #{version} from #{spec.full_gem_path}, built from #{ENV.fetch('METASPLOIT_PAYLOADS_COMMIT')}"
+          puts "Using #{gem_name} #{version} from #{spec.full_gem_path}"
+
+          if gem_name == 'metasploit_payloads-mettle'
+            require 'metasploit_payloads/mettle'
+            triple = ENV.fetch('RUNNER_OS') == 'macOS' ? 'x86_64-apple-darwin' : 'x86_64-linux-musl'
+            filenames = ['mettle']
+            filenames << 'mettle.bin' unless ENV.fetch('RUNNER_OS') == 'macOS'
+            filenames.each do |filename|
+              path = MetasploitPayloads::Mettle.path(triple, 'bin', filename)
+              abort "Missing required Mettle payload: #{triple}/#{filename}" unless path && File.file?(path)
+              abort "Mettle payload outside candidate package: #{path}" unless File.realpath(path).start_with?("#{candidate_path}/")
+              puts path
+            end
+          else
+            require 'metasploit-payloads'
+            errors = MetasploitPayloads.manifest_errors
+            abort "Candidate payload manifest errors: #{errors.inspect}" unless errors.empty?
+            puts "Built from #{ENV.fetch('METASPLOIT_PAYLOADS_COMMIT')}"
+          end
 
           if ENV.fetch('SESSION') == 'meterpreter/windows_meterpreter'
             %w[x86 x64].each do |arch|
