@@ -16798,7 +16798,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/dos/scada/d20_tftp_overflow.rb",
     "is_install_path": true,
     "ref_name": "dos/scada/d20_tftp_overflow",
@@ -61126,7 +61126,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/ipswitch_whatsupgold_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/ipswitch_whatsupgold_tftp",
@@ -61171,7 +61171,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/netdecision_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/netdecision_tftp",
@@ -61213,7 +61213,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-03-11 20:45:09 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/tftpbrute.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/tftpbrute",
@@ -114317,6 +114317,67 @@
       "SideEffects": [
         "artifacts-on-disk",
         "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/gitlab_cicd_regexp_rce_cve_2026_97229": {
+    "name": "GitLab CI/CD RegExp Integer Overflow Remote Code Execution",
+    "fullname": "exploit/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "aliases": [],
+    "rank": 400,
+    "disclosure_date": "2026-10-12",
+    "type": "exploit",
+    "author": [
+      "joaxcar",
+      "Jonah Burgess",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits an integer overflow in the Ruby regular expression compiler through\n          GitLab's CI lint API. An attacker with credentials for a user who can push to a public\n          project plants a crafted CI configuration and repository path. An unauthenticated CI\n          lint request then compiles the expression and executes a command as the GitLab git account.\n\n          The module selects the native pcode and libruby layout for affected official GitLab CE\n          and EE Docker images on Linux amd64. Each attempt allocates slightly more than 2 GiB and crashes a\n          Puma worker after execution. GitLab 19.2 before 19.2.8, 19.3 before 19.3.5, and 19.4\n          before 19.4.2 are affected.\n\n          The official 19.3.4 package already contains the Ruby overflow fix and is not supported.\n          Rebuilt packages and source installations may require different native layouts.",
+    "references": [
+      "CVE-2026-97229",
+      "URL-https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-4-2-released/",
+      "URL-https://github.com/jburgess-r7/CVE-2026-97229-PoC"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-10-29 19:47:50 +0000",
+    "path": "/modules/exploits/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "repeatable-session"
       ]
     },
     "session_types": false,
