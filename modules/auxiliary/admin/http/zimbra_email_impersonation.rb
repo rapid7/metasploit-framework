@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Retry
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
 
@@ -317,24 +318,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def wait_for_delivery(context, verification, marker)
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datastore['VERIFY_TIMEOUT']
-    loop do
+    result = poll_until_truthy(timeout: datastore['VERIFY_TIMEOUT']) do
       result = search_marker(verification[:token], marker)
-      return result unless %i[success not_found].include?(result[:status])
-
-      if result[:status] == :success
-        if result[:from]&.casecmp?(context[:victim])
-          return { status: :success, reason: "Verified Inbox delivery from #{context[:victim]} to #{verification[:account]}" }
-        end
-
-        return { status: :not_vulnerable, reason: "The message was delivered from #{result[:from] || 'an unknown sender'}, not VICTIM" }
-      end
-      break if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
-
-      Rex.sleep(1)
+      result unless result[:status] == :not_found
     end
+    return { status: :timeout, reason: 'Timed out waiting for the unique message in the verification Inbox' } unless result
+    return result unless result[:status] == :success
 
-    { status: :timeout, reason: 'Timed out waiting for the unique message in the verification Inbox' }
+    if result[:from]&.casecmp?(context[:victim])
+      { status: :success, reason: "Verified Inbox delivery from #{context[:victim]} to #{verification[:account]}" }
+    else
+      { status: :not_vulnerable, reason: "The message was delivered from #{result[:from] || 'an unknown sender'}, not VICTIM" }
+    end
   end
 
   def delivery_proof(context, verification, marker)
