@@ -381,7 +381,7 @@ class MetasploitModule < Msf::Auxiliary
       'data' => document
     )
     return { status: :unreachable, reason: 'No response from Zimbra SOAP' } unless response
-    return { status: :not_found, reason: "HTTP #{response.code} did not expose Zimbra SOAP at TARGETURI" } if [404, 405].include?(response.code)
+    return { status: :bad_config, reason: "HTTP #{response.code} did not expose Zimbra SOAP at TARGETURI" } if [404, 405].include?(response.code)
 
     parsed = parse_xml_response(response)
     return parsed unless parsed[:status] == :success
