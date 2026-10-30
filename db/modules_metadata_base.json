@@ -87103,6 +87103,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/portainer_authenticated_docker_rce": {
+    "name": "Portainer Authenticated Docker API Remote Root",
+    "fullname": "exploit/linux/http/portainer_authenticated_docker_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-03",
+    "type": "exploit",
+    "author": [
+      "Aman Singh Gill (Gill-Singh-A)"
+    ],
+    "description": "Portainer is a web UI for managing Docker and Kubernetes environments. An\n          authenticated Portainer administrator (or a non-admin user whose security\n          restrictions have been explicitly relaxed) can drive the full Docker Engine API\n          through Portainer's proxy. Because the Docker daemon normally runs as root on the\n          host, an attacker can create a privileged container that bind-mounts the host root\n          filesystem (\"/:/host\") and chroot into it, which yields code execution as root on\n          the Docker host itself - not merely inside a container.\n\n          By default, Portainer blocks non-admin users from using privileged mode, bind\n          mounts, and host PID namespaces, so this module typically requires admin-level\n          credentials.\n\n          This module authenticates to Portainer (POST /api/auth) to obtain a JWT, selects\n          a managed Docker environment, ensures a small Linux image is present (pulling one\n          if required), then creates and starts a privileged container whose command drops\n          and executes a Metasploit payload on the host via the \"/host\" bind mount and\n          \"chroot /host\". The payload is launched through the host's own init (systemd) so it\n          is decoupled from the throwaway container and survives its removal, and the\n          container is then stopped and force-removed afterwards to avoid leaving artifacts.\n\n          This is an abuse of intended functionality (a design consequence of exposing the\n          Docker API) combined with the common misconfiguration of an internet or\n          network-reachable Portainer instance protected only by weak or shared\n          credentials. It is not a patched CVE. Valid credentials and a root-running Docker\n          daemon are required.",
+    "references": [
+      "URL-https://github.com/Gill-Singh-A/Portainer-Remote-Root-Shell-Exploit",
+      "URL-https://gill-singh-a.github.io/p/getting-remote-root-shell-on-devices-via-portainer/",
+      "URL-https://docs.docker.com/engine/security/#docker-daemon-attack-surface"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "x64, x86, cmd",
+    "rport": 9443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Dropper (Meterpreter)",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-28 14:10:54 +0000",
+    "path": "/modules/exploits/linux/http/portainer_authenticated_docker_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/portainer_authenticated_docker_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/pretalx_rce_cve_2023_28458": {
     "name": "Pretalx Limited File Write to Remote Code Execution",
     "fullname": "exploit/linux/http/pretalx_rce_cve_2023_28458",
