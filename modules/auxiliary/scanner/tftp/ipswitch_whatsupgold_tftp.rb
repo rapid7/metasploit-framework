@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Send the packet to target
     file_data = ''
-    udp_sock.sendto(pkt, ip, datastore['RPORT'].to_i)
+    udp_sock.send(pkt, 0, ip, datastore['RPORT'].to_i)
 
     while (r = udp_sock.timed_recvfrom(65535, 0.1))
       r = [r[0], r[1][3], r[1][1]]
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
       file_data << data
-      udp_sock.sendto(tftp_ack(block), r[1], r[2].to_i, 0) # Ack
+      udp_sock.send(tftp_ack(block), 0, r[1], r[2].to_i) # Ack
 
     end
 
