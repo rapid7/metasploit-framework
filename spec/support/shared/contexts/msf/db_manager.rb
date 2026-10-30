@@ -18,6 +18,6 @@ RSpec.shared_context 'Msf::DBManager' do
   before(:example) do
     # already connected due to use_transactional_fixtures, but need some of the side-effects of #connect
     allow(db_manager).to receive(:active).and_return(active)
-    db_manager.workspace = db_manager.default_workspace
+    framework.db.workspace = framework.db.default_workspace
   end
 end
