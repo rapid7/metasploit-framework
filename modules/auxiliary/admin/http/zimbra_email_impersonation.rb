@@ -381,7 +381,7 @@ class MetasploitModule < Msf::Auxiliary
       'data' => document
     )
     return { status: :unreachable, reason: 'No response from Zimbra SOAP' } unless response
-    return { status: :not_zimbra, reason: "HTTP #{response.code} did not expose Zimbra SOAP" } if [404, 405].include?(response.code)
+    return { status: :not_found, reason: "HTTP #{response.code} did not expose Zimbra SOAP at TARGETURI" } if [404, 405].include?(response.code)
 
     parsed = parse_xml_response(response)
     return parsed unless parsed[:status] == :success
@@ -436,13 +436,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_code_for_context(result)
-    reason = result_reason(result)
-    case result[:status]
-    when :not_zimbra
-      Msf::Exploit::CheckCode::Safe(reason)
-    else
-      Msf::Exploit::CheckCode::Unknown(reason)
-    end
+    Msf::Exploit::CheckCode::Unknown(result_reason(result))
   end
 
   def fail_for_context!(result, operation)
