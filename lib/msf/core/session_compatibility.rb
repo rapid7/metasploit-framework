@@ -57,15 +57,15 @@ module Msf
     # and retries for 5 seconds.
     def check_for_session_readiness(tries=6)
       session_ready_count = 0
-      session_ready = false
-      until session.sys or session_ready_count > tries
+      session_ready = !!session.sys || (session.respond_to?(:micro_commands) && (session.micro_commands.any? || session.micro_channels.any?))
+      until session_ready || session_ready_count > tries
         session_ready_count += 1
         back_off_period = (session_ready_count**2)/10.0
         select(nil,nil,nil,back_off_period)
+        session_ready = !!session.sys || (session.respond_to?(:micro_commands) && (session.micro_commands.any? || session.micro_channels.any?))
       end
-      session_ready = !!session.sys
       unless session_ready
-        raise "The stdapi extension has not been loaded yet." unless session.tlv_enc_key.nil?
+        raise "No Meterpreter API adapter has been loaded yet." unless session.tlv_enc_key.nil?
         raise "Could not get a hold of the session."
       end
       return session_ready
