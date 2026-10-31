@@ -21,7 +21,7 @@ For information on writing modules, refer to the [API Documentation](https://doc
 For questions and suggestions, you can:
 
 - Join our [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions) for community support and general questions
-- Join the [Metasploit Slack](https://join.slack.com/t/metasploit/shared_invite/zt-30i688it0-mJsFGT44IMtdeZi1DraamQ) for real-time chat
+- Join the [Metasploit Slack](https://metasploit.com/slack) for real-time chat
 - Submit [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues) for bug reports and feature requests
 - Follow [@metasploit](https://x.com/metasploit) on X or [@metasploit@infosec.exchange](https://infosec.exchange/@metasploit) on Mastodon for updates
 
