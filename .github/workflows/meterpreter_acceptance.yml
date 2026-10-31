@@ -65,7 +65,10 @@ jobs:
   build:
     uses: ./.github/workflows/shared_meterpreter_acceptance.yml
     with:
+      # Exercise the workflow's Framework revision, including fork and PR changes.
+      metasploit_framework_repository: ${{ github.repository }}
+      metasploit_framework_commit: ${{ github.sha }}
       metasploit_payloads_commit: ${{ github.event.inputs.metasploit_payloads_commit }}
       mettle_commit: ${{ github.event.inputs.mettle_commit }}
-      build_metasploit_payloads: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+      build_metasploit_payloads: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
       build_mettle: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
