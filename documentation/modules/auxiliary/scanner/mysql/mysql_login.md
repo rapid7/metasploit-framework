@@ -71,8 +71,8 @@ set to true should give you an interactive session:
 ```msf
 run rhost=127.0.0.1 rport=4306 username=root password=password createsession=true
 
-[+] 127.0.0.1:4306        - 127.0.0.1:4306 - Found remote MySQL version 11.2.2
-[+] 127.0.0.1:4306        - 127.0.0.1:4306 - Success: 'root:password'
+[+] 127.0.0.1:4306        - Found remote MySQL version 11.2.2
+[+] 127.0.0.1:4306        - Success: 'root:password'
 [*] MySQL session 1 opened (127.0.0.1:53241 -> 127.0.0.1:4306) at 2024-03-12 12:40:46 -0500
 [*] 127.0.0.1:4306        - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
