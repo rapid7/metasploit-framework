@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Unexpected message")
         end
 
-        disconnect()
+        tcp.close
       end
     end
 
