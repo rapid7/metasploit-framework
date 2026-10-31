@@ -119,7 +119,12 @@ module Msf::Payload::MalleableC2
           # (the prior `\s+` rule has already eaten any leading
           # whitespace by the time we get here)
           next
-        elsif scanner.scan(/\"(\\.|[^"])*\"/)
+        # Quoted string. The two alternatives are kept disjoint -- an escape
+        # `\\.` versus any byte that is neither a quote nor a backslash -- so a
+        # backslash can only start an escape. Overlapping them (e.g. `[^"]`,
+        # which also matches `\\`) makes an unterminated string backtrack
+        # exponentially (ReDoS) while the scanner hunts for a closing quote.
+        elsif scanner.scan(/\"(?:\\.|[^"\\])*\"/)
           @tokens << Token.new(:string, scanner.matched[1..-2])
         elsif scanner.scan(/[a-zA-Z0-9_\-\.\/]+/)
           word = scanner.matched
