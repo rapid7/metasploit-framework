@@ -86,7 +86,7 @@ RSpec.describe 'cmd/linux/ftp/x64' do
   # ---------------------------------------------------------------------------
 
   describe 'FETCH_COMMAND option' do
-    it 'defaults to CURL' do
+    it 'defaults to FTP' do
       fresh = load_and_create_module(
         module_type: 'payload',
         reference_name: 'cmd/linux/ftp/x64/meterpreter_reverse_tcp',
@@ -95,25 +95,29 @@ RSpec.describe 'cmd/linux/ftp/x64' do
           'singles/linux/x64/meterpreter_reverse_tcp'
         ]
       )
-      expect(fresh.datastore['FETCH_COMMAND']).to eq('CURL')
+      expect(fresh.datastore['FETCH_COMMAND']).to eq('FTP')
     end
 
-    # All LinuxOptions commands are syntactically valid; FTP/TNFTP are the only
-    # ones that actually work with an FTP server at runtime.
-    %w[CURL WGET TNFTP FTP GET TFTP].each do |cmd|
+    # Only FTP, TNFTP, and GET have working command generators for the FTP
+    # protocol (see #_generate_ftp_command, #_generate_tnftp_command, and
+    # #_generate_get_command in lib/msf/core/payload/adapter/fetch.rb).
+    # CURL, WGET, and TFTP have no FTP-protocol case and fail with BadConfig.
+    %w[FTP TNFTP GET].each do |cmd|
       it "accepts #{cmd} as a valid enum value" do
         expect(subject.options['FETCH_COMMAND'].valid?(cmd)).to be(true)
       end
     end
 
-    it 'rejects CERTUTIL as an invalid value' do
-      expect(subject.options['FETCH_COMMAND'].valid?('CERTUTIL')).to be(false)
+    %w[CURL WGET TFTP CERTUTIL].each do |cmd|
+      it "rejects #{cmd} as an invalid value" do
+        expect(subject.options['FETCH_COMMAND'].valid?(cmd)).to be(false)
+      end
     end
   end
 
   # ---------------------------------------------------------------------------
-  # generate_fetch_commands — only FTP and TNFTP are compatible with the FTP
-  # protocol; other commands raise at runtime.
+  # generate_fetch_commands — FTP, TNFTP, and GET are the commands compatible
+  # with the FTP protocol; other commands raise at runtime.
   # ---------------------------------------------------------------------------
 
   describe '#generate_fetch_commands' do
@@ -142,6 +146,26 @@ RSpec.describe 'cmd/linux/ftp/x64' do
 
       it 'uses tnftp -Vo to download' do
         expect(subject.generate_fetch_commands).to include('tnftp -Vo')
+      end
+
+      it 'includes the FTP URL with host, port, and URI path' do
+        expect(subject.generate_fetch_commands).to include(
+          "ftp://#{fetch_srvhost}:#{fetch_srvport}/#{fetch_uripath}"
+        )
+      end
+
+      it 'makes the file executable and runs it' do
+        cmd = subject.generate_fetch_commands
+        expect(cmd).to include('chmod +x')
+        expect(cmd).to include("#{fetch_writable_dir}#{fetch_filename}&")
+      end
+    end
+
+    context 'with GET' do
+      before { subject.datastore['FETCH_COMMAND'] = 'GET' }
+
+      it 'uses GET to download over FTP' do
+        expect(subject.generate_fetch_commands).to include('GET ftp://')
       end
 
       it 'includes the FTP URL with host, port, and URI path' do
