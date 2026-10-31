@@ -10,6 +10,7 @@
 ###
 module Msf::Payload::Windows
 
+  require 'msf/core/payload/windows/meterpreter_version'
 
   # Provides the #prepends method
   # XXX: For some unfathomable reason, the order of requires here is
