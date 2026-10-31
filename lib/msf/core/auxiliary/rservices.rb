@@ -51,7 +51,7 @@ module Auxiliary::RServices
     end
 
     if not sd
-      print_error("#{target_host}:#{rport} - Unable to bind to privileged port")
+      print_error('Unable to bind to privileged port')
       return :bind_error
     end
 
