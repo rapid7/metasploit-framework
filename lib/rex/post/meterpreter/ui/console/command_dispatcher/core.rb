@@ -1110,12 +1110,14 @@ class Console::CommandDispatcher::Core
       end
     end
 
-    if pid == server.pid
+    server_pid = server&.pid || client.sys.process.getpid
+
+    if pid == server_pid
       print_error("Process already running at PID #{pid}")
       return
     end
 
-    server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
+    print_status("Migrating from #{server_pid} to #{pid}...")
 
     # Do this thang.
     client.core.migrate(pid, writable_dir, opts)
