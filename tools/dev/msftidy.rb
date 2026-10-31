@@ -110,7 +110,7 @@ class RuboCopRunner
     #   A       modules/exploits/osx/local/vmware_fusion_lpe.rb
     raw_diff_summary, status = ::Open3.capture2("git diff -b --name-status -l0 --summary #{commit}")
 
-    if !status.success? && exception
+    if !status.success?
       raise RuboCopRunnerException, "Command failed with status (#{status.exitstatus}): #{commit}"
     end
 
