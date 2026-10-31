@@ -27,6 +27,65 @@ module Console::InteractiveChannel
         _local_fd.raw do
           interact_stream(self)
         end
+      elsif user_input.supports_readline && user_input.respond_to?(:pgets)
+        # Readline-capable input: drain the channel, surface the trailing
+        # fragment as the local prompt, then read the next line via pgets so
+        # that line-editing/history works. Any other input falls back to the
+        # raw interact_stream path below.
+        old_prompt = user_input.prompt
+
+        begin
+          user_input.prompt = ''
+
+          while self.interacting && _remote_fd(self)
+            data = ''
+            while self.interacting && _remote_fd(self)
+              sd = Rex::ThreadSafe.select([_remote_fd(self)], nil, nil, 0.1)
+              break unless sd
+              begin
+                chunk = self.lsock.sysread(16384)
+                if chunk.nil? || chunk.empty?
+                  self.interacting = false
+                  break
+                end
+                data << chunk
+              rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE
+                self.interacting = false
+                break
+              end
+            end
+
+            if data.length > 0
+              self.on_print_proc.call(data.strip) if self.on_print_proc
+              self.on_log_proc.call(data.strip) if self.on_log_proc
+
+              lines = data.split("\n", -1)
+              prompt_part = lines.pop || ''
+
+              if lines.length > 0
+                user_output.print(lines.join("\n") + "\n")
+              end
+
+              user_input.prompt = prompt_part
+            end
+
+            begin
+              line = user_input.pgets
+              unless line
+                self.interacting = false
+                break
+              end
+              line = line.to_s.chomp
+              self.on_command_proc.call(line.strip) if self.on_command_proc
+              self.write(line + "\n")
+            rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE
+              self.interacting = false
+              break
+            end
+          end
+        ensure
+          user_input.prompt = old_prompt if old_prompt
+        end
       else
         interact_stream(self)
       end
