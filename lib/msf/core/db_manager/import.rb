@@ -503,9 +503,15 @@ module Msf::DBManager::Import
     report_task(normalised_import_timestamp_opts)
   end
 
+  # Reports a user from imported data.
+  #
+  # @param opts [Hash] The user's attributes, as accepted by {Msf::DBManager::User#report_user}. This is
+  #   trusted import data, so +:persistence_token+, +:sso_enabled+ and +:password_salt+ are restored too.
+  # @return [Mdm::User] The reported user.
   def msf_import_user(opts)
     normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
-    report_user(normalised_import_timestamp_opts)
+    # Imported data is trusted, so API tokens and SSO settings are restored along with the rest.
+    report_user(normalised_import_timestamp_opts, true)
   end
 
   def msf_import_loot(opts)
