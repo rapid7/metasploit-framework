@@ -51,12 +51,14 @@ RSpec.describe 'post/multi/manage/sudo' do
     let(:password) { "synthetic' password" }
     let(:askpass_dir) { '/tmp/.AbCdEfG' }
     let(:askpass_sh) { "#{askpass_dir}/askpass" }
+    let(:remove_askpass_sh) { "rm -f '#{askpass_sh}'" }
+    let(:remove_askpass_dir) { "rmdir '#{askpass_dir}'" }
 
     before do
       allow(Rex::Text).to receive(:rand_text_alpha).with(7).and_return('AbCdEfG')
     end
 
-    it 'creates a private directory and file before yielding, then cleans up' do
+    it 'creates a private directory and file before yielding, then verifies cleanup without stale registrations' do
       expect(subject).not_to receive(:register_dir_for_cleanup)
       expect(subject).not_to receive(:register_file_for_cleanup)
       expect(subject).to receive(:_shell_command_with_success_code)
@@ -71,40 +73,46 @@ RSpec.describe 'post/multi/manage/sudo' do
         .with(askpass_sh, subject.send(:askpass_script, password))
         .ordered
         .and_return(true)
-      expect(subject).to receive(:rm_f).with(askpass_sh).ordered
-      expect(subject).to receive(:rm_rf).with(askpass_dir).ordered
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(true)
 
       result = subject.send(:with_askpass_script, password) do |path|
         expect(path).to eq(askpass_sh)
         :used
       end
       expect(result).to eq(:used)
+      expect(subject.instance_variable_get(:@dropped_files)).to be_empty
+      expect(subject.instance_variable_get(:@dropped_dirs)).to be_empty
     end
 
-    it 'does not remove a pre-existing path when private directory creation fails' do
-      allow(subject).to receive(:_shell_command_with_success_code).and_return(false)
-      expect(subject).not_to receive(:rm_f)
-      expect(subject).not_to receive(:rm_rf)
+    it 'does not remove or register a pre-existing path when private directory creation fails' do
+      expect(subject).to receive(:_shell_command_with_success_code)
+        .with("/bin/sh -c 'umask 077 && mkdir -m 700 \"$1\"' sh '#{askpass_dir}'")
+        .and_return(false)
+      expect(subject).not_to receive(:_shell_command_with_success_code).with(remove_askpass_sh)
+      expect(subject).not_to receive(:_shell_command_with_success_code).with(remove_askpass_dir)
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
 
       expect { subject.send(:with_askpass_script, password) { nil } }
         .to raise_error(RuntimeError, 'Could not create a private SUDO_ASKPASS directory')
     end
 
-    it 'cleans up the private directory if writing the script fails' do
+    it 'verifies cleanup of the private directory if writing the script fails' do
       allow(subject).to receive(:_shell_command_with_success_code).and_return(true)
       allow(subject).to receive(:write_file).and_return(false)
-      expect(subject).to receive(:rm_f).with(askpass_sh)
-      expect(subject).to receive(:rm_rf).with(askpass_dir)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).and_return(true)
 
       expect { subject.send(:with_askpass_script, password) { nil } }
         .to raise_error(RuntimeError, 'Could not write the SUDO_ASKPASS script')
     end
 
-    it 'cleans up when an enclosing timeout unwinds through password writing' do
+    it 'verifies cleanup when an enclosing timeout unwinds through password writing' do
       allow(subject).to receive(:_shell_command_with_success_code).and_return(true)
       allow(subject).to receive(:write_file) { sleep 1 }
-      expect(subject).to receive(:rm_f).with(askpass_sh)
-      expect(subject).to receive(:rm_rf).with(askpass_dir)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).and_return(true)
 
       expect do
         ::Timeout.timeout(0.01) do
@@ -113,11 +121,11 @@ RSpec.describe 'post/multi/manage/sudo' do
       end.to raise_error(::Timeout::Error)
     end
 
-    it 'cleans up when an enclosing timeout expires inside the yielded use' do
+    it 'verifies cleanup when an enclosing timeout expires inside the yielded use' do
       allow(subject).to receive(:_shell_command_with_success_code).and_return(true)
       allow(subject).to receive(:write_file).and_return(true)
-      expect(subject).to receive(:rm_f).with(askpass_sh)
-      expect(subject).to receive(:rm_rf).with(askpass_dir)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).and_return(true)
 
       expect do
         ::Timeout.timeout(0.01) do
@@ -130,21 +138,120 @@ RSpec.describe 'post/multi/manage/sudo' do
   describe '#cleanup_askpass_script' do
     let(:askpass_dir) { '/tmp/.AbCdEfG' }
     let(:askpass_sh) { "#{askpass_dir}/askpass" }
+    let(:remove_askpass_sh) { "rm -f '#{askpass_sh}'" }
+    let(:remove_askpass_dir) { "rmdir '#{askpass_dir}'" }
 
-    it 'still removes the directory when file removal raises' do
-      allow(subject).to receive(:rm_f).and_raise(RuntimeError, 'synthetic file failure')
-      expect(subject).to receive(:vprint_error).with(/synthetic file failure/)
-      expect(subject).to receive(:rm_rf).with(askpass_dir)
+    it 'does not warn or register when both removals are verified' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(true)
+      expect(subject).not_to receive(:print_warning)
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+
+      subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+    end
+
+    it 'treats verified directory removal as complete after an unverified file removal' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(false)
+      expect(subject).to receive(:print_warning).with(/attempting private directory cleanup/).ordered
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(true)
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+
+      subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+    end
+
+    it 'warns without registering a reusable path when both removals are unverified' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(false)
+      expect(subject).to receive(:print_warning).with(/attempting private directory cleanup/).ordered
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(false)
+      expect(subject).to receive(:print_warning).with(/manual cleanup may be required/).ordered
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+      expect(subject).not_to receive(:rm_rf)
+
+      subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+    end
+
+    it 'leaves unexpected directory contents for manual cleanup without a recursive fallback' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(false)
+      expect(subject).to receive(:print_warning).with(/manual cleanup may be required/).ordered
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+      expect(subject).not_to receive(:rm_rf)
+
+      subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+    end
+
+    it 'still attempts directory removal when file removal raises' do
+      expect(subject).to receive(:_shell_command_with_success_code)
+        .with(remove_askpass_sh)
+        .ordered
+        .and_raise(RuntimeError, 'synthetic file failure')
+      expect(subject).to receive(:print_warning).with(
+        satisfy do |message|
+          message.include?('RuntimeError') &&
+            !message.include?('synthetic file failure') &&
+            !message.include?(askpass_dir) &&
+            !message.include?(askpass_sh)
+        end
+      ).ordered
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(true)
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
 
       expect { subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh) }.not_to raise_error
     end
 
-    it 'warns without overriding the handled sudo result when directory removal raises' do
-      allow(subject).to receive(:rm_f)
-      allow(subject).to receive(:rm_rf).and_raise(RuntimeError, 'synthetic directory failure')
-      expect(subject).to receive(:print_warning).with(/manual cleanup may be required.*synthetic directory failure/)
+    it 'warns without overriding the handled result when directory removal raises' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered.and_return(true)
+      expect(subject).to receive(:_shell_command_with_success_code)
+        .with(remove_askpass_dir)
+        .ordered
+        .and_raise(RuntimeError, 'synthetic directory failure')
+      expect(subject).to receive(:print_warning).with(
+        satisfy do |message|
+          message.include?('RuntimeError') &&
+            !message.include?('synthetic directory failure') &&
+            !message.include?(askpass_dir) &&
+            !message.include?(askpass_sh)
+        end
+      ).ordered
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
 
       expect { subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh) }.not_to raise_error
+    end
+
+    it 'attempts directory removal and preserves an outer timeout that expires during file removal' do
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_sh).ordered do
+        sleep 1
+      end
+      expect(subject).to receive(:_shell_command_with_success_code).with(remove_askpass_dir).ordered.and_return(true)
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+
+      expect do
+        ::Timeout.timeout(0.01) do
+          subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+        end
+      end.to raise_error(::Timeout::Error)
+    end
+
+    it 'does not expose cleanup paths when removal cannot be verified' do
+      warnings = []
+      allow(subject).to receive(:_shell_command_with_success_code).and_return(false, false)
+      allow(subject).to receive(:print_warning) { |message| warnings << message }
+      expect(subject).not_to receive(:register_file_for_cleanup)
+      expect(subject).not_to receive(:register_dir_for_cleanup)
+      expect(subject).not_to receive(:rm_rf)
+
+      subject.send(:cleanup_askpass_script, askpass_dir, askpass_sh)
+
+      warning_text = warnings.join(' ')
+      expect(warning_text).not_to include(askpass_dir)
+      expect(warning_text).not_to include(askpass_sh)
     end
   end
 

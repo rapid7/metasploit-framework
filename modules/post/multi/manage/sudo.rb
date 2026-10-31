@@ -158,14 +158,42 @@ class MetasploitModule < Msf::Post
   end
 
   def cleanup_askpass_script(askpass_dir, askpass_sh)
-    rm_f(askpass_sh) unless askpass_sh.nil?
-  rescue StandardError => e
-    vprint_error "Could not remove the SUDO_ASKPASS script: #{e.class}: #{e}"
-  ensure
+    file_removed = askpass_sh.nil?
+    file_error = nil
+
     begin
-      rm_rf(askpass_dir) unless askpass_dir.nil?
-    rescue StandardError => e
-      print_warning "Could not remove the private SUDO_ASKPASS directory; manual cleanup may be required: #{e.class}: #{e}"
+      unless askpass_sh.nil?
+        begin
+          file_removed = _shell_command_with_success_code("rm -f #{session.escape_arg(askpass_sh)}")
+        rescue StandardError => e
+          file_error = e
+        end
+
+        unless file_removed
+          message = 'Could not verify removal of the SUDO_ASKPASS script; attempting private directory cleanup.'
+          message += " (#{file_error.class})" unless file_error.nil?
+          print_warning message
+        end
+      end
+    ensure
+      directory_removed = askpass_dir.nil?
+      directory_error = nil
+
+      unless askpass_dir.nil?
+        begin
+          # Do not recursively remove unexpected contents. Without a stable
+          # object identity, retaining this pathname for later deletion is unsafe.
+          directory_removed = _shell_command_with_success_code("rmdir #{session.escape_arg(askpass_dir)}")
+        rescue StandardError => e
+          directory_error = e
+        end
+      end
+
+      unless directory_removed
+        message = 'Could not verify removal of the private SUDO_ASKPASS directory; manual cleanup may be required.'
+        message += " (#{directory_error.class})" unless directory_error.nil?
+        print_warning message
+      end
     end
   end
 end
