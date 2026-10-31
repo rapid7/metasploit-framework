@@ -1,0 +1,2586 @@
+
+
+/* this ALWAYS GENERATED file contains the definitions for the interfaces */
+
+
+ /* File created by MIDL compiler version 8.01.0628 */
+/* at Tue Jan 19 04:14:07 2038
+ */
+/* Compiler settings for windefend.idl:
+    Oicf, W1, Zp8, env=Win64 (32b run), target_arch=AMD64 8.01.0628 
+    protocol : all , ms_ext, c_ext, robust
+    error checks: allocation ref bounds_check enum stub_data 
+    VC __declspec() decoration level: 
+         __declspec(uuid()), __declspec(selectany), __declspec(novtable)
+         DECLSPEC_UUID(), MIDL_INTERFACE()
+*/
+/* @@MIDL_FILE_HEADING(  ) */
+
+
+
+/* verify that the <rpcndr.h> version is high enough to compile this file*/
+#ifndef __REQUIRED_RPCNDR_H_VERSION__
+#define __REQUIRED_RPCNDR_H_VERSION__ 500
+#endif
+
+#include "rpc.h"
+#include "rpcndr.h"
+
+#ifndef __RPCNDR_H_VERSION__
+#error this stub requires an updated version of <rpcndr.h>
+#endif /* __RPCNDR_H_VERSION__ */
+
+
+#ifndef __windefend_h_h__
+#define __windefend_h_h__
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+#ifndef DECLSPEC_XFGVIRT
+#if defined(_CONTROL_FLOW_GUARD_XFG)
+#define DECLSPEC_XFGVIRT(base, func) __declspec(xfg_virtual(base, func))
+#else
+#define DECLSPEC_XFGVIRT(base, func)
+#endif
+#endif
+
+/* Forward Declarations */ 
+
+/* header files for imported files */
+#include "oaidl.h"
+#include "ocidl.h"
+
+#ifdef __cplusplus
+extern "C"{
+#endif 
+
+
+#ifndef __DefaultIfName_INTERFACE_DEFINED__
+#define __DefaultIfName_INTERFACE_DEFINED__
+
+/* interface DefaultIfName */
+/* [version][uuid] */ 
+
+typedef struct Struct_16_t
+    {
+    long StructMember0;
+    short StructMember1;
+    short StructMember2;
+    byte StructMember3[ 8 ];
+    } 	Struct_16_t;
+
+typedef struct Struct_28_t
+    {
+    hyper StructMember0;
+    } 	Struct_28_t;
+
+typedef struct Struct_40_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2[ 4 ];
+    } 	Struct_40_t;
+
+typedef struct Struct_58_t
+    {
+    long StructMember0;
+    hyper StructMember1;
+    hyper StructMember2;
+    hyper StructMember3;
+    hyper StructMember4;
+    hyper StructMember5[ 4 ];
+    } 	Struct_58_t;
+
+typedef struct Struct_78_t
+    {
+    long StructMember0;
+    long StructMember1;
+    struct Struct_16_t StructMember2;
+    struct Struct_28_t StructMember3;
+    struct Struct_28_t StructMember4;
+    struct Struct_40_t StructMember5;
+    struct Struct_58_t StructMember6;
+    hyper StructMember7;
+    } 	Struct_78_t;
+
+typedef struct Struct_110_t
+    {
+    long StructMember0;
+    } 	Struct_110_t;
+
+typedef struct Struct_126_t
+    {
+    long StructMember0;
+    long StructMember1;
+    } 	Struct_126_t;
+
+typedef struct Struct_144_t
+    {
+    long StructMember0;
+    struct Struct_78_t StructMember1;
+    struct Struct_78_t StructMember2;
+    struct Struct_40_t StructMember3;
+    struct Struct_110_t StructMember4[ 4 ];
+    struct Struct_126_t StructMember5[ 11 ];
+    struct Struct_28_t StructMember6;
+    } 	Struct_144_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_222
+    {
+    /* [case()][unique] */ struct Struct_444_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_502_t *unionMember_3;
+    /* [case()][unique] */ struct Struct_530_t *unionMember_4;
+    /* [case()][unique] */ struct Struct_552_t *unionMember_5;
+    /* [case()][unique] */ struct Struct_576_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_594_t *unionMember_6;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_7;
+    /* [case()][unique] */ struct Struct_630_t *unionMember_8;
+    /* [case()][unique] */ struct Struct_674_t *unionMember_9;
+    /* [case()][unique] */ struct Struct_706_t *unionMember_10;
+    /* [case()][unique] */ struct Struct_756_t *unionMember_12;
+    /* [case()][unique] */ struct Struct_126_t *unionMember_13;
+    /* [case()][unique] */ struct Struct_780_t *unionMember_14;
+    /* [case()][unique] */ struct Struct_800_t *unionMember_15;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_16;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_17;
+    /* [case()][unique] */ struct Struct_820_t *unionMember_18;
+    /* [case()][unique] */ struct Struct_840_t *unionMember_19;
+    /* [case()][unique] */ struct Struct_856_t *unionMember_20;
+    /* [case()][unique] */ struct Struct_884_t *unionMember_21;
+    /* [case()][unique] */ struct Struct_954_t *unionMember_22;
+    } 	union_222;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_368
+    {
+    /* [case()][unique] */ struct Struct_110_t *unionMember_0;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_3;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_4;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_5;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_6;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_7;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_8;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_9;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_10;
+    } 	union_368;
+
+typedef struct Struct_444_t
+    {
+    long StructMember0;
+    long StructMember1;
+    /* [switch_is] */ union union_368 StructMember2;
+    } 	Struct_444_t;
+
+typedef struct Struct_476_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    long StructMember2;
+    long StructMember3;
+    /* [size_is][unique] */ unsigned char *StructMember4;
+    } 	Struct_476_t;
+
+typedef struct Struct_502_t
+    {
+    long StructMember0;
+    /* [unique] */ struct Struct_476_t *StructMember1;
+    struct Struct_58_t StructMember2;
+    struct Struct_40_t StructMember3;
+    } 	Struct_502_t;
+
+typedef struct Struct_530_t
+    {
+    hyper StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [unique] */ struct Struct_476_t *StructMember3;
+    } 	Struct_530_t;
+
+typedef struct Struct_552_t
+    {
+    /* [unique] */ struct Struct_476_t *StructMember0;
+    /* [unique] */ struct Struct_476_t *StructMember1;
+    } 	Struct_552_t;
+
+typedef struct Struct_576_t
+    {
+    hyper StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    } 	Struct_576_t;
+
+typedef struct Struct_594_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    long StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    } 	Struct_594_t;
+
+typedef struct Struct_630_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ unsigned char *StructMember1;
+    } 	Struct_630_t;
+
+typedef struct Struct_674_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [size_is][unique] */ unsigned char *StructMember3;
+    long StructMember4;
+    /* [size_is][unique] */ unsigned char *StructMember5;
+    } 	Struct_674_t;
+
+typedef struct Struct_706_t
+    {
+    long StructMember0;
+    long StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    struct Struct_28_t StructMember3;
+    long StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    long StructMember7;
+    } 	Struct_706_t;
+
+typedef struct Struct_756_t
+    {
+    long StructMember0;
+    long StructMember1;
+    /* [size_is][unique] */ unsigned char *StructMember2;
+    } 	Struct_756_t;
+
+typedef struct Struct_780_t
+    {
+    struct Struct_126_t StructMember0;
+    struct Struct_126_t StructMember1;
+    long StructMember2;
+    long StructMember3;
+    } 	Struct_780_t;
+
+typedef struct Struct_800_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    } 	Struct_800_t;
+
+typedef struct Struct_820_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    long StructMember1;
+    } 	Struct_820_t;
+
+typedef struct Struct_840_t
+    {
+    long StructMember0;
+    hyper StructMember1;
+    } 	Struct_840_t;
+
+typedef struct Struct_856_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    long StructMember3;
+    } 	Struct_856_t;
+
+typedef struct Struct_884_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    long StructMember4;
+    } 	Struct_884_t;
+
+typedef struct Struct_916_t
+    {
+    long StructMember0;
+    long StructMember1;
+    /* [size_is][unique] */ unsigned char *StructMember2;
+    } 	Struct_916_t;
+
+typedef struct Struct_954_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ struct Struct_916_t *StructMember1;
+    } 	Struct_954_t;
+
+typedef struct Struct_970_t
+    {
+    long StructMember0;
+    long StructMember1;
+    struct Struct_28_t StructMember2;
+    long StructMember3;
+    /* [switch_is] */ union union_222 StructMember4;
+    } 	Struct_970_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_1078
+    {
+    /* [case()][unique] */ struct Struct_110_t *unionMember_0;
+    /* [case()][unique] */ struct Struct_1118_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_110_t *unionMember_3;
+    /* [case()][unique] */ struct Struct_1156_t *unionMember_4;
+    } 	union_1078;
+
+typedef struct Struct_1118_t
+    {
+    struct Struct_28_t StructMember0;
+    hyper StructMember1;
+    hyper StructMember2;
+    hyper StructMember3;
+    long StructMember4;
+    long StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    /* [string][unique] */ wchar_t *StructMember7;
+    /* [string][unique] */ wchar_t *StructMember8;
+    } 	Struct_1118_t;
+
+typedef struct Struct_1156_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    long StructMember2;
+    long StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    } 	Struct_1156_t;
+
+typedef struct Struct_1232_t
+    {
+    hyper StructMember0;
+    struct Struct_16_t StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    long StructMember3;
+    long StructMember4;
+    long StructMember5;
+    long StructMember6;
+    long StructMember7;
+    long StructMember8;
+    long StructMember9;
+    long StructMember10[ 6 ];
+    long StructMember11;
+    /* [size_is][unique] */ struct Struct_476_t **StructMember12;
+    struct Struct_28_t StructMember13;
+    long StructMember14;
+    long StructMember15;
+    struct Struct_16_t StructMember16;
+    long StructMember17;
+    /* [switch_is] */ union union_1078 StructMember18;
+    long StructMember19;
+    /* [string][unique] */ wchar_t *StructMember20;
+    long StructMember21;
+    /* [string][unique] */ wchar_t *StructMember22;
+    long StructMember23;
+    long StructMember24;
+    struct Struct_28_t StructMember25;
+    long StructMember26;
+    struct Struct_28_t StructMember27;
+    long StructMember28;
+    long StructMember29;
+    long StructMember30;
+    /* [string][unique] */ wchar_t *StructMember31;
+    long StructMember32;
+    /* [size_is][unique] */ struct Struct_476_t **StructMember33;
+    long StructMember34;
+    long StructMember35;
+    long StructMember36;
+    long StructMember37;
+    long StructMember38;
+    } 	Struct_1232_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_1370
+    {
+    /* [case()][unique] */ struct Struct_1232_t *unionMember_1;
+    } 	union_1370;
+
+typedef struct Struct_1382_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_1370 StructMember1;
+    } 	Struct_1382_t;
+
+typedef struct Struct_1434_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ hyper *StructMember1;
+    /* [size_is][unique] */ long *StructMember2;
+    } 	Struct_1434_t;
+
+typedef struct Struct_1516_t
+    {
+    hyper StructMember0;
+    struct Struct_28_t StructMember1;
+    } 	Struct_1516_t;
+
+typedef struct Struct_1536_t
+    {
+    struct Struct_1516_t StructMember0;
+    struct Struct_1516_t StructMember1;
+    struct Struct_1516_t StructMember2;
+    struct Struct_1516_t StructMember3;
+    struct Struct_1516_t StructMember4;
+    struct Struct_1516_t StructMember5;
+    struct Struct_1516_t StructMember6;
+    struct Struct_1516_t StructMember7;
+    struct Struct_1516_t StructMember8[ 4 ];
+    } 	Struct_1536_t;
+
+typedef struct Struct_1682_t
+    {
+    long StructMember0;
+    hyper StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    long StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    long StructMember6;
+    /* [string][unique] */ wchar_t *StructMember7;
+    } 	Struct_1682_t;
+
+typedef struct Struct_1740_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ struct Struct_1682_t **StructMember1;
+    } 	Struct_1740_t;
+
+typedef struct Struct_1872_t
+    {
+    long StructMember0;
+    long StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    } 	Struct_1872_t;
+
+typedef struct Struct_1920_t
+    {
+    struct Struct_16_t StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    long StructMember4;
+    long StructMember5;
+    long StructMember6;
+    long StructMember7;
+    long StructMember8;
+    long StructMember9;
+    long StructMember10;
+    long StructMember11;
+    long StructMember12;
+    long StructMember13;
+    long StructMember14;
+    long StructMember15;
+    long StructMember16;
+    long StructMember17;
+    long StructMember18;
+    long StructMember19;
+    long StructMember20;
+    } 	Struct_1920_t;
+
+typedef struct Struct_1978_t
+    {
+    long StructMember0;
+    long StructMember1;
+    } 	Struct_1978_t;
+
+typedef struct Struct_2070_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    } 	Struct_2070_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_2142
+    {
+    /* [case()][unique] */ struct Struct_2194_t *unionMember_0;
+    /* [case()][unique] */ struct Struct_2208_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_2270_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_2300_t *unionMember_3;
+    /* [case()][unique] */ struct Struct_2314_t *unionMember_4;
+    /* [case()][unique] */ struct Struct_2356_t *unionMember_5;
+    /* [case()][unique] */ struct Struct_2408_t *unionMember_6;
+    } 	union_2142;
+
+typedef struct Struct_2194_t
+    {
+    struct Struct_28_t StructMember0;
+    hyper StructMember1;
+    } 	Struct_2194_t;
+
+typedef struct Struct_2208_t
+    {
+    struct Struct_28_t StructMember0;
+    hyper StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    hyper StructMember5;
+    long StructMember6;
+    struct Struct_16_t StructMember7;
+    hyper StructMember8;
+    /* [string][unique] */ wchar_t *StructMember9;
+    struct Struct_28_t StructMember10;
+    hyper StructMember11;
+    struct Struct_28_t StructMember12;
+    hyper StructMember13;
+    hyper StructMember14;
+    hyper StructMember15;
+    hyper StructMember16;
+    hyper StructMember17;
+    hyper StructMember18;
+    } 	Struct_2208_t;
+
+typedef struct Struct_2270_t
+    {
+    struct Struct_28_t StructMember0;
+    hyper StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    hyper StructMember4;
+    } 	Struct_2270_t;
+
+typedef struct Struct_2300_t
+    {
+    struct Struct_28_t StructMember0;
+    } 	Struct_2300_t;
+
+typedef struct Struct_2314_t
+    {
+    long StructMember0;
+    struct Struct_28_t StructMember1;
+    hyper StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    hyper StructMember5;
+    struct Struct_28_t StructMember6;
+    hyper StructMember7;
+    struct Struct_28_t StructMember8;
+    hyper StructMember9;
+    } 	Struct_2314_t;
+
+typedef struct Struct_2356_t
+    {
+    long StructMember0;
+    struct Struct_28_t StructMember1;
+    hyper StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    } 	Struct_2356_t;
+
+typedef struct Struct_2408_t
+    {
+    long StructMember0;
+    struct Struct_28_t StructMember1;
+    hyper StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    long StructMember5;
+    /* [size_is][unique] */ struct Struct_916_t *StructMember6;
+    } 	Struct_2408_t;
+
+typedef struct Struct_2442_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_2142 StructMember1;
+    } 	Struct_2442_t;
+
+typedef struct Struct_2482_t
+    {
+    struct Struct_110_t StructMember0;
+    long StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    long StructMember3;
+    /* [size_is][unique] */ wchar_t *StructMember4;
+    long StructMember5;
+    /* [size_is][unique] */ wchar_t *StructMember6;
+    } 	Struct_2482_t;
+
+typedef struct Struct_2516_t
+    {
+    struct Struct_2442_t StructMember0;
+    struct Struct_2482_t StructMember1;
+    hyper StructMember2;
+    } 	Struct_2516_t;
+
+typedef struct Struct_2558_t
+    {
+    struct Struct_16_t StructMember0;
+    long StructMember1;
+    long StructMember2;
+    hyper StructMember3;
+    } 	Struct_2558_t;
+
+typedef struct Struct_2640_t
+    {
+    hyper StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    long StructMember2;
+    long StructMember3;
+    long StructMember4;
+    long StructMember5;
+    long StructMember6;
+    /* [size_is][unique] */ struct Struct_476_t **StructMember7;
+    long StructMember8;
+    long StructMember9;
+    } 	Struct_2640_t;
+
+typedef struct Struct_2672_t
+    {
+    long StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    } 	Struct_2672_t;
+
+typedef struct Struct_2680_t
+    {
+    long StructMember0;
+    struct Struct_2672_t StructMember1;
+    } 	Struct_2680_t;
+
+typedef struct Struct_2798_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    hyper StructMember1;
+    long StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    } 	Struct_2798_t;
+
+typedef struct Struct_2854_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    long StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    long StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    } 	Struct_2854_t;
+
+typedef struct Struct_2900_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    long StructMember2;
+    } 	Struct_2900_t;
+
+typedef struct Struct_2986_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    } 	Struct_2986_t;
+
+typedef struct Struct_3040_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ struct Struct_2986_t **StructMember1;
+    long StructMember2;
+    /* [size_is][unique] */ unsigned char *StructMember3;
+    hyper StructMember4;
+    long StructMember5;
+    } 	Struct_3040_t;
+
+typedef struct Struct_3108_t
+    {
+    struct Struct_16_t StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    } 	Struct_3108_t;
+
+typedef struct Struct_3166_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    } 	Struct_3166_t;
+
+typedef struct Struct_3220_t
+    {
+    struct Struct_3166_t StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    struct Struct_16_t StructMember2;
+    long StructMember3;
+    long StructMember4;
+    long StructMember5;
+    unsigned char StructMember6[ 32 ];
+    } 	Struct_3220_t;
+
+typedef struct Struct_3280_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    } 	Struct_3280_t;
+
+typedef struct Struct_3302_t
+    {
+    long StructMember0;
+    /* [unique] */ struct Struct_3220_t *StructMember1;
+    /* [unique] */ struct Struct_3108_t *StructMember2;
+    } 	Struct_3302_t;
+
+typedef struct Struct_3350_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    } 	Struct_3350_t;
+
+typedef struct Struct_3370_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    /* [string][unique] */ wchar_t *StructMember7;
+    /* [string][unique] */ wchar_t *StructMember8;
+    /* [string][unique] */ wchar_t *StructMember9;
+    hyper StructMember10;
+    long StructMember11;
+    hyper StructMember12;
+    long StructMember13;
+    long StructMember14;
+    /* [string][unique] */ wchar_t *StructMember15;
+    /* [string][unique] */ wchar_t *StructMember16;
+    short StructMember17;
+    short StructMember18;
+    /* [string][unique] */ wchar_t *StructMember19;
+    long StructMember20;
+    long StructMember21;
+    } 	Struct_3370_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_3514
+    {
+    /* [case()][unique] */ struct Struct_3552_t *unionMember_0;
+    } 	union_3514;
+
+typedef struct Struct_3552_t
+    {
+    hyper StructMember0;
+    long StructMember1;
+    /* [size_is][unique] */ struct Struct_476_t **StructMember2;
+    } 	Struct_3552_t;
+
+typedef struct Struct_3570_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_3514 StructMember1;
+    } 	Struct_3570_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_3624
+    {
+    /* [case()][unique] */ struct Struct_3640_t *unionMember_1;
+    } 	union_3624;
+
+typedef struct Struct_3640_t
+    {
+    hyper StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    } 	Struct_3640_t;
+
+typedef struct Struct_3654_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_3624 StructMember1;
+    } 	Struct_3654_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_3714
+    {
+    /* [case()][unique] */ struct Struct_3742_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_3762_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_3782_t *unionMember_3;
+    } 	union_3714;
+
+typedef struct Struct_3742_t
+    {
+    long StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    hyper StructMember3;
+    long StructMember4;
+    } 	Struct_3742_t;
+
+typedef struct Struct_3762_t
+    {
+    /* [unique] */ struct Struct_3742_t *StructMember0;
+    long StructMember1;
+    } 	Struct_3762_t;
+
+typedef struct Struct_3782_t
+    {
+    /* [unique] */ struct Struct_3762_t *StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    } 	Struct_3782_t;
+
+typedef struct Struct_3800_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_3714 StructMember1;
+    } 	Struct_3800_t;
+
+typedef struct Struct_3824_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    } 	Struct_3824_t;
+
+typedef struct Struct_3880_t
+    {
+    long StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    /* [string][unique] */ wchar_t *StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    } 	Struct_3880_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_3928
+    {
+    /* [case()][unique] */ struct Struct_3944_t *unionMember_1;
+    } 	union_3928;
+
+typedef struct Struct_3944_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    hyper StructMember3;
+    } 	Struct_3944_t;
+
+typedef struct Struct_3958_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_3928 StructMember1;
+    } 	Struct_3958_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_3992
+    {
+    /* [case()][unique] */ struct Struct_4044_t *unionMember_1;
+    /* [case()][unique] */ struct Struct_4066_t *unionMember_2;
+    /* [case()][unique] */ struct Struct_4086_t *unionMember_3;
+    /* [case()][unique] */ struct Struct_4118_t *unionMember_4;
+    /* [case()][unique] */ struct Struct_4142_t *unionMember_5;
+    } 	union_3992;
+
+typedef struct Struct_4044_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [size_is][unique] */ unsigned char *StructMember3;
+    } 	Struct_4044_t;
+
+typedef struct Struct_4066_t
+    {
+    struct Struct_4044_t StructMember0;
+    long StructMember1;
+    } 	Struct_4066_t;
+
+typedef struct Struct_4086_t
+    {
+    struct Struct_4066_t StructMember0;
+    long StructMember1;
+    } 	Struct_4086_t;
+
+typedef struct Struct_4118_t
+    {
+    struct Struct_4086_t StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [size_is][unique] */ unsigned char *StructMember3;
+    } 	Struct_4118_t;
+
+typedef struct Struct_4142_t
+    {
+    struct Struct_4118_t StructMember0;
+    long StructMember1;
+    } 	Struct_4142_t;
+
+typedef struct Struct_4158_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_3992 StructMember1;
+    } 	Struct_4158_t;
+
+typedef struct Struct_4178_t
+    {
+    long StructMember0;
+    long StructMember1;
+    struct Struct_126_t StructMember2;
+    } 	Struct_4178_t;
+
+typedef struct Struct_4194_t
+    {
+    long StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    hyper StructMember3;
+    hyper StructMember4;
+    } 	Struct_4194_t;
+
+typedef struct Struct_4208_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    /* [string][unique] */ wchar_t *StructMember1;
+    long StructMember2;
+    long StructMember3;
+    /* [string][unique] */ wchar_t *StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    long StructMember7;
+    struct Struct_126_t StructMember8;
+    long StructMember9;
+    long StructMember10;
+    /* [string][unique] */ wchar_t *StructMember11;
+    long StructMember12;
+    long StructMember13;
+    long StructMember14;
+    long StructMember15;
+    } 	Struct_4208_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_4280
+    {
+    /* [case()][unique] */ struct Struct_4296_t *unionMember_1;
+    } 	union_4280;
+
+typedef struct Struct_4296_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    hyper StructMember4;
+    struct Struct_1516_t StructMember5;
+    struct Struct_1516_t StructMember6;
+    } 	Struct_4296_t;
+
+typedef struct Struct_4314_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_4280 StructMember1;
+    } 	Struct_4314_t;
+
+typedef struct Struct_4334_t
+    {
+    long StructMember0;
+    long StructMember1;
+    struct Struct_126_t StructMember2;
+    long StructMember3;
+    long StructMember4;
+    /* [string][unique] */ wchar_t *StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    /* [string][unique] */ wchar_t *StructMember7;
+    /* [string][unique] */ wchar_t *StructMember8;
+    /* [string][unique] */ wchar_t *StructMember9;
+    /* [string][unique] */ wchar_t *StructMember10;
+    /* [string][unique] */ wchar_t *StructMember11;
+    /* [string][unique] */ wchar_t *StructMember12;
+    /* [string][unique] */ wchar_t *StructMember13;
+    /* [string][unique] */ wchar_t *StructMember14;
+    /* [string][unique] */ wchar_t *StructMember15;
+    /* [string][unique] */ wchar_t *StructMember16;
+    /* [string][unique] */ wchar_t *StructMember17;
+    /* [string][unique] */ wchar_t *StructMember18;
+    /* [string][unique] */ wchar_t *StructMember19;
+    /* [string][unique] */ wchar_t *StructMember20;
+    /* [string][unique] */ wchar_t *StructMember21;
+    /* [string][unique] */ wchar_t *StructMember22;
+    /* [string][unique] */ wchar_t *StructMember23;
+    /* [string][unique] */ wchar_t *StructMember24;
+    /* [string][unique] */ wchar_t *StructMember25;
+    /* [string][unique] */ wchar_t *StructMember26;
+    /* [string][unique] */ wchar_t *StructMember27;
+    /* [string][unique] */ wchar_t *StructMember28;
+    /* [string][unique] */ wchar_t *StructMember29;
+    } 	Struct_4334_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_4494
+    {
+    /* [case()][unique] */ struct Struct_4510_t *unionMember_1;
+    } 	union_4494;
+
+typedef struct Struct_4510_t
+    {
+    long StructMember0;
+    long StructMember1;
+    hyper StructMember2;
+    long StructMember3;
+    long StructMember4;
+    hyper StructMember5;
+    /* [unique] */ wchar_t *StructMember6;
+    } 	Struct_4510_t;
+
+typedef struct Struct_4530_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_4494 StructMember1;
+    } 	Struct_4530_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_4580
+    {
+    /* [case()][unique] */ struct Struct_4620_t *unionMember_1;
+    } 	union_4580;
+
+typedef struct Struct_4620_t
+    {
+    /* [size_is][unique] */ unsigned char *StructMember0;
+    long StructMember1;
+    /* [size_is][unique] */ unsigned char *StructMember2;
+    long StructMember3;
+    hyper StructMember4;
+    long StructMember5;
+    long StructMember6;
+    long StructMember7;
+    long StructMember8;
+    long StructMember9;
+    } 	Struct_4620_t;
+
+typedef struct Struct_4650_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_4580 StructMember1;
+    } 	Struct_4650_t;
+
+typedef /* [switch_type] */ /* [switch_type] */ union union_4688
+    {
+    /* [case()][unique] */ struct Struct_4704_t *unionMember_1;
+    } 	union_4688;
+
+typedef struct Struct_4704_t
+    {
+    /* [string][unique] */ wchar_t *StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [string][unique] */ wchar_t *StructMember3;
+    long StructMember4;
+    long StructMember5;
+    /* [string][unique] */ wchar_t *StructMember6;
+    long StructMember7;
+    } 	Struct_4704_t;
+
+typedef struct Struct_4734_t
+    {
+    long StructMember0;
+    /* [switch_is] */ union union_4688 StructMember1;
+    } 	Struct_4734_t;
+
+typedef struct Struct_4778_t
+    {
+    long StructMember0;
+    /* [size_is][unique] */ unsigned char *StructMember1;
+    } 	Struct_4778_t;
+
+typedef struct Struct_4838_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    long StructMember3;
+    long StructMember4;
+    long StructMember5;
+    /* [size_is][unique] */ struct Struct_4778_t **StructMember6;
+    /* [size_is][unique] */ struct Struct_4778_t **StructMember7;
+    } 	Struct_4838_t;
+
+typedef struct Struct_4886_t
+    {
+    long StructMember0;
+    long StructMember1;
+    long StructMember2;
+    /* [size_is][unique] */ struct Struct_4838_t **StructMember3;
+    } 	Struct_4886_t;
+
+typedef struct Struct_4918_t
+    {
+    long StructMember0;
+    struct Struct_16_t StructMember1;
+    long StructMember2;
+    unsigned char StructMember3[ 16 ];
+    long StructMember4;
+    unsigned char StructMember5;
+    short StructMember6;
+    short StructMember7;
+    short StructMember8;
+    short StructMember9;
+    } 	Struct_4918_t;
+
+long Proc0_ServerMpEnableFeature( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc1_ServerMpDisableFeature( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc2_ServerMpQueryStatus( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ struct Struct_144_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc3_ServerMpEventOpen( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ struct Struct_16_t *arg_5,
+    /* [context_handle][out] */ void **arg_6,
+    /* [out] */ error_status_t *arg_7);
+
+long Proc4_ServerMpEventClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc5_ServerMpEventQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc6_ServerMpOnDemandStartScan( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [size_is][unique][in] */ struct Struct_476_t *arg_5,
+    /* [in] */ long arg_6,
+    /* [out] */ struct Struct_16_t *arg_7,
+    /* [context_handle][out] */ void **arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc7_ServerMpOnDemandQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc8_ServerMpOnDemandQueryScanResult( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ struct Struct_78_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc9_ServerMpOnDemandControlScan( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc10_ServerMpOnDemandControlSystemScan( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc11_ServerMpOnDemandPersistScan( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc12_ServerMpOnDemandCloseScan( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc13_ServerMpOnDemandThreatOpen( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [context_handle][out] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc14_ServerMpOnDemandThreatEnum( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_1232_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc15_ServerMpOnDemandThreatClose( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc16_ServerMpScanOpenThreatHistory( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [context_handle][out] */ void **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc17_ServerMpScanEnumerateThreatHistory( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_1232_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc18_ServerMpScanEnumerateDetectionHistory( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_1382_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc19_ServerMpScanCloseThreatHistory( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc20_ServerMpScanDeleteThreatHistory( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc21_ServerMpRpcCleanOpen( 
+    /* [in] */ long arg_1,
+    /* [unique][in] */ struct Struct_1434_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [context_handle][out] */ void **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc22_ServerMpRpcScanCleanOpen( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [unique][in] */ struct Struct_1434_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc23_ServerMpRpcCleanStart( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ struct Struct_16_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc24_ServerMpRpcCleanControl( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc25_ServerMpRpcCleanThreatsNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc26_ServerMpRpcPrecheckStart( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ struct Struct_16_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc27_ServerMpRpcPrecheckNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc28_ServerMpRpcCleanQuery( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ struct Struct_16_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc29_ServerMpRpcCleanClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc30_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc31_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc32_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc33_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc34_ServerMpQuarantineEnumOpen( 
+    /* [in] */ long arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc35_ServerMpQuarantineEnumerate( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ struct Struct_16_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc36_ServerMpQuarantineEnumClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc37_ServerMpQuarantineQueryInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_16_t *arg_2,
+    /* [ref][out] */ struct Struct_1232_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc38_ServerMpQuarantineRestoreThreat( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ struct Struct_16_t *arg_3,
+    /* [string][in] */ wchar_t *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc39_ServerMpQuarantineDeleteThreat( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_16_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc40_ServerMpStateEnumOpen( 
+    /* [context_handle][out] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc41_ServerMpQueryEngineVersion( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ struct Struct_1536_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc42_ServerMpUpdateEngineSignature( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc43_ServerMpRollbackEngineSignature( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc44_ServerMpThreatStaticInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [ref][out] */ struct Struct_1232_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc45_ServerMpQuerySystemInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][in] */ unsigned char *arg_3,
+    /* [out] */ long *arg_4,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc46_ServerMpRpcConfigSetValue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [size_is][in] */ unsigned char *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc47_ServerMpRpcConfigDelValue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc48_ServerMpRpcElevationHandleOpen( 
+    /* [out] */ struct Struct_16_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc49_ServerMpRpcElevationHandleAttach( 
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc50_ServerMpRpcElevationHandleClose( 
+    /* [in] */ long arg_1,
+    /* [context_handle][out][in] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc51_ServerMpRpcElevateCleanHandle( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [context_handle][in] */ void *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc52_ServerMpRpcSignatureThreatOpen( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [context_handle][out] */ void **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc53_ServerMpRpcSignatureThreatEnum( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_1232_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc54_ServerMpRpcSignatureThreatClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc55_ServerMpRpcGetSampleInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_16_t *arg_2,
+    /* [ref][out] */ struct Struct_1740_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc56_ServerMpRpcQueryScansWithSamples( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ long *arg_2,
+    /* [size_is][size_is][ref][out] */ struct Struct_16_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc57_ServerMpRpcDropScansWithSamples( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][in] */ struct Struct_16_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc58_ServerMpRpcSpynetQueueCreate( 
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ struct Struct_16_t *arg_3,
+    /* [context_handle][out] */ void **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc59_ServerMpRpcSpynetQueueQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [context_handle][out] */ void **arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc60_ServerMpRpcSpynetQueueClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc61_ServerMpRpcSpynetGenerateReport( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ struct Struct_110_t *arg_4,
+    /* [out] */ struct Struct_16_t *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc62_ServerMpRpcSenseGenerateReport( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc63_ServerMpRpcSpynetOnResponse( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ struct Struct_1872_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][unique][in] */ unsigned char *arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ long *arg_5,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_6,
+    /* [out] */ error_status_t *arg_7);
+
+long Proc64_ServerMpRpcSpynetGetStartTime( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ struct Struct_28_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc65_ServerMpRpcSpynetUpdateSpynetMetrics( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ struct Struct_1920_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc66_ServerMpRpcSpynetClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc67_ServerMpRpcSigUpdServiceOpen( 
+    /* [out] */ struct Struct_16_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc68_ServerMpRpcSigUpdServiceQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_1978_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc69_ServerMpRpcSigUpdServiceSendProgressNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ struct Struct_970_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc70_ServerMpRpcSigUpdServiceClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc71_ServerMpRpcSigUpdClientOpen( 
+    /* [in] */ long arg_1,
+    /* [out] */ struct Struct_16_t *arg_2,
+    /* [context_handle][out] */ void **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc72_ServerMpRpcSigUpdClientQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc73_ServerMpRpcSigUpdClientClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc74_ServerMpRpcSigUpdControl( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_1978_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc75_ServerMpRpcIdleNotificationOpen( 
+    /* [string][in] */ wchar_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc76_ServerMpRpcIdleNotificationClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc77_ServerMpRpcNotifyIdle( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc78_ServerMpRpcIdleCheckTaskCompletion( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc79_ServerMpRpcThreatOpen( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [context_handle][out] */ void **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc80_ServerMpRpcThreatEnumerate( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_1232_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc81_ServerMpRpcThreatClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc82_ServerMpRpcDbgThreatViewAction( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc83_ServerMpRpcForcedReboot( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc84_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc85_ServerMpRpcAddFastPathSignatureFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [ref][out] */ struct Struct_2070_t **arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc86_ServerMpRpcRemoveFastPathSignatureFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc87_ServerMpRpcDynamicSignatureOpen( 
+    /* [in] */ long arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc88_ServerMpRpcDynamicSignatureEnumerate( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_2070_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc89_ServerMpRpcDynamicSignatureClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc90_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [out] */ struct Struct_16_t *arg_1,
+    /* [context_handle][out] */ void **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc91_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc92_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc93_MpService__CMpMapsLatencyDataIterator__Clone( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc94_ServerMpRpcMemoryScanStart( 
+    /* [in] */ struct Struct_126_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ struct Struct_2516_t *arg_3,
+    /* [out] */ struct Struct_16_t *arg_4,
+    /* [context_handle][out] */ void **arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc95_ServerMpRpcMemoryScanQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_970_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc96_ServerMpRpcMemoryScanClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc97_ServerMpRpcFastMemoryScanOpen( 
+    /* [in] */ struct Struct_126_t *arg_1,
+    /* [out] */ struct Struct_2558_t *arg_2,
+    /* [context_handle][out] */ void **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc98_ServerMpRpcFastMemoryScan( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_2442_t *arg_2,
+    /* [out] */ struct Struct_110_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc99_ServerMpRpcFastMemoryScanClose( 
+    /* [context_handle][out][in] */ void **arg_0,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc100_ServerMpRpcFastMemoryScanCacheInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ struct Struct_2558_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc101_ServerMpRpcAmsiCloseSession( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ hyper arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc102_ServerMpRpcTcgLogScan( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ unsigned char *arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ long *arg_4,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc103_ServerMpRpcTcgLogApplyExtResult( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ unsigned char *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc104_ServerMpRpcDbgSendCallbackNotification( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_970_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc105_ServerMpRpcThreatRollup( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [ref][out] */ struct Struct_2640_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc106_ServerMpDetectionQuery( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [ref][out] */ struct Struct_1232_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc107_ServerMpRpcRequestSnooze( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc108_ServerMpRpcOfflineScanInstall( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc109_ServerMpRpcOfflineScanStatusQuery( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ struct Struct_2680_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc110_ServerMpRpcTriggerHeartbeatOnDefenderDisable( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc111_ServerMpRpcTriggerHeartbeatOnUninstall( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc112_ServerMpRpcTriggerErrorHeartbeatReport( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [string][in] */ wchar_t *arg_3,
+    /* [string][in] */ wchar_t *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc113_ServerMpRpcTriggerHeartbeatReport( 
+    /* [in] */ handle_t IDL_handle,
+    /* [ref][out] */ struct Struct_1872_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc114_ServerMpRpcRemapCallistoDetections( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][in] */ wchar_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc115_ServerMpRpcGetCallistoDetections( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_1232_t ***arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc116_ServerMpRpcIsAdlFallbackDue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc117_ServerMpRpcIsRtpAutoEnable( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc118_ServerMpRpcEngineQueryConfigDword( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc119_ServerMpRpcSampleHeaderQueueCreate( 
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ struct Struct_16_t *arg_3,
+    /* [context_handle][out] */ void **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc120_ServerMpRpcSampleHeaderQueueQueryNotification( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [context_handle][out] */ void **arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc121_ServerMpRpcSampleHeaderQueueClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc122_ServerMpRpcSampleHeaderClose( 
+    /* [context_handle][out][in] */ void **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc123_ServerMpRpcSampleHeaderGetSampleDetails( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [ref][out] */ struct Struct_2798_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc124_ServerMpRpcGetSampleChunk( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ long *arg_2,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc125_ServerMpRpcConveySampleSubmissionResult( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_2854_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc126_ServerMpRpcGetSampleListRequiringConsent( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_2900_t ***arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc127_ServerMpRpcConveyUserChoiceForSampleList( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ struct Struct_2900_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc128_ServerMpRpcGetRunningMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc129_ServerMpRpcIsGivenRunningModeSupported( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc130_ServerMpDisableXBGM( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc131_ServerMpDisableXBGM( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc132_ServerMpXBGMUpdateIV( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ hyper arg_1,
+    /* [in] */ unsigned char *arg_2,
+    /* [in] */ hyper arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc133_ServerDlpMpRpcDlpIsPrintDetoursNeeded( 
+    /* [in] */ handle_t IDL_handle,
+    /* [ref][out] */ struct Struct_3040_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc134_ServerDlpMpRpcDlpIsPrintDetoursNeeded( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3040_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc135_ServerMpOnDemandStartScan2( 
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [size_is][unique][in] */ struct Struct_476_t *arg_5,
+    /* [in] */ long arg_6,
+    /* [in] */ long arg_7,
+    /* [out] */ struct Struct_16_t *arg_8,
+    /* [context_handle][out] */ void **arg_9,
+    /* [out] */ error_status_t *arg_10);
+
+long Proc136_ServerMpQueryDefaultFolderGuardList( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_16_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc137_ServerMpRpcTriggerStatusRefreshNotification( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc138_ServerMpRpcGetHIPSRuleInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_3108_t ***arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc139_ServerMpEnableSmartLocker( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc140_ServerMpDisableSmartLocker( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc141_ServerMpXBGMUpdateIV( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][in] */ unsigned char *arg_2,
+    /* [in] */ hyper arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc142_ServerMpFlushLowfiCache( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc143_ServerMpRpcGetAsrBlockedProcesses( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ long *arg_3,
+    /* [size_is][size_is][ref][out] */ struct Struct_3166_t ***arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc144_ServerMpRpcGetAsrBlockedActions( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ long *arg_4,
+    /* [size_is][size_is][ref][out] */ struct Struct_3220_t ***arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc145_ServerMpRpcDeleteAsrHistory( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc146_ServerMpGetTaskSchedulerStrings( 
+    /* [in] */ handle_t IDL_handle,
+    /* [ref][out] */ struct Struct_3280_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc147_ServerMpRpcGetAsrBlockedActionInfos( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ long *arg_4,
+    /* [size_is][size_is][ref][out] */ struct Struct_3302_t ***arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc148_ServerMpRpcGetTPStateInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ struct Struct_3350_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc149_ServerMpRpcSetTPState( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc150_ServerMpRpcUpdateDevMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc151_ServerMpRpcGetDevMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc152_ServerMpUpdateBreakTheGlassStatus( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [string][in] */ wchar_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc153_ServerMpNetworkCapture( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc154_ServerMpConveyDlpBypass( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][unique][in] */ wchar_t *arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc155_ServerDlpMpCheckAccessForPrintOperation( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [string][unique][in] */ wchar_t *arg_5,
+    /* [in] */ long arg_6,
+    /* [out] */ long *arg_7,
+    /* [out] */ error_status_t *arg_8);
+
+long Proc156_ServerDlpMpConveyNewPrinterConnection( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][unique][in] */ wchar_t *arg_1,
+    /* [string][unique][in] */ wchar_t *arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc157_ServerMpShowDlpDetailsDialog( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][unique][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc158_ServerMpRpcGetDlpEvents( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ long *arg_2,
+    /* [size_is][size_is][ref][out] */ struct Struct_3370_t ***arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc159_ServerMpRpcConveyUserChoiceForDlpNotification( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ struct Struct_3370_t **arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [in] */ long arg_4,
+    /* [string][unique][in] */ wchar_t *arg_5,
+    /* [in] */ long arg_6,
+    /* [out] */ error_status_t *arg_7);
+
+long Proc160_ServerMpRpcChangeCapability( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc161_ServerMpRpcMpThreatAction( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_3570_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc162_ServerMpRpcAsrSetHipsUserExclusion( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ struct Struct_16_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [in] */ long arg_5,
+    /* [string][unique][in] */ wchar_t *arg_6,
+    /* [string][unique][in] */ wchar_t *arg_7,
+    /* [string][unique][in] */ wchar_t *arg_8,
+    /* [string][unique][in] */ wchar_t *arg_9,
+    /* [out] */ error_status_t *arg_10);
+
+long Proc163_ServerDlpMpRpcCheckAccessForClipboardOperationEx( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ long *arg_4,
+    /* [out] */ long *arg_5,
+    /* [out] */ long *arg_6,
+    /* [out] */ error_status_t *arg_7);
+
+long Proc164_ServerMpRpcQueryConfigProtection( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ long *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc165_ServerMpRpcCheckAccessForDragDropOperation( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [in] */ hyper arg_5,
+    /* [in] */ long arg_6,
+    /* [size_is][unique][in] */ unsigned char *arg_7,
+    /* [out] */ long *arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc166_ServerMpRpcUpdateBrowserActiveTab( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [string][in] */ wchar_t *arg_4,
+    /* [in] */ long arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc167_ServerMpRpcSendBrowserHeartbeat( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ hyper arg_3,
+    /* [in] */ long arg_4,
+    /* [out] */ hyper *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc168_ServerMpRpcGetThreatExecutionInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ hyper arg_1,
+    /* [in] */ long arg_2,
+    /* [ref][out] */ struct Struct_3654_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc169_ServerMpRpcReportClipboardOwner( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc170_ServerMpRpcDlpDelegateEnforcement( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc171_ServerMpRpcConveyUserChoiceForDlpNotificationEx( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ struct Struct_3370_t **arg_2,
+    /* [in] */ long arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [in] */ long arg_5,
+    /* [string][unique][in] */ wchar_t *arg_6,
+    /* [in] */ long arg_7,
+    /* [out] */ error_status_t *arg_8);
+
+long Proc172_ServerMpRpcSendDeviceControlToast( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][unique][in] */ wchar_t *arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc173_ServerMpRpcIsDeviceControlAvailable( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc174_ServerMpRpcGetFCValue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ hyper arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc175_ServerMpRpcSetDriverUnloadInProgress( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ unsigned char arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc176_ServerMpRpcUpdateTSMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc177_ServerMpRpcGetTSModeInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_3800_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc178_ServerMpCheckAccessForPrintOperation2( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [string][unique][in] */ wchar_t *arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [string][unique][in] */ wchar_t *arg_5,
+    /* [in] */ long arg_6,
+    /* [unique][out][in] */ long *arg_7,
+    /* [out] */ long *arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc179_ServerMpRpcCheckAccessForClipboardOperationEx2( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [unique][in] */ struct Struct_3824_t *arg_3,
+    /* [unique][in] */ struct Struct_3824_t *arg_4,
+    /* [in] */ long arg_5,
+    /* [out] */ long *arg_6,
+    /* [out] */ long *arg_7,
+    /* [out] */ long *arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc180_ServerMpRpcCheckAccessForDragDropOperation2( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ long arg_4,
+    /* [in] */ hyper arg_5,
+    /* [in] */ long arg_6,
+    /* [size_is][unique][in] */ unsigned char *arg_7,
+    /* [unique][in] */ struct Struct_3824_t *arg_8,
+    /* [unique][in] */ struct Struct_3824_t *arg_9,
+    /* [out] */ long *arg_10,
+    /* [out] */ error_status_t *arg_11);
+
+long Proc181_ServerMpRpcDlpInitializeEnforcementMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ struct Struct_126_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc182_ServerMpRpcDlpGetOperationEnforcmentMode( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc183_ServerMpRpcDlpNotifyPreOpenDocumentFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3824_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc184_ServerMpRpcDlpNotifyPostOpenDocumentFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3824_t *arg_1,
+    /* [unique][in] */ struct Struct_126_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc185_ServerMpRpcDlpNotifyCloseDocumentFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [unique][in] */ struct Struct_3824_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc186_ServerMpRpcDlpNotifyPreSaveAsDocument( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3824_t *arg_1,
+    /* [string][unique][in] */ wchar_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc187_ServerMpRpcDlpNotifyPostSaveAsDocument( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3824_t *arg_1,
+    /* [string][unique][in] */ wchar_t *arg_2,
+    /* [unique][in] */ struct Struct_126_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc188_ServerMpRpcDlpNotifyPrePrint( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_3824_t *arg_1,
+    /* [unique][in] */ struct Struct_3880_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc189_ServerMpRpcDlpNotifyPostStartPrint( 
+    /* [in] */ handle_t IDL_handle,
+    /* [unique][in] */ struct Struct_3824_t *arg_1,
+    /* [unique][in] */ struct Struct_3880_t *arg_2,
+    /* [unique][in] */ struct Struct_126_t *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc190_ServerMpGetTDTFeatureStatus( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc191_ServerMpRpcGetDeviceControlSecurityPolicies( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][ref][out] */ wchar_t **arg_1,
+    /* [string][ref][out] */ wchar_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc192_ServerMpRpcGetSACInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_3958_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc193_ServerMpGetTDTFeatureStatusEx( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_4158_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc194_ServerMpRpcGetDeviceControlStatus( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ struct Struct_4178_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc195_ServerMpRpcSpynetGetExtendedHeaderInfo( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [out] */ struct Struct_4194_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc196_ServerMpDisableXBGM( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc197_ServerMpRpcDefenderPrintAccessCheck( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ hyper *arg_4,
+    /* [out] */ long *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc198_ServerMpRpcDeviceControlPrintAccessCheck( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ hyper *arg_4,
+    /* [out] */ long *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc199_ServerMpRpcDefenderPrintDataProvide( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ hyper arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][unique][in] */ unsigned char *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc200_ServerMpRpcDeviceControlAuthenticateNetworkShare( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [size_is][unique][in] */ unsigned char *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc201_ServerMpRpcApplyTrustLabelAceForMDE( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc202_ServerMpGetNpSupportFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][ref][out] */ wchar_t **arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc203_ServerDlpMpRpcDlpIsPrintDetoursNeeded( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc204_ServerMpRpcConfigRefresh( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc205_ServerMpServiceLogMessage( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc206_ServerMpRpcDeviceControlValidateDataDuplicationRemoteLocationConfiguration( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [string][ref][out] */ wchar_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc207_ServerMpRpcDlpGetEvidenceFileUrl( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [string][unique][in] */ wchar_t *arg_5,
+    /* [string][ref][out] */ wchar_t **arg_6,
+    /* [string][ref][out] */ wchar_t **arg_7,
+    /* [out] */ error_status_t *arg_8);
+
+long Proc208_ServerMpRpcDlpCheckAccessForBuffer( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][in] */ unsigned char *arg_2,
+    /* [in] */ long arg_3,
+    /* [string][unique][in] */ wchar_t *arg_4,
+    /* [out] */ long *arg_5,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_6,
+    /* [string][ref][out] */ wchar_t **arg_7,
+    /* [string][ref][out] */ wchar_t **arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc209_ServerMpRpcDevVolumesProtectionState( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc210_ServerMpRpcQueryDevVolumeProtectionState( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ long *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc211_ServerMpRpcDlpDispatchAccessEvent( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_4208_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc212_ServerMpRpcCheckAccessForCopyFile( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [in] */ hyper arg_4,
+    /* [string][in] */ wchar_t *arg_5,
+    /* [string][in] */ wchar_t *arg_6,
+    /* [string][in] */ wchar_t *arg_7,
+    /* [out] */ long *arg_8,
+    /* [out] */ error_status_t *arg_9);
+
+long Proc213_ServerMpRpcAsrSetHipsUserExclusionEx( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc214_ServerMpRpcGetUpToDateInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_4314_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc215_ServerMpRpcSendDlpEventDataToEngine( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_4334_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc216_ServerMpRpcAccessibilityAsyncEvent( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ hyper arg_3,
+    /* [string][in] */ wchar_t *arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc217_ServerMpRpcCacheManagerIsTrusted( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ hyper arg_2,
+    /* [in] */ hyper arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc218_ServerMpRpcSCCGetState( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [ref][out] */ struct Struct_4530_t **arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc219_ServerMpRpcSCCReset( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ error_status_t *arg_1);
+
+long Proc220_ServerMpRpcImportConfigPayload( 
+    /* [in] */ handle_t IDL_handle,
+    /* [size_is][in] */ unsigned char *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [ref][out] */ struct Struct_4650_t **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc221_ServerMpRpcGetConfigPayloadStatus( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [in] */ long arg_2,
+    /* [ref][out] */ struct Struct_4650_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc222_ServerMpRpcGetConfigValue( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [in] */ long arg_3,
+    /* [ref][out] */ struct Struct_4734_t **arg_4,
+    /* [out] */ error_status_t *arg_5);
+
+long Proc223_ServerMpRpcEffectiveConfigurationReport( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_2,
+    /* [out] */ long *arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc224_ServerMpRpcGetDefenderStatusSummary( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc225_ServerMpRpcGetHIPSCustomRuleInfo( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_3108_t ***arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc226_ServerMpRpcGetTrustAnchors( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][unique][in] */ wchar_t *arg_1,
+    /* [in] */ long arg_2,
+    /* [ref][out] */ struct Struct_4886_t **arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+long Proc227_ServerMpRpcDlpTriggerToast( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc228_ServerMpRpcGetRnBWFPFilters( 
+    /* [in] */ handle_t IDL_handle,
+    /* [out] */ long *arg_1,
+    /* [size_is][size_is][ref][out] */ struct Struct_4918_t ***arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc229_ServerMpRpcRemoveRnBWFPFilter( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ struct Struct_16_t *arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc230_ServerMpRpcSenseTriggerToast( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc231_ServerMpRpcWddControl( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [size_is][unique][in] */ unsigned char *arg_2,
+    /* [in] */ long arg_3,
+    /* [size_is][size_is][ref][out] */ unsigned char **arg_4,
+    /* [out] */ long *arg_5,
+    /* [out] */ error_status_t *arg_6);
+
+long Proc232_ServerMpRpcTemporaryExclusionAction( 
+    /* [in] */ handle_t IDL_handle,
+    /* [in] */ long arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc233_ServerMpOnDemandCancelScan( 
+    /* [context_handle][in] */ void *arg_0,
+    /* [in] */ long arg_1,
+    /* [out] */ error_status_t *arg_2);
+
+long Proc234_ServerMpRpcSCCForceReset( 
+    /* [in] */ handle_t IDL_handle,
+    /* [size_is][in] */ unsigned char *arg_1,
+    /* [in] */ long arg_2,
+    /* [out] */ error_status_t *arg_3);
+
+long Proc235_ServerMpRpcPublishModularConfig( 
+    /* [in] */ handle_t IDL_handle,
+    /* [string][in] */ wchar_t *arg_1,
+    /* [string][in] */ wchar_t *arg_2,
+    /* [in] */ long arg_3,
+    /* [out] */ error_status_t *arg_4);
+
+
+
+extern RPC_IF_HANDLE DefaultIfName_v2_0_c_ifspec;
+extern RPC_IF_HANDLE DefaultIfName_v2_0_s_ifspec;
+#endif /* __DefaultIfName_INTERFACE_DEFINED__ */
+
+/* Additional Prototypes for ALL interfaces */
+
+/* end of Additional Prototypes */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
