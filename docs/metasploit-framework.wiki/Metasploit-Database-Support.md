@@ -64,8 +64,6 @@ After these two prompts are dealt with, your Web Service will start!
 
 ```
 Generating SSL key and certificate for MSF web service
-Attempting to start MSF web service...success
-MSF web service started and online
 Creating MSF web service user your_current_account_name
 
     ############################################################
@@ -78,6 +76,8 @@ Creating MSF web service user your_current_account_name
 MSF web service username: your_current_account_name
 MSF web service password: super_secret_password
 MSF web service user API token: super_secret_api_token
+Attempting to start MSF web service...success
+MSF web service started and online
 
 
 MSF web service configuration complete

@@ -2344,6 +2344,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_admin/http/flowise_auth_bypass_cve_2025_58434": {
+    "name": "Flowise Authentication Bypass",
+    "fullname": "auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2025-09-12",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe",
+      "Isaac David",
+      "Arthur Gervais"
+    ],
+    "description": "In Flowise versions 3.0.1 through 3.0.5, the `forgot-password` endpoint returns sensitive information including\n          a valid password reset `tempToken` without authentication or verification.\n          This enables any attacker to generate a reset token for arbitrary users and directly reset their password, leading to a\n          complete account takeover (ATO).",
+    "references": [
+      "CVE-2025-58434",
+      "EDB-52557",
+      "GHSA-wgpv-6j63-x5ph"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-27 14:26:33 +0000",
+    "path": "/modules/auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/flowise_auth_bypass_cve_2025_58434",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "account-lockouts"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_admin/http/foreman_openstack_satellite_priv_esc": {
     "name": "Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment",
     "fullname": "auxiliary/admin/http/foreman_openstack_satellite_priv_esc",
@@ -5066,6 +5125,61 @@
       ],
       "SideEffects": [
         "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_admin/http/spip_idor_password_reset": {
+    "name": "SPIP Password Change IDOR Privilege Escalation",
+    "fullname": "auxiliary/admin/http/spip_idor_password_reset",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-02",
+    "type": "auxiliary",
+    "author": [
+      "Julien Voisin",
+      "0xkidz"
+    ],
+    "description": "SPIP before 4.4.23 has a missing authorization check in the\n          mot_de_passe CVT form handler. The traiter function changes\n          any user's password when given a validly-signed form POST,\n          without verifying the caller is authorized for that id_auteur.\n\n          An authenticated user injects a SPIP model tag into a forum\n          message preview. The model <formulaire|mot_de_passe|id_auteur=N>\n          causes the server to render the password form for user N and\n          HMAC-sign the form arguments. The preview replaces <form> tags\n          with <div> but leaves hidden inputs intact, leaking the signed\n          arguments. Submitting them changes the target user's password.",
+    "references": [
+      "URL-https://blog.spip.net/Mise-a-jour-critique-de-securite-sortie-de-SPIP-4-4-23.html"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-03 00:00:43 +0000",
+    "path": "/modules/auxiliary/admin/http/spip_idor_password_reset.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/spip_idor_password_reset",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
       ],
       "Reliability": []
     },
@@ -16684,7 +16798,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/dos/scada/d20_tftp_overflow.rb",
     "is_install_path": true,
     "ref_name": "dos/scada/d20_tftp_overflow",
@@ -20208,6 +20322,65 @@
       ],
       "SideEffects": [],
       "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_gather/4gaboards_users_info_disclosure_cve_2026_53959": {
+    "name": "4gaBoards Mass User Information Disclosure (CVE-2026-53959)",
+    "fullname": "auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-06-05",
+    "type": "auxiliary",
+    "author": [
+      "lucquach (GitHub)",
+      "de3erve (GitHub)",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits a broken access control vulnerability in 4gaBoards versions 3.3.8 or less.\n          The /api/users endpoint allows any authenticated user to enumerate account information for every user.\n          Responses expose email, phone, organization, name, isAdmin, ssoGoogleEmail, ssoGithubEmail, and other SSO-linked email fields.\n\n          The module first creates a new user with the supplied email to obtain an access token.\n          The access token is then used to dump information of all users registered on the application.\n          If valid administrator credentials are provided, the module also performs cleanup by deleting the newly created user account.",
+    "references": [
+      "CVE-2026-53959",
+      "GHSA-p77f-p47g-h72p"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-29 07:46:50 +0000",
+    "path": "/modules/auxiliary/gather/4gaboards_users_info_disclosure_cve_2026_53959.rb",
+    "is_install_path": true,
+    "ref_name": "gather/4gaboards_users_info_disclosure_cve_2026_53959",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
     },
     "session_types": false,
     "needs_cleanup": false,
@@ -23917,7 +24090,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/hikvision_info_disclosure_cve_2017_7921.rb",
     "is_install_path": true,
     "ref_name": "gather/hikvision_info_disclosure_cve_2017_7921",
@@ -25210,6 +25383,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/langflow_auth_bypass_cve_2026_93680": {
+    "name": "Langflow AI Authentication Bypass",
+    "fullname": "auxiliary/gather/langflow_auth_bypass_cve_2026_93680",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-22",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.11.4 allow unauthenticated\n          connections to the MCP SSE endpoint, allowing attackers to initialize\n          MCP sessions and retrieve privileged MCP-related information.\n\n          The MCP information collected from this module is stored in Metasploit\n          loot as a JSON document.",
+    "references": [
+      "CVE-2026-93680"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-02 13:54:04 +0000",
+    "path": "/modules/auxiliary/gather/langflow_auth_bypass_cve_2026_93680.rb",
+    "is_install_path": true,
+    "ref_name": "gather/langflow_auth_bypass_cve_2026_93680",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/lansweeper_collector": {
     "name": "Lansweeper Credential Collector",
     "fullname": "auxiliary/gather/lansweeper_collector",
@@ -25723,7 +25949,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-10 16:13:38 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/magento_xxe_cve_2024_34102.rb",
     "is_install_path": true,
     "ref_name": "gather/magento_xxe_cve_2024_34102",
@@ -32959,6 +33185,57 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/apache_solr_version": {
+    "name": "Apache Solr Version Scanner",
+    "fullname": "auxiliary/scanner/http/apache_solr_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for Apache Solr instances and fingerprints the\n          running version. It reads the /admin/info/system handler (JSON)\n          beneath the configured TARGETURI (/solr by default, Solr's built-in\n          hostContext) and extracts the solr-spec-version field. When the\n          handler is protected by basic authentication the module retries with\n          the configured credentials, which default to the secure-by-default\n          solr:SolrRocks account introduced in Solr 9.8.0, reporting when they\n          are accepted. If the handler stays unreadable the module falls back\n          to the admin UI pages, whose asset URLs leak the running version\n          even before authentication. The result is recorded as service\n          evidence for the host.\n\n          Tested against 8.1.1-10.0.0 on major and minor versions.",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8983,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-11 18:41:51 +0000",
+    "path": "/modules/auxiliary/scanner/http/apache_solr_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/apache_solr_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/apache_userdir_enum": {
     "name": "Apache \"mod_userdir\" User Enumeration",
     "fullname": "auxiliary/scanner/http/apache_userdir_enum",
@@ -36472,7 +36749,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-21 15:18:58 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/scanner/http/elasticsearch_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/elasticsearch_traversal",
@@ -51360,6 +51637,49 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/mongodb/mongodb_hashdump": {
+    "name": "MongoDB Hash Extractor",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_hashdump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module extracts password hashes from a MongoDB instance and stores\n          them in the database for later cracking. By default, it dumps system user\n          credentials from the 'system.users' collection. Alternatively,\n          it can dump application user hashes from a specified collection.\n          On MongoDB 3.0+ all users are stored in admin.system.users regardless\n          of their authentication database, so the default DB of 'admin' is\n          normally correct, and the querying user needs privileges\n          (root, userAdminAnyDatabase, readAnyDatabase) to read them.\n\n          The dumped SCRAM hashes are formatted for Hashcat mode 24100 (SCRAM-SHA-1)\n          and 24200 (SCRAM-SHA-256), but are not yet wired into Metasploit's\n          auxiliary/analyze cracking modules -- use hashcat directly against the\n          exported hash, or 'creds -o' to export it, for now.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
+      "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/",
+      "URL-https://hashcat.net/wiki/doku.php?id=example_hashes"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_hashdump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_hashdump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/mongodb/mongodb_login": {
     "name": "MongoDB Login Utility",
     "fullname": "auxiliary/scanner/mongodb/mongodb_login",
@@ -51368,9 +51688,11 @@
     "disclosure_date": null,
     "type": "auxiliary",
     "author": [
-      "Gregory Man <man.gregory@gmail.com>"
+      "Gregory Man <man.gregory@gmail.com>",
+      "h00die",
+      "prithvee07"
     ],
-    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          Note that, by default, MongoDB does not require authentication.",
+    "description": "This module attempts to brute force authentication credentials for MongoDB.\n          It supports both SCRAM-SHA-1 (MongoDB 3.0+) and falls back to legacy\n          MONGODB-CR authentication if SCRAM is unsupported by the target server.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
     "references": [
       "URL-https://docs.mongodb.com/manual/reference/mongodb-wire-protocol/",
       "URL-https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/"
@@ -51381,7 +51703,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-09-15 09:00:29 +0000",
     "path": "/modules/auxiliary/scanner/mongodb/mongodb_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mongodb/mongodb_login",
@@ -51389,14 +51711,95 @@
     "post_auth": true,
     "default_credential": false,
     "notes": {
-      "Reliability": [
-        "unknown-reliability"
-      ],
+      "Reliability": [],
       "Stability": [
-        "unknown-stability"
+        "crash-safe"
       ],
       "SideEffects": [
-        "unknown-side-effects"
+        "ioc-in-logs",
+        "account-lockouts"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_schemadump": {
+    "name": "MongoDB Schema Enumerator",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_schemadump",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to an unauthenticated or authenticated MongoDB instance,\n          authenticates using SCRAM-SHA-1 if credentials are provided, enumerates\n          databases and collections via wire protocol, samples documents, and dumps\n          the inferred schema structure.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_schemadump.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_schemadump",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/mongodb/mongodb_version": {
+    "name": "MongoDB Version Detector",
+    "fullname": "auxiliary/scanner/mongodb/mongodb_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die",
+      "prithvee07"
+    ],
+    "description": "This module connects to a MongoDB instance and retrieves the server version\n          using the buildInfo command. Through MongoDB 8.0 this command requires no\n          authentication; MongoDB 8.1+ requires authentication for buildInfo, so the\n          module reports '8.1+' unless USERNAME is set, in which case it authenticates\n          and retrieves the actual version string.\n\n          Successfully tested against MongoDB 3.6.23, 4.4.30, 5.0.33, 6.0.28, 7.0.43, 8.3.11\n          with and without authentication",
+    "references": [
+      "URL-https://docs.mongodb.com/manual/reference/command/buildInfo/"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 27017,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": null,
+    "mod_time": "2026-09-15 09:00:29 +0000",
+    "path": "/modules/auxiliary/scanner/mongodb/mongodb_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/mongodb/mongodb_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -51662,7 +52065,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2018-12-07 13:29:56 +0000",
+    "mod_time": "2026-10-27 12:37:36 +0000",
     "path": "/modules/auxiliary/scanner/msmail/host_id.go",
     "is_install_path": true,
     "ref_name": "scanner/msmail/host_id",
@@ -53973,7 +54376,7 @@
       "postgres"
     ],
     "targets": null,
-    "mod_time": "2025-09-02 16:31:33 +0000",
+    "mod_time": "2026-10-07 19:04:03 +0000",
     "path": "/modules/auxiliary/scanner/postgres/postgres_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/postgres/postgres_login",
@@ -54776,7 +55179,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-10-26 13:49:03 +0000",
     "path": "/modules/auxiliary/scanner/redis/redis_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/redis/redis_login",
@@ -60564,7 +60967,7 @@
       "telnet"
     ],
     "targets": null,
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-10-26 13:52:49 +0000",
     "path": "/modules/auxiliary/scanner/telnet/telnet_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/telnet/telnet_login",
@@ -60723,7 +61126,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/ipswitch_whatsupgold_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/ipswitch_whatsupgold_tftp",
@@ -60768,7 +61171,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/netdecision_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/netdecision_tftp",
@@ -60810,7 +61213,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-03-11 20:45:09 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/tftpbrute.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/tftpbrute",
@@ -61028,7 +61431,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 09:30:35 +0000",
+    "mod_time": "2026-10-26 14:48:21 +0000",
     "path": "/modules/auxiliary/scanner/varnish/varnish_cli_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/varnish/varnish_cli_login",
@@ -70013,6 +70416,73 @@
       ],
       "SideEffects": [
         "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_freebsd/http/citrix_netscaler_cve_2026_88771": {
+    "name": "Citrix NetScaler Unauthenticated Login Log Command Injection (CVE-2026-88771)",
+    "fullname": "exploit/freebsd/http/citrix_netscaler_cve_2026_88771",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-27",
+    "type": "exploit",
+    "author": [
+      "watchTowr",
+      "CERT-EU",
+      "Scyrix LLC",
+      "sfewer-r7"
+    ],
+    "description": "NetScaler ADC and Gateway 13.1 before build 64.23 and 14.1 before\n          build 73.37 copy an unauthenticated failed-login username into system\n          logs. During a later diagnostic run, ns_monuploadd_err.pl mistakes a\n          crafted login record for a packet-engine failure and inserts\n          attacker-controlled text into a shell command as root. The diagnostic\n          can run up to 24 hours later. On a NetScaler Gateway with DTLS, the optional\n          CVE-2026-88772 trigger can restart the packet engine forcing the diagnostic run\n          to occur much sooner (around five minutes on a 13.1.x target).",
+    "references": [
+      "CVE-2026-88771",
+      "CVE-2026-88772",
+      "CVE-2026-88773",
+      "URL-https://support.citrix.com/external/article/CTX697096",
+      "URL-https://www.cert.europa.eu/blog/taking-execute-logging-a-bit-too-literally-cve-2026-88771",
+      "URL-https://labs.watchtowr.com/oh-look-the-foot-gun-went-off-again-citrix-netscaler-preauth-command-injection-cve-2026-88771/",
+      "URL-https://labs.watchtowr.com/here-we-go-again-citrix-netscaler-dtls-preauth-memory-overflow-cve-2026-88772/",
+      "URL-https://github.com/Scyrix-LLC/CVE-2026-88773"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Default"
+    ],
+    "mod_time": "2026-10-22 15:37:05 +0000",
+    "path": "/modules/exploits/freebsd/http/citrix_netscaler_cve_2026_88771.rb",
+    "is_install_path": true,
+    "ref_name": "freebsd/http/citrix_netscaler_cve_2026_88771",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "event-dependent"
       ]
     },
     "session_types": false,
@@ -83020,6 +83490,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/nable_ncentral_unauth_rce_cve_2026_86218": {
+    "name": "N-able N-central Struts BeanUtils Unauthenticated RCE",
+    "fullname": "exploit/linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2026-09-05",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "N-able N-central before 2026.3.1.14 uses a session-scoped Struts form on\n          an unauthenticated action. Two concurrent multipart requests can race the\n          form's multipart handler and expose Jetty's live configuration to Commons\n          BeanUtils property population.\n\n          This module changes a lazy N-central servlet holder into Jetty's bundled\n          CGI servlet, configures it to invoke /bin/sh, and sends a command payload\n          through the holder's existing URL mapping. By default, a second CGI\n          request uses N-central's local JMX service and installed Java libraries to\n          stop only the changed holder and restore its original servlet in memory.",
+    "references": [
+      "CVE-2026-86218",
+      "URL-https://me.n-able.com/s/security-advisory/aArVy0000002Ld3KAE/cve202686218-preauthentication-remote-code-execution",
+      "URL-https://documentation.n-able.com/N-central/Release_Notes/GA/Content/N-central_2026.3_HF4_Release_Notes.htm"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Command"
+    ],
+    "mod_time": "2026-09-18 14:55:32 +0000",
+    "path": "/modules/exploits/linux/http/nable_ncentral_unauth_rce_cve_2026_86218.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/nable_ncentral_unauth_rce_cve_2026_86218",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "service-resource-loss"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/nagios_xi_autodiscovery_webshell": {
     "name": "Nagios XI Autodiscovery Webshell Upload",
     "fullname": "exploit/linux/http/nagios_xi_autodiscovery_webshell",
@@ -84645,6 +85176,65 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/opencti_notifier_rce": {
+    "name": "OpenCTI Authentication Bypass and Notifier EJS Remote Code Execution",
+    "fullname": "exploit/linux/http/opencti_notifier_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-05-04",
+    "type": "exploit",
+    "author": [
+      "Jean-Marie Bourbon"
+    ],
+    "description": "This module chains CVE-2026-27960 and CVE-2026-39980 to achieve\n          unauthenticated remote command execution against vulnerable OpenCTI\n          instances.\n\n          CVE-2026-27960 allows an unauthenticated attacker to authenticate to\n          the GraphQL API using the UUID of an existing user as a bearer token.\n          By default, this module uses OpenCTI's deterministic default\n          administrator UUID. A different user UUID can be supplied with USER_ID.\n\n          After confirming the authentication bypass, the module locates the\n          Platform mailer notification connector and exploits CVE-2026-39980,\n          an EJS notifier template sanitizer bypass, to execute a Unix command in\n          the OpenCTI Node.js process context.\n\n          The full unauthenticated chain applies where the affected version\n          ranges overlap: OpenCTI 6.6.0 through 6.9.4.",
+    "references": [
+      "CVE-2026-27960",
+      "CVE-2026-39980",
+      "GHSA-6vvv-vmfr-xhrx",
+      "GHSA-jv9r-jw2f-rhrf"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 4000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-14 16:53:50 +0000",
+    "path": "/modules/exploits/linux/http/opencti_notifier_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/opencti_notifier_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -86508,6 +87098,67 @@
       "SideEffects": [
         "artifacts-on-disk",
         "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/portainer_authenticated_docker_rce": {
+    "name": "Portainer Authenticated Docker API Remote Root",
+    "fullname": "exploit/linux/http/portainer_authenticated_docker_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-03",
+    "type": "exploit",
+    "author": [
+      "Aman Singh Gill (Gill-Singh-A)"
+    ],
+    "description": "Portainer is a web UI for managing Docker and Kubernetes environments. An\n          authenticated Portainer administrator (or a non-admin user whose security\n          restrictions have been explicitly relaxed) can drive the full Docker Engine API\n          through Portainer's proxy. Because the Docker daemon normally runs as root on the\n          host, an attacker can create a privileged container that bind-mounts the host root\n          filesystem (\"/:/host\") and chroot into it, which yields code execution as root on\n          the Docker host itself - not merely inside a container.\n\n          By default, Portainer blocks non-admin users from using privileged mode, bind\n          mounts, and host PID namespaces, so this module typically requires admin-level\n          credentials.\n\n          This module authenticates to Portainer (POST /api/auth) to obtain a JWT, selects\n          a managed Docker environment, ensures a small Linux image is present (pulling one\n          if required), then creates and starts a privileged container whose command drops\n          and executes a Metasploit payload on the host via the \"/host\" bind mount and\n          \"chroot /host\". The payload is launched through the host's own init (systemd) so it\n          is decoupled from the throwaway container and survives its removal, and the\n          container is then stopped and force-removed afterwards to avoid leaving artifacts.\n\n          This is an abuse of intended functionality (a design consequence of exposing the\n          Docker API) combined with the common misconfiguration of an internet or\n          network-reachable Portainer instance protected only by weak or shared\n          credentials. It is not a patched CVE. Valid credentials and a root-running Docker\n          daemon are required.",
+    "references": [
+      "URL-https://github.com/Gill-Singh-A/Portainer-Remote-Root-Shell-Exploit",
+      "URL-https://gill-singh-a.github.io/p/getting-remote-root-shell-on-devices-via-portainer/",
+      "URL-https://docs.docker.com/engine/security/#docker-daemon-attack-surface"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "x64, x86, cmd",
+    "rport": 9443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Dropper (Meterpreter)",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-28 14:10:54 +0000",
+    "path": "/modules/exploits/linux/http/portainer_authenticated_docker_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/portainer_authenticated_docker_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
       ]
     },
     "session_types": false,
@@ -94611,6 +95262,56 @@
     "needs_cleanup": null,
     "actions": []
   },
+  "exploit_linux/local/cve_2026_3888": {
+    "name": "Local Privilege Escalation in snapd",
+    "fullname": "exploit/linux/local/cve_2026_3888",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-03-17",
+    "type": "exploit",
+    "author": [
+      "msutovsky-r7",
+      "Qualys Security Advisory Team"
+    ],
+    "description": "The `snap-confine` in some Ubuntu versions is vulnerable to race condition, when setting up snap sandbox and creating mimic of /usr/lib/x86_64-linux-gnu.\n          The snapd package is vulnerable up to version 2.74.1+ubuntu26.04.3 - however, each minor version has its own patch.\n          The time window between creating bind-mounted copies of real libraries and copying them into sandbox /usr/lib/x86_64-linux-gnu allows the attacker to take control of content of those libraries by recreating /tmp/.snap folder.\n          This folder is owned by root, but it's auto-deleted after 30 days without activity (by default on Ubuntu 24.04+).\n          The attacker can recreate this folder once it is deleted and take over the sandboxed libraries.\n          After gaining root inside sandbox, it can escape the sandbox by copying setuid binary into host filesystem.",
+    "references": [
+      "URL-https://blog.qualys.com/vulnerabilities-threat-research/2026/03/17/cve-2026-3888-important-snap-flaw-enables-local-privilege-escalation-to-root",
+      "URL-https://cdn2.qualys.com/advisory/2026/03/17/snap-confine-systemd-tmpfiles.txt",
+      "CVE-2026-3888"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-09-22 18:03:09 +0000",
+    "path": "/modules/exploits/linux/local/cve_2026_3888.rb",
+    "is_install_path": true,
+    "ref_name": "linux/local/cve_2026_3888",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": [
+      "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
   "exploit_linux/local/cve_2026_43284_dirty_frag": {
     "name": "xfrm-ESP Page-Cache Write via CVE-2026-43284",
     "fullname": "exploit/linux/local/cve_2026_43284_dirty_frag",
@@ -94811,7 +95512,7 @@
     "actions": []
   },
   "exploit_linux/local/dirtyclone_cve_2026_43503": {
-    "name": "Sample Linux Priv Esc",
+    "name": "Linux Kernel DirtyClone Local Privilege Escalation",
     "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
     "aliases": [],
     "rank": 300,
@@ -94822,7 +95523,7 @@
       "Or Peles",
       "msutovsky-r7"
     ],
-    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "description": "This module exploits CVE-2026-43503 (DirtyClone), a Linux kernel\n          local privilege escalation vulnerability. Refer to the module's\n          references for vulnerability details and affected configurations.",
     "references": [
       "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
       "CVE-2026-43503"
@@ -94835,7 +95536,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-09-09 14:35:45 +0000",
+    "mod_time": "2026-10-09 06:46:35 +0000",
     "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
     "is_install_path": true,
     "ref_name": "linux/local/dirtyclone_cve_2026_43503",
@@ -101124,6 +101825,59 @@
       "meterpreter"
     ],
     "needs_cleanup": true,
+    "actions": []
+  },
+  "exploit_linux/persistence/elf": {
+    "name": "Linux ELF Executable Payload Injection Persistence",
+    "fullname": "exploit/linux/persistence/elf",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-27",
+    "type": "exploit",
+    "author": [
+      "dledda-r7"
+    ],
+    "description": "This module injects a payload into an existing Linux ELF executable.\n          The payload runs in a forked process whenever the executable is launched,\n          while the original program continues from its original entry point.\n\n          The target must be a writable x86, x64, or AArch64 ET_EXEC or ET_DYN file\n          with an executable code cave or a reusable PT_NOTE/PT_NULL program header.\n          The original ELF is stored as loot before it is changed.",
+    "references": [
+      "ATT&CK-T1027.009",
+      "ATT&CK-T1546"
+    ],
+    "platform": "Linux",
+    "arch": "x64, x86, aarch64",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Linux x64",
+      "Linux x86",
+      "Linux AArch64"
+    ],
+    "mod_time": "2026-10-23 17:24:13 +0000",
+    "path": "/modules/exploits/linux/persistence/elf.rb",
+    "is_install_path": true,
+    "ref_name": "linux/persistence/elf",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session",
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter",
+      "shell"
+    ],
+    "needs_cleanup": null,
     "actions": []
   },
   "exploit_linux/persistence/emacs_extension": {
@@ -113568,6 +114322,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/gitlab_cicd_regexp_rce_cve_2026_97229": {
+    "name": "GitLab CI/CD RegExp Integer Overflow Remote Code Execution",
+    "fullname": "exploit/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "aliases": [],
+    "rank": 400,
+    "disclosure_date": "2026-10-12",
+    "type": "exploit",
+    "author": [
+      "joaxcar",
+      "Jonah Burgess",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits an integer overflow in the Ruby regular expression compiler through\n          GitLab's CI lint API. An attacker with credentials for a user who can push to a public\n          project plants a crafted CI configuration and repository path. An unauthenticated CI\n          lint request then compiles the expression and executes a command as the GitLab git account.\n\n          The module selects the native pcode and libruby layout for affected official GitLab CE\n          and EE Docker images on Linux amd64. Each attempt allocates slightly more than 2 GiB and crashes a\n          Puma worker after execution. GitLab 19.2 before 19.2.8, 19.3 before 19.3.5, and 19.4\n          before 19.4.2 are affected.\n\n          The official 19.3.4 package already contains the Ruby overflow fix and is not supported.\n          Rebuilt packages and source installations may require different native layouts.",
+    "references": [
+      "CVE-2026-97229",
+      "URL-https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-4-2-released/",
+      "URL-https://github.com/jburgess-r7/CVE-2026-97229-PoC"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-10-29 19:47:50 +0000",
+    "path": "/modules/exploits/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/gitlab_exif_rce": {
     "name": "GitLab Unauthenticated Remote ExifTool Command Injection",
     "fullname": "exploit/multi/http/gitlab_exif_rce",
@@ -114233,6 +115048,66 @@
     },
     "session_types": false,
     "needs_cleanup": null
+  },
+  "exploit_multi/http/grafana_sql_expressions_rce_cve_2024_9264": {
+    "name": "Grafana SQL Expressions DuckDB Command Injection",
+    "fullname": "exploit/multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-10-17",
+    "type": "exploit",
+    "author": [
+      "Özcan Ersan (@ozcanpng) <ozcanersan@proton.me>"
+    ],
+    "description": "This module exploits an authenticated command injection vulnerability in Grafana's\n          experimental SQL Expressions feature. Affected Grafana releases are 11.0.0 through\n          11.0.6, 11.1.0 through 11.1.7, and 11.2.0 through 11.2.2. They pass attacker-controlled\n          SQL expressions to DuckDB without sufficient sanitization.\n\n          Successful command execution requires the duckdb binary to be available in the Grafana\n          process PATH. This module uses DuckDB's shellfs community extension and Unix pipe syntax,\n          so it is limited to Unix-like targets with shellfs available. The extension installation\n          may download and cache files on the target.",
+    "references": [
+      "CVE-2024-9264",
+      "URL-https://grafana.com/security/security-advisories/cve-2024-9264/",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-9264",
+      "URL-https://github.com/ozcanpng/CVE-2024-9264"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-14 12:06:46 +0000",
+    "path": "/modules/exploits/multi/http/grafana_sql_expressions_rce_cve_2024_9264.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/grafana_sql_expressions_rce_cve_2024_9264",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
   },
   "exploit_multi/http/grav_admin_direct_install_rce_cve_2025_50286": {
     "name": "Grav CMS Admin Direct Install Authenticated Plugin Upload RCE",
@@ -116145,6 +117020,62 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_multi/http/langflow_auth_command_injection_cve_2026_93674": {
+    "name": "Langflow AI Auth Blind Command Injection",
+    "fullname": "exploit/multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.9.0 are susceptible to\n          authenticated blind command injection due to a flaw in how\n          the Langflow STDIO service launches processes through system shells.\n\n          OS commands are executed under the context of the running Langflow process.",
+    "references": [
+      "CVE-2026-93674"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-02 14:27:36 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_command_injection_cve_2026_93674.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_auth_rce_cve_2026_18729": {
     "name": "Langflow AI Custom Component Authenticated RCE",
     "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_18729",
@@ -116251,6 +117182,64 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_auth_rce_cve_2026_7873": {
+    "name": "Langflow AI Code Validation Authenticated RCE",
+    "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_7873",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-30",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "n0k0"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.10.0 are susceptible to authenticated remote code\n          execution due to improper validation of code in the `/api/v1/validate/code` endpoint.\n\n          Arbitrary code is executed under the context of the backend Langflow process.",
+    "references": [
+      "CVE-2026-7873",
+      "URL-https://www.ibm.com/support/pages/node/7278441"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 08:39:45 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_rce_cve_2026_7873.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_rce_cve_2026_7873",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -116430,6 +117419,177 @@
       ],
       "SideEffects": [
         "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0768": {
+    "name": "Langflow AI Validate Code Injection unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0768",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-02",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.4.2 is susceptible to unauthenticated\n          remote code execution due to improper handling of the code\n          parameter provided to the `/validate` endpoint.\n\n          Arbitrary code is executed under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0768"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-01 18:21:13 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0768.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0768",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_0769": {
+    "name": "Langflow AI Custom Component Eval Injection Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_0769",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-01-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>",
+      "Peter Girnus"
+    ],
+    "description": "Langflow version 1.3.2 is susceptible to\n          unauthenticated remote code execution due to improper\n          input validation in the eval_custom_component_code() function.\n\n          Arbitrary code executes under the context of the backend\n          Langflow process.",
+    "references": [
+      "CVE-2026-0769"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-08 11:52:00 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_10134": {
+    "name": "Langflow AI Public Flow Build Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_10134",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.9.3 are susceptible to unauthenticated remote code\n          execution due to improper handling of a public flow's `tool_code` field and a lack\n          of required authentication for the `/api/v1/build_public_tmp/<flow_id>/flow` endpoint.\n\n          If a target instance exposes a public flow and its UUID, an unauthenticated remote attacker\n          can supply malicious code payloads via parameters like tool_code targeting paths under\n          /api/v1/ without needing any valid credentials. If no flow UUIDs are exposed, an authenticated\n          attacker can create one in order to exploit this vulnerability.\n\n          Arbitrary code is executed under the context of the Langflow backend process.",
+    "references": [
+      "CVE-2026-10134",
+      "URL-https://www.ibm.com/support/pages/security-bulletin-unauthenticated-server-side-rce-pythoncodestructuredtool-public-flows"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-06 08:15:48 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_10134.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_10134",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
         "ioc-in-logs"
       ],
       "Reliability": [
@@ -119896,6 +121056,63 @@
         "artifacts-on-disk",
         "ioc-in-logs",
         "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/opencti_jsonmapper_safeejs_rce": {
+    "name": "OpenCTI JSON Mapper safeEjs Sandbox Escape RCE",
+    "fullname": "exploit/multi/http/opencti_jsonmapper_safeejs_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-21",
+    "type": "exploit",
+    "author": [
+      "Ege Balci"
+    ],
+    "description": "OpenCTI is an open source cyber threat intelligence platform built as a Node.js\n          GraphQL application. Its data-mapping feature lets a user attach an EJS \"formula\"\n          to a JSON mapper attribute, which the backend renders through a home-grown sandbox\n          (safeEjs) that is intended to allow only arithmetic and property access over the\n          mapped data.\n\n          The sandbox verifier permits assignment to identifiers it merely allow-lists, such\n          as the String global. Because the generated EJS runs in sloppy mode inside a\n          `with(locals)` block, that assignment reaches the global object, and the sandbox's\n          own runtime property guard then calls the now-attacker-controlled String() when it\n          normalises property names. Poisoning String defeats the guard's constructor\n          deny-list, and `({})['constructor']['constructor']` yields Function, giving\n          arbitrary JavaScript execution in the OpenCTI API process. The formula is rendered\n          synchronously in the main process rather than in the isolated worker used by the\n          other render sites, so execution lands in the process that holds the platform's\n          Elasticsearch, object-store and message-queue clients.\n\n          The jsonMapperTest GraphQL mutation reaches this render path and requires only the\n          CSVMAPPERS (\"Manage data mappers\") capability. The GraphQL endpoint is authenticated,\n          so the module offers three ways to obtain a context that satisfies it. AUTH_MODE=password\n          logs in with USERNAME and PASSWORD through the public `token` mutation and reuses the\n          resulting opencti_session cookie, optionally completing 2FA with OTP_CODE. AUTH_MODE=token\n          sends a pre-existing OpenCTI API token as a bearer credential. When a target has the\n          header-based authentication strategy enabled without a proxy-source restriction,\n          AUTH_MODE=header obtains a session for an arbitrary user (for example the platform\n          administrator) with no credential at all.",
+    "references": [
+      "GHSA-f56m-h35g-vfg5",
+      "URL-https://github.com/OpenCTI-Platform/opencti"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "cmd",
+    "rport": 8080,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-09-17 11:36:10 +0000",
+    "path": "/modules/exploits/multi/http/opencti_jsonmapper_safeejs_rce.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/opencti_jsonmapper_safeejs_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -143088,6 +144305,61 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_unix/smtp/cisco_secure_email_gateway_smime_sqli_rce": {
+    "name": "Cisco Secure Email Gateway S/MIME SQL Injection RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an unauthenticated SQL injection in Cisco Secure\n          Email Gateway S/MIME certificate harvesting. A sender-controlled email\n          address in a signing certificate is used in a PostgreSQL query without\n          escaping. The module sends one signed email whose certificate supplies\n          enough addresses to flush the asynchronous database writer, stacks COPY\n          TO PROGRAM, and runs a payload as root through AsyncOS runas and Python.\n\n          The check identifies the product through Cisco SEG's hidden SMTP\n          queue-status command. AsyncOS does not expose a version through a\n          benign SMTP command, so the check can only identify the product but not\n          if it is explicitly vulnerable. Public-key harvesting must be enabled on\n          the inbound mail flow policy for the target to be exploitable.\n\n          The Cisco advisory is vague so attributing this vulnerability to a specific CVE is\n          not obvious, but this appears to be CVE-2026-76443 rather than CVE-2026-76461\n          based on the IOCs available for CVE-2026-76461.",
+    "references": [
+      "CVE-2026-76443",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-hardening-esa-dfCrfXkm"
+    ],
+    "platform": "Python,Unix",
+    "arch": "python, cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Python Payload",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-17 15:59:15 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -240049,6 +241321,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/ftp/aarch64/exec": {
+    "name": "FTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/ftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/ftp/aarch64/shell/reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/ftp/aarch64/shell_reverse_tcp": {
+    "name": "FTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an FTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/ftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/ftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/ftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/ftp/x64/custom/bind_ipv6_tcp": {
     "name": "FTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/ftp/x64/custom/bind_ipv6_tcp",
@@ -251787,6 +253172,119 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/http/aarch64/exec": {
+    "name": "HTTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/http/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/http/aarch64/shell/reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/http/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/http/aarch64/shell_reverse_tcp": {
+    "name": "HTTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/http/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/http/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/http/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/http/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/http/x64/custom/bind_ipv6_tcp": {
     "name": "HTTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/http/x64/custom/bind_ipv6_tcp",
@@ -263493,6 +264991,119 @@
     "staged": true,
     "stage_refname": "windows/vncinject",
     "stager_refname": "windows/reverse_winhttp"
+  },
+  "payload_cmd/windows/https/aarch64/exec": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/https/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/https/aarch64/shell/reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/https/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/https/aarch64/shell_reverse_tcp": {
+    "name": "HTTPS Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/https/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from an HTTPS server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/https/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/https/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/https/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
   },
   "payload_cmd/windows/https/x64/custom/bind_ipv6_tcp": {
     "name": "HTTPS Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
@@ -287520,6 +289131,120 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/smb/aarch64/exec": {
+    "name": "SMB Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/smb/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/smb/aarch64/shell/reverse_tcp": {
+    "name": "SMB Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/smb/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/smb/aarch64/shell_reverse_tcp": {
+    "name": "SMB Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/smb/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/smb/x64/custom/bind_ipv6_tcp": {
     "name": "SMB Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/smb/x64/custom/bind_ipv6_tcp",
@@ -290488,6 +292213,119 @@
     "staged": true,
     "stage_refname": "windows/x64/vncinject",
     "stager_refname": "windows/x64/reverse_winhttps"
+  },
+  "payload_cmd/windows/tftp/aarch64/exec": {
+    "name": "TFTP Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/tftp/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/tftp/aarch64/shell/reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/tftp/aarch64/shell_reverse_tcp": {
+    "name": "TFTP Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AARCH64 payload from a TFTP server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-09 01:46:45 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/tftp/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/tftp/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/tftp/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
   },
   "payload_cmd/windows/tftp/x64/custom/bind_ipv6_tcp": {
     "name": "TFTP Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
@@ -300630,7 +302468,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/php/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "php/meterpreter_reverse_tcp",
@@ -306715,7 +308553,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_named_pipe",
@@ -306750,7 +308588,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_tcp",
@@ -306855,7 +308693,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_ipv6_tcp",
@@ -306890,7 +308728,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_tcp",
@@ -312909,7 +314747,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-08-20 17:22:11 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
@@ -312944,7 +314782,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_tcp",
@@ -313049,7 +314887,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_ipv6_tcp",
@@ -313084,7 +314922,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_tcp",
@@ -316537,7 +318375,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-03-30 17:51:41 +0000",
+    "mod_time": "2026-10-02 16:10:00 +0000",
     "path": "/modules/post/linux/gather/enum_protections.rb",
     "is_install_path": true,
     "ref_name": "linux/gather/enum_protections",

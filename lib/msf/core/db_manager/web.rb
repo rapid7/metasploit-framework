@@ -224,7 +224,7 @@ module Msf::DBManager::Web
     )
 
     if host.name.to_s.empty?
-      host.name = vhost
+      host.name = vhost.to_s.delete("\x00")
       host.save!
     end
 
@@ -242,9 +242,9 @@ module Msf::DBManager::Web
       name = opts[:ssl] ? 'https' : 'http'
       serv.name = name
     end
-    # Add the info if it's there.
+    # Add the info if it's there. Strip null bytes — PostgreSQL rejects them.
     unless info.to_s.empty?
-      serv.info = info
+      serv.info = info.to_s.delete("\x00")
     end
     serv.save! if serv.changed?
 =begin

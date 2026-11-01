@@ -139,7 +139,7 @@ class Server
   # Send a single packet to the specified host
   #
   def send_packet(from, pkt)
-    self.sock.sendto(pkt, from[0], from[1])
+    self.sock.send(pkt, 0, from[0], from[1])
   end
 
 

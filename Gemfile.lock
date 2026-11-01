@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (6.5.6)
+    metasploit-framework (6.5.9)
       aarch64
       abbrev
       actionpack (~> 8.0.5)
@@ -61,7 +61,7 @@ PATH
       metasploit-concern
       metasploit-credential (>= 6.0.21)
       metasploit-model
-      metasploit-payloads (= 2.0.247)
+      metasploit-payloads (= 2.0.257)
       metasploit_data_models (>= 6.0.15)
       metasploit_payloads-mettle (= 1.0.48)
       mqtt
@@ -108,7 +108,7 @@ PATH
       rex-random_identifier
       rex-registry
       rex-rop_builder
-      rex-socket
+      rex-socket (>= 0.1.68)
       rex-sslscan
       rex-struct2
       rex-text
@@ -373,7 +373,7 @@ GEM
       drb
       mutex_m
       railties (>= 7.0, < 8.1)
-    metasploit-payloads (2.0.247)
+    metasploit-payloads (2.0.257)
     metasploit_data_models (6.0.18)
       activerecord (>= 7.0, < 8.1)
       activesupport (>= 7.0, < 8.1)
@@ -523,7 +523,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.36)
+    rex-core (0.1.37)
     rex-encoder (0.1.10)
       metasm
       rex-arch

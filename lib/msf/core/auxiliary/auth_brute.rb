@@ -853,12 +853,17 @@ module Auxiliary::AuthBrute
     else
       complete_message = ''
       unless ip.blank? && port.blank?
-        complete_message << Rex::Socket.to_authority(ip, port).ljust(21)
+        authority = Rex::Socket.to_authority(ip, port)
+        # Modules using Exploit::Remote::Tcp already have the target in their print_prefix
+        unless print_prefix.split.include?(authority)
+          complete_message << authority.ljust(21)
+          complete_message << ' - '
+        end
       else
         complete_message << proto || 'Bruteforce'
+        complete_message << ' - '
       end
 
-      complete_message << " - "
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
       complete_message << msg.to_s.strip

@@ -74,7 +74,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.247'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.257'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.48'
   # Needed by msfgui and other rpc components
@@ -191,7 +191,7 @@ Gem::Specification.new do |spec|
   # Library for parsing and manipulating executable binaries
   spec.add_runtime_dependency 'rex-bin_tools'
   # Rex Socket Abstraction Layer
-  spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket', '>= 0.1.68'
   # Library for scanning a server's SSL/TLS capabilities
   spec.add_runtime_dependency 'rex-sslscan'
   # Library and tool for finding ROP gadgets in a supplied binary
