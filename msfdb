@@ -211,7 +211,10 @@ def init_db
 
     puts 'Creating initial database schema'
     Dir.chdir(@framework) do
-      unless @db_driver.run_cmd('bundle exec rake db:migrate') == 0
+      # This one-off task needs no web-session key or packaged schema dump.
+      migration_env = { 'SCHEMA' => File::NULL }
+      migration_env['SECRET_KEY_BASE'] = SecureRandom.hex(64) unless ENV['SECRET_KEY_BASE']
+      unless @db_driver.run_cmd('bundle exec rake db:migrate', env: migration_env) == 0
         raise PG::Error, 'Database schema migration failed'
       end
     end
