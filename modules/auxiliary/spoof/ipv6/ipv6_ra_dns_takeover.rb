@@ -204,14 +204,23 @@ class MetasploitModule < Msf::Auxiliary
 
   # Multicast a final RA that zeroes the RDNSS (and router) lifetime so clients
   # stop using us as their resolver as soon as the job ends. Sent a few times
-  # because RAs are unacknowledged multicast and can be dropped.
+  # because RAs are unacknowledged multicast and can be dropped. pcap_inject
+  # can return a negative error code without raising on non-Windows pcaprub,
+  # so a negative return is treated as a failed send rather than silently
+  # reported as success.
   def send_ra_withdrawal
     withdrawal = build_ra_dns_packet(router_lifetime: 0, dns_lifetime: 0)
+    send_failed = false
     3.times do
-      inject(withdrawal.to_s)
+      result = inject(withdrawal.to_s)
+      send_failed ||= result.is_a?(Integer) && result.negative?
       Rex.sleep(0.1)
     end
-    print_status("Withdrew the rogue RDNSS advertisement (RDNSS lifetime 0) for #{datastore['SPOOF_IP6']}")
+    if send_failed
+      vprint_error('Could not send RA withdrawal on cleanup: pcap injection returned an error')
+    else
+      print_status("Withdrew the rogue RDNSS advertisement (RDNSS lifetime 0) for #{datastore['SPOOF_IP6']}")
+    end
   rescue StandardError => e
     vprint_error("Could not send RA withdrawal on cleanup: #{e}")
   end
