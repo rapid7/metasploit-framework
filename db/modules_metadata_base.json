@@ -152093,6 +152093,66 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_unix/webapp/wp_bug_library_file_upload": {
+    "name": "WordPress Bug Library Plugin Prior To 2.1.1 Unauthenticated PHP File Upload RCE",
+    "fullname": "exploit/unix/webapp/wp_bug_library_file_upload",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-06-22",
+    "type": "exploit",
+    "author": [
+      "Bob Matyas",
+      "TrinityBerserker"
+    ],
+    "description": "The Bug Library WordPress plugin before version 2.1.1 does not validate\n          the file type of attachments submitted via the public bug-report form,\n          allowing an unauthenticated attacker to upload an arbitrary PHP file\n          and achieve remote code execution.\n\n          When the \"Allow Attachments\" setting is enabled and CAPTCHA is either\n          disabled or not deployed, a PHP webshell can be submitted as a bug\n          report attachment. The file is stored under wp-content/uploads/bug-library/\n          and is directly accessible over HTTP, giving the attacker a persistent\n          shell on the server.\n\n          Affected versions: Bug Library < 2.1.1\n          CVSSv3 Score: 10.0 (Critical) - CWE-434: Unrestricted Upload of File\n          with Dangerous Type",
+    "references": [
+      "CVE-2024-5450",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-5450",
+      "WPVDB-d91217bc-9f8f-4971-885e-89edc45b2a4d"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "WordPress Bug Library Prior To 2.1.1"
+    ],
+    "mod_time": "2026-10-29 14:07:18 +0000",
+    "path": "/modules/exploits/unix/webapp/wp_bug_library_file_upload.rb",
+    "is_install_path": true,
+    "ref_name": "unix/webapp/wp_bug_library_file_upload",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_unix/webapp/wp_creativecontactform_file_upload": {
     "name": "Wordpress Creative Contact Form Upload Vulnerability",
     "fullname": "exploit/unix/webapp/wp_creativecontactform_file_upload",
