@@ -15,6 +15,9 @@ class MetasploitModule < Msf::Auxiliary
   # tag, e.g. "<!-- CONSUL_VERSION: 2.0.4"
   UI_VERSION_RE = /CONSUL_VERSION:\s*([\d.]+)/
   CONSUL_MARKER_RE = %r{<title>Consul by HashiCorp|consul-ui/config/environment}
+  # Builds look like 1.20.6, 2.0.4-ent or 1.21.0-beta1+ent, so match the
+  # numeric prefix and accept any suffix after it
+  VERSION_RE = /\A\d+\.\d+(?:\.\d+)?/
 
   def initialize(info = {})
     super(
@@ -28,9 +31,10 @@ class MetasploitModule < Msf::Auxiliary
           (the default) this is unauthenticated; when the agent replies 403
           the module retries with the configured ACL token in the
           X-Consul-Token header. If the agent info API stays unreadable the
-          module falls back to the Consul UI at /ui/, whose static HTML leaks
-          the exact version in a CONSUL_VERSION comment even when the ACL
-          default policy denies everything else.
+          module tries the permission-free /v1/agent/version endpoint and
+          then the Consul UI at /ui/, whose static HTML leaks the exact
+          version in a CONSUL_VERSION comment even when the ACL default
+          policy denies everything else.
 
           Tested against every major GA release since October 2024 (1.20,
           1.21, 1.22, 2.0).
@@ -56,6 +60,10 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def token_configured?
+    !datastore['Token'].to_s.empty?
+  end
+
   def send_agent_self(token = nil)
     request = { 'uri' => normalize_uri(target_uri.path, 'v1', 'agent', 'self') }
     request['headers'] = { 'X-Consul-Token' => token } if token
@@ -68,20 +76,41 @@ class MetasploitModule < Msf::Auxiliary
     res = send_agent_self
     return [nil, nil] if res.nil?
 
-    if res.code == 403 && !datastore['Token'].to_s.empty?
-      token = datastore['Token']
-      auth_res = send_agent_self(token)
-      return [nil, nil] if auth_res.nil?
-
-      return [auth_res, token] if auth_res.code == 200
+    if res.code == 403 && token_configured?
+      auth_res = send_agent_self(datastore['Token'])
+      return [auth_res, datastore['Token']] if auth_res && auth_res.code == 200
     end
     [res, nil]
   end
 
-  # Pulls the version out of an /v1/agent/self response.
+  # Pulls the version out of an /v1/agent/self response. Requires the
+  # Consul-specific Config fields (NodeName, Datacenter) as well as a
+  # version-shaped string so a JSON body from another service cannot
+  # impersonate Consul.
   def version_details(res)
     json = res.get_json_document
-    json.is_a?(Hash) ? json.dig('Config', 'Version') : nil
+    return unless json.is_a?(Hash)
+
+    config = json['Config']
+    return unless config.is_a?(Hash) && config['NodeName'] && config['Datacenter']
+
+    version = config['Version'].to_s
+    version if version[VERSION_RE]
+  end
+
+  # /v1/agent/version is documented as requiring no ACL permission, so it
+  # often answers when /v1/agent/self is denied. The endpoint pairs
+  # HumanVersion with build details; requiring a companion field keeps
+  # other JSON services from being mistaken for Consul.
+  def detect_api_version
+    res = send_request_cgi('uri' => normalize_uri(target_uri.path, 'v1', 'agent', 'version'))
+    return unless res && res.code == 200
+
+    json = res.get_json_document
+    return unless json.is_a?(Hash) && (json['SHA'] || json['BuildDate'])
+
+    version = json['HumanVersion'].to_s
+    version if version[VERSION_RE]
   end
 
   def detect_ui_version
@@ -112,38 +141,52 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(_ip)
     res, token = probe_agent_self
-    if res.nil?
-      print_error("No response from #{rhost}:#{rport}")
-      return
+
+    if res && res.code == 200
+      version = version_details(res)
+      if version
+        print_good("HashiCorp Consul #{version} found")
+
+        if token
+          print_status('Version retrieved with the supplied ACL token')
+        else
+          print_status('No authentication required to read the agent info API')
+          if res.headers['X-Consul-Default-Acl-Policy'].to_s =~ /allow/i
+            print_status('ACL default policy is allow (no ACL enforcement)')
+          end
+        end
+
+        report_consul("HashiCorp Consul #{version}")
+        return
+      end
     end
 
-    version = res.code == 200 ? version_details(res) : nil
+    # The agent info API is unreadable (ACLs, no response, or an
+    # unconfirmed body); try the permission-free version endpoint, then
+    # the UI, before giving up.
+    detail = res ? "the agent info API returned HTTP #{res.code}" : 'no response was received from the agent info API'
 
-    if version
-      print_good("HashiCorp Consul #{version} found")
-
-      if token
-        print_status('Version retrieved with the supplied ACL token')
-      else
-        print_status('No authentication required to read the agent info API')
-        if res.headers['X-Consul-Default-Acl-Policy'].to_s =~ /allow/i
-          print_status('ACL default policy is allow (no ACL enforcement)')
-        end
-      end
-
-      report_consul("HashiCorp Consul #{version}")
+    api_version = detect_api_version
+    if api_version
+      print_good("HashiCorp Consul #{api_version} identified from the version endpoint, though #{detail}")
+      report_consul("HashiCorp Consul #{api_version}")
       return
     end
 
     found, hint, ui_version = detect_ui_version
     if found
       if ui_version
-        print_good("HashiCorp Consul #{ui_version} identified from the UI version leak#{hint}, though the agent info API returned HTTP #{res.code}")
+        print_good("HashiCorp Consul #{ui_version} identified from the UI version leak#{hint}, though #{detail}")
         report_consul("HashiCorp Consul #{ui_version}")
       else
-        print_status("Consul UI detected#{hint}, but the version could not be determined (agent info API returned HTTP #{res.code})")
+        print_status("Consul UI detected#{hint}, but the version could not be determined (#{detail})")
         report_consul('HashiCorp Consul (version unknown)')
       end
+      return
+    end
+
+    if res.nil?
+      print_error("No response from #{rhost}:#{rport}")
     elsif res.code == 403
       print_status('ACLs enabled (HTTP 403) and no token worked; the version could not be determined')
     elsif res.code == 404
