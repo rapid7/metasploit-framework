@@ -75,6 +75,7 @@ RSpec.describe 'MySQL Login Scanner' do
     it 'prints the target prefix exactly once in the warning' do
       output = double('output', prompting?: false)
       allow(mod).to receive(:user_output).and_return(output)
+      mod.datastore['TimestampOutput'] = true
 
       allow(Metasploit::Framework::LoginScanner::MySQL)
         .to receive(:new).and_call_original
@@ -93,6 +94,7 @@ RSpec.describe 'MySQL Login Scanner' do
         .and_raise(RuntimeError, 'unexpected scanner failure')
 
       expect(output).to receive(:print_warning) do |message|
+        expect(message).to match(/\A\[\d{4}\.\d{2}\.\d{2}-\d{2}:\d{2}:\d{2}\] /)
         expect(message.scan(/#{Regexp.escape("#{host}:#{port}")}/).length).to eq(1)
         expect(message).to include('Unhandled error')
         expect(message).to include('unexpected scanner failure')

@@ -64,10 +64,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def vprint_error(msg = '')
-    print_error(msg) if datastore['VERBOSE'] || (!framework.nil? && framework.datastore['VERBOSE'])
-  end
-
   def target
     [rhost, rport].join(":")
   end
@@ -188,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    print_good "Found remote MySQL version #{short_version}" if datastore['VERBOSE']
+    vprint_good "Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)
   end
 

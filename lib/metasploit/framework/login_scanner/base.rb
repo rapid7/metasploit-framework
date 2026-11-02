@@ -289,13 +289,8 @@ module Metasploit
               end
             rescue => e
               if framework_module
-                prefix = framework_module.respond_to?(:peer) ? "#{framework_module.peer} - LOGIN FAILED:" : "LOGIN FAILED:"
-                warning = "#{prefix} #{credential.to_h} - Unhandled error - scan may not produce correct results: #{e.message} - #{e.backtrace}"
-                if framework_module.respond_to?(:peer)
-                  framework_module.print_warning(warning, prefix: '')
-                else
-                  framework_module.print_warning(warning)
-                end
+                warning = "LOGIN FAILED: #{credential.to_h} - Unhandled error - scan may not produce correct results: #{e.message} - #{e.backtrace}"
+                framework_module.print_warning(warning)
               end
               elog("Scan Error: #{e.message}", error: e)
               consecutive_error_count += 1
