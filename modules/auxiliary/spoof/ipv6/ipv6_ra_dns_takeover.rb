@@ -105,8 +105,16 @@ class MetasploitModule < Msf::Auxiliary
     # start injecting; otherwise an in-flight unsolicited RA (lifetime
     # 0xFFFFFFFF) or a reply to a client's post-withdrawal Router
     # Solicitation can race the withdrawal and re-pin the rogue entry.
+    # The rescue is required because Thread#join re-raises any uncaught
+    # exception the service thread died with on its own (pcaprub errors,
+    # interface going down, etc.), which would otherwise skip the
+    # withdrawal and close_pcap below and leave clients poisoned.
     @ra_thread&.kill
-    @ra_thread&.join(2)
+    begin
+      @ra_thread&.join(2)
+    rescue StandardError => e
+      print_error("RA service thread exited with error: #{e}; continuing cleanup to withdraw the rogue entry")
+    end
     @ra_thread = nil
 
     # Best-effort teardown: tell clients to drop the rogue RDNSS entry now
