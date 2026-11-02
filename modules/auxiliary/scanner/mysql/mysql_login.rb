@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_good "Success: '#{result.credential}'"
+            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
             successful_logins << result
 
             if create_session?

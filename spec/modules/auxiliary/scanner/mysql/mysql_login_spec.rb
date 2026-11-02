@@ -120,8 +120,8 @@ RSpec.describe 'MySQL Login Scanner' do
       end
 
       it 'does not add a duplicate target prefix to successful authentication output' do
-        expect(mod).to receive(:print_good)
-          .with("Success: '#{credential}'")
+        expect(mod).to receive(:print_brute)
+          .with(level: :good, ip: host, msg: "Success: '#{credential}'")
 
         mod.run_host(host)
       end
