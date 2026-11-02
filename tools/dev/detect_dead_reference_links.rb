@@ -114,13 +114,13 @@ class UrlChecker
     begin
       # Get the HTTP response and handle redirects
       response = get_response(http, uri)
-      follow_redirects(http, uri, response)
+      response = follow_redirects(http, uri, response)
     rescue StandardError => e
       handle_error(url_result, e)
+    else
+      process_response(response, url_result)
     end
 
-    # Process the response (check for success, failure, or error)
-    process_response(response, url_result)
     elapsed_time = Time.now - start_time
     @url_times << elapsed_time
 
@@ -155,10 +155,13 @@ class UrlChecker
     while response.is_a?(Net::HTTPRedirection) && redirect_count < MAX_REDIRECTS
       location = response['location']
       @logger.info("Redirecting to: #{location}")
-      uri = URI.parse(location)
-      response = http.get(uri.request_uri)
+      uri = URI.join(uri.to_s, location)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      response = get_response(http, uri)
       redirect_count += 1
     end
+    response
   end
 
   # Processes the HTTP response to determine the URL status
