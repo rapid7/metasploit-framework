@@ -101834,54 +101834,6 @@
     "needs_cleanup": null,
     "actions": []
   },
-  "exploit_linux/persistence/docker_image": {
-    "name": "Docker Image Persistence",
-    "fullname": "exploit/linux/persistence/docker_image",
-    "aliases": [],
-    "rank": 600,
-    "disclosure_date": "2013-03-20",
-    "type": "exploit",
-    "author": [
-      "h00die"
-    ],
-    "description": "This module maintains persistence on a host by creating a docker image which runs our\n          payload, and has access to the host's file system (/host in the container). Whenever the\n          container restarts, the payload will run, or when the payload dies the executable\n          will run again after a delay. This will allow for writing back\n          into the host through cron entries, ssh keys, or other method.\n\n          Verified on Ubuntu 22.04.",
-    "references": [
-      "ATT&CK-T1610"
-    ],
-    "platform": "Linux",
-    "arch": "x86, x64, armle, aarch64, ppc, mipsle, mipsbe",
-    "rport": null,
-    "autofilter_ports": [],
-    "autofilter_services": [],
-    "targets": [
-      "Auto"
-    ],
-    "mod_time": "2026-09-07 06:56:30 +0000",
-    "path": "/modules/exploits/linux/persistence/docker_image.rb",
-    "is_install_path": true,
-    "ref_name": "linux/persistence/docker_image",
-    "check": true,
-    "post_auth": false,
-    "default_credential": false,
-    "notes": {
-      "Stability": [
-        "crash-safe"
-      ],
-      "Reliability": [
-        "repeatable-session"
-      ],
-      "SideEffects": [
-        "artifacts-on-disk",
-        "config-changes",
-        "ioc-in-logs"
-      ]
-    },
-    "session_types": [
-      "meterpreter"
-    ],
-    "needs_cleanup": true,
-    "actions": []
-  },
   "exploit_linux/persistence/elf": {
     "name": "Linux ELF Executable Payload Injection Persistence",
     "fullname": "exploit/linux/persistence/elf",
@@ -136519,6 +136471,55 @@
     },
     "session_types": [
       "shell",
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
+  "exploit_multi/persistence/docker_image": {
+    "name": "Docker Image Persistence",
+    "fullname": "exploit/multi/persistence/docker_image",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2013-03-20",
+    "type": "exploit",
+    "author": [
+      "h00die",
+      "Emanuele Cervelli"
+    ],
+    "description": "This module maintains persistence on a host by creating a docker image which runs our\n          payload, and has access to the host's file system (/host in the container). Whenever the\n          container restarts, the payload will run, or when the payload dies the executable\n          will run again after a delay. This will allow for writing back\n          into the host through cron entries, ssh keys, or other method.\n\n          Verified on Ubuntu 22.04.\n          Verified on Windows 11.",
+    "references": [
+      "ATT&CK-T1610"
+    ],
+    "platform": "Linux",
+    "arch": "x86, x64, armle, aarch64, ppc, mipsle, mipsbe",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-11-02 21:36:19 +0000",
+    "path": "/modules/exploits/multi/persistence/docker_image.rb",
+    "is_install_path": true,
+    "ref_name": "multi/persistence/docker_image",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
       "meterpreter"
     ],
     "needs_cleanup": true,
