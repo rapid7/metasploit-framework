@@ -1,0 +1,310 @@
+# Neo4j Module Graph Transforms Configuration
+#
+# This file contains platform mappings and artisanal module property modifications
+
+# Platform mappings for cross-platform technologies
+# Maps a platform name to the actual platforms it runs on
+platform_edits:
+  java:
+    - windows
+    - linux
+    - osx
+  javascript:
+    - windows
+    - linux
+    - osx
+  python:
+    - windows
+    - linux
+    - osx
+  r:
+    - windows
+    - linux
+    - osx
+  ruby:
+    - windows
+    - linux
+    - osx
+  nodejs:
+    - windows
+    - linux
+    - osx
+  php:
+    - windows
+    - linux
+    - osx
+
+# Artisanal property modifications for specific modules
+module_edits:
+  auxiliary/analyze/crack_windows:
+    add:
+      access_in:
+        - authentication/hash/net-ntlm
+        - authentication/hash/ntlm
+      access_out:
+        - authentication/plaintext
+
+  auxiliary/admin/dcerpc/icpr_cert:
+    add:
+      access_out:
+        - authentication/certificate: highest
+
+  auxiliary/admin/kerberos/forge_ticket:
+    add:
+      access_in:
+        - authentication/kerberos/keys
+      access_out:
+        - authentication/kerberos: highest
+
+  auxiliary/admin/kerberos/get_ticket:
+    add:
+      access_in:
+        - authentication/plaintext
+        - authentication/certificate
+      access_out:
+        - authentication/kerberos: highest
+
+  auxiliary/admin/ldap/bad_successor:
+    remove:
+      access_in:
+        - authentication/kerberos
+        - authentication/certificate
+
+  auxiliary/admin/sccm/get_naa_credentials:
+    add:
+      access_out:
+        - authentication/plaintext
+
+  auxiliary/gather/ldap_passwords:
+    add:
+      access_out:
+        - authentication/plaintext: high
+        - authentication/hash/ntlm
+        - authentication/kerberos/keys: low
+
+  auxiliary/gather/windows_secrets_dump:
+    add:
+      access_out:
+        - authentication/plaintext
+        - authentication/hash/ntlm
+        - authentication/kerberos/keys
+
+  auxiliary/scanner/dcerpc/dfscoerce:
+    add:
+      trigger_out:
+        - coercion/smb
+
+  auxiliary/scanner/dcerpc/petitpotam:
+    add:
+      trigger_out:
+        - coercion/smb
+
+  auxiliary/scanner/ldap/ldap_login:
+    add:
+      access_out:
+        - session/ldap
+
+  auxiliary/scanner/mssql/mssql_login:
+    add:
+      access_out:
+        - session/mssql
+
+  auxiliary/scanner/mysql/mysql_login:
+    add:
+      access_out:
+        - session/mysql
+
+  auxiliary/scanner/smb/smb_login:
+    add:
+      access_out:
+        - session/smb
+
+  auxiliary/server/capture/drda:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/ftp:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/imap:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/ldap:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/mssql:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/mysql:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/pop3:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/postgresql:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/printjob_capture:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/sip:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/smb:
+    add:
+      access_out:
+        - authentication/hash/net-ntlm
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/capture/smtp:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/telnet:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/capture/vnc:
+    add:
+      access_out:
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+
+  auxiliary/server/relay/esc8:
+    add:
+      access_out:
+        - authentication/certificate
+        - authentication/hash/net-ntlm
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/relay/relay_get_naa_credentials:
+    add:
+      access_out:
+        - authentication/hash/net-ntlm
+        - authentication/plaintext
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/relay/smb_to_ldap:
+    add:
+      access_out:
+        - authentication/hash/net-ntlm
+        - session/ldap
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/server/relay/smb_to_mssql:
+    add:
+      access_out:
+        - authentication/hash/net-ntlm
+        - session/mssql
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  auxiliary/spoof/llmnr/llmnr_response:
+    add:
+      trigger_out:
+        - coercion
+
+  auxiliary/spoof/mdns/mdns_response:
+    add:
+      trigger_out:
+        - coercion
+
+  auxiliary/spoof/nbns/nbns_response:
+    add:
+      trigger_out:
+        - coercion
+
+  exploit/multi/ssh/sshexec:
+    add:
+      # todo: this is probably missing a "highest" ranking for the SSH interactive shell
+      access_out:
+        - session/linux/meterpreter: high
+        - session/linux/shell: high
+        - session/osx/meterpreter: high
+        - session/osx/shell: high
+
+  exploit/windows/smb/psexec:
+    add:
+      # mark these as high because psexec is a generally reliable technique given it is not dependent on any vulnerability
+      access_out:
+        - session/windows/meterpreter: high
+        - session/windows/shell: high
+
+  exploit/windows/smb/smb_relay:
+    add:
+      access_out:
+        - authentication/hash/net-ntlm: high
+        - session/smb: low
+      trigger_in:
+        - coercion
+        - coercion/smb
+
+  post/windows/gather/hashdump:
+    add:
+      access_out:
+        - authentication/hash/ntlm
+
+  post/windows/gather/smart_hashdump:
+    add:
+      access_out:
+        - authentication/hash/ntlm
+
+  post/windows/manage/kerberos_tickets:
+    add:
+      access_out:
+        - authentication/kerberos

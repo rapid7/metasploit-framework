@@ -41,6 +41,7 @@ group :development, :test do
   gem 'rspec-rerun'
   # Required during CI as well local development
   gem 'rubocop', '1.75.7'
+  gem 'neo4j-ruby-driver', '~> 4.4'
 end
 
 group :test do
