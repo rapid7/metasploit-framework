@@ -130,6 +130,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     ver = detect_version
+    if ver
+      report_service(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: ssl ? 'https' : 'http',
+        info: "vLLM #{ver}"
+      )
+    end
     leak = probe_messages_leak(detect_model)
     tag = ver ? " (vLLM #{ver})" : ''
 
