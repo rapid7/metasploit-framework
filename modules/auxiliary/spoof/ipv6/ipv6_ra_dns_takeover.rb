@@ -217,11 +217,11 @@ class MetasploitModule < Msf::Auxiliary
       Rex.sleep(0.1)
     end
     if send_failed
-      vprint_error('Could not send RA withdrawal on cleanup: pcap injection returned an error')
+      print_error('Could not send RA withdrawal on cleanup: pcap injection returned an error. Clients may retain the rogue resolver entry.')
     else
       print_status("Withdrew the rogue RDNSS advertisement (RDNSS lifetime 0) for #{datastore['SPOOF_IP6']}")
     end
   rescue StandardError => e
-    vprint_error("Could not send RA withdrawal on cleanup: #{e}")
+    print_error("Could not send RA withdrawal on cleanup: #{e}. Clients may retain the rogue resolver entry.")
   end
 end
