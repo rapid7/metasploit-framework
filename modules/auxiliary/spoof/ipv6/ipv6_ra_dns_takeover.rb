@@ -100,8 +100,13 @@ class MetasploitModule < Msf::Auxiliary
     super
     # Stop the advertiser first so the withdrawal below is the only thing
     # touching the pcap handle (injection is otherwise serialised on the
-    # service thread).
+    # service thread). Thread#kill is asynchronous, so join with a bounded
+    # timeout to ensure the service loop has actually exited before we
+    # start injecting; otherwise an in-flight unsolicited RA (lifetime
+    # 0xFFFFFFFF) or a reply to a client's post-withdrawal Router
+    # Solicitation can race the withdrawal and re-pin the rogue entry.
     @ra_thread&.kill
+    @ra_thread&.join(2)
     @ra_thread = nil
 
     # Best-effort teardown: tell clients to drop the rogue RDNSS entry now
