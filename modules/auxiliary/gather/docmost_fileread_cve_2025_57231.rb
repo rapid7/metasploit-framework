@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # URL encode file path
-    filepath = URI.encode_www_form_component(datastore['FILEPATH'])
+    filepath = URI.encode_www_form_component(datastore['FILEPATH']).gsub('+', '%20')
 
     # Create request
     route = normalize_uri(
