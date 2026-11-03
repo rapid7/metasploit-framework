@@ -270,12 +270,16 @@ Gem::Specification.new do |spec|
   # Needed for the MCP server (msfmcpd)
   spec.add_runtime_dependency 'mcp'
 
+  # bigdecimal 4.1.2+ does not compile on the Ubuntu 12.04 i386 package builder:
+  # https://github.com/rapid7/metasploit-omnibus/blob/master/docker/ubuntu1204-x86/Dockerfile
+  # https://github.com/ruby/bigdecimal/issues/569
+  spec.add_runtime_dependency 'bigdecimal', '< 4.1.2'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
     base64
     benchmark
-    bigdecimal
     csv
     drb
     fiddle
