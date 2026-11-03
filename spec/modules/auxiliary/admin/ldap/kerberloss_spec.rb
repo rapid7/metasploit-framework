@@ -116,6 +116,42 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
     it 'classifies an unchanged pre-existing target owner as ineffective' do
       expect(mod.send(:classify_resolution, [target_dn], [target_dn], target_dn)).to eq(:ineffective)
     end
+
+    it 'matches an operator supplied TARGET_DN that differs only in case and spacing' do
+      supplied = 'cn=kltarget, ou=KerberLossLab, dc=KERBERLOSS, dc=test'
+      expect(mod.send(:classify_resolution, [], [target_dn], supplied)).to eq(:hijack)
+    end
+
+    it 'matches an operator supplied TARGET_DN that escapes a value differently' do
+      server_dn = 'CN=Target\, Service,OU=KerberLossLab,DC=kerberloss,DC=test'
+      supplied = 'CN=Target\2C Service,OU=KerberLossLab,DC=kerberloss,DC=test'
+      expect(mod.send(:classify_resolution, [], [server_dn], supplied)).to eq(:hijack)
+    end
+
+    it 'does not fold distinct values together' do
+      other_dn = 'CN=KLTarget2,OU=KerberLossLab,DC=kerberloss,DC=test'
+      expect(mod.send(:classify_resolution, [], [other_dn], target_dn)).to eq(:ineffective)
+    end
+  end
+
+  describe '#canonical_dn' do
+    it 'returns downcased attribute and value pairs' do
+      expect(mod.send(:canonical_dn, 'CN=A,DC=B')).to eq([['cn', 'a'], ['dc', 'b']])
+    end
+
+    it 'falls back to the downcased string for a DN that does not parse' do
+      expect(mod.send(:canonical_dn, 'not a dn')).to eq('not a dn')
+    end
+  end
+
+  describe '#same_dn?' do
+    it 'treats differently escaped forms of one DN as equal' do
+      expect(mod.send(:same_dn?, 'CN=Doe\, John,DC=test', 'cn=Doe\2C John,dc=TEST')).to be(true)
+    end
+
+    it 'does not equate a malformed DN with a parsed one' do
+      expect(mod.send(:same_dn?, 'CN=A,DC=B', 'cn=a,dc=b,')).to be(false)
+    end
   end
 
   describe '#action_hijack' do

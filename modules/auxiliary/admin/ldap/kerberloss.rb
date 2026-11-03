@@ -4,6 +4,8 @@
 ##
 
 require 'English'
+require 'net/ldap'
+require 'net/ldap/dn'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
@@ -136,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Testing comparison behavior with temporary value #{visible_value(probe_value)}")
 
     owners = with_temporary_spn(@target_dn, probe_value) { spn_owners(probe_spn) }
-    if owners.any? { |owner| owner.casecmp?(@target_dn) }
+    if owners.any? { |owner| same_dn?(owner, @target_dn) }
       print_good('The clean probe resolved to the account containing the hidden-character SPN; the DC appears affected.')
     else
       print_status('The clean probe did not resolve to the target account.')
@@ -222,10 +224,28 @@ class MetasploitModule < Msf::Auxiliary
     normalize_kerberloss_value(value) == value.downcase
   end
 
+  # TARGET_DN is operator input while owner DNs come back from the server, so the two
+  # can differ in attribute case, RDN spacing and value escaping (`\,` versus `\2C`)
+  # while naming the same object. Compare them as parsed RDN pairs; a DN that does not
+  # parse falls back to a downcased string so it can only ever equal an identical string.
+  def canonical_dn(dn)
+    pairs = []
+    Net::LDAP::DN.new(dn.to_s).each_pair do |attribute, value|
+      pairs << [attribute.to_s.downcase, value.to_s.downcase]
+    end
+    pairs
+  rescue Net::LDAP::InvalidDNError
+    dn.to_s.downcase
+  end
+
+  def same_dn?(left, right)
+    canonical_dn(left) == canonical_dn(right)
+  end
+
   def classify_resolution(owners_before, owners_after, target_object_dn)
-    normalized_target_dn = target_object_dn.downcase
-    normalized_before = owners_before.map(&:downcase).uniq
-    normalized_after = owners_after.map(&:downcase).uniq
+    normalized_target_dn = canonical_dn(target_object_dn)
+    normalized_before = owners_before.map { |owner| canonical_dn(owner) }.uniq
+    normalized_after = owners_after.map { |owner| canonical_dn(owner) }.uniq
     return :ineffective if normalized_before.include?(normalized_target_dn)
     return :ineffective unless normalized_after.include?(normalized_target_dn)
     return :collision if normalized_after.length > 1
