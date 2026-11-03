@@ -65,7 +65,7 @@ RSpec.describe Msf::DBExport do
         end
 
         subject(:module_detail_node) do
-          root.at_xpath('module_detail')
+          root.at_xpath("module_detail[id='#{module_detail.id}']")
         end
 
         it_should_behave_like 'Msf::DBExport#extract_module_detail_info module_detail child', 'description'
