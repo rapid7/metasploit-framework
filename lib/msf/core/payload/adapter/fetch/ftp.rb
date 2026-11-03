@@ -6,8 +6,11 @@ module Msf::Payload::Adapter::Fetch::FTP
   include Msf::Payload::Adapter::Fetch::Server::FTP
 
   def initialize(*args)
-    super
-  end
+  super
+  register_options([
+    Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'FTP', %w[FTP TNFTP WGET]])
+  ])
+end
 
   def cleanup_handler
     if @fetch_service

@@ -4,8 +4,8 @@
 ##
 
 module MetasploitModule
-  include Msf::Payload::Adapter::Fetch::FTP
   include Msf::Payload::Adapter::Fetch::LinuxOptions
+  include Msf::Payload::Adapter::Fetch::FTP
 
   def initialize(info = {})
     super(
