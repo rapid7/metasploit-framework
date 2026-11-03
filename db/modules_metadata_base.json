@@ -52557,7 +52557,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-11-02 15:07:26 +0000",
     "path": "/modules/auxiliary/scanner/mysql/mysql_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mysql/mysql_login",
