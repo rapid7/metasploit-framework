@@ -4,7 +4,7 @@
 For community support, questions, and general discussion, visit our [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions).
 
 ## Slack
-Join the [Metasploit Slack](https://join.slack.com/t/metasploit/shared_invite/zt-30i688it0-mJsFGT44IMtdeZi1DraamQ) for real-time chat with the community and developers.
+Join the [Metasploit Slack](https://metasploit.com/slack) for real-time chat with the community and developers.
 
 ## GitHub Issues
 Submit bug reports and feature requests through [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues).
