@@ -299,7 +299,7 @@ class MetasploitModule < Msf::Auxiliary
       enum_shares(session.address)
     else
       [
-        { port: SMB1_PORT, versions: [1], backend: :ruby_smb, label: 'SMB over NetBIOS' },
+        { port: SMB1_PORT, versions: [1], backend: :ruby_smb, label: 'SMB over NetBIOS', direct: false },
         { port: SMB2_3_PORT, versions: [1, 2, 3], backend: :ruby_smb, label: 'SMB' }
       ].each do |info|
         # Update line prefix, as port changes
@@ -308,7 +308,8 @@ class MetasploitModule < Msf::Auxiliary
         # as well as making it accessible to the module mixins
         @rport = info[:port]
         vprint_status("Connecting using #{info[:label]} via #{info[:backend]}")
-        connect(versions: info[:versions], backend: info[:backend])
+        # `direct: false` on port 139 forces NetBIOS session setup for legacy hosts (Win9x/ME)
+        connect(versions: info[:versions], backend: info[:backend], direct: info[:direct])
         smb_login
         shares = enum_shares(ip)
         next if shares.nil? || shares.empty?
@@ -341,22 +342,38 @@ class MetasploitModule < Msf::Auxiliary
     shares = []
 
     begin
-      # Return all shares if `Shares` option has not been set
-      if datastore['Share'].nil?
-        shares = simple.client.net_share_enum_all(ip)
-      # Return specific share if the `Share` option has been set
-      else
-        simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
-      end
-      # Return an error if `Share` option has been set but no matches were found
-      print_error("No shares match #{datastore['Share']}") if shares.empty?
-    rescue RubySMB::Error::UnexpectedStatusCode => e
-      print_error("Error when trying to enumerate shares - #{e.status_code.name}")
-      return
-    rescue RubySMB::Error::InvalidPacket => e
-      vprint_error("Invalid packet received when trying to enumerate shares - #{e}")
-      return
+      all_shares = simple.client.net_share_enum_all(ip)
+    rescue RubySMB::Error::UnexpectedStatusCode, RubySMB::Error::InvalidPacket => e
+      vprint_status("SRVSVC failed (#{e}), falling back to RAP")
+      all_shares = nil
     end
+
+    if all_shares.nil?
+      begin
+        tree = simple.client.tree_connect("\\\\#{ip}\\IPC$")
+        begin
+          all_shares = tree.net_share_enum
+        ensure
+          begin
+            tree.disconnect!
+          rescue StandardError # rubocop:disable Lint/SuppressedException
+          end
+        end
+      rescue StandardError => e
+        print_error("RAP share enumeration also failed - #{e}")
+        return []
+      end
+    end
+
+    # Return all shares if `Shares` option has not been set
+    if datastore['Share'].nil?
+      shares = all_shares
+    # Return specific share if the `Share` option has been set
+    else
+      all_shares.each { |share| shares = [share] if share[:name] == datastore['Share'] }
+    end
+    # Return an error if `Share` option has been set but no matches were found
+    print_error("No shares match #{datastore['Share']}") if datastore['Share'] && shares.empty?
 
     os_info = get_os_info(ip)
     print_status(os_info) if os_info
