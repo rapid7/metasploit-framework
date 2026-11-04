@@ -163,7 +163,7 @@ def start_db
     if last_log =~ /not compatible/
       puts 'Please attempt to upgrade the database manually using pg_upgrade.'
     end
-    print_error 'Your database may be corrupt. Try reinitializing.'
+    raise MsfdbHelpers::SecurityError, 'Database startup failed. Inspect the database log; do not reinitialize or delete data to repair authentication.'
   end
 end
 
@@ -181,17 +181,16 @@ def init_db
   when DatabaseStatus::RUNNING
     puts 'Existing database running'
     return
+
   when DatabaseStatus::INACTIVE
     puts 'Existing database found, attempting to start it'
-    @db_driver.start
+    raise MsfdbHelpers::SecurityError, 'Could not start the existing database' unless @db_driver.start
+
     return
   end
 
-  if @db_driver.exists? && !@options[:delete_existing_data]
-    if !load_db_config
-      puts 'Failed to load existing database config. Please reinit and overwrite the file.'
-      return
-    end
+  if @db_driver.exists? && !@options[:delete_existing_data] && !load_db_config
+    raise MsfdbHelpers::SecurityError, 'Could not load existing database credentials; repair the configuration without reinitializing'
   end
 
   # Generate new database passwords if not already assigned
@@ -203,14 +202,16 @@ def init_db
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
-    @db_driver.run_cmd('bundle exec rake db:migrate')
+    unless @db_driver.run_cmd('bundle exec rake db:migrate').zero?
+      raise MsfdbHelpers::SecurityError, 'Database initialization did not complete: schema migration failed. Inspect the migration error without reinitializing the database.'
+    end
   end
   puts 'Database initialization successful'.green.bold.to_s
 end
 
 def load_db_config
   if File.file?(@db_conf)
-    config = YAML.load(File.read(@db_conf))
+    config = load_db_config_yaml
 
     production = config['production']
     if production.nil?
@@ -244,14 +245,15 @@ end
 def write_db_config
   # Write a default database config file
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
-  File.open(@db_conf, 'w') do |f|
+  File.open(@db_conf, 'w', 0o600) do |f|
+    f.chmod(0o600) unless Gem.win_platform?
     f.puts <<~EOF
       development: &pgsql
         adapter: postgresql
-        database: #{@options[:msf_db_name]}
-        username: #{@options[:msf_db_user]}
-        password: #{@msf_pass}
-        host: #{@options[:db_host]}
+        database: #{@options[:msf_db_name].to_json}
+        username: #{@options[:msf_db_user].to_json}
+        password: #{@msf_pass.to_json}
+        host: #{@options[:db_host].to_json}
         port: #{@options[:db_port]}
         pool: #{@options[:db_pool]}
 
@@ -260,13 +262,11 @@ def write_db_config
 
       test:
         <<: *pgsql
-        database: #{@options[:msftest_db_name]}
-        username: #{@options[:msftest_db_user]}
-        password: #{@msftest_pass}
+        database: #{@options[:msftest_db_name].to_json}
+        username: #{@options[:msftest_db_user].to_json}
+        password: #{@msftest_pass.to_json}
     EOF
   end
-
-  File.chmod(0640, @db_conf)
 end
 
 # Loads the database config, tolerating Psych versions that do not accept the aliases keyword.
@@ -950,6 +950,11 @@ def invoke_command(commands, component, command)
   else
     print_error "Error: unrecognized command '#{command}' for #{component}"
   end
+rescue MsfdbHelpers::SecurityError, SystemCallError => e
+  raise unless component == :database
+
+  warn "Database operation failed: #{e.message}"
+  exit 1
 end
 
 def installed?(cmd)
