@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Post
           The decrypted files contain a copy of what was sent to and from the
           terminal, which may include sensitive information.
 
-          Tested against macOS 11.7.11.
+          Tested against macOS 11.7.11 and 10.15.3.
         },
         'License' => MSF_LICENSE,
         'Author' => [
