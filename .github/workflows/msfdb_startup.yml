@@ -1,0 +1,285 @@
+name: msfdb Startup
+
+on:
+  pull_request:
+    paths:
+      - 'msf*'
+      - 'lib/**'
+      - 'config/**'
+      - 'db/**'
+      - 'Gemfile*'
+      - 'metasploit-framework.gemspec'
+      - 'Rakefile'
+      - '.ruby-version'
+      - '.github/workflows/msfdb_startup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: msfdb-startup-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  startup:
+    name: ${{ matrix.os }} - ${{ matrix.driver }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            driver: pg_ctl
+          - os: ubuntu-24.04
+            driver: pg_ctlcluster
+          - os: macos-15-intel
+            driver: pg_ctl
+          - os: windows-2022
+            driver: pg_ctl
+    defaults:
+      run:
+        shell: bash
+    env:
+      BUNDLE_WITHOUT: 'coverage development'
+      BUNDLE_FROZEN: 'true'
+      RAILS_ENV: development
+      RACK_ENV: development
+      NOKOGIRI_USE_MIRRORED_GNU_SOURCE: 't'
+      MSFDB_CI_DRIVER: ${{ matrix.driver }}
+
+    steps:
+      - name: Support long Windows paths
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --system core.longpaths true
+
+      - name: Checkout selected revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Linux dependencies and PostgreSQL tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
+          pg_bin=$(pg_config --bindir)
+          test -x "$pg_bin/initdb"
+          test -x "$pg_bin/pg_ctl"
+          if [[ "$MSFDB_CI_DRIVER" == pg_ctl ]]; then
+            echo "$pg_bin" >> "$GITHUB_PATH"
+          else
+            # msfdb chooses pg_ctl first; leave only postgresql-common discoverable.
+            filtered_path=''
+            IFS=: read -ra directories <<< "$PATH"
+            for directory in "${directories[@]}"; do
+              case "$directory" in /usr/lib/postgresql/*/bin) continue ;; esac
+              filtered_path="${filtered_path:+$filtered_path:}$directory"
+            done
+            echo "PATH=$filtered_path" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set up macOS PostgreSQL tools
+        if: runner.os == 'macOS'
+        run: |
+          brew install postgresql@16
+          echo "$(brew --prefix postgresql@16)/bin" >> "$GITHUB_PATH"
+
+      - name: Set up Windows dependencies and PostgreSQL tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (!$env:PGBIN -or !(Test-Path "$env:PGBIN/initdb.exe")) {
+            throw 'The runner PostgreSQL server tools are missing from PGBIN'
+          }
+          $env:PGBIN >> $env:GITHUB_PATH
+          $archive = Join-Path $env:RUNNER_TEMP 'WpdPack_4_1_2.zip'
+          Invoke-WebRequest -Uri 'https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip' -OutFile $archive
+          $expected = 'ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd'
+          $actual = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'WpdPack_4_1_2.zip SHA256 mismatch' }
+          Expand-Archive -Path $archive -DestinationPath 'C:\' -Force
+
+      - name: Set up checkout Ruby and dependencies
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        with:
+          bundler-cache: true
+
+      - name: Verify selected PostgreSQL driver
+        run: |
+          ruby --version
+          pg_config --version
+          if [[ "$MSFDB_CI_DRIVER" == pg_ctl ]]; then
+            command -v pg_ctl
+            initdb --version
+          else
+            if command -v pg_ctl; then
+              echo 'pg_ctl must not be discoverable in the pg_ctlcluster job' >&2
+              exit 1
+            fi
+            for utility in pg_ctlcluster pg_createcluster pg_dropcluster; do
+              command -v "$utility"
+            done
+          fi
+
+      - name: Initialize database and connect Framework
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'fileutils'
+          require 'open3'
+          require 'rbconfig'
+          require 'socket'
+          require 'tmpdir'
+
+          %w[DATABASE_URL PGHOST PGHOSTADDR PGPORT PGDATABASE PGUSER PGPASSWORD PGPASSFILE PGSERVICE PGSERVICEFILE PG_CLUSTER_CONF_ROOT].each { |name| ENV.delete(name) }
+          temporary_root = Gem.win_platform? ? ENV.fetch('RUNNER_TEMP') : '/tmp'
+          profile = File.realpath(Dir.mktmpdir('msfdb-ci-', temporary_root))
+          port = TCPServer.open('127.0.0.1', 0) { |socket| socket.addr[1] }
+          logs = File.join(ENV.fetch('RUNNER_TEMP'), 'msfdb-startup-logs')
+          FileUtils.mkdir_p(logs)
+          settings = {
+            'MSF_CFGROOT_CONFIG' => profile,
+            'MSF_DATABASE_CONFIG' => File.join(profile, 'database.yml'),
+            'SCHEMA' => File.join(profile, 'schema.rb'),
+            'MSFDB_CI_PORT' => port.to_s,
+            'MSFDB_CI_LOGS' => logs
+          }
+          ENV.update(settings)
+          File.open(ENV.fetch('GITHUB_ENV'), 'a') { |file| settings.each { |name, value| file.puts("#{name}=#{value}") } }
+          File.write(File.join(profile, 'initial_setup_complete'), '')
+
+          def run(script, *arguments, log:)
+            output, status = Open3.capture2e(RbConfig.ruby, script, *arguments)
+            File.binwrite(log, output)
+            puts output
+            abort "#{script} failed with exit status #{status.exitstatus}" unless status.success?
+            output
+          end
+
+          output = run('msfdb', '--component', 'database', '--use-defaults', '--db-port', port.to_s, 'init',
+                       log: File.join(logs, 'msfdb-init.log'))
+          abort 'Database initialization did not report success' unless output.include?('Database initialization successful')
+          output = run('msfconsole', '-qx', 'db_status; exit -y', log: File.join(logs, 'msfconsole.log'))
+          abort 'Framework did not connect to its database' unless output.include?('Connected to msf. Connection type: postgresql.')
+          RUBY
+
+      - name: Verify authentication and legacy migration
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'open3'
+          require 'pg'
+          require 'rbconfig'
+          require 'yaml'
+
+          %w[PGHOST PGHOSTADDR PGPORT PGDATABASE PGUSER PGPASSWORD PGPASSFILE PGSERVICE PGOPTIONS].each { |name| ENV.delete(name) }
+          profile = ENV.fetch('MSF_CFGROOT_CONFIG')
+          port = ENV.fetch('MSFDB_CI_PORT').to_i
+          config = YAML.load_file(File.join(profile, 'database.yml'), aliases: true).fetch('production')
+          version = File.read(File.join(profile, 'db', 'PG_VERSION')).strip
+          hba = if ENV.fetch('MSFDB_CI_DRIVER') == 'pg_ctlcluster'
+                  File.join(profile, '.local', 'etc', 'postgresql', version, 'msf', 'pg_hba.conf')
+                else
+                  File.join(profile, 'db', 'pg_hba.conf')
+                end
+
+          def command(action, port)
+            output, status = Open3.capture2e(RbConfig.ruby, 'msfdb', '--component', 'database', '--db-port', port.to_s, action)
+            abort "msfdb #{action} failed: #{output}" unless status.success?
+          end
+
+          def superuser_allowed?(port)
+            PG.connect(host: '127.0.0.1', hostaddr: '127.0.0.1', port: port, dbname: 'template1', user: 'postgres', connect_timeout: 5) { true }
+          rescue PG::ConnectionBad
+            false
+          end
+
+          abort 'New cluster allowed a passwordless superuser' if superuser_allowed?(port)
+          command('stop', port)
+          File.open(hba, 'a') do |file|
+            file.puts 'host "template1" all 127.0.0.1/32 trust'
+            file.puts 'local all all trust' unless Gem.win_platform?
+          end
+          command('start', port)
+          abort 'Legacy trust configuration was not reproduced' unless superuser_allowed?(port)
+          command('stop', port)
+          command('secure', port)
+          command('start', port)
+          abort 'Migrated cluster allowed a passwordless superuser' if superuser_allowed?(port)
+          PG.connect(host: '127.0.0.1', hostaddr: '127.0.0.1', port: port, dbname: config.fetch('database'),
+                     user: config.fetch('username'), password: config.fetch('password')) do |connection|
+            abort 'Application query failed after migration' unless connection.exec('select 1').getvalue(0, 0) == '1'
+          end
+          if ENV['RUNNER_OS'] == 'Linux'
+            pg_bin, status = Open3.capture2('pg_config', '--bindir')
+            abort 'Could not find PostgreSQL client tools' unless status.success?
+            output, status = Open3.capture2e('sudo', '-n', '-u', 'nobody', 'env', 'LC_ALL=C', File.join(pg_bin.strip, 'psql'), '-Xw',
+                                             '-h', '127.0.0.1', '-p', port.to_s, '-U', 'postgres', '-d', 'template1', '-c', 'select 1')
+            abort 'Another local account accessed the database as superuser' if status.success?
+            abort "Could not verify the other account's authentication failure: #{output}" unless output.include?('no pg_hba.conf entry')
+            socket_directory = File.read(File.join(profile, 'db', '.msfdb-socket-directory'))
+            abort 'The private database socket is missing' unless File.socket?(File.join(socket_directory, ".s.PGSQL.#{port}"))
+            output, status = Open3.capture2e('sudo', '-n', '-u', 'nobody', 'env', 'LC_ALL=C', File.join(pg_bin.strip, 'psql'), '-Xw',
+                                             '-h', socket_directory, '-p', port.to_s, '-U', 'postgres', '-d', 'template1', '-c', 'select 1')
+            abort 'Another local account accessed the private database socket' if status.success?
+            abort "Could not verify the private socket permissions: #{output}" unless output.include?('Permission denied')
+          end
+          puts 'Application access survived migration; passwordless superuser access was rejected'
+          RUBY
+
+      - name: Verify Windows credential ACLs
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $testDirectory = Join-Path $env:RUNNER_TEMP "msfdb-acl-$([guid]::NewGuid())"
+          New-Item -ItemType Directory -Path $testDirectory | Out-Null
+          try {
+            & icacls $testDirectory /grant:r '*S-1-5-32-545:(OI)(CI)R'
+            if ($LASTEXITCODE -ne 0) { throw 'Could not configure the test directory ACL' }
+            $testFile = Join-Path $testDirectory 'credentials.yml'
+            & bundle exec ruby -Ilib -rmsfdb_helpers/db_interface -e "MsfdbHelpers::DbInterface.new({}).write_private_file(ARGV.fetch(0), 'test')" $testFile
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create the protected test credential file' }
+            $ownerSid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+            foreach ($path in @($testFile, (Join-Path $env:MSF_CFGROOT_CONFIG 'database.yml'))) {
+              $acl = Get-Acl -LiteralPath $path
+              if (!$acl.AreAccessRulesProtected) { throw "Credential ACL inheritance is enabled: $path" }
+              foreach ($rule in $acl.Access) {
+                if ($rule.AccessControlType -ne 'Allow') { continue }
+                $sid = $rule.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value
+                if ($sid -ne $ownerSid -and $sid -ne 'S-1-5-18') { throw "Unexpected credential access for $sid" }
+              }
+            }
+          } finally {
+            Remove-Item -LiteralPath $testDirectory -Recurse -Force
+          }
+
+      - name: Stop private database and clean up
+        if: ${{ always() && env.MSF_CFGROOT_CONFIG != '' }}
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'fileutils'
+          require 'open3'
+          require 'rbconfig'
+
+          profile = ENV.fetch('MSF_CFGROOT_CONFIG')
+          logs = ENV.fetch('MSFDB_CI_LOGS')
+          output, status = Open3.capture2e(RbConfig.ruby, 'msfdb', '--component', 'database', '--db-port', ENV.fetch('MSFDB_CI_PORT'), 'stop')
+          File.binwrite(File.join(logs, 'msfdb-stop.log'), output)
+          puts output
+          postgres_log = File.join(profile, 'db', 'log')
+          FileUtils.cp(postgres_log, File.join(logs, 'postgres.log')) if File.file?(postgres_log)
+          abort "Could not stop private database; preserving #{profile}" unless status.success?
+          FileUtils.remove_entry(profile)
+          RUBY
+
+      - name: Archive database startup logs
+        if: ${{ always() && env.MSFDB_CI_LOGS != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: msfdb-startup-${{ matrix.os }}-${{ matrix.driver }}
+          path: ${{ env.MSFDB_CI_LOGS }}/*.log
+          if-no-files-found: ignore
+          retention-days: 7
