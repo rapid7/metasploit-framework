@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-toplevel = %x{git rev-parse --show-toplevel}.strip
-infile = "#{toplevel}/.git/config"
+infile = `git rev-parse --git-path config`.strip
 outfile = infile
 $stderr.puts "Rewriting #{infile}"
 data = File.open(infile, 'rb') {|f| f.read f.stat.size}
