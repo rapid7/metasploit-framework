@@ -410,10 +410,10 @@ class MetasploitModule < Msf::Post
       end
       pos += size
     end
-    records.delete_if do |window_id, record|
+    records.delete_if do |win_id, record|
       next false unless record[:error]
 
-      print_warning("  Window ID #{window_id}: newest _NSWindow state at offset #{record[:offset]} was malformed (#{record[:error]}); skipping window")
+      print_warning("  Window ID #{win_id}: newest _NSWindow state at offset #{record[:offset]} was malformed (#{record[:error]}); skipping window")
       true
     end
   end
@@ -447,7 +447,7 @@ class MetasploitModule < Msf::Post
       elsif value.key?('NS.data')
         resolve_archive_value(value['NS.data'], objects, resolved)
       else
-        value.reject { |key, _entry| key == '$class' }.transform_values { |entry| resolve_archive_value(entry, objects, resolved) }
+        value.except('$class').transform_values { |entry| resolve_archive_value(entry, objects, resolved) }
       end
     else
       value
