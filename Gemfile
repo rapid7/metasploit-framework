@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
+gem 'metasm', git: 'https://github.com/rapid7/metasm', branch: 'master'
 
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
@@ -45,8 +46,8 @@ end
 
 group :test do
   # automatically include factories from spec/factories
-  gem 'test-prof'
   gem 'factory_bot_rails'
+  gem 'test-prof'
   # Make rspec output shorter and more useful
   gem 'fivemat'
   # rspec formatter for acceptance tests
