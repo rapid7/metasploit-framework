@@ -15,6 +15,7 @@ module Rex::Proto::X509
   class Request
     def self.create_csr(private_key, cn, algorithm = 'SHA256')
       request = OpenSSL::X509::Request.new
+      request.version = 0 # PKCS#10 v1 (RFC 2986 §4.1)
       request.subject = OpenSSL::X509::Name.new([
         ['CN', cn, OpenSSL::ASN1::UTF8STRING]
       ])
