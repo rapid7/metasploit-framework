@@ -33,7 +33,7 @@ This action lists `COUNT` users and password hashes.
 ### COUNT
 
 If action `List Users` is selected (default), this is the number of users to enumerate.
-The larger this list, the more time it will take.  Defaults to `1`.
+The larger this list, the more time it will take.  Defaults to `3`.
 
 ### USERNAME
 

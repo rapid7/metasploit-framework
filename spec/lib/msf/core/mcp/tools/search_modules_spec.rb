@@ -47,18 +47,18 @@ RSpec.describe Msf::MCP::Tools::SearchModules do
   describe 'Input Schema Validation' do
     it 'defines query as required parameter' do
       input_schema = described_class.input_schema
-      expect(input_schema.schema[:required]).to include("query")
+      expect(input_schema.to_h[:required]).to include("query")
     end
 
     it 'defines query as string type with length constraints' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:query][:type]).to eq('string')
       expect(properties[:query][:minLength]).to eq(1)
       expect(properties[:query][:maxLength]).to eq(500)
     end
 
     it 'defines limit as optional integer with constraints' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:limit][:type]).to eq('integer')
       expect(properties[:limit][:minimum]).to eq(1)
       expect(properties[:limit][:maximum]).to eq(1000)
@@ -66,7 +66,7 @@ RSpec.describe Msf::MCP::Tools::SearchModules do
     end
 
     it 'defines offset as optional integer' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:offset][:type]).to eq('integer')
       expect(properties[:offset][:minimum]).to eq(0)
       expect(properties[:offset][:default]).to eq(0)
@@ -75,14 +75,14 @@ RSpec.describe Msf::MCP::Tools::SearchModules do
 
   describe 'Output Schema' do
     it 'returns response with metadata and data keys' do
-      output_schema = described_class.output_schema.schema
+      output_schema = described_class.output_schema.to_h
       expect(output_schema[:required]).to include('metadata', 'data')
       expect(output_schema[:properties][:metadata]).to be_a(Hash)
       expect(output_schema[:properties][:data]).to be_a(Hash)
     end
 
     it 'metadata includes query, query_time, total_items, and pagination' do
-      properties = described_class.output_schema.schema[:properties][:metadata][:properties]
+      properties = described_class.output_schema.to_h[:properties][:metadata][:properties]
       expect(properties[:query]).to eq({ type: 'string' })
       expect(properties[:query_time]).to eq({ type: 'number' })
       expect(properties[:total_items]).to eq({ type: 'integer' })
@@ -92,14 +92,14 @@ RSpec.describe Msf::MCP::Tools::SearchModules do
     end
 
     it 'data array contains modules with required fields' do
-      data_schema = described_class.output_schema.schema[:properties][:data]
+      data_schema = described_class.output_schema.to_h[:properties][:data]
       expect(data_schema[:type]).to eq('array')
       expect(data_schema[:items]).to be_a(Hash)
       expect(data_schema[:items][:properties]).to be_a(Hash)
     end
 
     it 'each module has fullname, type, and name as required fields' do
-      item_properties = described_class.output_schema.schema[:properties][:data][:items][:properties]
+      item_properties = described_class.output_schema.to_h[:properties][:data][:items][:properties]
       expect(item_properties[:fullname]).to eq({ type: 'string' })
       expect(item_properties[:type]).to eq({ type: 'string' })
       expect(item_properties[:name]).to eq({ type: 'string' })
@@ -108,7 +108,7 @@ RSpec.describe Msf::MCP::Tools::SearchModules do
     end
 
     it 'module type is one of the allowed enum values' do
-      item_properties = described_class.output_schema.schema[:properties][:data][:items][:properties]
+      item_properties = described_class.output_schema.to_h[:properties][:data][:items][:properties]
       expect(item_properties[:type][:type]).to eq('string')
     end
   end

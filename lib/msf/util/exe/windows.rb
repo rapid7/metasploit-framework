@@ -12,6 +12,14 @@ module Msf::Util::EXE::Windows
 
   module ClassMethods
 
+    # Construct a Windows executable for the requested architecture and format.
+    #
+    # @param framework [Msf::Framework] The Metasploit framework instance.
+    # @param arch [#index] Architecture collection containing an ARCH_* constant.
+    # @param code [String] The shellcode to embed.
+    # @param fmt [String] The executable format.
+    # @param opts [Hash] Additional generation options.
+    # @return [String, nil] The constructed executable, or nil when the format is unsupported.
     def to_executable_windows(framework, arch, code, fmt = 'exe', opts = {})
       exe_formats = ['exe', 'exe-service', 'dll', 'dll-dccw-gdiplus']
 
@@ -22,13 +30,21 @@ module Msf::Util::EXE::Windows
 
       exe = nil
       exe = to_executable_windows_x86(framework, code, exe_fmt, opts) if arch.index(ARCH_X86)
-      exe = to_executable_windows_x64(framework, code, exe_fmt, opts) if arch.index(ARCH_X64) 
-      exe = to_executable_windows_aarch64(framework, code, exe_fmt, opts) if arch.index(ARCH_AARCH64) 
+      exe = to_executable_windows_x64(framework, code, exe_fmt, opts) if arch.index(ARCH_X64)
+      exe = to_executable_windows_aarch64(framework, code, exe_fmt, opts) if arch.index(ARCH_AARCH64)
       return exe if exe_formats.include?(fmt) # Returning only the exe
     end
 
+    # Construct a Windows AArch64 executable in the requested format.
+    #
+    # @param framework [Msf::Framework] The Metasploit framework instance.
+    # @param code [String] The shellcode to embed.
+    # @param fmt [String] The executable format.
+    # @param opts [Hash] Additional generation options.
+    # @return [String, nil] The constructed executable, or nil when the format is unsupported.
     def to_executable_windows_aarch64(framework, code, fmt = 'exe', opts = {})
       return to_winaarch64pe(framework, code, opts) if fmt == 'exe'
+      return to_winaarch64pe_dll(framework, code, opts) if fmt == 'dll'
     end
 
     def to_executable_windows_x64(framework, code, fmt = 'exe', opts = {})

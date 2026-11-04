@@ -161,6 +161,31 @@ module Payload::Generic
   #
   attr_accessor :explicit_arch
 
+  #
+  # Returns the architecture of the concrete payload that this generic payload
+  # resolves to, or nil if it cannot be determined yet. Unlike {#arch} (which
+  # advertises ARCH_ALL for compatibility matching), this reflects the payload
+  # that will actually be generated, so callers such as encoder selection can
+  # scope themselves to the right architecture.
+  #
+  # @return [Array, nil]
+  def resolved_arch
+    actual_arch
+  rescue NoCompatiblePayloadError
+    nil
+  end
+
+  #
+  # Returns the platform of the concrete payload that this generic payload
+  # resolves to, or nil if it cannot be determined yet.
+  #
+  # @return [Msf::Module::PlatformList, nil]
+  def resolved_platform
+    actual_platform
+  rescue NoCompatiblePayloadError
+    nil
+  end
+
 protected
 
   #

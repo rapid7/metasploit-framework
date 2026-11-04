@@ -13,7 +13,7 @@
 ## Options
 
 ### SLEEP
-Time to wait for connection back from target. Default is `60` seconds if using `DOWNLOAD` action
+Time to wait for connection back from target. Default is `10` seconds if using `DOWNLOAD` action
 
 ### LHOST
 Address to bind to for TFTP server to accept connections if using `DOWNLOAD` action

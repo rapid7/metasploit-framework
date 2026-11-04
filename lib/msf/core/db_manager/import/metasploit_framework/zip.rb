@@ -70,7 +70,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     loot_info[:orig_path]  = nils_for_nulls(loot.at("path").text.to_s.strip)
     loot_info[:task]       = args[:task]
     tmp = args[:ifd][:zip_tmp]
-    loot_info[:orig_path].gsub!(/^\./,tmp) if loot_info[:orig_path]
+    loot_info[:orig_path] = resolve_zip_import_path(tmp, loot_info[:orig_path])
     if !loot.at("service-id").text.to_s.strip.empty?
       unless loot.at("service-id").text.to_s.strip == "NULL"
         loot_info[:service] = loot.at("service-id").text.to_s.strip
@@ -79,7 +79,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     # Only report loot if we actually have it.
     # TODO: Copypasta. Separate this out.
-    if ::File.exist? loot_info[:orig_path]
+    if loot_info[:orig_path]
       loot_dir = ::File.join(basedir,"loot")
       loot_file = ::File.split(loot_info[:orig_path]).last
       if ::File.exist? loot_dir
@@ -125,11 +125,11 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     end
     task_info[:orig_path] = nils_for_nulls(task.at("path").text.to_s.strip)
     tmp = args[:ifd][:zip_tmp]
-    task_info[:orig_path].gsub!(/^\./,tmp) if task_info[:orig_path]
+    task_info[:orig_path] = resolve_zip_import_path(tmp, task_info[:orig_path])
 
     # Only report a task if we actually have it.
     # TODO: Copypasta. Separate this out.
-    if ::File.exist? task_info[:orig_path]
+    if task_info[:orig_path]
       tasks_dir = ::File.join(basedir,"tasks")
       task_file = ::File.split(task_info[:orig_path]).last
       if ::File.exist? tasks_dir
@@ -168,14 +168,10 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-    new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
-    if ::File.exist? new_tmp
-      unless (::File.directory?(new_tmp) && ::File.writable?(new_tmp))
-        raise Msf::DBImportError.new("Could not extract zip file to #{new_tmp}")
-      end
-    else
-      FileUtils.mkdir_p(new_tmp)
-    end
+    # Dir.mktmpdir creates the extraction root atomically with mode 0700. In
+    # addition to avoiding collisions, this prevents another local user from
+    # pre-creating a symlink or replacing a checked path during extraction.
+    new_tmp = Dir.mktmpdir('msf-zip-import-', Dir.tmpdir)
     @import_filedata[:zip_tmp] = new_tmp
 
     # Grab the list of unique basedirs over all entries.
@@ -251,6 +247,45 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   end
 
   def is_child_of?(target_dir, target)
-    target.downcase.start_with?(target_dir.downcase)
+    target_dir = File.expand_path(target_dir)
+    target = File.expand_path(target)
+
+    if Gem.win_platform?
+      target_dir = target_dir.downcase
+      target = target.downcase
+    end
+
+    target == target_dir || target.start_with?("#{target_dir}#{File::SEPARATOR}")
+  end
+
+  def resolve_zip_import_path(zip_tmp, archived_path)
+    return unless archived_path
+
+    expanded_zip_tmp = File.expand_path(zip_tmp)
+    if File.symlink?(expanded_zip_tmp) || !File.directory?(expanded_zip_tmp)
+      raise Msf::DBImportError, "ZIP extraction directory is not a regular directory: #{zip_tmp}"
+    end
+
+    candidate = File.expand_path(archived_path, expanded_zip_tmp)
+    unless is_child_of?(expanded_zip_tmp, candidate)
+      raise Msf::DBImportError, "Import path escapes the ZIP extraction directory: #{archived_path}"
+    end
+
+    if candidate.length == expanded_zip_tmp.length
+      raise Msf::DBImportError, "Import path does not reference a file in the ZIP extraction directory: #{archived_path}"
+    end
+
+    relative_path = candidate[(expanded_zip_tmp.length + 1)..]
+
+    current_path = expanded_zip_tmp
+    contains_symlink = relative_path.split(File::SEPARATOR).any? do |path_part|
+      current_path = File.join(current_path, path_part)
+      File.symlink?(current_path)
+    end
+    if contains_symlink
+      raise Msf::DBImportError, "Import path contains a symbolic link: #{archived_path}"
+    end
+
+    candidate if File.file?(candidate)
   end
 end

@@ -1,4 +1,16 @@
 module Msf::DBManager::Cred
+  # List of allow-listed option keys, when performing operations on credentials. Only these can be modified by the caller.
+  PERMITTED_CORE_UPDATE_ATTRIBUTES = %i[workspace public private origin created_at updated_at].freeze
+
+  # Returns a copy of +opts+ containing only the keys in {PERMITTED_CORE_UPDATE_ATTRIBUTES}, to limit what values can be assigned/modified.
+  #
+  # @param opts [Hash] the caller-supplied opts hash
+  # @return [Hash] the subset of +opts+ that is safe to mass assign
+  def permitted_core_update_attributes(opts)
+    opts.slice(*PERMITTED_CORE_UPDATE_ATTRIBUTES)
+  end
+  private :permitted_core_update_attributes
+
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
@@ -240,42 +252,44 @@ module Msf::DBManager::Cred
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts = opts.clone()
       opts.delete(:workspace)
-      opts[:workspace] = wspace if wspace
-
-      if opts[:public]
-        if opts[:public][:id]
-          public_id = opts[:public].delete(:id)
-          public = Metasploit::Credential::Public.find(public_id)
-          public.update(opts[:public])
-        else
-          public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
-        end
-        opts[:public] = public
-      end
-      if opts[:private]
-        if opts[:private][:id]
-          private_id = opts[:private].delete(:id)
-          private = Metasploit::Credential::Private.find(private_id)
-          private.update(opts[:private])
-        else
-          private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
-        end
-        opts[:private] = private
-      end
-      if opts[:origin]
-        if opts[:origin][:id]
-          origin_id = opts[:origin].delete(:id)
-          origin = Metasploit::Credential::Origin.find(origin_id)
-          origin.update(opts[:origin])
-        else
-          origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
-        end
-        opts[:origin] = origin
-      end
 
       id = opts.delete(:id)
       cred = Metasploit::Credential::Core.find(id)
-      cred.update!(opts)
+
+      update_attrs = permitted_core_update_attributes(opts)
+      update_attrs[:workspace] = wspace if wspace
+
+      if opts[:public]
+        # The :id should only apply to the cred above, not any of the further lookups we do here so we exclude it
+        if opts[:public][:id] && opts[:public][:id].to_s == cred.public_id.to_s
+          public = Metasploit::Credential::Public.find(opts[:public][:id])
+          public.update(opts[:public].except(:id))
+        else
+          public = Metasploit::Credential::Public.where(opts[:public].except(:id)).first_or_initialize
+        end
+        update_attrs[:public] = public
+      end
+      if opts[:private]
+        if opts[:private][:id] && opts[:private][:id].to_s == cred.private_id.to_s
+          private = Metasploit::Credential::Private.find(opts[:private][:id])
+          private.update(opts[:private].except(:id))
+        else
+          private = Metasploit::Credential::Private.where(opts[:private].except(:id)).first_or_initialize
+        end
+        update_attrs[:private] = private
+      end
+      if opts[:origin]
+        # See comment above for :public -- same reasoning applies to :origin.
+        if opts[:origin][:id] && opts[:origin][:id].to_s == cred.origin_id.to_s
+          origin = Metasploit::Credential::Origin.find(opts[:origin][:id])
+          origin.update(opts[:origin].except(:id))
+        else
+          origin = Metasploit::Credential::Origin.where(opts[:origin].except(:id)).first_or_initialize
+        end
+        update_attrs[:origin] = origin
+      end
+
+      cred.update!(update_attrs)
       return cred
     }
   end

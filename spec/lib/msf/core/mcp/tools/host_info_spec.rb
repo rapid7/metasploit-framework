@@ -51,23 +51,23 @@ RSpec.describe Msf::MCP::Tools::HostInfo do
 
   describe 'Input Schema Validation' do
     it 'defines workspace as optional parameter with default' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:workspace][:type]).to eq('string')
       expect(properties[:workspace][:default]).to eq('default')
     end
 
     it 'defines addresses as optional string parameter' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:addresses][:type]).to eq('string')
     end
 
     it 'defines only_up as optional boolean parameter' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:only_up][:type]).to eq('boolean')
     end
 
     it 'supports pagination with limit and offset' do
-      properties = described_class.input_schema.schema[:properties]
+      properties = described_class.input_schema.to_h[:properties]
       expect(properties[:limit]).not_to be_nil
       expect(properties[:offset]).not_to be_nil
     end
@@ -75,7 +75,7 @@ RSpec.describe Msf::MCP::Tools::HostInfo do
 
   describe 'Output Schema' do
     it 'returns hosts with IP, OS, MAC, timestamps' do
-      data_items = described_class.output_schema.schema[:properties][:data][:items][:properties]
+      data_items = described_class.output_schema.to_h[:properties][:data][:items][:properties]
 
       expect(data_items[:address]).to eq({ type: 'string' })
       expect(data_items[:mac_address]).to eq({ type: 'string' })
@@ -87,7 +87,7 @@ RSpec.describe Msf::MCP::Tools::HostInfo do
     end
 
     it 'includes workspace in metadata' do
-      metadata_properties = described_class.output_schema.schema[:properties][:metadata][:properties]
+      metadata_properties = described_class.output_schema.to_h[:properties][:metadata][:properties]
       expect(metadata_properties[:workspace]).to eq({ type: 'string' })
       expect(metadata_properties[:query_time]).to eq({ type: 'number' })
       expect(metadata_properties[:total_items]).to eq({ type: 'integer' })

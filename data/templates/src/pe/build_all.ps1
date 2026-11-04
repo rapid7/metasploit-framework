@@ -4,13 +4,16 @@
 
 .DESCRIPTION
     Compiles x86 and x64 variants of the EXE, service EXE, DLL, GDI+ DLL, and
-    mixed-mode DLL templates using the MSVC toolchain. After linking, the EXE
-    templates are patched to lower the minimum subsystem version so they can run
-    on legacy Windows (NT 4.0+ for x86, Server 2003+ for x64). Modern MSVC
-    linkers enforce a floor of 5.01/5.02 which is too high for those targets.
+    mixed-mode DLL templates using the MSVC toolchain. AArch64 currently builds
+    only the standard DLL from dll/template.c (same source as x86/x64, with
+    CONTEXT.Pc). After linking, the EXE templates are patched to lower the
+    minimum subsystem version so they can run on legacy Windows (NT 4.0+ for
+    x86, Server 2003+ for x64). Modern MSVC linkers enforce a floor of
+    5.01/5.02 which is too high for those targets.
 
 .PARAMETER Architectures
-    Which architectures to build. Defaults to both x86 and x64.
+    Which architectures to build. Defaults to x86 and x64. Pass aarch64 to
+    build the ARM64 DLL (vcvarsall amd64_arm64).
 
 .PARAMETER Templates
     Which templates to build. Defaults to all of them.
@@ -18,11 +21,12 @@
 .EXAMPLE
     .\build_all.ps1
     .\build_all.ps1 -Architectures x86
+    .\build_all.ps1 -Architectures aarch64 -Templates dll
     .\build_all.ps1 -Templates exe,exe_service
 #>
 
 param(
-    [ValidateSet('x86', 'x64')]
+    [ValidateSet('x86', 'x64', 'aarch64')]
     [string[]]$Architectures = @('x86', 'x64'),
 
     [ValidateSet('exe', 'exe_service', 'dll', 'dll_gdiplus', 'dll_mixed_mode')]
@@ -114,7 +118,10 @@ function Invoke-VCVars {
         [System.Environment]::SetEnvironmentVariable($v, $null, 'Process')
     }
     $vcvars = Join-Path $env:VCINSTALLDIR 'Auxiliary\Build\vcvarsall.bat'
-    cmd /c "`"$vcvars`" $Arch >nul 2>&1 && set" 2>&1 | ForEach-Object {
+    $vcvarsOutput = cmd /c "`"$vcvars`" $Arch >nul 2>&1 && set" 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "vcvarsall.bat failed for $Arch" }
+
+    $vcvarsOutput | ForEach-Object {
         if ($_ -match '^([^=]+)=(.*)$') {
             [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
         }
@@ -202,10 +209,24 @@ function Build-Template {
     }
 }
 
+# vcvarsall uses amd64_arm64; output filenames use aarch64 to match MSF templates.
+$VcArch = @{
+    x86     = 'x86'
+    x64     = 'x64'
+    aarch64 = 'amd64_arm64'
+}
+
+if ($Architectures -contains 'aarch64') {
+    $unsupportedTemplates = @($Templates | Where-Object { $_ -ne 'dll' })
+    if ($unsupportedTemplates.Count -gt 0) {
+        throw "AArch64 supports only the dll template; unsupported template(s): $($unsupportedTemplates -join ', ')"
+    }
+}
+
 # Build each requested template for each architecture
 foreach ($arch in $Architectures) {
     Write-Host "`n=== Configuring for $arch ===" -ForegroundColor Cyan
-    Invoke-VCVars $arch
+    Invoke-VCVars $VcArch[$arch]
 
     foreach ($tmpl in $Templates) {
         Write-Host "`nBuilding: $tmpl ($arch)" -ForegroundColor Green

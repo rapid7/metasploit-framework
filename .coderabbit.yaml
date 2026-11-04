@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - files: "AGENTS.md"
+        applyTo: "**/*"
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  # Keep generated prose in the bot's comment so the contributor's description stays clear.
+  high_level_summary_in_walkthrough: true
+  poem: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    title:
+      mode: warning
+      requirements: "Describe the actual change and affected component; no fixed length or prefix is required."
+    # The custom content check accepts linked evidence and alternative headings.
+    description:
+      mode: "off"
+    issue_assessment:
+      mode: warning
+    # Custom checks require CodeRabbit Team or above; results appear in the walkthrough comment.
+    custom_checks:
+      - name: "PR description and verification"
+        mode: warning
+        instructions: >-
+          Pass when contributor content explains what changes and why, with
+          concrete verification commands/actions, expected outcomes, actual
+          checks/results and relevant untested limits. Accept linked
+          issues/docs/discussion. Empty template text, placeholder tasks, generic
+          "tested/works", and bot summaries are not evidence. For behavior changes
+          require only necessary setup (OS/target versions, configuration, lab
+          authentication); reproducible bug fixes need original failure steps.
+          For changed module behavior include check output (if supported) and
+          run/exploit output. For typo/comment/docs-only changes, inspection/preview and its
+          result suffice; require no runtime lab or automated tests. Fail only for
+          missing applicable information and state exactly what to add. Accept
+          any headings or checkbox state. If required linked evidence is
+          inaccessible, return Inconclusive and name it. Assess supplied evidence;
+          do not execute code or invent results.

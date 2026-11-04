@@ -547,6 +547,30 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/http/aarch64'
   end
 
+  context 'cmd/linux/http/loongarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/loongarch64'
+                          ],
+                          reference_name: 'cmd/linux/http/loongarch64'
+  end
+
+  context 'cmd/linux/https/loongarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/loongarch64'
+                          ],
+                          reference_name: 'cmd/linux/https/loongarch64'
+  end
+
+  context 'cmd/linux/tftp/loongarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/loongarch64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/loongarch64'
+  end
+
   context 'cmd/linux/https/aarch64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -810,6 +834,14 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/linux/ftp/aarch64'
                           ],
                           reference_name: 'cmd/linux/ftp/aarch64'
+  end
+
+  context 'cmd/linux/ftp/loongarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/ftp/loongarch64'
+                          ],
+                          reference_name: 'cmd/linux/ftp/loongarch64'
   end
 
   context 'cmd/linux/ftp/armbe' do
@@ -1503,6 +1535,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/generic'
   end
 
+  context 'cmd/windows/http/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/http/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/http/aarch64'
+  end
+
   context 'cmd/windows/http/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1519,6 +1559,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/http/x86'
   end
 
+  context 'cmd/windows/https/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/https/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/https/aarch64'
+  end
+
   context 'cmd/windows/https/x64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -1533,6 +1581,14 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/windows/https/x86'
                           ],
                           reference_name: 'cmd/windows/https/x86'
+  end
+
+  context 'cmd/windows/ftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/ftp/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/ftp/aarch64'
   end
 
   context 'cmd/windows/ftp/x64' do
@@ -1653,6 +1709,22 @@ RSpec.describe 'modules/payloads', :content do
                             'adapters/cmd/windows/smb/x64'
                           ],
                           reference_name: 'cmd/windows/smb/x64'
+  end
+
+  context 'cmd/windows/smb/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/smb/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/smb/aarch64'
+  end
+
+  context 'cmd/windows/tftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/windows/tftp/aarch64'
+                          ],
+                          reference_name: 'cmd/windows/tftp/aarch64'
   end
 
   context 'cmd/windows/tftp/x64' do
@@ -2306,6 +2378,44 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/loongarch64/exec'
+  end
+
+  context 'linux/loongarch64/shell/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/loongarch64/bind_tcp',
+                            'stages/linux/loongarch64/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/shell/bind_tcp'
+  end
+
+  context 'linux/loongarch64/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/loongarch64/reverse_tcp',
+                            'stages/linux/loongarch64/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/shell/reverse_tcp'
+  end
+
+  context 'linux/loongarch64/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/loongarch64/shell_bind_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/shell_bind_tcp'
+  end
+
+  context 'linux/loongarch64/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/loongarch64/shell_reverse_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/loongarch64/shell_reverse_tcp'
   end
 
   context 'linux/x64/exec' do

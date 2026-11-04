@@ -57,7 +57,7 @@ module DNS
       end
 
       unless record.name.to_s.match(MATCH_HOSTNAME)
-        raise "Invalid record for cache entry (invalid hostname) - #{record.inspect}"
+        return # skip non-cacheable record: " - #{record.inspect}"
       end
 
       add(record, expire ? (::Time.now.to_i + record.ttl) : 0)

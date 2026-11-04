@@ -825,11 +825,7 @@ module Auxiliary::AuthBrute
     msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = if is_a?(Msf::Auxiliary::Scanner)
-      msg.to_s
-    else
-      build_brute_message(host_ip, host_port, proto, msg)
-    end
+    complete_message = build_brute_message(host_ip,host_port,proto,msg)
 
     print_method = "print_#{level}"
     if self.respond_to? print_method
@@ -857,12 +853,17 @@ module Auxiliary::AuthBrute
     else
       complete_message = ''
       unless ip.blank? && port.blank?
-        complete_message << Rex::Socket.to_authority(ip, port).ljust(21)
+        authority = Rex::Socket.to_authority(ip, port)
+        # Modules using Exploit::Remote::Tcp already have the target in their print_prefix
+        unless print_prefix.split.include?(authority)
+          complete_message << authority.ljust(21)
+          complete_message << ' - '
+        end
       else
         complete_message << proto || 'Bruteforce'
+        complete_message << ' - '
       end
 
-      complete_message << " - "
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
       complete_message << msg.to_s.strip

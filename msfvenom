@@ -207,9 +207,9 @@ def parse_args(args)
   begin
     opt.parse!(args)
   rescue OptionParser::InvalidOption => e
-    raise UsageError, "Invalid option\n#{opt}"
+    raise UsageError, "#{e.message}\nRun '#{$0} -h' for usage."
   rescue OptionParser::MissingArgument => e
-    raise UsageError, "Missing required argument for option\n#{opt}"
+    raise UsageError, "#{e.message}\nRun '#{$0} -h' for usage."
   end
 
   if opts.empty?

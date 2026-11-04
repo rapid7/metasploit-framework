@@ -40,8 +40,11 @@ on:
     branches:
       - '*'
     paths:
-      - 'metasploit-framework.gemspec'
+      - '.ruby-version'
+      - 'Gemfile'
       - 'Gemfile.lock'
+      - 'metasploit-framework.gemspec'
+      - 'Dockerfile'
       - 'data/templates/**'
       - 'modules/payloads/**'
       - 'lib/msf/core/payload/**'
@@ -58,6 +61,10 @@ on:
 #   Example of running as a cron, to weed out flaky tests
 #  schedule:
 #    - cron: '*/15 * * * *'
+
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
 
 jobs:
   # Run all test individually, note there is a separate final job for aggregating the test results
@@ -147,7 +154,7 @@ jobs:
         # Skip for now to ensure CI passes on Windows server 2025 powershell tests
         #env:
         #  BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -207,7 +214,7 @@ jobs:
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           # use the default version from the .ruby-version file
           ruby-version: '.ruby-version'
