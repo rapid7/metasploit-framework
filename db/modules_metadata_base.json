@@ -38626,6 +38626,57 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/hashicorp_consul_version": {
+    "name": "HashiCorp Consul Version Scanner",
+    "fullname": "auxiliary/scanner/http/hashicorp_consul_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for HashiCorp Consul agents and fingerprints the\n          running version. It reads the /v1/agent/self API endpoint and\n          extracts the Config.Version field. On agents without ACL enforcement\n          (the default) this is unauthenticated; when the agent replies 403\n          the module retries with the configured ACL token in the\n          X-Consul-Token header. If the agent info API stays unreadable the\n          module tries the permission-free /v1/agent/version endpoint and\n          then the Consul UI at /ui/, whose static HTML leaks the exact\n          version in a CONSUL_VERSION comment even when the ACL default\n          policy denies everything else.\n\n          Tested against every major GA release since October 2024 (1.20,\n          1.21, 1.22, 2.0).",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8500,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-02 10:12:40 +0000",
+    "path": "/modules/auxiliary/scanner/http/hashicorp_consul_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/hashicorp_consul_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/host_header_injection": {
     "name": "HTTP Host Header Injection Detection",
     "fullname": "auxiliary/scanner/http/host_header_injection",
