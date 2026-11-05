@@ -90,6 +90,8 @@ jobs:
           - { name: php, runtime_version: 7.4 }
           - { name: php, runtime_version: 8.3 }
         exclude:
+          # setup-python has no Python 3.8 build for Ubuntu 26.04; use Ubuntu 24.04 below.
+          - { os: ubuntu-latest, meterpreter: { name: python, runtime_version: 3.8 } }
           # PHP 7.4/8.3 cannot be provisioned on Intel macOS: Homebrew no longer ships Intel-macOS
           # bottles, so setup-php builds from source and hits its no-output watchdog. Meterpreter has
           # no macOS arm64 support, so there is no viable macOS host+install path -- PHP coverage is
@@ -97,6 +99,9 @@ jobs:
           - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 7.4 } }
           - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 8.3 } }
         include:
+          # Python
+          - { meterpreter: { name: python, runtime_version: 3.8 }, ruby: '3.4', os: ubuntu-24.04 }
+
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
           # TODO: Screenshotting behavior fails:
