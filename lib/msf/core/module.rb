@@ -58,6 +58,7 @@ module Msf
     include Msf::Module::Ranking
     include Msf::Module::Type
     include Msf::Module::UI
+    include Msf::Module::VersionCompatibility
     include Msf::Module::UUID
     include Msf::Module::SideEffects
     include Msf::Module::Stability
