@@ -144509,7 +144509,7 @@
     "targets": [
       "Unix Command"
     ],
-    "mod_time": "2026-11-03 17:44:33 +0000",
+    "mod_time": "2026-11-05 12:24:43 +0000",
     "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce.rb",
     "is_install_path": true,
     "ref_name": "unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
@@ -144527,6 +144527,60 @@
       "SideEffects": [
         "ioc-in-logs",
         "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce": {
+    "name": "Cisco Secure Email Gateway ECS Message-ID SQL Injection RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an unauthenticated SQL injection in the Cisco\n          Secure Email Gateway (SEG) Email Cloud Scanner (ECS) URL-retrospective\n          message database. A sender-controlled Message-ID is placed inside a fixed\n          PostgreSQL dollar-quoted string without escaping. The module sends one\n          email whose quoted Message-ID terminates that string, stacks COPY TO\n          PROGRAM, and executes a Unix command payload as root through AsyncOS\n          runas.\n\n          The check identifies the product through Cisco SEG's hidden SMTP\n          queue-status command. AsyncOS does not expose a version through a\n          benign SMTP command, so the check can only identify the product but not\n          if it is explicitly vulnerable.\n\n          URL Filtering and URL Retrospective Service must both be enabled.",
+    "references": [
+      "CVE-2026-76461",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-esa-inj-2bLVGmhX"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-03 13:01:48 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
