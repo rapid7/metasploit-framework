@@ -144476,6 +144476,62 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_unix/smtp/cisco_secure_email_gateway_amp_file_write_rce": {
+    "name": "Cisco Secure Email Gateway AMP Arbitrary File Write RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
+    "aliases": [],
+    "rank": 400,
+    "disclosure_date": "2026-10-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "An unauthenticated attacker sends an email containing a crafted tar\n          attachment through Cisco Secure Email Gateway. Inside the tar, a POSIX\n          pax extended header applies `linkpath=bin/core_watch.sh` to a hard-link\n          member. That member also contains the module's shell command launcher.\n\n          AMP File Reputation decodes the email attachment and passes the tar to\n          `libunarchv`, AMP's native archive extractor. `libunarchv` runs as root\n          and uses libarchive to write archive members. Its\n          `update_full_pathname()` function replaces the member pathname in\n          `archive_entry_pathname()` with a generated pathname in AMP's temporary\n          extraction directory. It leaves `archive_entry_hardlink()`, which holds\n          the pax `linkpath`, under the attacker's control.\n\n          Libarchive asks the operating system to create the generated pathname as\n          a hard link to `bin/core_watch.sh`. AMP's working directory is `/data`,\n          so this relative `linkpath` resolves to `/data/bin/core_watch.sh`. A hard\n          link is another pathname for the same file. When libarchive writes the\n          member's data through the generated pathname, it therefore truncates and\n          replaces `core_watch.sh`. This primitive overwrites an existing file; it\n          cannot create the file named by `linkpath`, and both pathnames must be on\n          the same filesystem.\n\n          The flaw is in `libunarchv`'s hard-link validation, not the pax format.\n          The module uses the file overwrite to replace /data/bin/core_watch.sh with\n          a shell command launcher. The system crontab runs this script as root every\n          five minutes. Before running the payload, the launcher truncates the\n          replaced file to prevent another payload execution. Three other Cisco scripts are\n          hard links to the same file and are also left empty. The appliance\n          requires repair after exploitation.\n\n          The check sends the hidden EUQ_FULL SMTP command to identify an AsyncOS\n          mail service. SMTP does not reveal the Content Scanner Tools version or\n          whether File Reputation is enabled on a mail policy, so the check\n          reports only that the product was detected.\n\n          File Reputation must be enabled and assigned to a mail policy, and\n          Content Scanner Tools must be earlier than 25.3.0.5525.",
+    "references": [
+      "CVE-2026-76519",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-esa-afw-zqYJkjxp"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-03 17:44:33 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "os-resource-loss"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_unix/smtp/cisco_secure_email_gateway_smime_sqli_rce": {
     "name": "Cisco Secure Email Gateway S/MIME SQL Injection RCE",
     "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
