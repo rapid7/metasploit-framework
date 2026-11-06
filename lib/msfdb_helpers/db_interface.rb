@@ -9,6 +9,18 @@ module MsfdbHelpers
       raise NotImplementedError
     end
 
+    # Keep backend-specific initialization state until configuration and migrations finish.
+    # @yield initialize the database, write configuration and run migrations
+    # @return [void]
+    def with_initialization
+      yield
+    end
+
+    # @return [Boolean] whether an earlier initialization needs to be completed
+    def initialization_pending?
+      false
+    end
+
     def delete
       raise NotImplementedError
     end

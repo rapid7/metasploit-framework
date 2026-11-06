@@ -177,40 +177,54 @@ def restart_db
 end
 
 def init_db
-  case @db_driver.status
-  when DatabaseStatus::RUNNING
-    puts 'Existing database running'
-    return
-  when DatabaseStatus::INACTIVE
-    puts 'Existing database found, attempting to start it'
-    @db_driver.start
-    return
-  end
-
-  if @db_driver.exists? && !@options[:delete_existing_data]
-    if !load_db_config
-      puts 'Failed to load existing database config. Please reinit and overwrite the file.'
+  @db_driver.with_initialization do
+    case @db_driver.status
+    when DatabaseStatus::RUNNING
+      puts 'Existing database running'
+      return
+    when DatabaseStatus::INACTIVE
+      puts 'Existing database found, attempting to start it'
+      @db_driver.start
       return
     end
+
+    if @db_driver.initialization_pending?
+      raise PG::Error, 'Could not load the incomplete database configuration; restore it or inspect the data before running msfdb reinit' unless load_db_config
+    elsif @db_driver.exists? && !@options[:delete_existing_data]
+      if !load_db_config
+        puts 'Failed to load existing database config. Please reinit and overwrite the file.'
+        return
+      end
+    end
+
+    # Generate new database passwords if not already assigned
+    @msf_pass ||= pw_gen
+    @msftest_pass ||= pw_gen
+
+    config_written = false
+    @db_driver.init(@msf_pass, @msftest_pass) do
+      # PgCtl persists credentials after claiming the cluster, before provisioning.
+      write_db_config
+      config_written = true
+    end
+    write_db_config unless config_written
+
+    puts 'Creating initial database schema'
+    Dir.chdir(@framework) do
+      # This one-off task needs no web-session key or packaged schema dump.
+      migration_env = { 'SCHEMA' => File::NULL }
+      migration_env['SECRET_KEY_BASE'] = SecureRandom.hex(64) unless ENV['SECRET_KEY_BASE']
+      unless @db_driver.run_cmd('bundle exec rake db:migrate', env: migration_env) == 0
+        raise PG::Error, 'Database schema migration failed'
+      end
+    end
   end
-
-  # Generate new database passwords if not already assigned
-  @msf_pass ||= pw_gen
-  @msftest_pass ||= pw_gen
-
-  @db_driver.init(@msf_pass, @msftest_pass)
-  write_db_config
-
-  puts 'Creating initial database schema'
-  Dir.chdir(@framework) do
-    @db_driver.run_cmd('bundle exec rake db:migrate')
-  end
-  puts 'Database initialization successful'.green.bold.to_s
+  puts 'Database initialization successful'.green.bold
 end
 
 def load_db_config
   if File.file?(@db_conf)
-    config = YAML.load(File.read(@db_conf))
+    config = load_db_config_yaml
 
     production = config['production']
     if production.nil?
@@ -221,6 +235,16 @@ def load_db_config
     test = config['test']
     if test.nil?
       puts "No test section found in database config #{@db_conf}."
+      return false
+    end
+
+    valid_accounts = [production, test].all? do |section|
+      section.is_a?(Hash) && %w[database username password].all? do |key|
+        section[key].is_a?(String) && !section[key].empty?
+      end
+    end
+    unless valid_accounts && production['port'].to_s.match?(/\A[0-9]+\z/) && production['port'].to_i.between?(1, 65_535)
+      puts "Incomplete database connection settings in #{@db_conf}."
       return false
     end
 
