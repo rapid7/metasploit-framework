@@ -1603,13 +1603,16 @@ class Db
 
     matched_loot_ids = []
     loots = []
+    loot_opts = { workspace: framework.db.workspace, search_term: search_term }
+    # In update mode, types specifies the replacement type rather than a filter.
+    loot_opts[:ltype] = types if types && mode != :update
     if host_ranges.compact.empty?
-      loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
+      loots += framework.db.loots(loot_opts)
     else
       each_host_range_chunk(host_ranges) do |host_search|
         next if host_search && host_search.empty?
 
-        loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
+        loots += framework.db.loots(loot_opts.merge(hosts: { address: host_search }))
       end
     end
 
