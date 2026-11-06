@@ -15,6 +15,8 @@ require 'logger'
 require 'fileutils'
 require 'optparse'
 require 'benchmark'
+require 'ipaddr'
+require 'socket'
 
 class UrlChecker
   WAYBACK_MACHINE_API_URL = 'https://archive.org/wayback/available?url='
@@ -24,6 +26,13 @@ class UrlChecker
   BATCH_SIZE = 1000 # Number of URLs to process in each batch
   MAX_RETRIES = 3 # Maximum number of retries for failed requests to the Wayback Machine
   RETRY_DELAY = 5 # Delay in seconds between retries
+  NON_PUBLIC_IPV4_RANGES = %w[
+    0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16
+    172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.88.99.0/24 192.168.0.0/16
+    198.18.0.0/15 198.51.100.0/24 203.0.113.0/24 224.0.0.0/4 240.0.0.0/4
+  ].map { |range| IPAddr.new(range) }.freeze
+  PUBLIC_IPV6_RANGE = IPAddr.new('2000::/3').freeze
+  NON_PUBLIC_IPV6_RANGES = %w[2001::/23 2001:db8::/32 2002::/16 3fff::/20].map { |range| IPAddr.new(range) }.freeze
 
   # Initializes the UrlChecker instance with given URLs and configuration options
   # @param [Array<Hash>] urls_with_paths A list of URLs with associated paths to check
@@ -106,21 +115,19 @@ class UrlChecker
 
     # Prepare the HTTP request
     uri = URI.parse(cleaned_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == 'https'
-
     start_time = Time.now
 
     begin
       # Get the HTTP response and handle redirects
+      http = http_client(uri)
       response = get_response(http, uri)
-      follow_redirects(http, uri, response)
+      response = follow_redirects(http, uri, response)
     rescue StandardError => e
       handle_error(url_result, e)
+    else
+      process_response(response, url_result)
     end
 
-    # Process the response (check for success, failure, or error)
-    process_response(response, url_result)
     elapsed_time = Time.now - start_time
     @url_times << elapsed_time
 
@@ -146,6 +153,34 @@ class UrlChecker
     http.get(uri.request_uri)
   end
 
+  # Resolve once and pin the connection to a checked public address. Retain the
+  # hostname for Host/TLS and disable environment proxies so they cannot resolve
+  # the destination independently of this check.
+  def http_client(uri)
+    unless uri.is_a?(URI::HTTP) && uri.hostname
+      raise ArgumentError, 'Only absolute HTTP(S) destinations are supported'
+    end
+
+    addresses = Addrinfo.getaddrinfo(uri.hostname, uri.port, nil, :STREAM).map(&:ip_address).uniq
+    if addresses.empty? || addresses.any? { |address| !public_address?(address) }
+      raise ArgumentError, "Refusing non-public destination: #{uri.hostname}"
+    end
+
+    http = Net::HTTP.new(uri.hostname, uri.port, nil)
+    http.ipaddr = addresses.first
+    http.use_ssl = uri.scheme == 'https'
+    http
+  end
+
+  def public_address?(value)
+    address = IPAddr.new(value).native
+    if address.ipv4?
+      NON_PUBLIC_IPV4_RANGES.none? { |range| range.include?(address) }
+    else
+      PUBLIC_IPV6_RANGE.include?(address) && NON_PUBLIC_IPV6_RANGES.none? { |range| range.include?(address) }
+    end
+  end
+
   # Follows HTTP redirects up to a maximum limit (MAX_REDIRECTS)
   # @param [Net::HTTP] http The HTTP client
   # @param [URI] uri The original URI
@@ -155,10 +190,12 @@ class UrlChecker
     while response.is_a?(Net::HTTPRedirection) && redirect_count < MAX_REDIRECTS
       location = response['location']
       @logger.info("Redirecting to: #{location}")
-      uri = URI.parse(location)
-      response = http.get(uri.request_uri)
+      uri = URI.join(uri.to_s, location)
+      http = http_client(uri)
+      response = get_response(http, uri)
       redirect_count += 1
     end
+    response
   end
 
   # Processes the HTTP response to determine the URL status
@@ -186,12 +223,13 @@ class UrlChecker
   # Attempts to fetch the Wayback Machine snapshot for the URL
   # @param [Hash] url_result The result hash to update with the Wayback snapshot information
   def fetch_wayback_snapshot(url_result)
-    wayback_url = "#{WAYBACK_MACHINE_API_URL}#{url_result[:url]}"
+    cleaned_url = url_result[:url].sub(/^URL-/, '')
+    wayback_url = "#{WAYBACK_MACHINE_API_URL}#{URI.encode_www_form_component(cleaned_url)}"
     retries = 0
 
     begin
       uri = URI.parse(wayback_url)
-      response = Net::HTTP.get_response(uri)
+      response = get_response(http_client(uri), uri)
       handle_wayback_response(response, url_result)
     rescue StandardError => e
       retries += 1
