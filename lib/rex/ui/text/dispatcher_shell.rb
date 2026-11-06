@@ -655,7 +655,7 @@ module DispatcherShell
   # See +CommandDispatcher#help_to_s+
   #
   def help_to_s(opts = {})
-    str = ''
+    str = +''
 
     max_command_length = dispatcher_stack.flat_map { |dispatcher| dispatcher.commands.to_a }.map { |(name, _description)| name.length }.max
 
