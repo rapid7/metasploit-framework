@@ -202263,7 +202263,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-04-22 11:58:46 +0000",
+    "mod_time": "2026-09-07 00:09:55 +0000",
     "path": "/modules/exploits/windows/local/unquoted_service_path.rb",
     "is_install_path": true,
     "ref_name": "windows/local/unquoted_service_path",
