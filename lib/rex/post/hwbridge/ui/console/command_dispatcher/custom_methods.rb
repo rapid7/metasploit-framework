@@ -12,6 +12,10 @@ class Console::CommandDispatcher::CustomMethods
   include Console::CommandDispatcher
   include Msf::Auxiliary::Report
 
+  # Custom command names must be plain identifiers: letters, digits, and
+  # underscores only, not starting with a digit.
+  VALID_CMD_NAME = /\A[a-zA-Z_][a-zA-Z0-9_]*\z/
+
   def initialize(shell)
     super
     @cmds = {}
@@ -33,18 +37,28 @@ class Console::CommandDispatcher::CustomMethods
   end
 
   #
-  # Loaded from core and passed hash from custom_methods rest call
+  # Loaded from core and passed hash from custom_methods rest call.
+  #
+  # Only the trailing path segment of method_name is used as the command
+  # name, and it must match VALID_CMD_NAME; anything else is skipped.
   #
   def load_methods(m)
-    @custom_methods = m
-    m.each do |method|
-      if method.key? "method_name"
-        desc = "See HW manual for command description"
-        desc = method["method_desc"] if method.key? "method_desc"
-        cmd = method["method_name"]
-        cmd = /\/(\S+)$/.match(cmd)
-        @cmds[cmd] = method["method_desc"]
-        eval("alias cmd_#{cmd} cmd_generic_handler")
+    @custom_methods = m.select do |method|
+      method.is_a?(Hash) && method['method_name'].is_a?(String)
+    end
+    @custom_methods.each do |method|
+      full_name = method['method_name']
+      match = /\/(\S+)\z/.match(full_name)
+      cmd = match && match[1]
+
+      unless cmd&.match?(VALID_CMD_NAME)
+        print_error("Skipping custom method with unsupported name: #{full_name.inspect}")
+        next
+      end
+
+      @cmds[cmd] = method['method_desc'] || 'See HW manual for command description'
+      define_singleton_method("cmd_#{cmd}") do |*args|
+        cmd_generic_handler(cmd, *args)
       end
     end
   end
@@ -54,7 +68,7 @@ class Console::CommandDispatcher::CustomMethods
   #
   def cmd_generic_handler_help(cmd)
     @custom_methods.each do |meth|
-      next unless meth["method_name"] =~ /#{cmd}$/
+      next unless meth["method_name"].end_with?("/#{cmd}")
       args = ""
       args = "<args>" if meth["args"].size > 0
       print_line("Usage: #{cmd} #{args}")
@@ -70,8 +84,7 @@ class Console::CommandDispatcher::CustomMethods
   #
   # A generic handler for all custom commands
   #
-  def cmd_generic_handler(*args)
-    cmd = __callee__.to_s.gsub(/^cmd_/,'')
+  def cmd_generic_handler(cmd, *args)
     @@generic_opts.parse(args) { |opt, idx, val|
       case opt
       when "-h"
@@ -99,7 +112,7 @@ class Console::CommandDispatcher::CustomMethods
       arguments[key] = value
     end
     @custom_methods.each do |meth|
-      if meth["method_name"] =~ /#{cmd}$/
+      if meth["method_name"].end_with?("/#{cmd}")
         meth["args"].each do |arg|
           if arg.key? "required" and arg["required"] == true
             all_found = false if not arguments.key? arg["arg_name"]
