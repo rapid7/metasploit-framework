@@ -91,6 +91,12 @@ TLV_TYPE_MIGRATE_SOCKET_PATH = TLV_META_TYPE_STRING | 409
 TLV_TYPE_MIGRATE_STUB        = TLV_META_TYPE_RAW    | 411
 TLV_TYPE_LIB_LOADER_NAME     = TLV_META_TYPE_STRING | 412
 TLV_TYPE_LIB_LOADER_ORDINAL  = TLV_META_TYPE_UINT   | 413
+TLV_TYPE_MICRO_NAME          = TLV_META_TYPE_STRING | 415
+TLV_TYPE_MICRO_HANDLE        = TLV_META_TYPE_QWORD  | 416
+TLV_TYPE_MICRO_IMAGE         = TLV_META_TYPE_RAW    | 417
+TLV_TYPE_MICRO_ENTRY         = TLV_META_TYPE_GROUP  | 418
+TLV_TYPE_MICRO_ABI           = TLV_META_TYPE_UINT   | 419
+TLV_TYPE_MICRO_DIAGNOSTIC    = TLV_META_TYPE_STRING | 420
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
@@ -382,7 +388,7 @@ class Tlv
 
     group ||= (self.class.to_s =~ /Packet/)
     if group
-      has_command_ids = type == PACKET_TYPE_RESPONSE && (self.method == COMMAND_ID_CORE_ENUMEXTCMD || self.method == COMMAND_ID_CORE_LOADLIB)
+      has_command_ids = type == PACKET_TYPE_RESPONSE && [COMMAND_ID_CORE_ENUMEXTCMD, COMMAND_ID_CORE_LOADLIB, COMMAND_ID_CORE_MICRO_HAS_COMMAND, COMMAND_ID_CORE_MICRO_LOAD, COMMAND_ID_CORE_MICRO_UNLOAD].include?(self.method)
       if has_command_ids
         longest_command_id = self.get_tlvs(TLV_TYPE_UINT).map(&:value).max
         longest_command_id_length = longest_command_id.to_s.length
