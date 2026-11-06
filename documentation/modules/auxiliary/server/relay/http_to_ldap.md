@@ -3,8 +3,13 @@
 ### Description
 
 This module sets up an HTTP server that attempts to execute an NTLM relay attack against an LDAP server on the
-configured `RHOSTS`. The relay attack targets NTLMv1 authentication, as NTLMv2 cannot be relayed to LDAP due to the
-Message Integrity Check (MIC). The module automatically removes the relevant flags to bypass signing.
+configured `RHOSTS`. Both NTLMv1 and NTLMv2 can be relayed. NTLMv2 clients must not request NTLM signing or sealing:
+the relay preserves the original negotiate and authenticate messages, including the Message Integrity Check (MIC).
+Rewriting a MIC-protected handshake invalidates it. The module retains flag removal for NTLMv1 clients that request signing.
+
+Windows `curl.exe --ntlm` can relay NTLMv2 without requesting signing. Windows `Invoke-WebRequest` and WinHTTP clients
+can request signing and therefore cannot provide a usable NTLMv2 LDAP relay session through this module. The target
+must allow unsigned LDAP operations; a successful bind alone does not prove that the resulting session is usable.
 
 This module supports relaying one HTTP authentication attempt to multiple LDAP servers. After attempting to relay to
 one target, the relay server sends a 307 to the client and if the client is configured to respond to redirects, the
@@ -30,31 +35,41 @@ For this relay attack to be successful, it is important to understand the differ
 Domain Controller receiving the relayed authentication) and the Victim Client (the machine sending the initial HTTP
 request) and how their respective configurations can impact the success of the attack.
 
-The Domain Controller must be configured to accept LM or NTLM authentication. This means the `LmCompatibilityLevel`
-registry key on the DC must be set to 4 or lower. If it is set to `5` ("Send NTLMv2 response only. Refuse
-LM and NTLM"), the DC will reject the relayed authentication and the module will fail.
+For NTLMv1, the Domain Controller must accept NTLM authentication. Its `LmCompatibilityLevel` registry value must be
+4 or lower. Level `5` ("Send NTLMv2 response only. Refuse LM and NTLM") rejects NTLMv1 but permits NTLMv2. The target's
+`Domain controller: LDAP server signing requirements` policy must be `None` for either version.
 
 You can verify or modify the Domain Controller's level using the following commands:
 ```cmd
-# To check the current level:
-reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa -v LmCompatibilityLevel
+REM To check the current level:
+reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa /v LmCompatibilityLevel
 
-# To set the level to 4 (or lower):
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa -v LmCompatibilityLevel /t REG_DWORD /d 0x4 /f
+REM To permit NTLMv1 by setting the level to 4 (or lower):
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa /v LmCompatibilityLevel /t REG_DWORD /d 0x4 /f
 ```
 
 The client being coerced must be willing to send the vulnerable NTLM responses.
-- Non-Windows Clients: Custom tools or Linux-based HTTP clients are unaffected by Windows registry keys and can easily
-be relayed to a vulnerable DC.
-- Windows Clients: If you are coercing a native Windows HTTP client (like `Invoke-WebRequest` or a browser), the victim
-machine's `LmCompatibilityLevel` dictates what it is allowed to send. To successfully relay a Windows client, its local
-registry key typically needs to be set to `2` or lower. If the Windows client is operating at level `3` or higher, it
-restricts itself to sending only NTLMv2 responses, which will cause the relay to fail even if the target DC is vulnerable.
+- Non-Windows clients: Their NTLM implementation controls the response version and signing flags independently of Windows policy.
+- Windows clients: `LmCompatibilityLevel` controls the response version, while the HTTP application's SSPI context
+  requirements determine whether it requests signing. Use level `2` to test NTLMv1 and level `5` to test NTLMv2. Windows
+  `curl.exe --ntlm --user 'DOMAIN\username:password' http://192.0.2.1/test` can supply unsigned NTLM authentication for both
+  versions. `Invoke-WebRequest` works for NTLMv1 with flag removal; its signed, MIC-protected NTLMv2 handshake cannot be
+  downgraded by this relay.
+
+## Options
+
+### RANDOMIZE_TARGETS
+
+Randomize the order of the relay targets. Defaults to `true`.
+
+### SessionKeepalive
+
+Interval in seconds between protocol keepalive messages for a created LDAP session. Defaults to `600`.
 
 ## Verification Steps
 
 1. Start msfconsole
-2. Do: `use auxiliary/server/relay/http_to_ldap`  
+2. Do: `use auxiliary/server/relay/http_to_ldap`
 3. Set the `RHOSTS` options
 4. Run the module
 5. Send an authentication attempt to the relay server
