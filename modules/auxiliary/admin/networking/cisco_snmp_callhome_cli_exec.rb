@@ -454,25 +454,51 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def restore_callhome_state
-    restored = true
+    controls_restored = true
+    smtp_row_removed = true
+
     if @controls_staged
-      restored &&= set_varbinds('Restore Call Home CLI controls', control_varbinds(@original_controls.except(:trigger)), fatal: false)
-      readback = read_controls
-      restored &&= @original_controls.all? do |name, expected|
-        actual = readback[name]
-        INTEGER_CONTROLS.include?(name) ? actual.to_i == expected.to_i : actual.to_s == expected.to_s
+      begin
+        controls_restored = set_varbinds(
+          'Restore Call Home CLI controls',
+          control_varbinds(@original_controls.except(:trigger)),
+          fatal: false
+        )
+
+        readback = read_controls
+        controls_restored &&= @original_controls.all? do |name, expected|
+          actual = readback[name]
+          INTEGER_CONTROLS.include?(name) ? actual.to_i == expected.to_i : actual.to_s == expected.to_s
+        end
+      rescue StandardError => e
+        controls_restored = false
+        print_error("Call Home CLI control restoration failed: #{e.message}")
       end
     end
+
     if @smtp_row_created
-      row_destroyed = set_varbinds('Destroy temporary SMTP row', [integer_varbind(@smtp_status_oid, ROW_STATUS_DESTROY)], fatal: false)
-      row_absent = exception_value?(read_oid(@smtp_status_oid))
-      restored = restored && row_destroyed && row_absent
+      begin
+        row_destroyed = set_varbinds(
+          'Destroy temporary SMTP row',
+          [integer_varbind(@smtp_status_oid, ROW_STATUS_DESTROY)],
+          fatal: false
+        )
+
+        row_absent = exception_value?(read_oid(@smtp_status_oid))
+        smtp_row_removed = row_destroyed && row_absent
+      rescue StandardError => e
+        smtp_row_removed = false
+        print_error("Temporary SMTP row cleanup failed: #{e.message}")
+      end
     end
-    @restoration_failed = !restored
-    print_good('Temporary CISCO-CALLHOME-MIB state restored') if restored && (@controls_staged || @smtp_row_created)
-  rescue StandardError => e
-    @restoration_failed = true
-    print_error("Temporary CISCO-CALLHOME-MIB restoration failed: #{e.message}")
+
+    @restoration_failed = !(controls_restored && smtp_row_removed)
+
+    if @restoration_failed
+      print_warning('Temporary CISCO-CALLHOME-MIB state was not fully restored')
+    elsif @controls_staged || @smtp_row_created
+      print_good('Temporary CISCO-CALLHOME-MIB state restored')
+    end
   end
 
   def wait_until_ready
