@@ -70,6 +70,7 @@ If approximately two weeks pass after a review request without a comment or code
 * **Do** check the issue tracker to see if there is a `suggestion-module` issue for the module you want to write, and assign yourself to it if there is.
 * **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 * **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
+* **Do** prefer `# frozen_string_literal: true` as the first line of new module files (the generator includes it automatically). Use `String.new` or `.dup` for strings that need to change. If freezing causes compatibility problems, omit the comment and briefly explain why in the PR. Broad refactoring is not required.
 * **Do** set up `msftidy` as a [pre-commit hook] and ensure it passes with no errors or warnings before submitting — PRs that fail msftidy will not be accepted.
 * **Do** use the many module mixin [API]s.
 * **Do** include instructions on how to setup the vulnerable environment or software.
