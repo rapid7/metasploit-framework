@@ -1,17 +1,15 @@
-# -*- coding: binary -*-
+# frozen_string_literal: true
 
-require 'set'
-require 'time'
-require 'rex/proto/kerberos/model'
-require 'rex/proto/kerberos/crypto'
-require 'rex/proto/kerberos/kerberos_subscriber'
-require 'rex/proto/kerberos/kerberos_readable_text_presenter'
 require 'rex/proto/kerberos/credential_cache/krb5_ccache_presenter'
+require 'rex/proto/kerberos/kerberos_readable_text_presenter'
+require 'rex/proto/kerberos/kerberos_subscriber'
+require 'rex/proto/kerberos/kerberos_trace_serializer'
+require 'rex/proto/kerberos/service_authentication_trace_presenter'
 
 module Rex
   module Proto
     module Kerberos
-      # Logs Kerberos requests/responses
+      # Logs Kerberos requests, responses, credentials, and service-authentication trace events.
       class KerberosLoggerSubscriber < KerberosSubscriber
         TRACE_MODE_OFF = 'off'
         TRACE_MODE_METADATA = 'metadata'
@@ -24,6 +22,7 @@ module Rex
           TRACE_MODE_FULL
         ].freeze
 
+        # @param logger [#print_line, #datastore]
         def initialize(logger:)
           super()
           raise 'Incompatible logger' unless logger.respond_to?(:print_line) && logger.respond_to?(:datastore)
@@ -63,6 +62,43 @@ module Rex
           @logger.print_line(format_credential_for_trace_mode(credential))
         end
 
+        # (see Rex::Proto::Kerberos::KerberosSubscriber#on_ap_req)
+        def on_ap_req(metadata)
+          return unless service_authentication_trace_enabled?
+
+          if trace_mode == TRACE_MODE_TICKET
+            credential = metadata && metadata[:credential]
+            return if credential.nil?
+
+            print_credential_header('AP-REQ Selected Service Ticket')
+            @logger.print_line(format_credential_for_trace_mode(credential))
+            return
+          end
+
+          print_event('Kerberos AP-REQ', service_authentication_presenter.present_ap_req(metadata || {}), direction: :request)
+        end
+
+        # (see Rex::Proto::Kerberos::KerberosSubscriber#on_gss_token)
+        def on_gss_token(metadata)
+          return unless token_trace_enabled?
+
+          print_event('Kerberos GSS Token', service_authentication_presenter.present_gss_token(metadata || {}), direction: :request)
+        end
+
+        # (see Rex::Proto::Kerberos::KerberosSubscriber#on_spnego_token)
+        def on_spnego_token(metadata)
+          return unless token_trace_enabled?
+
+          print_event('Kerberos SPNEGO Token', service_authentication_presenter.present_spnego_token(metadata || {}), direction: :request)
+        end
+
+        # (see Rex::Proto::Kerberos::KerberosSubscriber#on_response_token)
+        def on_response_token(metadata)
+          return unless token_trace_enabled?
+
+          print_event('Kerberos Response Token', service_authentication_presenter.present_response_token(metadata || {}), direction: :response)
+        end
+
         private
 
         def message_trace_enabled?
@@ -71,6 +107,14 @@ module Rex
 
         def credential_trace_enabled?
           [TRACE_MODE_METADATA, TRACE_MODE_TICKET, TRACE_MODE_FULL].include?(trace_mode)
+        end
+
+        def service_authentication_trace_enabled?
+          [TRACE_MODE_METADATA, TRACE_MODE_TICKET, TRACE_MODE_FULL].include?(trace_mode)
+        end
+
+        def token_trace_enabled?
+          [TRACE_MODE_METADATA, TRACE_MODE_FULL].include?(trace_mode)
         end
 
         def trace_mode
@@ -84,7 +128,6 @@ module Rex
 
         def trace_colors
           configured_trace_colors = @logger.datastore['KerberosTicketTraceColors']
-          # Keep HttpTrace-compatible default formatting: request/response color pair.
           trace_colors = blank_value?(configured_trace_colors) ? 'red/blu' : configured_trace_colors
           trace_colors += '/' if trace_colors.count('/') == 0
           trace_colors.gsub('/', ' / ').split('/').map do |color|
@@ -104,28 +147,22 @@ module Rex
           @logger.print_line('#' * 20)
         end
 
+        def print_event(title, body, direction:)
+          request_color, response_color = trace_colors
+          color = direction == :response ? response_color : request_color
+
+          @logger.print_line('#' * 20)
+          @logger.print_line("# #{title}")
+          @logger.print_line('#' * 20)
+          @logger.print_line("%clr#{color}#{body}%clr")
+        end
+
         def message_type_name(message)
           msg_type = message.msg_type if message.respond_to?(:msg_type)
-          case msg_type
-          when Rex::Proto::Kerberos::Model::AS_REQ
-            'AS-REQ'
-          when Rex::Proto::Kerberos::Model::AS_REP
-            'AS-REP'
-          when Rex::Proto::Kerberos::Model::TGS_REQ
-            'TGS-REQ'
-          when Rex::Proto::Kerberos::Model::TGS_REP
-            'TGS-REP'
-          when Rex::Proto::Kerberos::Model::AP_REQ
-            'AP-REQ'
-          when Rex::Proto::Kerberos::Model::AP_REP
-            'AP-REP'
-          when Rex::Proto::Kerberos::Model::KRB_ERROR
-            'KRB-ERROR'
-          when nil
-            'UNKNOWN'
-          else
-            "UNKNOWN (#{msg_type})"
-          end
+          return 'UNKNOWN' if msg_type.nil?
+
+          name = trace_serializer.message_type_name(msg_type)
+          name == 'UNKNOWN' ? "UNKNOWN (#{msg_type})" : name
         end
 
         def format_message_for_trace_mode(message)
@@ -136,10 +173,8 @@ module Rex
           return 'null' if message.nil?
 
           if message.respond_to?(:attributes)
-            serialized_message = serialize_element(message, redact_binary: redact_binary)
-            readable_text_presenter.present(serialized_message)
+            readable_text_presenter.present(trace_serializer.serialize(message, redact_binary: redact_binary))
           else
-            # Fall back for non-model objects.
             message.to_s
           end
         rescue StandardError => e
@@ -152,152 +187,6 @@ module Rex
           "Credential presenter error: #{e.class}: #{e.message}"
         end
 
-        def serialize_element(element, redact_binary:)
-          element.attributes.each_with_object({}) do |attribute, output|
-            value = element.public_send(attribute)
-            next if value.nil?
-
-            output[serialized_attribute_key(element, attribute)] = serialize_value(value, element: element, attribute: attribute.to_sym, redact_binary: redact_binary)
-          end
-        end
-
-        def serialized_attribute_key(element, attribute)
-          if attribute == :options && element.is_a?(Rex::Proto::Kerberos::Model::ApReq)
-            'ap_options'
-          elsif attribute == :options && element.is_a?(Rex::Proto::Kerberos::Model::KdcRequestBody)
-            'kdc_options'
-          else
-            attribute.to_s
-          end
-        end
-
-        def serialize_value(value, redact_binary:, element: nil, attribute: nil)
-          if value.respond_to?(:attributes)
-            # Recursively serialize nested Kerberos model objects.
-            serialize_element(value, redact_binary: redact_binary)
-          elsif kerberos_error_code?(value)
-            # Normalize ErrorCode-like objects to a compact structured form.
-            {
-              'name' => value.name,
-              'value' => value.value,
-              'description' => value.description
-            }
-          else
-            serialize_scalar_value(value, element: element, attribute: attribute, redact_binary: redact_binary)
-          end
-        end
-
-        def serialize_scalar_value(value, redact_binary:, element: nil, attribute: nil)
-          case value
-          when Array
-            value.map { |entry| serialize_value(entry, element: element, attribute: attribute, redact_binary: redact_binary) }
-          when Set
-            value.to_a.map { |entry| serialize_value(entry, element: element, attribute: attribute, redact_binary: redact_binary) }
-          when Hash
-            value.each_with_object({}) do |(key, entry), output|
-              output[key.to_s] = serialize_value(entry, redact_binary: redact_binary)
-            end
-          when Rex::Proto::Kerberos::Model::KerberosFlags
-            {
-              'value' => value.to_i,
-              'flags' => value.enabled_flag_names.map(&:to_s)
-            }
-          when Time
-            value.utc.iso8601
-          when String
-            serialize_string(value, redact_binary: redact_binary)
-          when Symbol
-            value.to_s
-          when Integer
-            serialize_enum_value(value, element: element, attribute: attribute) || value
-          when Float, TrueClass, FalseClass, NilClass
-            value
-          else
-            value.to_s
-          end
-        end
-
-        def serialize_enum_value(value, element:, attribute:)
-          enum_name = case attribute
-                      when :msg_type
-                        message_type_name_for_value(value)
-                      when :type
-                        enum_type_name(value, element)
-                      when :etype
-                        enum_etype_name(value)
-                      when :name_type
-                        enum_name_type_name(value, element)
-                      end
-          return nil if enum_name.nil?
-
-          "#{value} (#{enum_name})"
-        end
-
-        def message_type_name_for_value(msg_type)
-          case msg_type
-          when Rex::Proto::Kerberos::Model::AS_REQ
-            'AS-REQ'
-          when Rex::Proto::Kerberos::Model::AS_REP
-            'AS-REP'
-          when Rex::Proto::Kerberos::Model::TGS_REQ
-            'TGS-REQ'
-          when Rex::Proto::Kerberos::Model::TGS_REP
-            'TGS-REP'
-          when Rex::Proto::Kerberos::Model::AP_REQ
-            'AP-REQ'
-          when Rex::Proto::Kerberos::Model::AP_REP
-            'AP-REP'
-          when Rex::Proto::Kerberos::Model::KRB_ERROR
-            'KRB-ERROR'
-          else
-            'UNKNOWN'
-          end
-        end
-
-        def enum_type_name(value, element)
-          if element.is_a?(Rex::Proto::Kerberos::Model::PreAuthDataEntry)
-            const_name_for_value(Rex::Proto::Kerberos::Model::PreAuthType, value)
-          elsif element.is_a?(Rex::Proto::Kerberos::Model::EncryptionKey)
-            enum_etype_name(value)
-          end
-        end
-
-        def enum_etype_name(value)
-          Rex::Proto::Kerberos::Crypto::Encryption.const_name(value) || 'UNKNOWN'
-        end
-
-        def enum_name_type_name(value, element)
-          return nil unless element.is_a?(Rex::Proto::Kerberos::Model::PrincipalName)
-
-          const_name_for_value(Rex::Proto::Kerberos::Model::NameType, value)
-        end
-
-        def const_name_for_value(mod, value)
-          mod.constants.each do |const_name|
-            return const_name.to_s if mod.const_get(const_name) == value
-          rescue StandardError
-            next
-          end
-
-          'UNKNOWN'
-        end
-
-        def kerberos_error_code?(value)
-          value.respond_to?(:name) && value.respond_to?(:value) && value.respond_to?(:description)
-        end
-
-        def serialize_string(value, redact_binary:)
-          return value if printable_string?(value)
-
-          return "[binary #{value.bytesize} bytes]" if redact_binary
-
-          "[binary #{value.bytesize} bytes: #{value.unpack1('H*')}]"
-        end
-
-        def present_time(time)
-          time.localtime.to_s
-        end
-
         def ticket_presenter
           @ticket_presenter ||= Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter.new(nil)
         end
@@ -306,15 +195,20 @@ module Rex
           @readable_text_presenter ||= Rex::Proto::Kerberos::KerberosReadableTextPresenter.new
         end
 
-        def printable_string?(value)
-          utf8_value = value.dup.force_encoding(::Encoding::UTF_8)
-          utf8_value.valid_encoding? && utf8_value.match?(/\A[[:print:]\r\n\t ]*\z/)
-        rescue ::Encoding::CompatibilityError
-          false
+        def trace_serializer
+          @trace_serializer ||= Rex::Proto::Kerberos::KerberosTraceSerializer.new
+        end
+
+        def service_authentication_presenter
+          @service_authentication_presenters ||= {}
+          @service_authentication_presenters[trace_mode] ||= Rex::Proto::Kerberos::ServiceAuthenticationTracePresenter.new(
+            trace_mode: trace_mode,
+            serializer: trace_serializer,
+            readable_text_presenter: readable_text_presenter
+          )
         end
 
         def blank_value?(value)
-          # Avoid depending on ActiveSupport's `blank?` for this Rex-level helper.
           return true if value.nil? || value == false
           return value.strip.empty? if value.respond_to?(:strip)
           return value.empty? if value.respond_to?(:empty?)
