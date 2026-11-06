@@ -78,20 +78,28 @@ module Msf::MCP
     # @param min_threads [Integer] Minimum number of Puma threads (default: PUMA_MIN_THREADS)
     # @param max_threads [Integer] Maximum number of Puma threads (default: PUMA_MAX_THREADS)
     # @param workers [Integer] Number of Puma worker processes (default: PUMA_WORKERS)
+    # @param ssl_cert [String, nil] Path to the TLS certificate (PEM). HTTPS is enabled when both ssl_cert and ssl_key are set
+    # @param ssl_key [String, nil] Path to the TLS private key (PEM)
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
-    # @raise [ArgumentError] If an unknown transport is specified
+    # @raise [ArgumentError] If an unknown transport is specified, or only one of ssl_cert/ssl_key is given
     #
-    def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    # rubocop:disable Metrics/ParameterLists -- keyword args mirror the existing start_http signature below
+    def start(transport: :stdio, host: 'localhost', port: 3000, auth_token: nil, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS, ssl_cert: nil, ssl_key: nil)
       case transport
       when :stdio
         start_stdio
       when :http
-        start_http(host, port, auth_token, min_threads: min_threads, max_threads: max_threads, workers: workers)
+        if ssl_cert.to_s.empty? != ssl_key.to_s.empty?
+          raise ArgumentError, 'Both ssl_cert and ssl_key are required to enable HTTPS'
+        end
+
+        start_http(host, port, auth_token, min_threads: min_threads, max_threads: max_threads, workers: workers, ssl_cert: ssl_cert, ssl_key: ssl_key)
       else
         raise ArgumentError, "Unknown transport: #{transport}. Use :stdio or :http"
       end
     end
+    # rubocop:enable Metrics/ParameterLists
 
     ##
     # Shutdown the MCP server and cleanup resources
@@ -142,10 +150,12 @@ module Msf::MCP
     # @param min_threads [Integer] Minimum number of Puma threads
     # @param max_threads [Integer] Maximum number of Puma threads
     # @param workers [Integer] Number of Puma worker processes
+    # @param ssl_cert [String, nil] Path to the TLS certificate; enables HTTPS when set together with ssl_key
+    # @param ssl_key [String, nil] Path to the TLS private key
     #
     # @return [MCP::Server] The MCP server instance (for testing purposes)
     #
-    def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS)
+    def start_http(host, port, auth_token, min_threads: PUMA_MIN_THREADS, max_threads: PUMA_MAX_THREADS, workers: PUMA_WORKERS, ssl_cert: nil, ssl_key: nil)
       require 'rack'
       require 'puma'
       require 'puma/configuration'
@@ -167,6 +177,11 @@ module Msf::MCP
 
       # Use Puma's server API directly so we can stop it gracefully on shutdown.
       bind_host = host.include?(':') ? "[#{host}]" : host
+      use_ssl = !ssl_cert.to_s.empty? && !ssl_key.to_s.empty?
+      if use_ssl
+        ssl_cert = File.expand_path(ssl_cert.to_s)
+        ssl_key = File.expand_path(ssl_key.to_s)
+      end
       @puma_log_io = File.open(File::NULL, 'w')
       begin
         log_writer = Puma::LogWriter.new(@puma_log_io, @puma_log_io)
@@ -176,7 +191,11 @@ module Msf::MCP
           require 'puma/launcher'
 
           puma_config = Puma::Configuration.new do |config|
-            config.bind "tcp://#{bind_host}:#{port}"
+            if use_ssl
+              config.ssl_bind bind_host, port, { cert: ssl_cert, key: ssl_key }
+            else
+              config.bind "tcp://#{bind_host}:#{port}"
+            end
             config.threads min_threads, max_threads
             config.workers workers
             config.log_requests false
@@ -191,7 +210,16 @@ module Msf::MCP
             min_threads: min_threads,
             max_threads: max_threads
           })
-          @puma_server.add_tcp_listener(bind_host, port)
+          if use_ssl
+            require 'puma/minissl'
+            ssl_context = Puma::MiniSSL::Context.new
+            ssl_context.cert = ssl_cert
+            ssl_context.key = ssl_key
+            ssl_context.verify_mode = Puma::MiniSSL::VERIFY_NONE
+            @puma_server.add_ssl_listener(bind_host, port, ssl_context)
+          else
+            @puma_server.add_tcp_listener(bind_host, port)
+          end
           @puma_server.run.join
         end
       rescue StandardError
@@ -230,7 +258,7 @@ module Msf::MCP
     # @return [Proc] Callback that wraps request execution and logs via Rex
     #
     def create_around_request
-      ->(data, &request_handler) do
+      lambda do |data, &request_handler|
         result = request_handler.call
 
         # Build message based on the type of request
@@ -245,7 +273,7 @@ module Msf::MCP
                   elsif data[:method]
                     "Method call: #{data[:method]}"
                   else
-                    "MCP request"
+                    'MCP request'
                   end
 
         context = data.dup
@@ -276,7 +304,7 @@ module Msf::MCP
     # @return [Proc] Callback that logs exceptions via Rex
     #
     def create_exception_reporter
-      ->(exception, context) do
+      lambda do |exception, context|
         return unless exception || context
 
         # Determine the context type and parse data

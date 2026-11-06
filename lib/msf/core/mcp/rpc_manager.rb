@@ -9,7 +9,6 @@ module Msf::MCP
   # Probes the configured RPC port, auto-starts the server via Process.spawn
   # of msfrpcd, and cleans up the child process on shutdown.
   class RpcManager
-    LOCALHOST_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
     DEFAULT_WAIT_TIMEOUT = 30
     DEFAULT_WAIT_INTERVAL = 1
     STOP_GRACE_PERIOD = 5

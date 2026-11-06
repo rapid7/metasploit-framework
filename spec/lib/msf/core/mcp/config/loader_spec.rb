@@ -27,9 +27,9 @@ RSpec.describe Msf::MCP::Config::Loader do
 
     context 'with file not found' do
       it 'raises ConfigurationError with descriptive message' do
-        expect {
+        expect do
           described_class.load('/nonexistent/config.yaml')
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /not found/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /not found/)
       end
     end
 
@@ -47,9 +47,9 @@ RSpec.describe Msf::MCP::Config::Loader do
       end
 
       it 'raises ConfigurationError with YAML error details' do
-        expect {
+        expect do
           described_class.load(invalid_yaml_file.path)
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /Invalid YAML syntax/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /Invalid YAML syntax/)
       end
     end
 
@@ -67,9 +67,9 @@ RSpec.describe Msf::MCP::Config::Loader do
       end
 
       it 'raises ConfigurationError requiring hash/dictionary' do
-        expect {
+        expect do
           described_class.load(array_yaml_file.path)
-        }.to raise_error(Msf::MCP::Config::ConfigurationError, /must contain a YAML hash/)
+        end.to raise_error(Msf::MCP::Config::ConfigurationError, /must contain a YAML hash/)
       end
     end
   end
@@ -332,6 +332,11 @@ RSpec.describe Msf::MCP::Config::Loader do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:workers]).to eq(0)
         end
+
+        it 'defaults ssl to false when host is localhost' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:ssl]).to be false
+        end
       end
 
       context 'with http transport and explicit values' do
@@ -353,6 +358,11 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'preserves explicit port value' do
           config = described_class.load_from_hash(config_hash)
           expect(config[:mcp][:port]).to eq(8080)
+        end
+
+        it 'defaults ssl to true when host is not localhost' do
+          config = described_class.load_from_hash(config_hash)
+          expect(config[:mcp][:ssl]).to be true
         end
       end
     end
@@ -545,7 +555,7 @@ RSpec.describe Msf::MCP::Config::Loader do
       %w[
         MSF_API_TYPE MSF_API_HOST MSF_API_PORT MSF_API_SSL MSF_API_ENDPOINT
         MSF_API_USER MSF_API_PASSWORD MSF_API_TOKEN MSF_AUTO_START_RPC
-        MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT
+        MSF_MCP_TRANSPORT MSF_MCP_HOST MSF_MCP_PORT MSF_MCP_SSL MSF_MCP_SSL_CERT MSF_MCP_SSL_KEY
         MSF_MCP_MIN_THREADS MSF_MCP_MAX_THREADS MSF_MCP_WORKERS
       ]
     end
@@ -636,7 +646,7 @@ RSpec.describe Msf::MCP::Config::Loader do
           end
         end
 
-        context "to empty string" do
+        context 'to empty string' do
           before { ENV['MSF_API_SSL'] = '' }
 
           it 'does not override SSL' do
@@ -755,6 +765,22 @@ RSpec.describe Msf::MCP::Config::Loader do
         it 'overrides the MCP port value as integer' do
           config = described_class.load(config_file)
           expect(config[:mcp][:port]).to eq(8080)
+        end
+      end
+
+      context 'when the MCP TLS environment variables are set' do
+        before do
+          ENV['MSF_MCP_SSL'] = 'true'
+          ENV['MSF_MCP_SSL_CERT'] = '/tmp/server.crt'
+          ENV['MSF_MCP_SSL_KEY'] = '/tmp/server.key'
+        end
+
+        it 'overrides ssl, ssl_cert and ssl_key' do
+          cfg = { mcp: {} }
+          described_class.apply_env_overrides(cfg)
+          expect(cfg[:mcp][:ssl]).to be true
+          expect(cfg[:mcp][:ssl_cert]).to eq('/tmp/server.crt')
+          expect(cfg[:mcp][:ssl_key]).to eq('/tmp/server.key')
         end
       end
 
