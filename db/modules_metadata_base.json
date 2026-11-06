@@ -49708,7 +49708,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-11-23 00:36:21 +0000",
+    "mod_time": "2026-10-29 12:09:31 +0000",
     "path": "/modules/auxiliary/scanner/http/xorcom_completepbx_diagnostics_file_read.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/xorcom_completepbx_diagnostics_file_read",
