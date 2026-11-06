@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
           Zimbra 10.1.0 through 10.1.19 are affected. Zimbra 10.1.20 fixes the issue.
         },
         'Author' => [
-          'Crypto-Cat'
+          'Crypto-Cat' # Discovery, analysis, PoC, and module development
         ],
         'License' => MSF_LICENSE,
         'References' => [
