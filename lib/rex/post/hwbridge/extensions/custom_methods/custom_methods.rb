@@ -48,7 +48,7 @@ class CustomMethods < Extension
     end
     resp = { "success" => false }
     methods.each do |meth|
-      if meth["method_name"] =~ /#{cmd}$/
+      if meth["method_name"].end_with?("/#{cmd}")
         resp = client.send_request("#{meth["method_name"]}#{arguments}")
         if resp.has_key? "value" and meth.has_key? "return"
           case meth["return"]
