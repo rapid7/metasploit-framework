@@ -128,5 +128,10 @@ custom_methods as a capability.  At which point Metasploit will then query the c
 and their argument syntax.  These methods will become available as command line options
 within the hardware bridge.
 
+Method path segments may contain ASCII letters, digits, underscores, hyphens, periods,
+or tildes; `.` and `..` are not allowed as complete segments. The final segment becomes
+the command; it must start with a letter or underscore and contain only letters, digits,
+and underscores.
+
 For a simple example of a custom method see auxiliary/server/local_hwbridge for a more complete
 list on how to define custom methods see the [API Reference](http://opengarages.org/hwbridge).
