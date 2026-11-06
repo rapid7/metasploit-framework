@@ -101,7 +101,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
   # @return [Array<String>] individual commands
   def split_commands(str)
     commands = []
-    current = ''
+    current = +''
     quote_char = nil
     escape = false
 
@@ -121,7 +121,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
       elsif char == ';'
         cmd = current.strip
         commands << cmd unless cmd.empty?
-        current = ''
+        current = +''
       else
         current << char
       end

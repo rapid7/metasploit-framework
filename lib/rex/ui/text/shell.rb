@@ -361,7 +361,7 @@ module Shell
   def parse_line(line)
     log_input(line)
 
-    line.gsub!(/(\r|\n)/, '')
+    line = line.gsub(/(\r|\n)/, '')
 
     begin
       return args = Rex::Parser::Arguments.from_s(line)
@@ -415,7 +415,7 @@ module Shell
     session = framework.sessions.values.find { |session| session.interacting }
     default = 'unknown'
 
-    formatted = ''
+    formatted = +''
     skip_next = false
     for prefix, spec in str.split('').each_cons(2) do
       if skip_next

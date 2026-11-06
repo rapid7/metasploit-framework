@@ -22,7 +22,7 @@ module Rex::Proto::Http::WebSocket::AmazonSsm
 
   module UUID
     def self.unpack(bbuf)
-      sbuf = ""
+      sbuf = +''
       [8...12].each do |idx|
         sbuf << Rex::Text.to_hex(bbuf[idx])
       end

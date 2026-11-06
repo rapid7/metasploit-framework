@@ -176,7 +176,7 @@ module Common
   # @return [String] Altered +path+. Will return unaltered +path+ if regex constructed with +path_head+ & +path+ is not detected
   def trim_path(path, path_head, extensions: ['rb', 'py', 'go'])
     #Builds capture groups for all supported file extensions
-    regex_extension = ''
+    regex_extension = +''
     extensions.each do |ext|
       regex_extension << "([#{ext}])+|"
     end
