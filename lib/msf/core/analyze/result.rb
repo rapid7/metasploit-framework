@@ -145,7 +145,21 @@ class Msf::Analyze::Result
     # Must come after the target so we know we match the target we want.
     # TODO: feed available payloads into target selection
     if @wanted_payloads
-      if p = @wanted_payloads.find { |p| @mod.is_payload_compatible?(p) }
+      # Use compatible_payloads to check arch/platform in addition to Compat hash.
+      # is_payload_compatible? alone only checks the Compat hash and does not filter
+      # by architecture or platform, causing false positives (e.g. x86 payloads
+      # being considered compatible with x64-only exploits).
+      #
+      # Additionally, exclude dynamic-size payloads (e.g. stageless meterpreter DLLs)
+      # when the module defines a payload space limit — their runtime size is unpredictable
+      # and almost always exceeds tight inline constraints (e.g. psexec Space: 3072).
+      space = @mod.respond_to?(:payload_space) ? @mod.payload_space : nil
+      compatible_payload_names = @mod.compatible_payloads.filter_map do |name, _mod_class|
+        payload_cls = @framework.payloads[name]
+        next if space && payload_cls&.dynamic_size?
+        name
+      end
+      if p = @wanted_payloads.find { |p| compatible_payload_names.include?(p) }
         @datastore['payload'] = p
       else
         @missing << :payload_match
