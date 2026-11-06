@@ -101,18 +101,74 @@ class MsftidyDoc
   #
   ##
 
+  #
+  # Documentation lives under documentation/modules/<type>/ using the singular
+  # module type (the same form as Msf::Module#fullname, which `info -d` uses to
+  # find docs), while the module itself lives under modules/<plural type>/.
+  #
+  DOC_TYPE_TO_MODULE_DIR = {
+    'auxiliary' => 'auxiliary',
+    'encoder' => 'encoders',
+    'evasion' => 'evasion',
+    'exploit' => 'exploits',
+    'nop' => 'nops',
+    'payload' => 'payloads',
+    'post' => 'post'
+  }.freeze
+
   def has_module
-    module_filepath = @full_filepath.sub('documentation/','').sub('/exploit/', '/exploits/')
-    found = false
-    ['.rb', '.py', '.go'].each do |ext|
-      if File.file? module_filepath.sub(/.md$/, ext)
-        found = true
-        break
-      end
+    doc_type = @full_filepath[%r{documentation/modules/([^/]+)/}, 1]
+
+    if doc_type && !DOC_TYPE_TO_MODULE_DIR.key?(doc_type) && DOC_TYPE_TO_MODULE_DIR.value?(doc_type)
+      singular = DOC_TYPE_TO_MODULE_DIR.key(doc_type)
+      error("Doc is in documentation/modules/#{doc_type}/. Use the singular module type: documentation/modules/#{singular}/. Doc: #{@full_filepath}")
+      return
     end
+
+    found = module_candidates(doc_type).any? { |path| File.file?(path) }
     unless found
       error("Doc missing module.  Check file name and path(s) are correct. Doc: #{@full_filepath}")
     end
+  end
+
+  #
+  # Returns the module paths a doc could be documenting.
+  #
+  def module_candidates(doc_type)
+    return [module_source_path(@full_filepath.sub('documentation/', ''))] unless doc_type
+
+    module_dir = DOC_TYPE_TO_MODULE_DIR.fetch(doc_type, doc_type)
+    base = @full_filepath.sub(%r{documentation/modules/#{Regexp.escape(doc_type)}/}, "modules/#{module_dir}/")
+    return module_source_paths(base) unless doc_type == 'payload'
+
+    # Payload docs are named after the payload's fullname, which hides the
+    # singles/stages/stagers split used on disk:
+    #   payload/linux/x64/exec                -> payloads/singles/linux/x64/exec
+    #   payload/windows/meterpreter/reverse_tcp -> payloads/stages/windows/meterpreter
+    #                                             + payloads/stagers/windows/reverse_tcp
+    payload_root = base[%r{\A(.*?modules/payloads/)}, 1]
+    rest = base.sub(payload_root, '')
+    candidates = module_source_paths(base)
+    candidates += module_source_paths("#{payload_root}singles/#{rest}") unless rest.start_with?('singles/')
+
+    stage_dir, stager = File.split(rest)
+    platform_dir, stage = File.split(stage_dir)
+    if stage_dir != '.' && platform_dir != '.' && stager != '.'
+      stage_paths = module_source_paths("#{payload_root}stages/#{platform_dir}/#{stage}.md")
+      stager_paths = module_source_paths("#{payload_root}stagers/#{platform_dir}/#{stager}")
+      candidates += stage_paths if stager_paths.any? { |path| File.file?(path) }
+    end
+
+    candidates
+  end
+
+  def module_source_paths(path)
+    path = path.sub(/\.md$/, '')
+    ['.rb', '.py', '.go'].map { |ext| "#{path}#{ext}" }
+  end
+
+  def module_source_path(path)
+    module_source_paths(path).find { |p| File.file?(p) } || module_source_paths(path).first
   end
 
   def check_start_with_vuln_app
