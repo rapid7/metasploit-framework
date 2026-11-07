@@ -27,6 +27,18 @@ module Msf
         end
       end
 
+      # Records cancellation only when execution has not started.
+      # @param id [String] the run UUID
+      # @param mod [Msf::Module] the cancelled module
+      # @return [void]
+      def cancelled_before_start(id, mod)
+        synchronize do
+          return unless ready.include?(id)
+
+          add_result(id, { error: 'Job cancelled before execution' }, mod)
+        end
+      end
+
       def completed(id, result, mod)
         synchronize do
           add_result(id, { result: result }, mod)
@@ -109,6 +121,7 @@ module Msf
         wlog("#{e.class}, #{e.message}")
         add_fallback_result(id, mod)
       ensure
+        ready.delete(id)
         running.delete(id)
       end
 

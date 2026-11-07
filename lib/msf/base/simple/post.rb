@@ -169,10 +169,16 @@ protected
   # Copy/pasted from simple/auxiliary.rb
   #
   def self.job_cleanup_proc(ctx)
-    mod = ctx[0]
-    mod.framework.events.on_module_complete(mod)
-    # Allow the exploit to cleanup after itself, that messy bugger.
-    mod.cleanup
+    mod, run_uuid, job_listener = ctx
+    begin
+      mod.framework.events.on_module_complete(mod)
+      # Allow the exploit to cleanup after itself, that messy bugger.
+      mod.cleanup
+    ensure
+      if job_listener.respond_to?(:cancelled_before_start)
+        job_listener.cancelled_before_start(run_uuid, mod)
+      end
+    end
   end
 
 end
