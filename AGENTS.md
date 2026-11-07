@@ -23,7 +23,9 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 - Discover the current Ruby version from `.ruby-version` and supported versions from the gemspec.
 - Follow `.rubocop.yml`; lint changed Ruby and run `ruby tools/dev/msftidy.rb <module>` for changed modules. Avoid unrelated style sweeps.
-- Add `# frozen_string_literal: true` to new library files only; use `String.new` for mutable buffers. Do not add it to module/spec files, which mutate buffers extensively. Existing comments may remain; `Style/FrozenStringLiteralComment` is disabled project-wide.
+- Add `# frozen_string_literal: true` as the first line of new library files.
+- Prefer it as the first line of new module files. Use `String.new` or `.dup` for strings that need to change. If freezing causes compatibility problems, omit the comment and briefly explain why in the PR. Broad refactoring is not required.
+- Do not add it to existing modules as unrelated cleanup or to spec files. Existing comments may remain.
 - Keep lines readable; no line-length limit is enforced. Use `%q{}` for long multiline descriptions; multiline block comments may hold embedded payload/code snippets.
 - Avoid accessor-style `get_`/`set_` names. Parameter names require at least two characters, except established crypto abbreviations.
 - Successful returns must keep one type/shape on cached and uncached paths. Document exceptions or unambiguous failure sentinels and handle them in all callers.
