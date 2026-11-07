@@ -814,17 +814,73 @@ protected
 
     run_single('')
 
-    while self.interacting
-      sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
-      next unless sd
+    if user_input.supports_readline && user_input.respond_to?(:pgets)
+      # Readline-capable input: drain the remote stream, surface the trailing
+      # fragment as the local prompt, then read the next line via pgets so that
+      # line-editing/history works. Every other (non-readline/piped/non-TTY)
+      # input falls back to the select-based loop below.
+      old_prompt = user_input.prompt
+      remote_stream_closed = false
 
-      if sd[0].include? rstream.fd
-        user_output.print(shell_read)
+      begin
+        user_input.prompt = ''
+
+        while self.interacting
+          data = ''
+          while self.interacting
+            sd = Rex::ThreadSafe.select([rstream.fd], nil, nil, 0.1)
+            break unless sd
+            begin
+              chunk = shell_read(-1, 0.01)
+              if chunk.nil? || chunk.empty?
+                remote_stream_closed = true
+                break
+              end
+              data << chunk
+            rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE
+              remote_stream_closed = true
+              break
+            end
+          end
+
+          if data.length > 0
+            lines = data.split("\n", -1)
+            prompt_part = lines.pop || ''
+
+            if lines.length > 0
+              user_output.print(lines.join("\n") + "\n")
+            end
+
+            user_input.prompt = prompt_part
+          end
+
+          break if remote_stream_closed
+
+          begin
+            line = user_input.pgets
+            break unless line
+            run_single(line.to_s.chomp)
+          rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE
+            break
+          end
+        end
+      ensure
+        user_input.prompt = old_prompt if old_prompt
+        Thread.pass
       end
-      if sd[0].include? user_input.fd
-        run_single((user_input.gets || '').chomp("\n"))
+    else
+      while self.interacting
+        sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
+        next unless sd
+
+        if sd[0].include? rstream.fd
+          user_output.print(shell_read)
+        end
+        if sd[0].include? user_input.fd
+          run_single((user_input.gets || '').chomp("\n"))
+        end
+        Thread.pass
       end
-      Thread.pass
     end
   end
 
