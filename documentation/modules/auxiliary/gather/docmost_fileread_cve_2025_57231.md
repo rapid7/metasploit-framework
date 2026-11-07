@@ -60,6 +60,7 @@ The module should:
 
 - **TARGETURI**(`/`): Base path to Docmost installation
 - **FILEPATH**(`/etc/passwd`): Path of local file to download
+- **DEPTH**(`5`): Traversal Depth (to reach the root folder)
 
 ## Scenarios
 ```
