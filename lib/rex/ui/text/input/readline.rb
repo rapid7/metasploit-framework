@@ -24,6 +24,8 @@ begin
 
       self.extend(::Readline)
 
+      bind_word_keys
+
       if tab_complete_proc
         ::Readline.basic_word_break_characters = ""
         @rl_saved_proc = with_error_handling(tab_complete_proc)
@@ -189,6 +191,23 @@ begin
     end
 
     private
+
+    # Ctrl+Left/Right to move by word and Ctrl+Delete to delete a word, as
+    # sent by xterm compatible terminals. rl_parse_and_bind is not used as
+    # rb-readline ignores it once a line has been read.
+    WORD_KEY_BINDINGS = {
+      '\e[1;5D' => :rl_backward_word,
+      '\e[1;5C' => :rl_forward_word,
+      '\e[3;5~' => :rl_kill_word
+    }.freeze
+
+    def bind_word_keys
+      return unless defined?(::RbReadline)
+
+      WORD_KEY_BINDINGS.each do |keyseq, function|
+        ::RbReadline.rl_bind_key(keyseq, function)
+      end
+    end
 
     def with_error_handling(proc)
       proc do |*args|
