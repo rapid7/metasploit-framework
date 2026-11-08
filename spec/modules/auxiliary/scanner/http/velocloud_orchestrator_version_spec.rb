@@ -156,7 +156,7 @@ RSpec.describe 'auxiliary/scanner/http/velocloud_orchestrator_version' do
     # Fixtures use a raw header block (one "Name: value" per line) to match
     # how Rex::Proto::Http::Headers#to_s renders real responses.
     def http_response(raw_headers)
-      headers = instance_double(Rex::Proto::Http::Headers)
+      headers = instance_double(Rex::Proto::Http::Packet::Header)
       allow(headers).to receive(:to_s).and_return(raw_headers)
       instance_double(Rex::Proto::Http::Response, headers: headers)
     end
