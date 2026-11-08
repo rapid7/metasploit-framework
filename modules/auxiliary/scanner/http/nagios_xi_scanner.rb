@@ -156,12 +156,11 @@ class MetasploitModule < Msf::Auxiliary
       return rce_check(nagios_version_result, real_target: true)
     end
 
-    # Use nagios_xi_login to try and authenticate. If authentication succeeds, nagios_xi_login returns
-    # an array containing the http response body of a get request to index.php and the session cookies
-    login_result, res_array = nagios_xi_login(username, password, finish_install)
-    case login_result
+    # The login result contains a status and, on success, the dashboard body and session cookies.
+    result = nagios_xi_login(username, password, finish_install)
+    case result[:status]
     when 1..3 # An error occurred
-      print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{res_array[0]}")
+      print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{result[:message]}")
       return
     when 4 # Nagios XI is not fully installed
       install_result = install_nagios_xi(password)
@@ -170,10 +169,10 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      login_result, res_array = login_after_install_or_license(username, password, finish_install)
-      case login_result
+      result = login_after_install_or_license(username, password, finish_install)
+      case result[:status]
       when 1..3 # An error occurred
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{res_array[0]}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{result[:message]}")
         return
       when 4 # Nagios XI is still not fully installed
         print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to install Nagios XI on the target.")
@@ -183,18 +182,19 @@ class MetasploitModule < Msf::Auxiliary
 
     # when 5 is excluded from the case statement above to prevent having to use this code block twice.
     # Including when 5 would require using this code block once at the end of the `when 4` code block above, and once here.
-    if login_result == 5 # the Nagios XI license agreement has not been signed
-      auth_cookies, nsp = res_array
+    if result[:status] == 5 # the Nagios XI license agreement has not been signed
+      auth_cookies = result[:auth_cookies]
+      nsp = result[:nsp]
       sign_license_result = sign_license_agreement(auth_cookies, nsp)
       if sign_license_result
         print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{sign_license_result[1]}")
         return
       end
 
-      login_result, res_array = login_after_install_or_license(username, password, finish_install)
-      case login_result
+      result = login_after_install_or_license(username, password, finish_install)
+      case result[:status]
       when 1..3
-        print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{res_array[0]}")
+        print_error("#{Rex::Socket.to_authority(rhost, rport)} - #{result[:message]}")
         return
       when 5 # the Nagios XI license agreement still has not been signed
         print_error("#{Rex::Socket.to_authority(rhost, rport)} - Failed to sign the license agreement.")
@@ -205,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Successfully authenticated to Nagios XI')
 
     # Obtain the Nagios XI version
-    nagios_version = nagios_xi_version(res_array[0])
+    nagios_version = nagios_xi_version(result[:body])
     if nagios_version.nil?
       print_error("#{Rex::Socket.to_authority(rhost, rport)} - Unable to obtain the Nagios XI version from the dashboard")
       return
