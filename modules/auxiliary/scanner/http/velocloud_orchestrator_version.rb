@@ -275,6 +275,16 @@ class MetasploitModule < Msf::Auxiliary
              end
     vprint_good("#{peer} - VeloCloud Orchestrator identified via #{signal}")
 
+    # Record the detected service even when the version can't be read, so the
+    # host still shows up in the services table for inventory and follow-up.
+    report_service(
+      host: ip,
+      port: datastore['RPORT'],
+      proto: 'tcp',
+      name: ssl ? 'https' : 'http',
+      info: 'Arista VeloCloud Orchestrator'
+    )
+
     version = get_version
     if version.nil?
       print_status("#{peer} - VeloCloud Orchestrator detected, but version could not be determined")
