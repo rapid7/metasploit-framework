@@ -60,40 +60,59 @@ RSpec.describe 'post/linux/gather/velocloud_cve_2026_93952_ioc_check' do
   end
 
   describe '#check_logs' do
-    before { subject.instance_variable_set(:@probe_errors, 0) }
+    let(:log) { '/var/log/nginx/access.log' }
 
-    it 'flags an attacker IP when it appears in the client-address field' do
-      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
+    before do
+      subject.instance_variable_set(:@probe_errors, 0)
+      allow(subject).to receive(:file?) { |p| p == log }
+    end
+
+    # Default stub: the log is readable (readable_log? probe says "readable")
+    # and no IOC grep hits. Per-test overrides compose with this.
+    def stub_readable_log_with(&block)
       allow(subject).to receive(:cmd_exec) do |cmd|
-        if cmd.start_with?("grep -E -m1 '^142.93.149.77")
-          '142.93.149.77 - - [22/Sep/2026] "GET /"'
+        if cmd.start_with?('test -r ')
+          'readable'
         else
-          ''
+          block ? block.call(cmd).to_s : ''
         end
       end
-      expect(subject.check_logs).to include('log:/var/log/nginx/access.log:142.93.149.77')
+    end
+
+    it 'flags an attacker IP when it appears in the client-address field' do
+      stub_readable_log_with do |cmd|
+        # The grep uses Regexp.escape so the dots in the IP are backslashed.
+        '142.93.149.77 - - [22/Sep/2026] "GET /"' if cmd.include?(Regexp.escape('142.93.149.77'))
+      end
+      expect(subject.check_logs).to include("log:#{log}:142.93.149.77")
     end
 
     it 'does not flag an attacker IP that only appears in the request path' do
       # The anchored client-address regex must not match a request like
       # GET /142.93.149.77. cmd_exec returns empty for the anchored grep,
       # mirroring what grep -E '^<ip>[[:space:]]' would do against such a line.
-      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
-      allow(subject).to receive(:cmd_exec).and_return('')
+      stub_readable_log_with
       expect(subject.check_logs).to eq([])
     end
 
     it 'flags the attacker-request header when present in a log' do
-      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
-      allow(subject).to receive(:cmd_exec) do |cmd|
-        cmd.include?('grep -i -F -m1 x-vc-opt') ? '... x-vc-opt: 1' : ''
+      stub_readable_log_with do |cmd|
+        '... x-vc-opt: 1' if cmd.include?('grep -i -F -m1 x-vc-opt')
       end
-      expect(subject.check_logs).to include('log:/var/log/nginx/access.log:header=x-vc-opt')
+      expect(subject.check_logs).to include("log:#{log}:header=x-vc-opt")
     end
 
     it 'returns nothing when logs contain no attacker IPs or header' do
-      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
+      stub_readable_log_with
       expect(subject.check_logs).to eq([])
+    end
+
+    it 'counts an unreadable log as a probe failure and skips IOC greps' do
+      # test -r returns empty when the session user cannot read the log.
+      allow(subject).to receive(:cmd_exec).and_return('')
+      allow(subject).to receive(:print_warning)
+      expect(subject.check_logs).to eq([])
+      expect(subject.instance_variable_get(:@probe_errors)).to be >= 1
     end
   end
 

@@ -169,6 +169,16 @@ class MetasploitModule < Msf::Post
     NGINX_LOG_PATHS.each do |log|
       next unless safe_file?(log)
 
+      # A log the session user cannot read makes every grep return empty
+      # output. Without this probe, an unreadable log would silently register
+      # as "no hit" and the run would report a clean result. Treat unreadable
+      # logs as probe failures so warn_on_partial_result surfaces the gap.
+      unless readable_log?(log)
+        print_warning("Cannot read #{log}; log check incomplete")
+        @probe_errors += 1
+        next
+      end
+
       IOC_IPS.each do |ip|
         # Anchor to the client-address field so a request for /<ip> or a
         # matching Referer / User-Agent does not false-positive. nginx's
@@ -192,6 +202,16 @@ class MetasploitModule < Msf::Post
       results << "log:#{log}:header=#{IOC_LOG_HEADER}"
     end
     results
+  end
+
+  # Confirm the session can actually read the log file. file? only reports
+  # existence, which is not enough on hosts where logs are root-only and the
+  # session is unprivileged.
+  def readable_log?(log)
+    cmd_exec("test -r #{log} && echo readable").to_s.include?('readable')
+  rescue StandardError => e
+    elog("Could not check readability of #{log}", error: e)
+    false
   end
 
   # Wrap the existence check so a single failing probe never aborts the run.
