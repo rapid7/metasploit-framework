@@ -5,6 +5,8 @@ PFX certificate files that are saved are encrypted with a blank password.
 
 This module is capable of exploiting ESC1, ESC2, ESC3, ESC13 and ESC15.
 
+For a complementary end-to-end walkthrough of AD CS enumeration, certificate requests, ESC abuse, and PKINIT with Certipy, see [HackITA's Certipy guide](https://en.hackita.it/articoli/certipy/).
+
 ## Module usage
 
 1. From msfconsole
@@ -80,10 +82,12 @@ by a normal user via LDAP.
 
 ```msf
 msf > use auxiliary/gather/ldap_query
-msf auxiliary(gather/ldap_query) > set BIND_DN aliddle@msflab.local
-BIND_DN => aliddle@msflab.local
-msf auxiliary(gather/ldap_query) > set BIND_PW Password1!
-BIND_PW => Password1!
+msf auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+DOMAIN => msflab.local
+msf auxiliary(gather/ldap_query) > set USERNAME aliddle
+USERNAME => aliddle
+msf auxiliary(gather/ldap_query) > set PASSWORD Password1!
+PASSWORD => Password1!
 msf auxiliary(gather/ldap_query) > set ACTION ENUM_AD_CS_CAS
 ACTION => ENUM_AD_CS_CAS
 msf auxiliary(gather/ldap_query) > run
