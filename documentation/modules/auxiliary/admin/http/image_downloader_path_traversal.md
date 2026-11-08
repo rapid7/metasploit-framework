@@ -9,9 +9,11 @@ before percent decoding. An encoded path traversal sequence can therefore
 survive the basename check and be decoded before `path.join()` resolves the
 destination path.
 
-The module has been tested against `image-downloader` version 4.3.0 using the
+The module has been exercised against `image-downloader` version 4.3.0 using the
 [CVE-2026-103648 lab](https://github.com/EterNullSec/CVE-2026-103648).
-The lab should only be run in an isolated environment.
+The lab should only be run in an isolated environment. A callback only confirms
+that the target fetched the supplied URL; it does not independently prove the
+package version, traversal, or final file location.
 
 The vulnerable application can be started with Docker:
 
@@ -31,8 +33,13 @@ node server.js
 ```
 
 The vulnerable server listens on port 3000 and exposes the download endpoint
-at `/download?url=<image_url>`. Its intended download directory is
-`/tmp/downloads/`.
+at `/download?url=<image_url>`. Its configured download directory is
+`/tmp/downloads/`. With that lab destination and the default `DEPTH=2`, the
+encoded path resolves to `/tmp/pwned_by_msf.txt`. For other applications or
+destinations, the final path depends on the configured download directory and
+`DEPTH`; adjust `DEPTH` to match the target's configuration. The target
+application performs the file write; the Metasploit module only serves the
+callback response.
 
 ## Verification Steps
 
@@ -44,13 +51,15 @@ at `/download?url=<image_url>`. Its intended download directory is
 1. Run: `set SRVHOST <listener address reachable by the target>`.
 1. Run: `set SRVPORT 8899`.
 1. Run: `run`.
-1. Confirm that the module receives the target's request for the payload.
-1. If local filesystem access to the target is available, confirm that
-   `/tmp/pwned_by_msf.txt` exists outside `/tmp/downloads/`.
+1. Confirm that the module receives the target's request for the callback.
+1. On the lab target, confirm that `/tmp/pwned_by_msf.txt` exists outside
+   `/tmp/downloads/`. This exact path is specific to the lab's configured
+   destination and default `DEPTH=2`.
 
-Receiving the callback shows that the target processed the traversal-encoded
-URL and fetched the payload. The module cannot remotely inspect the target's
-filesystem, so local access is required to confirm the final write location.
+Receiving the callback proves only that the target fetched the supplied URL.
+It does not prove that path traversal succeeded or that the file was written
+outside the configured destination. Verify the final path on the target before
+considering the vulnerability confirmed.
 
 ## Options
 
@@ -66,8 +75,10 @@ URL. The default value is `2`.
 
 ### FILENAME
 
-The name of the file written after the traversal sequence. The module writes
-the file under `/tmp`; the default value is `pwned_by_msf.txt`.
+The filename included after the traversal sequence. The target application
+performs the write; its final path depends on its configured download
+directory and `DEPTH`. In the documented lab configuration, the default
+filename is written to `/tmp/pwned_by_msf.txt`.
 
 ### CALLBACK_TIMEOUT
 
@@ -100,13 +111,14 @@ msf6 auxiliary(admin/http/image_downloader_path_traversal) > run
 [*] Callback URL: http://127.0.0.1:8899/%2e%2e%2f%2e%2e%2ftmp%2fpwned_by_msf.txt
 [*] Triggering /download with traversal payload: /%2e%2e%2f%2e%2e%2ftmp%2fpwned_by_msf.txt
 [*] Payload fetched by 127.0.0.1 - GET /../../tmp/pwned_by_msf.txt
-[+] Target fetched the payload. CVE-2026-103648 is likely exploitable.
-[!] Remote filesystem access is required to confirm the file landed outside dest.
+[+] Target fetched the callback payload.
+[!] This confirms an outbound fetch only; it does not confirm path traversal or a file write.
+[!] Verify the final file location locally on the target before treating it as vulnerable.
 [*] Server stopped.
 [*] Auxiliary module execution completed
 ```
 
-The file can be verified on the target host:
+For this lab configuration, verify the file on the target host:
 
 ```
 $ cat /tmp/pwned_by_msf.txt
