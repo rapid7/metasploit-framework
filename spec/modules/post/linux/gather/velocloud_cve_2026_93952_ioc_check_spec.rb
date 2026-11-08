@@ -60,31 +60,74 @@ RSpec.describe 'post/linux/gather/velocloud_cve_2026_93952_ioc_check' do
   end
 
   describe '#check_logs' do
-    it 'flags an attacker IP found in an nginx access log' do
+    before { subject.instance_variable_set(:@probe_errors, 0) }
+
+    it 'flags an attacker IP when it appears in the client-address field' do
       allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
       allow(subject).to receive(:cmd_exec) do |cmd|
-        cmd.include?('142.93.149.77') ? '142.93.149.77 - - [22/Sep/2026] "GET /"' : ''
+        if cmd.start_with?("grep -E -m1 '^142.93.149.77")
+          '142.93.149.77 - - [22/Sep/2026] "GET /"'
+        else
+          ''
+        end
       end
       expect(subject.check_logs).to include('log:/var/log/nginx/access.log:142.93.149.77')
     end
 
-    it 'returns nothing when logs contain no attacker IPs' do
+    it 'does not flag an attacker IP that only appears in the request path' do
+      # The anchored client-address regex must not match a request like
+      # GET /142.93.149.77. cmd_exec returns empty for the anchored grep,
+      # mirroring what grep -E '^<ip>[[:space:]]' would do against such a line.
+      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
+      allow(subject).to receive(:cmd_exec).and_return('')
+      expect(subject.check_logs).to eq([])
+    end
+
+    it 'flags the attacker-request header when present in a log' do
+      allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
+      allow(subject).to receive(:cmd_exec) do |cmd|
+        cmd.include?('grep -i -F -m1 x-vc-opt') ? '... x-vc-opt: 1' : ''
+      end
+      expect(subject.check_logs).to include('log:/var/log/nginx/access.log:header=x-vc-opt')
+    end
+
+    it 'returns nothing when logs contain no attacker IPs or header' do
       allow(subject).to receive(:file?) { |p| p == '/var/log/nginx/access.log' }
       expect(subject.check_logs).to eq([])
     end
   end
 
   describe '#run' do
-    it 'reports no compromise and files no vuln when the host is clean' do
+    it 'reports no compromise when the host is clean' do
+      expect(subject).not_to receive(:report_note)
+      subject.run
+    end
+
+    it 'does not file a vulnerability record for an IOC match' do
+      # IOCs are evidence of past attacker activity, not of CVE-2026-93952
+      # vulnerability; the module reports a note and leaves disposition to the
+      # operator, so report_vuln must not fire.
+      allow(subject).to receive(:file?) { |p| p == '/usr/local/sbin/.vcnode.js' }
+      allow(subject).to receive(:session).and_return(double('session', session_host: '192.0.2.10'))
+      allow(subject).to receive(:report_note)
       expect(subject).not_to receive(:report_vuln)
       subject.run
     end
 
-    it 'files a vuln when an indicator is found' do
+    it 'files a note when an indicator is found' do
       allow(subject).to receive(:file?) { |p| p == '/usr/local/sbin/.vcnode.js' }
       allow(subject).to receive(:session).and_return(double('session', session_host: '192.0.2.10'))
-      allow(subject).to receive(:report_note)
-      expect(subject).to receive(:report_vuln).with(hash_including(name: subject.name))
+      expect(subject).to receive(:report_note).with(hash_including(type: 'velocloud.cve_2026_93952.ioc'))
+      subject.run
+    end
+
+    it 'warns the operator when probes failed so a clean result is not mistaken for safe' do
+      allow(subject).to receive(:file?).and_raise(StandardError, 'session lost')
+      allow(subject).to receive(:elog)
+      expect(subject).to receive(:print_warning).with(/probe\(s\) failed; this result is incomplete/).at_least(:once)
+      # Also warns on each failing probe; use at_least so the implementation can
+      # emit either per-probe or summary warnings.
+      allow(subject).to receive(:print_warning)
       subject.run
     end
   end

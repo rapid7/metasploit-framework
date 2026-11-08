@@ -78,7 +78,12 @@ class MetasploitModule < Msf::Post
     '104.248.126.159'
   ].freeze
 
-  # Common nginx access log locations to scan for the attacker IPs.
+  # Attacker-request HTTP header reported in the advisory. Matched case-
+  # insensitively in available nginx access logs; the appearance of this
+  # header is itself an indicator even when the client IP has rotated.
+  IOC_LOG_HEADER = 'x-vc-opt'
+
+  # Common nginx access log locations to scan.
   NGINX_LOG_PATHS = [
     '/var/log/nginx/access.log',
     '/var/log/nginx/portal_access.log',
@@ -87,6 +92,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status('Checking host for CVE-2026-93952 indicators of compromise')
+    @probe_errors = 0
     findings = []
 
     findings.concat(check_files)
@@ -97,19 +103,19 @@ class MetasploitModule < Msf::Post
     if findings.empty?
       print_status('No published CVE-2026-93952 indicators of compromise were found')
       print_status('Note: a clean result is not proof the host is uncompromised')
+      warn_on_partial_result
       return
     end
 
     print_warning("#{findings.length} indicator(s) of compromise found - treat this host as compromised")
     findings.each { |f| print_bad("  #{f}") }
+    warn_on_partial_result
 
-    report_vuln(
-      host: session.session_host,
-      name: name,
-      info: "CVE-2026-93952 host-side IOCs detected: #{findings.join('; ')}",
-      refs: references
-    )
-
+    # Indicators of compromise are evidence of past attacker activity, not of
+    # the host being vulnerable to CVE-2026-93952 (an exposed host may also be
+    # patched; a compromised host may already be patched). Record the findings
+    # as a note on the session host and let the operator decide on disposition,
+    # following the vendor's incident response guidance.
     report_note(
       host: session.session_host,
       type: 'velocloud.cve_2026_93952.ioc',
@@ -133,7 +139,9 @@ class MetasploitModule < Msf::Post
       actual = begin
         file_remote_digestmd5(path)
       rescue StandardError => e
-        vprint_error("Could not hash #{path}: #{e.message}")
+        print_warning("Could not calculate MD5 for #{path}; hash check incomplete: #{e.message}")
+        elog("Could not hash #{path}", error: e)
+        @probe_errors += 1
         nil
       end
 
@@ -162,22 +170,44 @@ class MetasploitModule < Msf::Post
       next unless safe_file?(log)
 
       IOC_IPS.each do |ip|
-        # Bounded, read-only grep; -F fixed-string, -m1 stop at first hit.
-        hit = cmd_exec("grep -F -m1 #{ip} #{log} 2>/dev/null")
+        # Anchor to the client-address field so a request for /<ip> or a
+        # matching Referer / User-Agent does not false-positive. nginx's
+        # default combined log format places $remote_addr as the first
+        # whitespace-separated field.
+        hit = cmd_exec("grep -E -m1 '^#{Regexp.escape(ip)}[[:space:]]' #{log} 2>/dev/null")
         next if hit.nil? || hit.strip.empty?
 
         print_bad("Attacker IP #{ip} found in #{log}")
         results << "log:#{log}:#{ip}"
       end
+
+      # Bounded case-insensitive scan for the attacker-request header. It is
+      # only emitted in access logs when the log format includes
+      # $http_x_vc_opt, so an absent result on an unknown log format is not
+      # conclusive and is treated as such.
+      header_hit = cmd_exec("grep -i -F -m1 #{IOC_LOG_HEADER} #{log} 2>/dev/null")
+      next if header_hit.nil? || header_hit.strip.empty?
+
+      print_bad("Attacker-request header '#{IOC_LOG_HEADER}' found in #{log}")
+      results << "log:#{log}:header=#{IOC_LOG_HEADER}"
     end
     results
   end
 
   # Wrap the existence check so a single failing probe never aborts the run.
+  # Probe failures are counted so the operator can see the result was partial.
   def safe_file?(path)
     file?(path)
   rescue StandardError => e
-    vprint_error("Could not check #{path}: #{e.message}")
+    print_warning("Could not check #{path}; the result may be incomplete: #{e.message}")
+    elog("Could not check #{path}", error: e)
+    @probe_errors += 1
     false
+  end
+
+  def warn_on_partial_result
+    return if @probe_errors.to_i.zero?
+
+    print_warning("#{@probe_errors} probe(s) failed; this result is incomplete")
   end
 end
