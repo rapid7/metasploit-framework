@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
           'SideEffects' => [ IOC_IN_LOGS ],
-          'Reliability' => []
+          'Reliability' => [ REPEATABLE_SESSION ]
         }
       )
     )
@@ -295,7 +295,7 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       host: ip,
       port: datastore['RPORT'],
-      proto: ssl ? 'https' : 'http',
+      proto: 'tcp',
       ntype: 'velocloud.orchestrator.version',
       data: { version: version.to_s },
       update: :unique_data

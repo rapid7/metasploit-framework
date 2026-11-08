@@ -89,26 +89,35 @@ The base path to the VeloCloud Orchestrator web interface. Defaults to `/`.
 
 ## Scenarios
 
-### Affected version detected
+### Product detected, version not readable
+
+Real console output from a run against `vco996-usvi1.velocloud.net` on
+2026-11-08. This is the shape every current Arista-era hosted build produces
+(see the **Live-instance validation** section above for why `get_version`
+returns `nil` on these builds).
 
 ```
-msf6 > use auxiliary/scanner/http/velocloud_orchestrator_version
-msf6 auxiliary(scanner/http/velocloud_orchestrator_version) > set RHOSTS vco.example.com
-RHOSTS => vco.example.com
+msf6 auxiliary(scanner/http/velocloud_orchestrator_version) > set RHOSTS vco996-usvi1.velocloud.net
+RHOSTS => vco996-usvi1.velocloud.net
 msf6 auxiliary(scanner/http/velocloud_orchestrator_version) > run
 
-[+] vco.example.com:443 - VeloCloud Orchestrator version 6.4.2.7 detected
-[!] vco.example.com:443 - Version 6.4.2.7 is within a range affected by CVE-2026-93952 (confirm certificate-based Edge authentication is enabled to establish exposure)
+[*] vco996-usvi1.velocloud.net:443 - VeloCloud Orchestrator detected, but version could not be determined
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 
-### Product detected, version not readable
+### Affected version detected (illustrative)
+
+Not from a captured run - no live build in the public space currently leaks a
+version string. This is the output shape the module produces when
+`get_version` succeeds (an older VMware-era build whose SPA landing page or
+`/portal/` response carries a `buildVersion` or plain `N.N.N.N` token).
 
 ```
 msf6 auxiliary(scanner/http/velocloud_orchestrator_version) > run
 
-[*] vco.example.com:443 - VeloCloud Orchestrator detected, but version could not be determined
+[+] <target>:443 - VeloCloud Orchestrator version 6.4.2.7 detected
+[!] <target>:443 - Version 6.4.2.7 is within a range affected by CVE-2026-93952 (confirm certificate-based Edge authentication is enabled to establish exposure)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
