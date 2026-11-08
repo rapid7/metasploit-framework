@@ -76,21 +76,28 @@ class MetasploitModule < Msf::Auxiliary
     '7.0' => Rex::Version.new('7.0.0.2')
   }.freeze
 
-  # MurmurHash3 (mmh3) of the VCO /favicon.ico, the one confirmed *unauthenticated*
+  # MurmurHash3 (mmh3) of the VCO favicon, the one confirmed *unauthenticated*
   # fingerprint for the product. It identifies VeloCloud Orchestrator but says
   # nothing about the version, so it is used only to confirm the target is a VCO
   # before the (best-effort) version read.
   #
-  # Provenance: the ProjectDiscovery favicon-detect template maps this value to
-  # "arista-velocloud" via the expression mmh3(base64_py(body)) (i.e. mmh3 over
+  # Provenance and validation: the ProjectDiscovery favicon-detect template maps
+  # this value to "arista-velocloud" via mmh3(base64_py(body)) (i.e. mmh3 over
   # the Python base64.encodebytes of the favicon), which is exactly what
   # favicon_mmh3 reproduces below. The same Shodan dork (http.favicon.hash:
   # -2062596654) is used to census VeloCloud Orchestrators in public SD-WAN
-  # reconnaissance research. The constant is corroborated by both, but the raw
-  # favicon is served only by the appliance and has not been re-hashed here
-  # against a live instance.
+  # reconnaissance research. The constant has been reproduced against two live
+  # Arista-hosted Orchestrators (vco1-usvi1 and vco996-usvi1.velocloud.net) by
+  # fetching /apps/root/favicon.ico and hashing it with both this Ruby code and
+  # the reference Python mmh3 implementation.
   #   https://github.com/projectdiscovery/nuclei-templates/blob/main/http/technologies/favicon-detect.yaml
   VCO_FAVICON_MMH3 = -2062596654
+
+  # Candidate favicon URIs tried in order. /apps/root/favicon.ico is where the
+  # current Arista Angular SPA actually serves the icon. /favicon.ico is kept
+  # as a fallback for older VMware-era builds; on current builds the SPA router
+  # intercepts that path and returns the landing HTML, which hashes differently.
+  FAVICON_PATHS = [ 'apps/root/favicon.ico', 'favicon.ico' ].freeze
 
   def vulnerable?(version)
     train = version.segments.take(2).join('.')
@@ -109,17 +116,21 @@ class MetasploitModule < Msf::Auxiliary
 
   # Extract the VCO version from the web interface.
   #
-  # NOTE: the exact unauthenticated version signal must be validated against a
-  # live VCO instance before this module is considered production-ready. Public
-  # research (Arista OpenAPI guide, the vcoclient project, ProjectDiscovery
-  # nuclei templates) shows the VCO REST API lives under /portal/rest and is
-  # authenticated, and the only confirmed unauthenticated fingerprint is the
-  # favicon MurmurHash3 (see favicon_mmh3) that identifies the product but not
-  # its version. No public unauthenticated version endpoint is documented,
-  # so an unauthenticated version read may not be feasible on all builds. The
-  # candidates below (a build string in the SPA bundle) are a best guess pending
-  # confirmation; adjust to whatever a tested build actually returns and record
-  # the tested versions in the module notes.
+  # NOTE: on the current Arista-era builds tested here (hosted VCOs at
+  # vco1-usvi1 and vco996-usvi1.velocloud.net, SPA last-modified 2026-10-22),
+  # no unauthenticated endpoint exposes a build version string:
+  #   - /portal/ and /portal/rest/ both return 404.
+  #   - The Angular SPA entry (/apps/root/main.js) only loads
+  #     /apps/root/assets/module-federation.manifest.json, which is empty ({})
+  #     until the user authenticates; the microfrontends that carry version
+  #     metadata are registered post-login.
+  #   - No Server / X-*-Version response headers are emitted.
+  # The best-effort candidates below (a build string in the SPA bundle or
+  # landing page) are kept so that (a) older VMware-era builds that do leak a
+  # version string still get a Vulnerable/Not vulnerable verdict, and (b) if a
+  # future build exposes one at /portal/, the code is already in place. On
+  # builds like the one tested, get_version returns nil and run_host stops at
+  # product detection, which the maintainer-visible output makes explicit.
   def get_version
     # Candidate 1: a version string embedded in the portal landing page / JS bundle.
     res = send_request_cgi(
@@ -141,21 +152,28 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
-  # Fetch the site favicon and return its Shodan/nuclei-compatible mmh3 hash, or
-  # nil if no favicon is served. The hash is computed over the base64 encoding of
-  # the raw favicon bytes, wrapped at 76 characters with a trailing newline, which
-  # is what Shodan (Python base64.encodebytes) and the ProjectDiscovery templates
-  # hash. Ruby's Base64.encode64 wraps at 60 characters and would produce a
-  # different value, so the encoding is done explicitly here.
-  def favicon_mmh3
+  # Fetch the site favicon at the given path and return its Shodan/nuclei-
+  # compatible mmh3 hash, or nil if no favicon is served. The hash is computed
+  # over the base64 encoding of the raw favicon bytes, wrapped at 76 characters
+  # with a trailing newline, which is what Shodan (Python base64.encodebytes)
+  # and the ProjectDiscovery templates hash. Ruby's Base64.encode64 wraps at 60
+  # characters and would produce a different value, so the encoding is done
+  # explicitly here.
+  def favicon_mmh3(path = 'favicon.ico')
     res = send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'favicon.ico')
+      'uri' => normalize_uri(target_uri.path, path)
     )
     return nil unless res && res.code == 200 && res.body && !res.body.empty?
 
     b64 = [res.body.to_s.b].pack('m0').scan(/.{1,76}/).join("\n") + "\n"
     mmh3_x86_32(b64)
+  end
+
+  # Try each candidate favicon URI in order; return true as soon as one matches
+  # VCO_FAVICON_MMH3.
+  def favicon_match?
+    FAVICON_PATHS.any? { |p| favicon_mmh3(p) == VCO_FAVICON_MMH3 }
   end
 
   # MurmurHash3 x86 32-bit (seed 0), returned as a signed 32-bit integer to match
@@ -202,9 +220,11 @@ class MetasploitModule < Msf::Auxiliary
     h1 >= 0x80000000 ? h1 - 0x100000000 : h1
   end
 
-  # Best-effort product identification from the landing page body/headers. Used as
-  # a fallback confirmation when the favicon is unavailable; the favicon hash in
-  # favicon_mmh3 is the more reliable signal.
+  # Best-effort product identification from the landing page body/headers. Used
+  # as a fallback confirmation when the favicon is unavailable; the favicon hash
+  # in favicon_mmh3 is the more reliable signal. On current Arista-era builds
+  # the SPA landing HTML references "@velocloud/vco-header" (lowercase), which
+  # hits the 'velocloud' substring check below.
   def looks_like_vco?(res)
     return false unless res
 
@@ -212,6 +232,20 @@ class MetasploitModule < Msf::Auxiliary
     body.include?('VeloCloud') ||
       body.include?('velocloud') ||
       res.headers.to_s.include?('velocloud')
+  end
+
+  # Supplementary signal: /login/ on a VCO always sets Set-Cookie headers whose
+  # names are prefixed with "velocloud." (velocloud.session, velocloud.csrf,
+  # velocloud.message). Used only as a last resort when neither the favicon nor
+  # the landing body match, so most hosts cost no extra request.
+  def login_cookie_match?
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'login/')
+    )
+    return false unless res
+
+    res.headers.to_s.include?('velocloud.')
   end
 
   def run_host(ip)
@@ -223,15 +257,22 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     )
 
-    favicon_match = favicon_mmh3 == VCO_FAVICON_MMH3
+    favicon_match = favicon_match?
     string_match = looks_like_vco?(landing)
+    cookie_match = !(favicon_match || string_match) && login_cookie_match?
 
-    unless favicon_match || string_match
+    unless favicon_match || string_match || cookie_match
       vprint_error("#{peer} - VeloCloud Orchestrator not detected")
       return
     end
 
-    signal = favicon_match ? 'favicon hash' : 'page content'
+    signal = if favicon_match
+               'favicon hash'
+             elsif string_match
+               'page content'
+             else
+               'login cookie'
+             end
     vprint_good("#{peer} - VeloCloud Orchestrator identified via #{signal}")
 
     version = get_version

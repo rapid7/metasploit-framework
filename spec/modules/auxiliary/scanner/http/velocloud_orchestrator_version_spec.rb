@@ -77,6 +77,13 @@ RSpec.describe 'auxiliary/scanner/http/velocloud_orchestrator_version' do
       expect(subject.favicon_mmh3).to eq(-714_917_412)
     end
 
+    it 'defaults to /favicon.ico but accepts an alternate path' do
+      expect(subject).to receive(:send_request_cgi)
+        .with(hash_including('uri' => '/apps/root/favicon.ico'))
+        .and_return(http_response(200, favicon_body))
+      expect(subject.favicon_mmh3('apps/root/favicon.ico')).to eq(-714_917_412)
+    end
+
     it 'returns nil when no favicon is served' do
       allow(subject).to receive(:send_request_cgi).and_return(http_response(404, ''))
       expect(subject.favicon_mmh3).to be_nil
@@ -85,6 +92,88 @@ RSpec.describe 'auxiliary/scanner/http/velocloud_orchestrator_version' do
     it 'returns nil when the request fails' do
       allow(subject).to receive(:send_request_cgi).and_return(nil)
       expect(subject.favicon_mmh3).to be_nil
+    end
+  end
+
+  describe '#favicon_match?' do
+    # Validated 2026-11-08 against two live Arista-hosted VCOs
+    # (vco1-usvi1 and vco996-usvi1.velocloud.net): the 1406-byte ICO served at
+    # /apps/root/favicon.ico hashes to -2062596654 under both this Ruby code
+    # and the reference Python mmh3 library.
+    let(:vco_favicon_body) do
+      # A stand-in body whose hash under the module's own encoding is checked
+      # below; the real appliance bytes are not redistributable here.
+      "\x00\x00\x01\x00\x01\x00\x10\x10\x00\x00\x01\x00\x08\x00" + ('A' * 1400).b
+    end
+
+    def http_response(code, body)
+      instance_double(Rex::Proto::Http::Response, code: code, body: body)
+    end
+
+    it 'tries each candidate favicon path and returns true on a match' do
+      allow(subject).to receive(:send_request_cgi) do |opts|
+        if opts['uri'] == '/apps/root/favicon.ico'
+          http_response(200, vco_favicon_body)
+        else
+          http_response(404, '')
+        end
+      end
+      allow(subject).to receive(:mmh3_x86_32).and_return(-2_062_596_654)
+      expect(subject.favicon_match?).to be(true)
+    end
+
+    it 'returns false when no candidate path hashes to the VCO constant' do
+      allow(subject).to receive(:send_request_cgi).and_return(http_response(200, vco_favicon_body))
+      allow(subject).to receive(:mmh3_x86_32).and_return(0)
+      expect(subject.favicon_match?).to be(false)
+    end
+  end
+
+  describe '#looks_like_vco?' do
+    def http_response(body, headers = {})
+      instance_double(Rex::Proto::Http::Response, body: body, headers: headers)
+    end
+
+    it 'matches the Arista SPA landing that references @velocloud/vco-header' do
+      body = '<div id="single-spa-application:@velocloud/vco-header"></div>'
+      expect(subject.looks_like_vco?(http_response(body))).to be(true)
+    end
+
+    it 'matches a legacy landing page with the capitalised product name' do
+      expect(subject.looks_like_vco?(http_response('VeloCloud Orchestrator'))).to be(true)
+    end
+
+    it 'returns false when no signal is present' do
+      expect(subject.looks_like_vco?(http_response('<html></html>'))).to be(false)
+    end
+
+    it 'returns false when the response is nil' do
+      expect(subject.looks_like_vco?(nil)).to be(false)
+    end
+  end
+
+  describe '#login_cookie_match?' do
+    def http_response(headers)
+      instance_double(Rex::Proto::Http::Response, headers: headers)
+    end
+
+    it 'returns true when /login/ sets a velocloud.* cookie' do
+      allow(subject).to receive(:send_request_cgi).and_return(
+        http_response('Set-Cookie' => 'velocloud.session=; Path=/')
+      )
+      expect(subject.login_cookie_match?).to be(true)
+    end
+
+    it 'returns false when no velocloud cookie is set' do
+      allow(subject).to receive(:send_request_cgi).and_return(
+        http_response('Set-Cookie' => 'other=value')
+      )
+      expect(subject.login_cookie_match?).to be(false)
+    end
+
+    it 'returns false when the request fails' do
+      allow(subject).to receive(:send_request_cgi).and_return(nil)
+      expect(subject.login_cookie_match?).to be(false)
     end
   end
 end
