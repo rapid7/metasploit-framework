@@ -237,7 +237,10 @@ class MetasploitModule < Msf::Auxiliary
   # Supplementary signal: /login/ on a VCO always sets Set-Cookie headers whose
   # names are prefixed with "velocloud." (velocloud.session, velocloud.csrf,
   # velocloud.message). Used only as a last resort when neither the favicon nor
-  # the landing body match, so most hosts cost no extra request.
+  # the landing body match, so most hosts cost no extra request. Only
+  # Set-Cookie headers are considered; a non-cookie response header that
+  # happens to contain "velocloud." (for example a vendor-branded Server line)
+  # must not misidentify an unrelated service.
   def login_cookie_match?
     res = send_request_cgi(
       'method' => 'GET',
@@ -245,7 +248,9 @@ class MetasploitModule < Msf::Auxiliary
     )
     return false unless res
 
-    res.headers.to_s.include?('velocloud.')
+    res.headers.to_s.each_line.any? do |line|
+      line =~ /\ASet-Cookie:\s*velocloud\./i
+    end
   end
 
   def run_host(ip)

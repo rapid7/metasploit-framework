@@ -153,21 +153,31 @@ RSpec.describe 'auxiliary/scanner/http/velocloud_orchestrator_version' do
   end
 
   describe '#login_cookie_match?' do
-    def http_response(headers)
+    # Fixtures use a raw header block (one "Name: value" per line) to match
+    # how Rex::Proto::Http::Headers#to_s renders real responses.
+    def http_response(raw_headers)
+      headers = instance_double(Rex::Proto::Http::Headers)
+      allow(headers).to receive(:to_s).and_return(raw_headers)
       instance_double(Rex::Proto::Http::Response, headers: headers)
     end
 
     it 'returns true when /login/ sets a velocloud.* cookie' do
-      allow(subject).to receive(:send_request_cgi).and_return(
-        http_response('Set-Cookie' => 'velocloud.session=; Path=/')
-      )
+      raw = "Set-Cookie: velocloud.session=; Path=/\r\nServer: nginx\r\n"
+      allow(subject).to receive(:send_request_cgi).and_return(http_response(raw))
       expect(subject.login_cookie_match?).to be(true)
     end
 
     it 'returns false when no velocloud cookie is set' do
-      allow(subject).to receive(:send_request_cgi).and_return(
-        http_response('Set-Cookie' => 'other=value')
-      )
+      raw = "Set-Cookie: other=value\r\nServer: nginx\r\n"
+      allow(subject).to receive(:send_request_cgi).and_return(http_response(raw))
+      expect(subject.login_cookie_match?).to be(false)
+    end
+
+    it 'returns false when a non-cookie header contains velocloud. but Set-Cookie does not' do
+      # Guards against a whole-headers false positive: a vendor-branded Server
+      # line or similar must not misidentify an unrelated service as VeloCloud.
+      raw = "Server: velocloud.custom\r\nSet-Cookie: other=value\r\n"
+      allow(subject).to receive(:send_request_cgi).and_return(http_response(raw))
       expect(subject.login_cookie_match?).to be(false)
     end
 
