@@ -139,13 +139,19 @@ class MetasploitModule < Msf::Post
       actual = begin
         file_remote_digestmd5(path)
       rescue StandardError => e
-        print_warning("Could not calculate MD5 for #{path}; hash check incomplete: #{e.message}")
         elog("Could not hash #{path}", error: e)
-        @probe_errors += 1
         nil
       end
 
-      next if actual.nil?
+      # Some Meterpreter helpers catch internal exceptions and return nil
+      # instead of raising. Treat both exception and silent-nil returns as a
+      # probe failure so the scan is not reported as complete when the hash
+      # could not actually be computed.
+      if actual.nil?
+        print_warning("Could not calculate MD5 for #{path}; hash check incomplete")
+        @probe_errors += 1
+        next
+      end
 
       if actual.casecmp?(known_bad)
         print_bad("#{path} matches known implant MD5 #{known_bad}")
@@ -191,11 +197,17 @@ class MetasploitModule < Msf::Post
         results << "log:#{log}:#{ip}"
       end
 
-      # Bounded case-insensitive scan for the attacker-request header. It is
-      # only emitted in access logs when the log format includes
-      # $http_x_vc_opt, so an absent result on an unknown log format is not
-      # conclusive and is treated as such.
-      header_hit = cmd_exec("grep -i -F -m1 #{IOC_LOG_HEADER} #{log} 2>/dev/null")
+      # Bounded case-insensitive scan for the attacker-request header. Match
+      # the name only when it appears in a header-logged position: preceded by
+      # whitespace or a quote AND followed by '=', ':', or a quote. This
+      # avoids false positives on URLs like GET /x-vc-opt or query strings
+      # like ?x-vc-opt= which would otherwise match a whole-line grep. The
+      # header is only emitted in access logs when the nginx log_format
+      # includes $http_x_vc_opt or logs the header name literally; on log
+      # formats that do neither, this check is inconclusive by design.
+      header_hit = cmd_exec(
+        "grep -E -i -m1 '([[:space:]\"])#{IOC_LOG_HEADER}[[:space:]]*[\":=]' #{log} 2>/dev/null"
+      )
       next if header_hit.nil? || header_hit.strip.empty?
 
       print_bad("Attacker-request header '#{IOC_LOG_HEADER}' found in #{log}")

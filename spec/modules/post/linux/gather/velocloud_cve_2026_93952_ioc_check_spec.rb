@@ -87,19 +87,47 @@ RSpec.describe 'post/linux/gather/velocloud_cve_2026_93952_ioc_check' do
       expect(subject.check_logs).to include("log:#{log}:142.93.149.77")
     end
 
-    it 'does not flag an attacker IP that only appears in the request path' do
-      # The anchored client-address regex must not match a request like
-      # GET /142.93.149.77. cmd_exec returns empty for the anchored grep,
-      # mirroring what grep -E '^<ip>[[:space:]]' would do against such a line.
-      stub_readable_log_with
-      expect(subject.check_logs).to eq([])
+    it 'anchors each attacker-IP grep to the client-address field' do
+      # Negative test that verifies the grep *pattern* actually anchors, not
+      # just that an empty stub returns no result. Captures every cmd and
+      # asserts each IP's grep starts at the beginning of the line.
+      cmds = []
+      allow(subject).to receive(:file?) { |p| p == log }
+      allow(subject).to receive(:cmd_exec) do |cmd|
+        cmds << cmd
+        cmd.start_with?('test -r ') ? 'readable' : ''
+      end
+      subject.check_logs
+      subject.class::IOC_IPS.each do |ip|
+        prefix = "grep -E -m1 '^#{Regexp.escape(ip)}[[:space:]]'"
+        expect(cmds).to include(a_string_starting_with(prefix))
+      end
     end
 
-    it 'flags the attacker-request header when present in a log' do
+    it 'flags the attacker-request header in a header-logged position' do
       stub_readable_log_with do |cmd|
-        '... x-vc-opt: 1' if cmd.include?('grep -i -F -m1 x-vc-opt')
+        '... "x-vc-opt": "1"' if cmd.include?('grep -E -i -m1')
       end
       expect(subject.check_logs).to include("log:#{log}:header=x-vc-opt")
+    end
+
+    it 'does not flag x-vc-opt when it only appears inside a quoted URL path' do
+      # The tightened regex must not match a request path like
+      # GET /x-vc-opt or ?x-vc-opt=1 inside the "$request" field. Confirm by
+      # inspecting the generated grep pattern: it must require a whitespace or
+      # quote boundary before the header name and a header-delimiter after.
+      cmds = []
+      allow(subject).to receive(:file?) { |p| p == log }
+      allow(subject).to receive(:cmd_exec) do |cmd|
+        cmds << cmd
+        cmd.start_with?('test -r ') ? 'readable' : ''
+      end
+      subject.check_logs
+      header_cmds = cmds.grep(/x-vc-opt/)
+      expect(header_cmds).not_to be_empty
+      header_cmds.each do |cmd|
+        expect(cmd).to include('([[:space:]"])x-vc-opt[[:space:]]*[":=]')
+      end
     end
 
     it 'returns nothing when logs contain no attacker IPs or header' do
@@ -112,6 +140,20 @@ RSpec.describe 'post/linux/gather/velocloud_cve_2026_93952_ioc_check' do
       allow(subject).to receive(:cmd_exec).and_return('')
       allow(subject).to receive(:print_warning)
       expect(subject.check_logs).to eq([])
+      expect(subject.instance_variable_get(:@probe_errors)).to be >= 1
+    end
+  end
+
+  describe '#check_hashes' do
+    it 'counts a silent nil digest return as a probe failure' do
+      # file_remote_digestmd5 on Meterpreter can catch its own exception and
+      # return nil without raising. That path must still mark the scan
+      # incomplete rather than quietly skip the hash comparison.
+      subject.instance_variable_set(:@probe_errors, 0)
+      allow(subject).to receive(:file?) { |p| p == '/usr/local/sbin/vc-sysmond' }
+      allow(subject).to receive(:file_remote_digestmd5).and_return(nil)
+      allow(subject).to receive(:print_warning)
+      expect(subject.check_hashes).to eq([])
       expect(subject.instance_variable_get(:@probe_errors)).to be >= 1
     end
   end
