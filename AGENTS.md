@@ -150,6 +150,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - New modules require matching Markdown under `documentation/modules` using `documentation/modules/module_doc_template.md`, with reproducible vulnerable-target setup. Put Docker/Compose lab commands in Markdown rather than separate Docker files. Scenarios must be filled by a human.
 - Module documentation must include `Vulnerable Application` (affected/fixed versions and setup), `Verification Steps` (numbered steps with expected outcomes), and `Scenarios` (human-written real console output). Do not invent scenario results.
 - Document only specialist options under `###`; write `No specific options` when none apply. Keep scenario output current; use `run verbose=true` when useful for diagnosis/reproduction.
+- For `DefangedMode` or `DEFANGED_MODE`, explain the module-specific risk in both the datastore option description and a matching `### DefangedMode` or `### DEFANGED_MODE` subsection under `## Options` in the module documentation. State the default, what execution it blocks, and the consequences of setting it to `false`. Generic descriptions such as `Run in defanged mode` are insufficient; RuboCop checks the option description, and reviewers must check the documentation and accuracy of the reason.
 - Explain nonobvious constants, salts, offsets, fixed names/paths, double encoding, hardcoding, and compatibility workarounds nearby; include sources when available.
 - A lone ACTION can usually be omitted.
 

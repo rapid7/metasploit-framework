@@ -32,8 +32,10 @@ Set this to the desired cook time in full minutes.
 
 ### DefangedMode
 
-Set this to `false` to disable defanged mode and enable module
-functionality. Set this only if you're SURE you want to proceed.
+Defaults to `true`, which blocks both the `Cook` and `Stop` actions. Setting it to
+`false` enables remote changes to the Crock-Pot's temperature and cooking time,
+including starting or stopping cooking on the physical device. Disable it only
+when those physical effects are intended and authorized.
 
 ## Usage
 

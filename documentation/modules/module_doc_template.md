@@ -57,6 +57,11 @@ For example, an exploit module:
 ## Options
 List each option and how to use it.
 
+If the module has a `DefangedMode` or `DEFANGED_MODE` option, include a `###` subsection
+with that exact option name. Explain its default, what execution it blocks, and the
+module-specific consequences of setting it to `false`. Give the same reason in the
+datastore option description; `Run in defanged mode` alone is insufficient.
+
 ### Option Name
 
 Talk about what it does, and how to use it appropriately. If the default value is likely to change, include the default value here.
