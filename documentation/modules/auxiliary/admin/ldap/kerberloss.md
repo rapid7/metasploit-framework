@@ -38,7 +38,7 @@ modify Active Directory.
 
 ### CHECK
 
-Adds a random `msf/<random>.invalid` SPN with the selected codepoint, queries its clean form, and removes the exact
+Adds a random `<service>/<host>.<suffix>` SPN with the selected codepoint, queries its clean form, and removes the exact
 value in an `ensure` block. A successful LDAP match means the DC appears to have the vulnerable comparison behavior.
 This action does not prove KDC ticket-key ownership.
 
@@ -131,7 +131,7 @@ msf auxiliary(admin/ldap/kerberloss) > set ACTION CHECK
 ACTION => CHECK
 msf auxiliary(admin/ldap/kerberloss) > run
 [*] Running module against 192.0.2.10
-[*] Testing comparison behavior with temporary value msf/x1ftvvqs0cb2ywfc.invalid<U+200C>
+[*] Testing comparison behavior with temporary value q7m3k2x9/p4tvvq10cb2ywfd8.n2c6v1za<U+200C>
 [+] The clean probe resolved to the account containing the hidden-character SPN; the DC appears affected.
 [*] Auxiliary module execution completed
 ```

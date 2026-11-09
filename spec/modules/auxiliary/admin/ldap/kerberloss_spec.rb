@@ -92,6 +92,24 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
     end
   end
 
+  describe '#action_check' do
+    let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
+    let(:probe_spn) { 'servicea/hostidentifier12.suffixa' }
+
+    before do
+      mod.instance_variable_set(:@target_dn, target_dn)
+      mod.datastore['UNICODE_CODEPOINT'] = 'U+200C'
+    end
+
+    it 'randomizes every SPN label used by the comparison probe' do
+      allow(Rex::Text).to receive(:rand_text_alphanumeric).and_return('ServiceA', 'HostIdentifier12', 'SuffixA')
+      expect(mod).to receive(:with_temporary_spn).with(target_dn, "#{probe_spn}\u{200c}").and_yield.and_return([])
+      expect(mod).to receive(:spn_owners).with(probe_spn).and_return([])
+
+      mod.send(:action_check)
+    end
+  end
+
   describe '#classify_resolution' do
     let(:target_dn) { 'CN=KLTarget,OU=KerberLossLab,DC=kerberloss,DC=test' }
     let(:owner_dn) { 'CN=DC1,OU=Domain Controllers,DC=kerberloss,DC=test' }
@@ -247,11 +265,11 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
 
   describe '#with_temporary_spn' do
     it 'removes the exact probe value even when verification raises' do
-      expect(mod).to receive(:add_spn).with('CN=KLTarget,DC=example,DC=test', "msf/probe\u{200c}")
-      expect(mod).to receive(:delete_spn).with('CN=KLTarget,DC=example,DC=test', "msf/probe\u{200c}")
+      expect(mod).to receive(:add_spn).with('CN=KLTarget,DC=example,DC=test', "service/host\u{200c}")
+      expect(mod).to receive(:delete_spn).with('CN=KLTarget,DC=example,DC=test', "service/host\u{200c}")
 
       expect do
-        mod.send(:with_temporary_spn, 'CN=KLTarget,DC=example,DC=test', "msf/probe\u{200c}") do
+        mod.send(:with_temporary_spn, 'CN=KLTarget,DC=example,DC=test', "service/host\u{200c}") do
           raise Net::LDAP::Error, 'verification failed'
         end
       end.to raise_error(Net::LDAP::Error, /verification failed/)
@@ -262,7 +280,7 @@ RSpec.describe 'auxiliary/admin/ldap/kerberloss' do
       expect(mod).not_to receive(:delete_spn)
 
       expect do
-        mod.send(:with_temporary_spn, 'CN=KLTarget,DC=example,DC=test', "msf/probe\u{200c}") { nil }
+        mod.send(:with_temporary_spn, 'CN=KLTarget,DC=example,DC=test', "service/host\u{200c}") { nil }
       end.to raise_error(Net::LDAP::Error, /write failed/)
     end
   end

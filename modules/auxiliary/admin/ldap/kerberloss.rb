@@ -133,7 +133,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_check
-    probe_spn = "msf/#{Rex::Text.rand_text_alphanumeric(16).downcase}.invalid"
+    service = Rex::Text.rand_text_alphanumeric(8).downcase
+    host = Rex::Text.rand_text_alphanumeric(16).downcase
+    suffix = Rex::Text.rand_text_alphanumeric(8).downcase
+    probe_spn = "#{service}/#{host}.#{suffix}"
     probe_value = poisoned_spn(probe_spn, datastore['UNICODE_CODEPOINT'])
     print_status("Testing comparison behavior with temporary value #{visible_value(probe_value)}")
 
