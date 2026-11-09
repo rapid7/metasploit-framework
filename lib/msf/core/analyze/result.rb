@@ -150,13 +150,21 @@ class Msf::Analyze::Result
       # by architecture or platform, causing false positives (e.g. x86 payloads
       # being considered compatible with x64-only exploits).
       #
-      # Additionally, exclude dynamic-size payloads (e.g. stageless meterpreter DLLs)
-      # when the module defines a payload space limit — their runtime size is unpredictable
-      # and almost always exceeds tight inline constraints (e.g. psexec Space: 3072).
+      # Additionally, filter dynamic-size payloads (e.g. stageless meterpreter DLLs)
+      # using their known size against payload space limit when defined.
       space = @mod.respond_to?(:payload_space) ? @mod.payload_space : nil
-      compatible_payload_names = @mod.compatible_payloads.filter_map do |name, _mod_class|
-        payload_cls = @framework.payloads[name]
-        next if space && payload_cls&.dynamic_size?
+      compatible_payload_names = @mod.compatible_payloads.filter_map do |name, mod_class|
+        payload_cls = mod_class || @framework.payloads[name]
+        if space && payload_cls&.dynamic_size?
+          payload_size = payload_cls.cached_size if payload_cls.respond_to?(:cached_size)
+          if payload_size.nil?
+            ref = (payload_cls.respond_to?(:refname) && payload_cls.refname) || name
+            meta = Msf::Modules::Metadata::Cache.instance.get_module_reference(type: Msf::MODULE_PAYLOAD, reference_name: ref)
+            payload_size = meta.payload_cached_size if meta && meta.respond_to?(:payload_cached_size)
+          end
+          next if payload_size && payload_size > space
+        end
+
         name
       end
       if p = @wanted_payloads.find { |p| compatible_payload_names.include?(p) }
