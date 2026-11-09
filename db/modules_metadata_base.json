@@ -121358,6 +121358,70 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_multi/http/openfire_deleted_admin_rce_cve_2024_25420": {
+    "name": "Openfire Deleted Administrator Account Authentication Bypass RCE",
+    "fullname": "exploit/multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2024-03-26",
+    "type": "exploit",
+    "author": [
+      "xRogue",
+      "Admin9961",
+      "h00die-gr3y <h00die.gr3y@gmail.com>",
+      "Jatin Mannepalli"
+    ],
+    "description": "Openfire versions before 4.8.1 did not remove a user's JID from the\n          admin.authorizedJIDs property when the user was deleted. If an attacker knows the\n          username of a deleted administrator and in-band registration is enabled, the attacker\n          can recreate that account and inherit administrative access. An authenticated Openfire\n          administrator can upload a management plugin containing a Java payload.\n\n          Openfire 4.8.1 prevents new stale entries when a user is deleted, but it does not migrate\n          entries created by an older version. An upgraded server can therefore remain exploitable\n          until the recreated account is deleted while the fix is present.\n\n          The ADMINUSERNAME option must identify a previously deleted administrator. The check\n          method does not create accounts and cannot determine whether this target-specific state\n          exists.",
+    "references": [
+      "CVE-2024-25420",
+      "GHSA-5xvc-rwv8-86p7",
+      "URL-https://www.hackthebox.com/blog/openfire-cves-explained-CVE-2024-25420-CVE-2024-25421",
+      "URL-https://github.com/rapid7/metasploit-framework/issues/19949"
+    ],
+    "platform": "Java",
+    "arch": "java",
+    "rport": 9090,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java Universal"
+    ],
+    "mod_time": "2026-11-03 22:48:33 +0000",
+    "path": "/modules/exploits/multi/http/openfire_deleted_admin_rce_cve_2024_25420.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/openmrs_deserialization": {
     "name": "OpenMRS Java Deserialization RCE",
     "fullname": "exploit/multi/http/openmrs_deserialization",
