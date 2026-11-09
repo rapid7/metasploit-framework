@@ -6,7 +6,11 @@ def report_non_ascii(file_path)
   has_errors = false
   File.foreach(file_path).with_index(1) do |line, line_number|
     line_utf8 = line.force_encoding('UTF-8')
-    next unless line_utf8.valid_encoding?
+    unless line_utf8.valid_encoding?
+      has_errors = true
+      puts "Error - invalid UTF-8 encoding found. #{file_path}: line #{line_number}"
+      next
+    end
 
     line_utf8.chars.each_with_index do |char, index|
       unless char.ascii_only?
@@ -31,7 +35,7 @@ Find.find(path_to_search) do |path|
   next unless path.end_with?('.rb')
 
   # Only check files that declare binary encoding
-  first_two_lines = File.open(path, "r") { |f| f.each_line.take(2).join }
+  first_two_lines = File.open(path, 'rb') { |f| f.each_line.take(2).join }
   next unless first_two_lines =~ /coding:\s*binary/
 
   ran_at_least_once = true
