@@ -12788,7 +12788,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/admin/wemo/crockpot.rb",
     "is_install_path": true,
     "ref_name": "admin/wemo/crockpot",
@@ -26227,7 +26227,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/microweber_lfi.rb",
     "is_install_path": true,
     "ref_name": "gather/microweber_lfi",
@@ -27746,7 +27746,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-05-12 05:14:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/qconvergeconsole_traversal.rb",
     "is_install_path": true,
     "ref_name": "gather/qconvergeconsole_traversal",
@@ -49708,7 +49708,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-10-29 12:09:31 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/scanner/http/xorcom_completepbx_diagnostics_file_read.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/xorcom_completepbx_diagnostics_file_read",
@@ -112242,7 +112242,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-06-02 10:32:30 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/cpanel_whm_auth_bypass_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/cpanel_whm_auth_bypass_rce",
@@ -121030,7 +121030,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/open_web_analytics_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/open_web_analytics_rce",
@@ -122260,7 +122260,7 @@
       "Windows Command",
       "Linux Command"
     ],
-    "mod_time": "2026-09-02 10:28:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/papercut_ng_external_user_lookup_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/papercut_ng_external_user_lookup_rce",
@@ -144509,7 +144509,7 @@
     "targets": [
       "Unix Command"
     ],
-    "mod_time": "2026-11-05 12:24:43 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce.rb",
     "is_install_path": true,
     "ref_name": "unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
@@ -212381,7 +212381,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/rdp/rdp_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/rdp/rdp_doublepulsar_rce",
@@ -214500,7 +214500,7 @@
     "targets": [
       "Windows 10 v1903-1909 x64"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/cve_2020_0796_smbghost.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/cve_2020_0796_smbghost",
@@ -216060,7 +216060,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_doublepulsar_rce",
@@ -216256,7 +216256,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_shadow.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_shadow",
