@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_advanced_options(
       [
-        OptBool.new('DefangedMode', [ true, 'Run in defanged mode', true ])
+        OptBool.new('DefangedMode', [ true, 'Run in defanged mode. Block file retrieval that deletes the requested file from the target', true ])
       ]
     )
   end

@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true])
+      OptBool.new('DefangedMode', [true, 'Run in defanged mode. Block remote cooking controls that change the physical device state', true])
     ])
   end
 

@@ -80,6 +80,7 @@ If approximately two weeks pass after a review request without a comment or code
 * **Do** ask cve@rapid7.com for a CVE ID if this describes a new vulnerability (remember to mention your PR number!)
 * **Do** use `prepend Msf::Exploit::Remote::AutoCheck` to let the framework handle vulnerability checking before exploitation — this is preferred over manually calling `check` in your exploit method.
 * **Do** include a descriptive reason string when returning CheckCode values (e.g., `CheckCode::Safe("Patched version #{v}")`) — bare constants without reasons are not accepted.
+* **Do** explain the specific risk prevented by `DefangedMode` or `DEFANGED_MODE` in its datastore option description and in a matching `###` subsection under `## Options` in the module documentation. Document the default, what execution it blocks, and the consequences of setting it to `false`. `Run in defanged mode` alone does not explain the risk; for example, state that exploitation permanently changes the root password. RuboCop checks the option description; the documentation and accuracy of the reason also need review.
 * **Don't** include more than one module per pull request.
 * **Don't** submit new [scripts].  Scripts are shipped as examples for automating local tasks, and anything "serious" can be done with post modules and local exploits.
 
