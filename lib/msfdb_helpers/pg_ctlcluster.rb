@@ -18,7 +18,7 @@ module MsfdbHelpers
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
       FileUtils.mkdir_p(@pg_cluster_conf_root)
-      run_cmd("pg_createcluster --user=$(whoami) -l #{@db.shellescape}/log -d #{@db.shellescape} -s /tmp --encoding=UTF8 #{@pg_version} #{@options[:msf_db_name].shellescape} -- --username=$(whoami) --auth-host=trust --auth-local=trust")
+      run_cmd("pg_createcluster --user=$(whoami) -l #{@db.shellescape}/log -d #{@db.shellescape} -s /tmp --encoding=UTF8 #{@pg_version} #{@options[:msf_db_name].shellescape} -- --username=postgres --auth-host=trust --auth-local=trust")
       File.open("#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
       end
