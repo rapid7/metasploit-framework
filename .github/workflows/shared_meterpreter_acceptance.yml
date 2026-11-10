@@ -90,6 +90,8 @@ jobs:
           - { name: php, runtime_version: 7.4 }
           - { name: php, runtime_version: 8.3 }
         exclude:
+          # setup-python has no Python 3.8 build for Ubuntu 26.04 (ubuntu-latest).
+          - { os: ubuntu-latest, meterpreter: { name: python, runtime_version: 3.8 } }
           # PHP 7.4/8.3 cannot be provisioned on Intel macOS: Homebrew no longer ships Intel-macOS
           # bottles, so setup-php builds from source and hits its no-output watchdog. Meterpreter has
           # no macOS arm64 support, so there is no viable macOS host+install path -- PHP coverage is
@@ -97,6 +99,8 @@ jobs:
           - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 7.4 } }
           - { os: macos-15-intel, meterpreter: { name: php, runtime_version: 8.3 } }
         include:
+          # Keep Linux Python 3.8 coverage on a supported runner image.
+          - { meterpreter: { name: python, runtime_version: 3.8 }, ruby: '3.4', os: ubuntu-24.04 }
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
           # TODO: Screenshotting behavior fails:
@@ -232,7 +236,7 @@ jobs:
           # BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
           PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -417,7 +421,7 @@ jobs:
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: '3.3'
           bundler-cache: true

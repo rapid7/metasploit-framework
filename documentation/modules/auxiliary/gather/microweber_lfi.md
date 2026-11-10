@@ -25,6 +25,7 @@ If you want, you can follow the steps in the official vulnerability report to re
 - [ ] Verify that you see `Downloading FILE from the backup folder.`
 
 ## Options
+
 ```
 msf auxiliary(gather/microweber_lfi) > options
 
@@ -43,6 +44,14 @@ Module options (auxiliary/gather/microweber_lfi):
    USERNAME                          yes       The admin's username for Microweber
    VHOST                             no        HTTP server virtual host
 ```
+
+### DEFANGED_MODE
+
+Defaults to `true`, which blocks file retrieval. Setting it to `false` allows the
+module to move the file specified by `LOCAL_FILE_PATH` into the application's
+backup directory to retrieve it. This may remove the file from its original
+location if the web service user has permission. Disable it only when that
+potential file loss is authorized.
 
 ## Scenerios
 This module has been tested against Microweber CMS v1.2.10 installed on Ubuntu.

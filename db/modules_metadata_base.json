@@ -2269,7 +2269,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-26 14:53:18 +0000",
     "path": "/modules/auxiliary/admin/http/dlink_dir_645_password_extractor.rb",
     "is_install_path": true,
     "ref_name": "admin/http/dlink_dir_645_password_extractor",
@@ -2337,6 +2337,65 @@
       ],
       "SideEffects": [
         "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_admin/http/flowise_auth_bypass_cve_2025_58434": {
+    "name": "Flowise Authentication Bypass",
+    "fullname": "auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2025-09-12",
+    "type": "auxiliary",
+    "author": [
+      "Richard Howe",
+      "Isaac David",
+      "Arthur Gervais"
+    ],
+    "description": "In Flowise versions 3.0.1 through 3.0.5, the `forgot-password` endpoint returns sensitive information including\n          a valid password reset `tempToken` without authentication or verification.\n          This enables any attacker to generate a reset token for arbitrary users and directly reset their password, leading to a\n          complete account takeover (ATO).",
+    "references": [
+      "CVE-2025-58434",
+      "EDB-52557",
+      "GHSA-wgpv-6j63-x5ph"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 3000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-27 14:26:33 +0000",
+    "path": "/modules/auxiliary/admin/http/flowise_auth_bypass_cve_2025_58434.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/flowise_auth_bypass_cve_2025_58434",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes",
+        "account-lockouts"
       ],
       "Reliability": []
     },
@@ -5066,6 +5125,61 @@
       ],
       "SideEffects": [
         "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_admin/http/spip_idor_password_reset": {
+    "name": "SPIP Password Change IDOR Privilege Escalation",
+    "fullname": "auxiliary/admin/http/spip_idor_password_reset",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-02",
+    "type": "auxiliary",
+    "author": [
+      "Julien Voisin",
+      "0xkidz"
+    ],
+    "description": "SPIP before 4.4.23 has a missing authorization check in the\n          mot_de_passe CVT form handler. The traiter function changes\n          any user's password when given a validly-signed form POST,\n          without verifying the caller is authorized for that id_auteur.\n\n          An authenticated user injects a SPIP model tag into a forum\n          message preview. The model <formulaire|mot_de_passe|id_auteur=N>\n          causes the server to render the password form for user N and\n          HMAC-sign the form arguments. The preview replaces <form> tags\n          with <div> but leaves hidden inputs intact, leaking the signed\n          arguments. Submitting them changes the target user's password.",
+    "references": [
+      "URL-https://blog.spip.net/Mise-a-jour-critique-de-securite-sortie-de-SPIP-4-4-23.html"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-09-03 00:00:43 +0000",
+    "path": "/modules/auxiliary/admin/http/spip_idor_password_reset.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/spip_idor_password_reset",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
       ],
       "Reliability": []
     },
@@ -12674,7 +12788,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/admin/wemo/crockpot.rb",
     "is_install_path": true,
     "ref_name": "admin/wemo/crockpot",
@@ -16684,7 +16798,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/dos/scada/d20_tftp_overflow.rb",
     "is_install_path": true,
     "ref_name": "dos/scada/d20_tftp_overflow",
@@ -23976,7 +24090,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/hikvision_info_disclosure_cve_2017_7921.rb",
     "is_install_path": true,
     "ref_name": "gather/hikvision_info_disclosure_cve_2017_7921",
@@ -25143,7 +25257,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-05-19 12:26:56 +0000",
+    "mod_time": "2026-10-23 16:02:33 +0000",
     "path": "/modules/auxiliary/gather/kerberoast.rb",
     "is_install_path": true,
     "ref_name": "gather/kerberoast",
@@ -25835,7 +25949,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-10 16:13:38 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/gather/magento_xxe_cve_2024_34102.rb",
     "is_install_path": true,
     "ref_name": "gather/magento_xxe_cve_2024_34102",
@@ -26113,7 +26227,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/microweber_lfi.rb",
     "is_install_path": true,
     "ref_name": "gather/microweber_lfi",
@@ -27632,7 +27746,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-05-12 05:14:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/qconvergeconsole_traversal.rb",
     "is_install_path": true,
     "ref_name": "gather/qconvergeconsole_traversal",
@@ -30412,7 +30526,7 @@
     ],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-05-23 00:26:22 +0000",
+    "mod_time": "2026-11-05 18:27:09 +0000",
     "path": "/modules/auxiliary/scanner/acpp/login.rb",
     "is_install_path": true,
     "ref_name": "scanner/acpp/login",
@@ -30453,7 +30567,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-05-23 00:47:48 +0000",
+    "mod_time": "2026-11-05 18:27:09 +0000",
     "path": "/modules/auxiliary/scanner/afp/afp_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/afp/afp_login",
@@ -30787,7 +30901,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-05-24 14:23:30 +0000",
+    "mod_time": "2026-11-05 18:27:09 +0000",
     "path": "/modules/auxiliary/scanner/db2/db2_auth.rb",
     "is_install_path": true,
     "ref_name": "scanner/db2/db2_auth",
@@ -33065,6 +33179,57 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/http/apache_solr_version": {
+    "name": "Apache Solr Version Scanner",
+    "fullname": "auxiliary/scanner/http/apache_solr_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for Apache Solr instances and fingerprints the\n          running version. It reads the /admin/info/system handler (JSON)\n          beneath the configured TARGETURI (/solr by default, Solr's built-in\n          hostContext) and extracts the solr-spec-version field. When the\n          handler is protected by basic authentication the module retries with\n          the configured credentials, which default to the secure-by-default\n          solr:SolrRocks account introduced in Solr 9.8.0, reporting when they\n          are accepted. If the handler stays unreadable the module falls back\n          to the admin UI pages, whose asset URLs leak the running version\n          even before authentication. The result is recorded as service\n          evidence for the host.\n\n          Tested against 8.1.1-10.0.0 on major and minor versions.",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8983,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-11 18:41:51 +0000",
+    "path": "/modules/auxiliary/scanner/http/apache_solr_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/apache_solr_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -36584,7 +36749,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-21 15:18:58 +0000",
+    "mod_time": "2026-10-13 16:10:45 +0000",
     "path": "/modules/auxiliary/scanner/http/elasticsearch_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/elasticsearch_traversal",
@@ -38455,6 +38620,57 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/http/hashicorp_consul_version": {
+    "name": "HashiCorp Consul Version Scanner",
+    "fullname": "auxiliary/scanner/http/hashicorp_consul_version",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "This module scans for HashiCorp Consul agents and fingerprints the\n          running version. It reads the /v1/agent/self API endpoint and\n          extracts the Config.Version field. On agents without ACL enforcement\n          (the default) this is unauthenticated; when the agent replies 403\n          the module retries with the configured ACL token in the\n          X-Consul-Token header. If the agent info API stays unreadable the\n          module tries the permission-free /v1/agent/version endpoint and\n          then the Consul UI at /ui/, whose static HTML leaks the exact\n          version in a CONSUL_VERSION comment even when the ACL default\n          policy denies everything else.\n\n          Tested against every major GA release since October 2024 (1.20,\n          1.21, 1.22, 2.0).",
+    "references": [],
+    "platform": "",
+    "arch": "",
+    "rport": 8500,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-02 10:12:40 +0000",
+    "path": "/modules/auxiliary/scanner/http/hashicorp_consul_version.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/hashicorp_consul_version",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -42410,6 +42626,61 @@
       "SideEffects": [
         "unknown-side-effects"
       ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908": {
+    "name": "OpenBullet2 NTLMv2 Hash Disclosure via UNC Path Proxy Source",
+    "fullname": "auxiliary/scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-06-08",
+    "type": "auxiliary",
+    "author": [
+      "Maksim Rogov"
+    ],
+    "description": "This Metasploit module exploits a Credential Disclosure vulnerability in OpenBullet2 on Windows.\n\n          An attacker can force the application to disclose the NTLMv2 hash of the process user by configuring a job proxy source with a malicious UNC path.\n          When the job starts, the application attempts to load proxies from the specified path via SMB, allowing the hash to be captured for offline cracking or relaying.\n\n          The affected versions include releases from 0.2.5.",
+    "references": [
+      "CVE-2026-25555",
+      "CVE-2026-39908",
+      "URL-https://hackernoon.com/one-empty-header-to-admin-how-an-auth-bypass-breaks-openbullet2"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-25 12:57:15 +0000",
+    "path": "/modules/auxiliary/scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/openbullet2_unauth_hash_disclosure_cve_2026_39908",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
     },
     "session_types": false,
     "needs_cleanup": false,
@@ -49437,7 +49708,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-11-23 00:36:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/scanner/http/xorcom_completepbx_diagnostics_file_read.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/xorcom_completepbx_diagnostics_file_read",
@@ -51326,7 +51597,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-11-05 18:39:03 +0000",
     "path": "/modules/auxiliary/scanner/misc/sercomm_backdoor_scanner.rb",
     "is_install_path": true,
     "ref_name": "scanner/misc/sercomm_backdoor_scanner",
@@ -51900,7 +52171,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2018-12-07 13:29:56 +0000",
+    "mod_time": "2026-10-27 12:37:36 +0000",
     "path": "/modules/auxiliary/scanner/msmail/host_id.go",
     "is_install_path": true,
     "ref_name": "scanner/msmail/host_id",
@@ -52337,7 +52608,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-11-02 15:07:26 +0000",
     "path": "/modules/auxiliary/scanner/mysql/mysql_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/mysql/mysql_login",
@@ -55014,7 +55285,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-10-26 13:49:03 +0000",
     "path": "/modules/auxiliary/scanner/redis/redis_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/redis/redis_login",
@@ -55191,7 +55462,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-29 10:06:54 +0000",
     "path": "/modules/auxiliary/scanner/rservices/rlogin_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/rservices/rlogin_login",
@@ -55224,7 +55495,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-29 10:06:54 +0000",
     "path": "/modules/auxiliary/scanner/rservices/rsh_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/rservices/rsh_login",
@@ -57669,7 +57940,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-17 11:11:50 +0000",
+    "mod_time": "2026-11-05 18:39:03 +0000",
     "path": "/modules/auxiliary/scanner/scada/modbusdetect.rb",
     "is_install_path": true,
     "ref_name": "scanner/scada/modbusdetect",
@@ -60612,7 +60883,7 @@
       "telnet"
     ],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-11-05 18:27:09 +0000",
     "path": "/modules/auxiliary/scanner/telnet/brocade_enable_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/telnet/brocade_enable_login",
@@ -60802,7 +61073,7 @@
       "telnet"
     ],
     "targets": null,
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-10-26 13:52:49 +0000",
     "path": "/modules/auxiliary/scanner/telnet/telnet_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/telnet/telnet_login",
@@ -60961,7 +61232,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/ipswitch_whatsupgold_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/ipswitch_whatsupgold_tftp",
@@ -61006,7 +61277,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-06-11 10:10:30 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/netdecision_tftp.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/netdecision_tftp",
@@ -61048,7 +61319,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-03-11 20:45:09 +0000",
+    "mod_time": "2026-10-17 08:43:12 +0000",
     "path": "/modules/auxiliary/scanner/tftp/tftpbrute.rb",
     "is_install_path": true,
     "ref_name": "scanner/tftp/tftpbrute",
@@ -61230,7 +61501,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-11-05 18:39:03 +0000",
     "path": "/modules/auxiliary/scanner/varnish/varnish_cli_file_read.rb",
     "is_install_path": true,
     "ref_name": "scanner/varnish/varnish_cli_file_read",
@@ -61266,7 +61537,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 09:30:35 +0000",
+    "mod_time": "2026-10-26 14:48:21 +0000",
     "path": "/modules/auxiliary/scanner/varnish/varnish_cli_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/varnish/varnish_cli_login",
@@ -61929,7 +62200,7 @@
     ],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-10-29 10:00:38 +0000",
     "path": "/modules/auxiliary/scanner/vnc/vnc_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/vnc/vnc_login",
@@ -70251,6 +70522,73 @@
       ],
       "SideEffects": [
         "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_freebsd/http/citrix_netscaler_cve_2026_88771": {
+    "name": "Citrix NetScaler Unauthenticated Login Log Command Injection (CVE-2026-88771)",
+    "fullname": "exploit/freebsd/http/citrix_netscaler_cve_2026_88771",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-27",
+    "type": "exploit",
+    "author": [
+      "watchTowr",
+      "CERT-EU",
+      "Scyrix LLC",
+      "sfewer-r7"
+    ],
+    "description": "NetScaler ADC and Gateway 13.1 before build 64.23 and 14.1 before\n          build 73.37 copy an unauthenticated failed-login username into system\n          logs. During a later diagnostic run, ns_monuploadd_err.pl mistakes a\n          crafted login record for a packet-engine failure and inserts\n          attacker-controlled text into a shell command as root. The diagnostic\n          can run up to 24 hours later. On a NetScaler Gateway with DTLS, the optional\n          CVE-2026-88772 trigger can restart the packet engine forcing the diagnostic run\n          to occur much sooner (around five minutes on a 13.1.x target).",
+    "references": [
+      "CVE-2026-88771",
+      "CVE-2026-88772",
+      "CVE-2026-88773",
+      "URL-https://support.citrix.com/external/article/CTX697096",
+      "URL-https://www.cert.europa.eu/blog/taking-execute-logging-a-bit-too-literally-cve-2026-88771",
+      "URL-https://labs.watchtowr.com/oh-look-the-foot-gun-went-off-again-citrix-netscaler-preauth-command-injection-cve-2026-88771/",
+      "URL-https://labs.watchtowr.com/here-we-go-again-citrix-netscaler-dtls-preauth-memory-overflow-cve-2026-88772/",
+      "URL-https://github.com/Scyrix-LLC/CVE-2026-88773"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Default"
+    ],
+    "mod_time": "2026-10-22 15:37:05 +0000",
+    "path": "/modules/exploits/freebsd/http/citrix_netscaler_cve_2026_88771.rb",
+    "is_install_path": true,
+    "ref_name": "freebsd/http/citrix_netscaler_cve_2026_88771",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "event-dependent"
       ]
     },
     "session_types": false,
@@ -86871,6 +87209,67 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/portainer_authenticated_docker_rce": {
+    "name": "Portainer Authenticated Docker API Remote Root",
+    "fullname": "exploit/linux/http/portainer_authenticated_docker_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-08-03",
+    "type": "exploit",
+    "author": [
+      "Aman Singh Gill (Gill-Singh-A)"
+    ],
+    "description": "Portainer is a web UI for managing Docker and Kubernetes environments. An\n          authenticated Portainer administrator (or a non-admin user whose security\n          restrictions have been explicitly relaxed) can drive the full Docker Engine API\n          through Portainer's proxy. Because the Docker daemon normally runs as root on the\n          host, an attacker can create a privileged container that bind-mounts the host root\n          filesystem (\"/:/host\") and chroot into it, which yields code execution as root on\n          the Docker host itself - not merely inside a container.\n\n          By default, Portainer blocks non-admin users from using privileged mode, bind\n          mounts, and host PID namespaces, so this module typically requires admin-level\n          credentials.\n\n          This module authenticates to Portainer (POST /api/auth) to obtain a JWT, selects\n          a managed Docker environment, ensures a small Linux image is present (pulling one\n          if required), then creates and starts a privileged container whose command drops\n          and executes a Metasploit payload on the host via the \"/host\" bind mount and\n          \"chroot /host\". The payload is launched through the host's own init (systemd) so it\n          is decoupled from the throwaway container and survives its removal, and the\n          container is then stopped and force-removed afterwards to avoid leaving artifacts.\n\n          This is an abuse of intended functionality (a design consequence of exposing the\n          Docker API) combined with the common misconfiguration of an internet or\n          network-reachable Portainer instance protected only by weak or shared\n          credentials. It is not a patched CVE. Valid credentials and a root-running Docker\n          daemon are required.",
+    "references": [
+      "URL-https://github.com/Gill-Singh-A/Portainer-Remote-Root-Shell-Exploit",
+      "URL-https://gill-singh-a.github.io/p/getting-remote-root-shell-on-devices-via-portainer/",
+      "URL-https://docs.docker.com/engine/security/#docker-daemon-attack-surface"
+    ],
+    "platform": "Linux,Unix",
+    "arch": "x64, x86, cmd",
+    "rport": 9443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Linux Dropper (Meterpreter)",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-28 14:10:54 +0000",
+    "path": "/modules/exploits/linux/http/portainer_authenticated_docker_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/portainer_authenticated_docker_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/http/pretalx_rce_cve_2023_28458": {
     "name": "Pretalx Limited File Write to Remote Code Execution",
     "fullname": "exploit/linux/http/pretalx_rce_cve_2023_28458",
@@ -95219,7 +95618,7 @@
     "actions": []
   },
   "exploit_linux/local/dirtyclone_cve_2026_43503": {
-    "name": "Sample Linux Priv Esc",
+    "name": "Linux Kernel DirtyClone Local Privilege Escalation",
     "fullname": "exploit/linux/local/dirtyclone_cve_2026_43503",
     "aliases": [],
     "rank": 300,
@@ -95230,7 +95629,7 @@
       "Or Peles",
       "msutovsky-r7"
     ],
-    "description": "This exploit module illustrates how a vulnerability could be exploited\n                                             in an linux command for priv esc.",
+    "description": "This module exploits CVE-2026-43503 (DirtyClone), a Linux kernel\n          local privilege escalation vulnerability. Refer to the module's\n          references for vulnerability details and affected configurations.",
     "references": [
       "URL-https://research.jfrog.com/post/dissecting-and-exploiting-linux-lpe-variant-dirtyclone-cve-2026-43503/",
       "CVE-2026-43503"
@@ -95243,7 +95642,7 @@
     "targets": [
       "Auto"
     ],
-    "mod_time": "2026-09-09 14:35:45 +0000",
+    "mod_time": "2026-10-09 06:46:35 +0000",
     "path": "/modules/exploits/linux/local/dirtyclone_cve_2026_43503.rb",
     "is_install_path": true,
     "ref_name": "linux/local/dirtyclone_cve_2026_43503",
@@ -101486,32 +101885,35 @@
     "needs_cleanup": null,
     "actions": []
   },
-  "exploit_linux/persistence/docker_image": {
-    "name": "Docker Image Persistence",
-    "fullname": "exploit/linux/persistence/docker_image",
+  "exploit_linux/persistence/elf": {
+    "name": "Linux ELF Executable Payload Injection Persistence",
+    "fullname": "exploit/linux/persistence/elf",
     "aliases": [],
     "rank": 600,
-    "disclosure_date": "2013-03-20",
+    "disclosure_date": "2026-08-27",
     "type": "exploit",
     "author": [
-      "h00die"
+      "dledda-r7"
     ],
-    "description": "This module maintains persistence on a host by creating a docker image which runs our\n          payload, and has access to the host's file system (/host in the container). Whenever the\n          container restarts, the payload will run, or when the payload dies the executable\n          will run again after a delay. This will allow for writing back\n          into the host through cron entries, ssh keys, or other method.\n\n          Verified on Ubuntu 22.04.",
+    "description": "This module injects a payload into an existing Linux ELF executable.\n          The payload runs in a forked process whenever the executable is launched,\n          while the original program continues from its original entry point.\n\n          The target must be a writable x86, x64, or AArch64 ET_EXEC or ET_DYN file\n          with an executable code cave or a reusable PT_NOTE/PT_NULL program header.\n          The original ELF is stored as loot before it is changed.",
     "references": [
-      "ATT&CK-T1610"
+      "ATT&CK-T1027.009",
+      "ATT&CK-T1546"
     ],
     "platform": "Linux",
-    "arch": "x86, x64, armle, aarch64, ppc, mipsle, mipsbe",
+    "arch": "x64, x86, aarch64",
     "rport": null,
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": [
-      "Auto"
+      "Linux x64",
+      "Linux x86",
+      "Linux AArch64"
     ],
-    "mod_time": "2026-09-07 06:56:30 +0000",
-    "path": "/modules/exploits/linux/persistence/docker_image.rb",
+    "mod_time": "2026-10-23 17:24:13 +0000",
+    "path": "/modules/exploits/linux/persistence/elf.rb",
     "is_install_path": true,
-    "ref_name": "linux/persistence/docker_image",
+    "ref_name": "linux/persistence/elf",
     "check": true,
     "post_auth": false,
     "default_credential": false,
@@ -101520,7 +101922,8 @@
         "crash-safe"
       ],
       "Reliability": [
-        "repeatable-session"
+        "repeatable-session",
+        "event-dependent"
       ],
       "SideEffects": [
         "artifacts-on-disk",
@@ -101529,9 +101932,10 @@
       ]
     },
     "session_types": [
-      "meterpreter"
+      "meterpreter",
+      "shell"
     ],
-    "needs_cleanup": true,
+    "needs_cleanup": null,
     "actions": []
   },
   "exploit_linux/persistence/emacs_extension": {
@@ -111838,7 +112242,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-06-02 10:32:30 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/cpanel_whm_auth_bypass_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/cpanel_whm_auth_bypass_rce",
@@ -113971,6 +114375,67 @@
       "SideEffects": [
         "artifacts-on-disk",
         "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/gitlab_cicd_regexp_rce_cve_2026_97229": {
+    "name": "GitLab CI/CD RegExp Integer Overflow Remote Code Execution",
+    "fullname": "exploit/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "aliases": [],
+    "rank": 400,
+    "disclosure_date": "2026-10-12",
+    "type": "exploit",
+    "author": [
+      "joaxcar",
+      "Jonah Burgess",
+      "jheysel-r7"
+    ],
+    "description": "This module exploits an integer overflow in the Ruby regular expression compiler through\n          GitLab's CI lint API. An attacker with credentials for a user who can push to a public\n          project plants a crafted CI configuration and repository path. An unauthenticated CI\n          lint request then compiles the expression and executes a command as the GitLab git account.\n\n          The module selects the native pcode and libruby layout for affected official GitLab CE\n          and EE Docker images on Linux amd64. Each attempt allocates slightly more than 2 GiB and crashes a\n          Puma worker after execution. GitLab 19.2 before 19.2.8, 19.3 before 19.3.5, and 19.4\n          before 19.4.2 are affected.\n\n          The official 19.3.4 package already contains the Ruby overflow fix and is not supported.\n          Rebuilt packages and source installations may require different native layouts.",
+    "references": [
+      "CVE-2026-97229",
+      "URL-https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-4-2-released/",
+      "URL-https://github.com/jburgess-r7/CVE-2026-97229-PoC"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Automatic"
+    ],
+    "mod_time": "2026-10-29 19:47:50 +0000",
+    "path": "/modules/exploits/multi/http/gitlab_cicd_regexp_rce_cve_2026_97229.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/gitlab_cicd_regexp_rce_cve_2026_97229",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-service-restarts"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ],
+      "Reliability": [
+        "repeatable-session"
       ]
     },
     "session_types": false,
@@ -116613,6 +117078,62 @@
     "session_types": false,
     "needs_cleanup": true
   },
+  "exploit_multi/http/langflow_auth_command_injection_cve_2026_93674": {
+    "name": "Langflow AI Auth Blind Command Injection",
+    "fullname": "exploit/multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-22",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.5.0 through 1.9.0 are susceptible to\n          authenticated blind command injection due to a flaw in how\n          the Langflow STDIO service launches processes through system shells.\n\n          OS commands are executed under the context of the running Langflow process.",
+    "references": [
+      "CVE-2026-93674"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-02 14:27:36 +0000",
+    "path": "/modules/exploits/multi/http/langflow_auth_command_injection_cve_2026_93674.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_auth_command_injection_cve_2026_93674",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_multi/http/langflow_auth_rce_cve_2026_18729": {
     "name": "Langflow AI Custom Component Authenticated RCE",
     "fullname": "exploit/multi/http/langflow_auth_rce_cve_2026_18729",
@@ -117062,6 +117583,63 @@
     "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_0769.rb",
     "is_install_path": true,
     "ref_name": "multi/http/langflow_unauth_rce_cve_2026_0769",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/langflow_unauth_rce_cve_2026_10134": {
+    "name": "Langflow AI Public Flow Build Unauth RCE",
+    "fullname": "exploit/multi/http/langflow_unauth_rce_cve_2026_10134",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-07-17",
+    "type": "exploit",
+    "author": [
+      "Richard Howe <rhowe425>"
+    ],
+    "description": "Langflow versions 1.0.0 through 1.9.3 are susceptible to unauthenticated remote code\n          execution due to improper handling of a public flow's `tool_code` field and a lack\n          of required authentication for the `/api/v1/build_public_tmp/<flow_id>/flow` endpoint.\n\n          If a target instance exposes a public flow and its UUID, an unauthenticated remote attacker\n          can supply malicious code payloads via parameters like tool_code targeting paths under\n          /api/v1/ without needing any valid credentials. If no flow UUIDs are exposed, an authenticated\n          attacker can create one in order to exploit this vulnerability.\n\n          Arbitrary code is executed under the context of the Langflow backend process.",
+    "references": [
+      "CVE-2026-10134",
+      "URL-https://www.ibm.com/support/pages/security-bulletin-unauthenticated-server-side-rce-pythoncodestructuredtool-public-flows"
+    ],
+    "platform": "Python",
+    "arch": "python",
+    "rport": 7860,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Python payload"
+    ],
+    "mod_time": "2026-10-06 08:15:48 +0000",
+    "path": "/modules/exploits/multi/http/langflow_unauth_rce_cve_2026_10134.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/langflow_unauth_rce_cve_2026_10134",
     "check": true,
     "post_auth": false,
     "default_credential": false,
@@ -118098,7 +118676,7 @@
       "Windows EXE Dropper",
       "Windows Command"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-10-25 16:31:19 +0000",
     "path": "/modules/exploits/multi/http/manageengine_adselfservice_plus_saml_rce_cve_2022_47966.rb",
     "is_install_path": true,
     "ref_name": "multi/http/manageengine_adselfservice_plus_saml_rce_cve_2022_47966",
@@ -120452,7 +121030,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/open_web_analytics_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/open_web_analytics_rce",
@@ -120475,6 +121053,65 @@
     },
     "session_types": false,
     "needs_cleanup": true
+  },
+  "exploit_multi/http/openbullet2_unauth_rce_cve_2026_25856": {
+    "name": "OpenBullet2 Unauthenticated RCE via Config Configuration Interface",
+    "fullname": "exploit/multi/http/openbullet2_unauth_rce_cve_2026_25856",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-06-08",
+    "type": "exploit",
+    "author": [
+      "Maksim Rogov"
+    ],
+    "description": "This Metasploit module exploits an Unauthenticated Remote Code Execution (RCE) vulnerability in OpenBullet2.\n\n          Attackers can leverage the plain C# execution mode, which lacks reference filtering or API restrictions, to access the file system, spawn processes, and invoke arbitrary .NET APIs as the process user.\n\n          The affected versions include releases from 0.2.5.",
+    "references": [
+      "CVE-2026-25555",
+      "CVE-2026-25856",
+      "URL-https://hackernoon.com/one-empty-header-to-admin-how-an-auth-bypass-breaks-openbullet2"
+    ],
+    "platform": "Linux,Unix,Windows",
+    "arch": "cmd",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "OpenBullet2 >= 0.2.5 / Unix Command",
+      "OpenBullet2 >= 0.2.5 / Windows Command"
+    ],
+    "mod_time": "2026-11-02 11:34:16 +0000",
+    "path": "/modules/exploits/multi/http/openbullet2_unauth_rce_cve_2026_25856.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/openbullet2_unauth_rce_cve_2026_25856",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
   },
   "exploit_multi/http/opencats_installer_rce": {
     "name": "OpenCATS Installer PHP Code Injection",
@@ -120716,6 +121353,70 @@
       ],
       "Reliability": [
         "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/openfire_deleted_admin_rce_cve_2024_25420": {
+    "name": "Openfire Deleted Administrator Account Authentication Bypass RCE",
+    "fullname": "exploit/multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2024-03-26",
+    "type": "exploit",
+    "author": [
+      "xRogue",
+      "Admin9961",
+      "h00die-gr3y <h00die.gr3y@gmail.com>",
+      "Jatin Mannepalli"
+    ],
+    "description": "Openfire versions before 4.8.1 did not remove a user's JID from the\n          admin.authorizedJIDs property when the user was deleted. If an attacker knows the\n          username of a deleted administrator and in-band registration is enabled, the attacker\n          can recreate that account and inherit administrative access. An authenticated Openfire\n          administrator can upload a management plugin containing a Java payload.\n\n          Openfire 4.8.1 prevents new stale entries when a user is deleted, but it does not migrate\n          entries created by an older version. An upgraded server can therefore remain exploitable\n          until the recreated account is deleted while the fix is present.\n\n          The ADMINUSERNAME option must identify a previously deleted administrator. The check\n          method does not create accounts and cannot determine whether this target-specific state\n          exists.",
+    "references": [
+      "CVE-2024-25420",
+      "GHSA-5xvc-rwv8-86p7",
+      "URL-https://www.hackthebox.com/blog/openfire-cves-explained-CVE-2024-25420-CVE-2024-25421",
+      "URL-https://github.com/rapid7/metasploit-framework/issues/19949"
+    ],
+    "platform": "Java",
+    "arch": "java",
+    "rport": 9090,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java Universal"
+    ],
+    "mod_time": "2026-11-03 22:48:33 +0000",
+    "path": "/modules/exploits/multi/http/openfire_deleted_admin_rce_cve_2024_25420.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ],
+      "Reliability": [
+        "event-dependent"
       ]
     },
     "session_types": false,
@@ -121623,7 +122324,7 @@
       "Windows Command",
       "Linux Command"
     ],
-    "mod_time": "2026-09-02 10:28:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/papercut_ng_external_user_lookup_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/papercut_ng_external_user_lookup_rce",
@@ -135890,6 +136591,55 @@
     "needs_cleanup": true,
     "actions": []
   },
+  "exploit_multi/persistence/docker_image": {
+    "name": "Docker Image Persistence",
+    "fullname": "exploit/multi/persistence/docker_image",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2013-03-20",
+    "type": "exploit",
+    "author": [
+      "h00die",
+      "Emanuele Cervelli"
+    ],
+    "description": "This module maintains persistence on a host by creating a docker image which runs our\n          payload, and has access to the host's file system (/host in the container). Whenever the\n          container restarts, the payload will run, or when the payload dies the executable\n          will run again after a delay. This will allow for writing back\n          into the host through cron entries, ssh keys, or other method.\n\n          Verified on Ubuntu 22.04.\n          Verified on Windows 11.",
+    "references": [
+      "ATT&CK-T1610"
+    ],
+    "platform": "Linux",
+    "arch": "x86, x64, armle, aarch64, ppc, mipsle, mipsbe",
+    "rport": null,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Auto"
+    ],
+    "mod_time": "2026-11-02 21:36:19 +0000",
+    "path": "/modules/exploits/multi/persistence/docker_image.rb",
+    "is_install_path": true,
+    "ref_name": "multi/persistence/docker_image",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "config-changes",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": [
+      "meterpreter"
+    ],
+    "needs_cleanup": true,
+    "actions": []
+  },
   "exploit_multi/persistence/joplin_plugin": {
     "name": "Joplin Plugin Persistence",
     "fullname": "exploit/multi/persistence/joplin_plugin",
@@ -143790,6 +144540,171 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_unix/smtp/cisco_secure_email_gateway_amp_file_write_rce": {
+    "name": "Cisco Secure Email Gateway AMP Arbitrary File Write RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
+    "aliases": [],
+    "rank": 400,
+    "disclosure_date": "2026-10-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "An unauthenticated attacker sends an email containing a crafted tar\n          attachment through Cisco Secure Email Gateway. Inside the tar, a POSIX\n          pax extended header applies `linkpath=bin/core_watch.sh` to a hard-link\n          member. That member also contains the module's shell command launcher.\n\n          AMP File Reputation decodes the email attachment and passes the tar to\n          `libunarchv`, AMP's native archive extractor. `libunarchv` runs as root\n          and uses libarchive to write archive members. Its\n          `update_full_pathname()` function replaces the member pathname in\n          `archive_entry_pathname()` with a generated pathname in AMP's temporary\n          extraction directory. It leaves `archive_entry_hardlink()`, which holds\n          the pax `linkpath`, under the attacker's control.\n\n          Libarchive asks the operating system to create the generated pathname as\n          a hard link to `bin/core_watch.sh`. AMP's working directory is `/data`,\n          so this relative `linkpath` resolves to `/data/bin/core_watch.sh`. A hard\n          link is another pathname for the same file. When libarchive writes the\n          member's data through the generated pathname, it therefore truncates and\n          replaces `core_watch.sh`. This primitive overwrites an existing file; it\n          cannot create the file named by `linkpath`, and both pathnames must be on\n          the same filesystem.\n\n          The flaw is in `libunarchv`'s hard-link validation, not the pax format.\n          The module uses the file overwrite to replace /data/bin/core_watch.sh with\n          a shell command launcher. The system crontab runs this script as root every\n          five minutes. Before running the payload, the launcher truncates the\n          replaced file to prevent another payload execution. Three other Cisco scripts are\n          hard links to the same file and are also left empty. The appliance\n          requires repair after exploitation.\n\n          The check sends the hidden EUQ_FULL SMTP command to identify an AsyncOS\n          mail service. SMTP does not reveal the Content Scanner Tools version or\n          whether File Reputation is enabled on a mail policy, so the check\n          reports only that the product was detected.\n\n          File Reputation must be enabled and assigned to a mail policy, and\n          Content Scanner Tools must be earlier than 25.3.0.5525.",
+    "references": [
+      "CVE-2026-76519",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-esa-afw-zqYJkjxp"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-09 16:25:15 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe",
+        "os-resource-loss"
+      ],
+      "Reliability": [
+        "event-dependent"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce": {
+    "name": "Cisco Secure Email Gateway ECS Message-ID SQL Injection RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an unauthenticated SQL injection in the Cisco\n          Secure Email Gateway (SEG) Email Cloud Scanner (ECS) URL-retrospective\n          message database. A sender-controlled Message-ID is placed inside a fixed\n          PostgreSQL dollar-quoted string without escaping. The module sends one\n          email whose quoted Message-ID terminates that string, stacks COPY TO\n          PROGRAM, and executes a Unix command payload as root through AsyncOS\n          runas.\n\n          The check identifies the product through Cisco SEG's hidden SMTP\n          queue-status command. AsyncOS does not expose a version through a\n          benign SMTP command, so the check can only identify the product but not\n          if it is explicitly vulnerable.\n\n          URL Filtering and URL Retrospective Service must both be enabled.",
+    "references": [
+      "CVE-2026-76461",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-esa-inj-2bLVGmhX"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-03 13:01:48 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_ecs_sqli_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_unix/smtp/cisco_secure_email_gateway_smime_sqli_rce": {
+    "name": "Cisco Secure Email Gateway S/MIME SQL Injection RCE",
+    "fullname": "exploit/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-09-14",
+    "type": "exploit",
+    "author": [
+      "sfewer-r7"
+    ],
+    "description": "This module exploits an unauthenticated SQL injection in Cisco Secure\n          Email Gateway S/MIME certificate harvesting. A sender-controlled email\n          address in a signing certificate is used in a PostgreSQL query without\n          escaping. The module sends one signed email whose certificate supplies\n          enough addresses to flush the asynchronous database writer, stacks COPY\n          TO PROGRAM, and runs a payload as root through AsyncOS runas and Python.\n\n          The check identifies the product through Cisco SEG's hidden SMTP\n          queue-status command. AsyncOS does not expose a version through a\n          benign SMTP command, so the check can only identify the product but not\n          if it is explicitly vulnerable. Public-key harvesting must be enabled on\n          the inbound mail flow policy for the target to be exploitable.\n\n          The Cisco advisory is vague so attributing this vulnerability to a specific CVE is\n          not obvious, but this appears to be CVE-2026-76443 rather than CVE-2026-76461\n          based on the IOCs available for CVE-2026-76461.",
+    "references": [
+      "CVE-2026-76443",
+      "URL-https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-hardening-esa-dfCrfXkm"
+    ],
+    "platform": "Python,Unix",
+    "arch": "python, cmd",
+    "rport": 25,
+    "autofilter_ports": [
+      25,
+      465,
+      587,
+      2525,
+      25025,
+      25000
+    ],
+    "autofilter_services": [
+      "smtp",
+      "smtps"
+    ],
+    "targets": [
+      "Python Payload",
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-17 15:59:15 +0000",
+    "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_smime_sqli_rce.rb",
+    "is_install_path": true,
+    "ref_name": "unix/smtp/cisco_secure_email_gateway_smime_sqli_rce",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_unix/smtp/clamav_milter_blackhole": {
     "name": "ClamAV Milter Blackhole-Mode Remote Code Execution",
     "fullname": "exploit/unix/smtp/clamav_milter_blackhole",
@@ -151513,6 +152428,66 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
+  "exploit_unix/webapp/wp_bug_library_file_upload": {
+    "name": "WordPress Bug Library Plugin Prior To 2.1.1 Unauthenticated PHP File Upload RCE",
+    "fullname": "exploit/unix/webapp/wp_bug_library_file_upload",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-06-22",
+    "type": "exploit",
+    "author": [
+      "Bob Matyas",
+      "TrinityBerserker"
+    ],
+    "description": "The Bug Library WordPress plugin before version 2.1.1 does not validate\n          the file type of attachments submitted via the public bug-report form,\n          allowing an unauthenticated attacker to upload an arbitrary PHP file\n          and achieve remote code execution.\n\n          When the \"Allow Attachments\" setting is enabled and CAPTCHA is either\n          disabled or not deployed, a PHP webshell can be submitted as a bug\n          report attachment. The file is stored under wp-content/uploads/bug-library/\n          and is directly accessible over HTTP, giving the attacker a persistent\n          shell on the server.\n\n          Affected versions: Bug Library < 2.1.1\n          CVSSv3 Score: 10.0 (Critical) - CWE-434: Unrestricted Upload of File\n          with Dangerous Type",
+    "references": [
+      "CVE-2024-5450",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2024-5450",
+      "WPVDB-d91217bc-9f8f-4971-885e-89edc45b2a4d"
+    ],
+    "platform": "PHP",
+    "arch": "php",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "WordPress Bug Library Prior To 2.1.1"
+    ],
+    "mod_time": "2026-10-29 14:07:18 +0000",
+    "path": "/modules/exploits/unix/webapp/wp_bug_library_file_upload.rb",
+    "is_install_path": true,
+    "ref_name": "unix/webapp/wp_bug_library_file_upload",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
       ]
     },
     "session_types": false,
@@ -201352,7 +202327,7 @@
     "targets": [
       "Windows"
     ],
-    "mod_time": "2026-04-22 11:58:46 +0000",
+    "mod_time": "2026-09-07 00:09:55 +0000",
     "path": "/modules/exploits/windows/local/unquoted_service_path.rb",
     "is_install_path": true,
     "ref_name": "windows/local/unquoted_service_path",
@@ -211470,7 +212445,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/rdp/rdp_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/rdp/rdp_doublepulsar_rce",
@@ -213589,7 +214564,7 @@
     "targets": [
       "Windows 10 v1903-1909 x64"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/cve_2020_0796_smbghost.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/cve_2020_0796_smbghost",
@@ -215149,7 +216124,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_doublepulsar_rce",
@@ -215345,7 +216320,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_shadow.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_shadow",
@@ -220054,6 +221029,275 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/ftp/loongarch64/chmod": {
+    "name": "FTP Fetch, Linux Chmod",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/chmod",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nRuns chmod on the specified file with specified mode.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/fchmodat.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/chmod/chmod.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/chmod",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/chmod",
+    "staged": false
+  },
+  "payload_cmd/linux/ftp/loongarch64/exec": {
+    "name": "FTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nExecute an arbitrary command.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/cmd/cmd.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/linux/ftp/loongarch64/reboot": {
+    "name": "FTP Fetch, Linux Reboot",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/reboot",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\n\n          A very small shellcode for rebooting the system using\n          the reboot syscall. This payload is sometimes helpful\n          for testing purposes. Requires CAP_SYS_BOOT privileges.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/reboot.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/reboot/reboot.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/reboot",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/reboot",
+    "staged": false
+  },
+  "payload_cmd/linux/ftp/loongarch64/shell/bind_tcp": {
+    "name": "FTP Fetch, Linux Command Shell, Bind TCP Stager",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/shell/bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nSpawn a command shell (staged).\n\nListen for a connection",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/shell/bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/bind_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/bind_tcp"
+  },
+  "payload_cmd/linux/ftp/loongarch64/shell/reverse_tcp": {
+    "name": "FTP Fetch, Linux Command Shell, Reverse TCP Stager",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nSpawn a command shell (staged).\n\nConnect back to the attacker",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/reverse_tcp"
+  },
+  "payload_cmd/linux/ftp/loongarch64/shell_bind_tcp": {
+    "name": "FTP Fetch, Linux Command Shell, Bind TCP Inline",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/shell_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nListen for a connection and spawn a command shell.",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/shell_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_bind_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/ftp/loongarch64/shell_reverse_tcp": {
+    "name": "FTP Fetch, Linux Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/linux/ftp/loongarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an FTP server.\nConnect back to attacker and spawn a command shell.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/ftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/ftp/loongarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/ftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/linux/ftp/mips64/exec": {
     "name": "FTP Fetch, Linux Execute Command",
     "fullname": "payload/cmd/linux/ftp/mips64/exec",
@@ -224598,6 +225842,275 @@
     "payload_type": 8,
     "adapter_refname": "cmd/linux/http/armle",
     "adapted_refname": "linux/armle/shell_reverse_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/http/loongarch64/chmod": {
+    "name": "HTTP Fetch, Linux Chmod",
+    "fullname": "payload/cmd/linux/http/loongarch64/chmod",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nRuns chmod on the specified file with specified mode.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/fchmodat.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/chmod/chmod.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/chmod",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/chmod",
+    "staged": false
+  },
+  "payload_cmd/linux/http/loongarch64/exec": {
+    "name": "HTTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/http/loongarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nExecute an arbitrary command.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/cmd/cmd.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/linux/http/loongarch64/reboot": {
+    "name": "HTTP Fetch, Linux Reboot",
+    "fullname": "payload/cmd/linux/http/loongarch64/reboot",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\n\n          A very small shellcode for rebooting the system using\n          the reboot syscall. This payload is sometimes helpful\n          for testing purposes. Requires CAP_SYS_BOOT privileges.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/reboot.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/reboot/reboot.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/reboot",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/reboot",
+    "staged": false
+  },
+  "payload_cmd/linux/http/loongarch64/shell/bind_tcp": {
+    "name": "HTTP Fetch, Linux Command Shell, Bind TCP Stager",
+    "fullname": "payload/cmd/linux/http/loongarch64/shell/bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nSpawn a command shell (staged).\n\nListen for a connection",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/shell/bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/bind_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/bind_tcp"
+  },
+  "payload_cmd/linux/http/loongarch64/shell/reverse_tcp": {
+    "name": "HTTP Fetch, Linux Command Shell, Reverse TCP Stager",
+    "fullname": "payload/cmd/linux/http/loongarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nSpawn a command shell (staged).\n\nConnect back to the attacker",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/reverse_tcp"
+  },
+  "payload_cmd/linux/http/loongarch64/shell_bind_tcp": {
+    "name": "HTTP Fetch, Linux Command Shell, Bind TCP Inline",
+    "fullname": "payload/cmd/linux/http/loongarch64/shell_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nListen for a connection and spawn a command shell.",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/shell_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_bind_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/http/loongarch64/shell_reverse_tcp": {
+    "name": "HTTP Fetch, Linux Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/linux/http/loongarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTP server.\nConnect back to attacker and spawn a command shell.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-09-29 15:11:27 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/http/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/http/loongarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/http/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_reverse_tcp",
     "staged": false
   },
   "payload_cmd/linux/http/mips64/exec": {
@@ -229181,6 +230694,275 @@
     "adapted_refname": "linux/armle/shell_reverse_tcp",
     "staged": false
   },
+  "payload_cmd/linux/https/loongarch64/chmod": {
+    "name": "HTTPS Fetch, Linux Chmod",
+    "fullname": "payload/cmd/linux/https/loongarch64/chmod",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nRuns chmod on the specified file with specified mode.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/fchmodat.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/chmod/chmod.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/chmod",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/chmod",
+    "staged": false
+  },
+  "payload_cmd/linux/https/loongarch64/exec": {
+    "name": "HTTPS Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/https/loongarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nExecute an arbitrary command.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/cmd/cmd.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/linux/https/loongarch64/reboot": {
+    "name": "HTTPS Fetch, Linux Reboot",
+    "fullname": "payload/cmd/linux/https/loongarch64/reboot",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\n\n          A very small shellcode for rebooting the system using\n          the reboot syscall. This payload is sometimes helpful\n          for testing purposes. Requires CAP_SYS_BOOT privileges.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/reboot.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/reboot/reboot.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/reboot",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/reboot",
+    "staged": false
+  },
+  "payload_cmd/linux/https/loongarch64/shell/bind_tcp": {
+    "name": "HTTPS Fetch, Linux Command Shell, Bind TCP Stager",
+    "fullname": "payload/cmd/linux/https/loongarch64/shell/bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nSpawn a command shell (staged).\n\nListen for a connection",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/shell/bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/bind_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/bind_tcp"
+  },
+  "payload_cmd/linux/https/loongarch64/shell/reverse_tcp": {
+    "name": "HTTPS Fetch, Linux Command Shell, Reverse TCP Stager",
+    "fullname": "payload/cmd/linux/https/loongarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nSpawn a command shell (staged).\n\nConnect back to the attacker",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/reverse_tcp"
+  },
+  "payload_cmd/linux/https/loongarch64/shell_bind_tcp": {
+    "name": "HTTPS Fetch, Linux Command Shell, Bind TCP Inline",
+    "fullname": "payload/cmd/linux/https/loongarch64/shell_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nListen for a connection and spawn a command shell.",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/shell_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_bind_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/https/loongarch64/shell_reverse_tcp": {
+    "name": "HTTPS Fetch, Linux Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/linux/https/loongarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from an HTTPS server.\nConnect back to attacker and spawn a command shell.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/https/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/https/loongarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/https/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/linux/https/mips64/exec": {
     "name": "HTTPS Fetch, Linux Execute Command",
     "fullname": "payload/cmd/linux/https/mips64/exec",
@@ -233760,6 +235542,275 @@
     "payload_type": 8,
     "adapter_refname": "cmd/linux/tftp/armle",
     "adapted_refname": "linux/armle/shell_reverse_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/tftp/loongarch64/chmod": {
+    "name": "TFTP Fetch, Linux Chmod",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/chmod",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nRuns chmod on the specified file with specified mode.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/fchmodat.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/chmod/chmod.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/chmod",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/chmod",
+    "staged": false
+  },
+  "payload_cmd/linux/tftp/loongarch64/exec": {
+    "name": "TFTP Fetch, Linux Execute Command",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nExecute an arbitrary command.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/cmd/cmd.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/linux/tftp/loongarch64/reboot": {
+    "name": "TFTP Fetch, Linux Reboot",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/reboot",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\n\n          A very small shellcode for rebooting the system using\n          the reboot syscall. This payload is sometimes helpful\n          for testing purposes. Requires CAP_SYS_BOOT privileges.",
+    "references": [
+      "URL-https://man7.org/linux/man-pages/man2/reboot.2.html",
+      "URL-https://github.com/bcoles/shellcode/blob/main/loongarch64/reboot/reboot.s"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/reboot",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/reboot",
+    "staged": false
+  },
+  "payload_cmd/linux/tftp/loongarch64/shell/bind_tcp": {
+    "name": "TFTP Fetch, Linux Command Shell, Bind TCP Stager",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/shell/bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nSpawn a command shell (staged).\n\nListen for a connection",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/shell/bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/bind_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/bind_tcp"
+  },
+  "payload_cmd/linux/tftp/loongarch64/shell/reverse_tcp": {
+    "name": "TFTP Fetch, Linux Command Shell, Reverse TCP Stager",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nSpawn a command shell (staged).\n\nConnect back to the attacker",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/reverse_tcp"
+  },
+  "payload_cmd/linux/tftp/loongarch64/shell_bind_tcp": {
+    "name": "TFTP Fetch, Linux Command Shell, Bind TCP Inline",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/shell_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nListen for a connection and spawn a command shell.",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/shell_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_bind_tcp",
+    "staged": false
+  },
+  "payload_cmd/linux/tftp/loongarch64/shell_reverse_tcp": {
+    "name": "TFTP Fetch, Linux Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/linux/tftp/loongarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Brendan Watters",
+      "Spencer McIntyre",
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Fetch and execute a LoongArch64 payload from a TFTP server.\nConnect back to attacker and spawn a command shell.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/adapters/cmd/linux/tftp/loongarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/linux/tftp/loongarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/linux/tftp/loongarch64",
+    "adapted_refname": "linux/loongarch64/shell_reverse_tcp",
     "staged": false
   },
   "payload_cmd/linux/tftp/mips64/exec": {
@@ -288556,6 +290607,120 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_cmd/windows/smb/aarch64/exec": {
+    "name": "SMB Fetch, Windows AArch64 Command Execution",
+    "fullname": "payload/cmd/windows/smb/aarch64/exec",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella",
+      "alanfoster",
+      "Alexander \"xaitax\" Hagenah"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\n          Executes an arbitrary command on a Windows on ARM (AArch64) target.\n          This payload is a foundational example of position-independent shellcode for the AArch64 architecture.\n          It dynamically resolves the address of the `WinExec` function from `kernel32.dll` by parsing the\n          Process Environment Block (PEB) and the module's Export Address Table (EAT) at runtime.\n          This technique avoids static imports and hardcoded function addresses, increasing resilience.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/exec",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "screen-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/exec",
+    "staged": false
+  },
+  "payload_cmd/windows/smb/aarch64/shell/reverse_tcp": {
+    "name": "SMB Fetch, Windows AArch64 Command Shell, Windows AArch64 Reverse TCP Stager",
+    "fullname": "payload/cmd/windows/smb/aarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\nSpawn a piped command shell on Windows on ARM (AArch64) (staged).\nExpects an open TCP socket handle in x0 at entry (convention sockx0).\nResolves CreateProcessA via PEB / Export Address Table hashing and\nlaunches cmd.exe with stdin/stdout/stderr redirected to the socket\nvia STARTF_USESTDHANDLES.\nConnect back to the attacker (Windows AArch64)",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/shell/reverse_tcp",
+    "staged": true,
+    "stage_refname": "windows/aarch64/shell",
+    "stager_refname": "windows/aarch64/reverse_tcp"
+  },
+  "payload_cmd/windows/smb/aarch64/shell_reverse_tcp": {
+    "name": "SMB Fetch, Windows AArch64 Command Shell, Reverse TCP Inline",
+    "fullname": "payload/cmd/windows/smb/aarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "Spencer McIntyre",
+      "vinicius-batistella"
+    ],
+    "description": "Fetch and execute an AArch64 payload from an SMB server.\n\n          Connect back to the attacker and spawn a Windows command shell on a\n          Windows on ARM (AArch64) target. Position-independent shellcode that\n          resolves API addresses via PEB / Export Address Table hashing\n          (Stephen Fewer ROR-13), opens a TCP socket through Winsock, calls\n          WSAConnect, then spawns cmd.exe with stdin/stdout/stderr piped over\n          the socket via CreateProcessA + STARTF_USESTDHANDLES. EXITFUNC is\n          honored via a runtime hash-dispatcher.",
+    "references": [],
+    "platform": "Windows",
+    "arch": "cmd",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-16 13:54:18 +0000",
+    "path": "/modules/payloads/adapters/cmd/windows/smb/aarch64.rb",
+    "is_install_path": true,
+    "ref_name": "cmd/windows/smb/aarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 8,
+    "adapter_refname": "cmd/windows/smb/aarch64",
+    "adapted_refname": "windows/aarch64/shell_reverse_tcp",
+    "staged": false
+  },
   "payload_cmd/windows/smb/x64/custom/bind_ipv6_tcp": {
     "name": "SMB Fetch, Windows shellcode stage, Windows x64 IPv6 Bind TCP Stager",
     "fullname": "payload/cmd/windows/smb/x64/custom/bind_ipv6_tcp",
@@ -296242,6 +298407,144 @@
     "payload_type": 1,
     "staged": false
   },
+  "payload_linux/loongarch64/shell/bind_tcp": {
+    "name": "Linux Command Shell, Bind TCP Stager",
+    "fullname": "payload/linux/loongarch64/shell/bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Spawn a command shell (staged).\n\nListen for a connection",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "loongarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/stagers/linux/loongarch64/bind_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "linux/loongarch64/shell/bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 2,
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/bind_tcp"
+  },
+  "payload_linux/loongarch64/shell/reverse_tcp": {
+    "name": "Linux Command Shell, Reverse TCP Stager",
+    "fullname": "payload/linux/loongarch64/shell/reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Spawn a command shell (staged).\n\nConnect back to the attacker",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "loongarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 15:22:08 +0000",
+    "path": "/modules/payloads/stagers/linux/loongarch64/reverse_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "linux/loongarch64/shell/reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 2,
+    "staged": true,
+    "stage_refname": "linux/loongarch64/shell",
+    "stager_refname": "linux/loongarch64/reverse_tcp"
+  },
+  "payload_linux/loongarch64/shell_bind_tcp": {
+    "name": "Linux Command Shell, Bind TCP Inline",
+    "fullname": "payload/linux/loongarch64/shell_bind_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Listen for a connection and spawn a command shell.",
+    "references": [
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "loongarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-08 16:26:57 +0000",
+    "path": "/modules/payloads/singles/linux/loongarch64/shell_bind_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "linux/loongarch64/shell_bind_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
+  "payload_linux/loongarch64/shell_reverse_tcp": {
+    "name": "Linux Command Shell, Reverse TCP Inline",
+    "fullname": "payload/linux/loongarch64/shell_reverse_tcp",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "payload",
+    "author": [
+      "modexp",
+      "bcoles <bcoles@gmail.com>"
+    ],
+    "description": "Connect back to attacker and spawn a command shell.",
+    "references": [
+      "URL-https://modexp.wordpress.com/2022/05/02/shellcode-risc-v-linux/",
+      "URL-https://loongson.github.io/LoongArch-Documentation/LoongArch-Vol1-EN.html"
+    ],
+    "platform": "Linux",
+    "arch": "loongarch64",
+    "rport": null,
+    "autofilter_ports": null,
+    "autofilter_services": null,
+    "targets": null,
+    "mod_time": "2026-10-20 17:09:29 +0000",
+    "path": "/modules/payloads/singles/linux/loongarch64/shell_reverse_tcp.rb",
+    "is_install_path": true,
+    "ref_name": "linux/loongarch64/shell_reverse_tcp",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {},
+    "session_types": false,
+    "needs_cleanup": false,
+    "payload_type": 1,
+    "staged": false
+  },
   "payload_linux/mips64/exec": {
     "name": "Linux Execute Command",
     "fullname": "payload/linux/mips64/exec",
@@ -301779,7 +304082,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/php/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "php/meterpreter_reverse_tcp",
@@ -307864,7 +310167,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_named_pipe",
@@ -307899,7 +310202,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_bind_tcp",
@@ -308004,7 +310307,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_ipv6_tcp",
@@ -308039,7 +310342,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/meterpreter_reverse_tcp",
@@ -314058,7 +316361,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-08-20 17:22:11 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_named_pipe.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_named_pipe",
@@ -314093,7 +316396,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_bind_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_bind_tcp",
@@ -314198,7 +316501,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_ipv6_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_ipv6_tcp",
@@ -314233,7 +316536,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-10-22 17:09:29 +0000",
     "path": "/modules/payloads/singles/windows/x64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "windows/x64/meterpreter_reverse_tcp",

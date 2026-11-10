@@ -167,7 +167,7 @@ module ReportGeneration
     support_matrix = SupportMatrix.new(data)
 
     if options[:format] == :json
-      $stdout.write JSON.pretty_generate(support_matrix.data)
+      $stdout.write JSON.pretty_generate(data)
     else
       template = File.read(File.join(File.dirname(__FILE__), 'template.erb'))
       renderer = ERB.new(template, trim_mode: '-')

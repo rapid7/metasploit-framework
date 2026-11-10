@@ -384,6 +384,10 @@ RSpec.describe Rex::Proto::X509::Request do
       expect(described_class.create_csr(pkcs12_key, 'testuser')).to be_a(OpenSSL::X509::Request)
     end
 
+    it 'sets the PKCS#10 v1 version' do
+      expect(described_class.create_csr(pkcs12_key, 'testuser').version).to eq(0)
+    end
+
     it 'sets the CN in the subject' do
       result = described_class.create_csr(pkcs12_key, 'testuser')
       cn_entry = result.subject.to_a.find { |oid, _value, _type| oid == 'CN' }

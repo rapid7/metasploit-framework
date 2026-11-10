@@ -149,10 +149,6 @@ module Msf::WebServices
     before do
       request.env['msf.db_manager'] = settings.db_manager if settings.db_manager
       request.env['msf.api_token'] = settings.api_token unless settings.api_token.nil?
-      # This application has no unauthenticated bootstrap flow: boot! guarantees either a
-      # static token or a database user before connections are accepted, so authentication
-      # is always enforced. See Authentication::Strategies::ApiToken#auth_initialized?.
-      request.env['msf.auth_initialized'] = true
     end
 
     use Warden::Manager do |config|

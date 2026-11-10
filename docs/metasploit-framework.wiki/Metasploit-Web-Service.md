@@ -10,6 +10,10 @@ To use the web service you will need a PostgreSQL database to serve as the backe
 #### Initialize the Database and Web Service
 Execute `msfdb init` and respond to prompts during the interactive initialization. The script first creates and configures the database, then it configures the web service, and finally configures the local `msfconsole` with the new data service connection.
 
+The first (administrator) account is created by `msfdb` directly in the database, and its API token is issued at the same time, before the web service starts. The web service never accepts an unauthenticated request to create an account, so `POST /api/v1/users` always requires an administrator API token, even when the users table is empty.
+
+If you have an existing web service whose users table is empty (for example a restored blank database), it can no longer be bootstrapped by sending an unauthenticated `POST /api/v1/users`. Create the user and its API token directly in the database instead, as described in [[How to use Metasploit JSON RPC|./How-to-use-Metasploit-JSON-RPC.md]]. Running `msfdb --component webservice reinit` also creates the account, but it additionally stops and restarts the web service.
+
 #### msfdb
 
 The `msfdb` tool allows you to manage both the Metasploit Framework database and web service components together or independently. If the `--component` option is not provided then the specified command will be executed for the database followed by the web service. This default mode of operation is useful when first setting up the database and web service. The component may be specified if you wish to make changes to a given component independent of the other.

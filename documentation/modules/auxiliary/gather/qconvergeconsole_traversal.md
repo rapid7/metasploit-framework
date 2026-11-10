@@ -32,6 +32,13 @@ This should return the win.ini file from the server. Any files retrieved will be
 
 ## Options
 
+### DefangedMode
+
+Defaults to `true`, which blocks file retrieval. Setting it to `false` permits the
+read-and-delete operation: the file specified by `TARGET_DIR` and `TARGET_FILE`
+is retrieved and deleted from the remote system. Disable it only when that
+deletion is authorized.
+
 ### TARGET_FILE
 The file to be retrieved from the file system. By default, this is win.ini. However, any arbitrary file can be specified.
 

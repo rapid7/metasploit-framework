@@ -74,7 +74,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.247'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.257'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.48'
   # Needed by msfgui and other rpc components
@@ -156,8 +156,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'rest-client'
   spec.add_runtime_dependency 'winrm'
-  # Pinned to avoid WinRM warnings: https://github.com/WinRb/WinRM/issues/355 - if bumping verify windows/winrm/winrm_script_exec works against metasploitable with vagrant/vagrant creds
-  spec.add_runtime_dependency 'rexml', '3.4.1'
+  spec.add_runtime_dependency 'rexml'
   spec.add_runtime_dependency 'ffi', '< 1.17.0'
 
   #
@@ -191,7 +190,7 @@ Gem::Specification.new do |spec|
   # Library for parsing and manipulating executable binaries
   spec.add_runtime_dependency 'rex-bin_tools'
   # Rex Socket Abstraction Layer
-  spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket', '>= 0.1.68'
   # Library for scanning a server's SSL/TLS capabilities
   spec.add_runtime_dependency 'rex-sslscan'
   # Library and tool for finding ROP gadgets in a supplied binary
@@ -271,12 +270,16 @@ Gem::Specification.new do |spec|
   # Needed for the MCP server (msfmcpd)
   spec.add_runtime_dependency 'mcp'
 
+  # bigdecimal 4.1.2+ does not compile on the Ubuntu 12.04 i386 package builder:
+  # https://github.com/rapid7/metasploit-omnibus/blob/master/docker/ubuntu1204-x86/Dockerfile
+  # https://github.com/ruby/bigdecimal/issues/569
+  spec.add_runtime_dependency 'bigdecimal', '< 4.1.2'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
     base64
     benchmark
-    bigdecimal
     csv
     drb
     fiddle

@@ -271,7 +271,7 @@ module Metasploit
           end
 
           if protocol == 'udp'
-            return sock.sendto(pkt, host, port, 0)
+            return sock.send(pkt, 0, host, port)
           end
         end
 

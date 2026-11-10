@@ -234,7 +234,7 @@ class ReadableText
   end
 
   def self.dump_traits(mod, indent=' ')
-    output = ''
+    output = +''
 
     unless mod.side_effects.empty?
       output << "Module side effects:\n"
@@ -269,7 +269,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_exploit_module(mod, indent = '')
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
@@ -335,7 +335,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_auxiliary_module(mod, indent = '')
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "    License: #{mod.license}\n"
@@ -388,7 +388,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_post_module(mod, indent = '')
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
@@ -446,7 +446,7 @@ class ReadableText
   # @param indent [String] The indentation to use.
   # @return [String] The string form of the information
   def self.dump_evasion_module(mod, indent = '')
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
@@ -491,7 +491,7 @@ class ReadableText
   # @return [String] the string form of the information.
   def self.dump_payload_module(mod, indent = '')
     # General
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
@@ -529,7 +529,7 @@ class ReadableText
   # @return [String] the string form of the information.
   def self.dump_basic_module(mod, indent = '')
     # General
-    output  = "\n"
+    output  = +"\n"
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
@@ -681,7 +681,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_references(mod, indent = '')
-    output = ''
+    output = +''
 
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
@@ -708,7 +708,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_notes(mod, indent = '')
-    output = ''
+    output = +''
 
     mod.notes.each do |name, val|
       next unless val.present?
@@ -779,7 +779,7 @@ class ReadableText
   # @option opts :indent [Integer] set the indentation amount.
   # @return [String] the formatted list of sessions.
   def self.dump_sessions(framework, opts={})
-    output = ""
+    output = +''
     verbose = opts[:verbose] || false
     sessions = opts[:sessions] || framework.sessions
     show_active = opts[:show_active] || false
@@ -1086,7 +1086,7 @@ class ReadableText
   def self.dump_description(mod, indent)
     description = mod.description
 
-    output = "Description:\n"
+    output = +"Description:\n"
     output << word_wrap_description(description, indent)
     output << "\n\n"
   end

@@ -123,6 +123,11 @@ class MetasploitModule < Msf::Auxiliary
       run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST', ldap: ldap) do |result|
         spn = result.serviceprincipalname[0]
         username = result.samaccountname[0]
+
+        unless spn.split('/').length == 2
+          print_warning("Ignoring invalid SPN for #{username}: #{spn.inspect}")
+          next
+        end
         begin
           jtr = roast(username, spn, realm: realm)
           hashes.append(jtr)

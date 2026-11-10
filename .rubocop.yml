@@ -33,7 +33,9 @@ require:
   - ./lib/rubocop/cop/lint/module_missing_autocheck.rb
   - ./lib/rubocop/cop/lint/module_missing_rank.rb
   - ./lib/rubocop/cop/lint/module_default_payload.rb
+  - ./lib/rubocop/cop/lint/module_duplicate_option.rb
   - ./lib/rubocop/cop/lint/module_http_fingerprint.rb
+  - ./lib/rubocop/cop/lint/module_defanged_mode_description.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
@@ -749,11 +751,29 @@ Lint/ModuleDefaultPayload:
   Include:
     - 'modules/**/*'
 
+Lint/ModuleDuplicateOption:
+  Description: >-
+    Do not register an option supplied by a mixin just to change its default value.
+    Set the value in the module's DefaultOptions metadata instead.
+  Enabled: true
+  Severity: warning
+  Include:
+    - 'modules/**/*'
+
 Lint/ModuleHttpFingerprint:
   Description: >-
     HttpFingerprint is a legacy passive fingerprinting mechanism.
     Use a check method with AutoCheck instead.
   Enabled: true
   Severity: info
+  Include:
+    - 'modules/**/*'
+
+Lint/ModuleDefangedModeDescription:
+  Description: >-
+    Explain the module-specific risk prevented by DefangedMode in its datastore
+    option description. Document the same reason in the module documentation.
+  Enabled: true
+  Severity: warning
   Include:
     - 'modules/**/*'
