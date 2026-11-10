@@ -91,8 +91,8 @@ module Msf::Modules::Metadata::Search
         keyword = 'text'
       end
       next if search_term.length == 0
-      keyword.downcase!
-      search_term.downcase!
+      keyword = keyword.downcase
+      search_term = search_term.downcase
 
       res[keyword] ||= [[], []]
       mode = SearchMode::INCLUDE

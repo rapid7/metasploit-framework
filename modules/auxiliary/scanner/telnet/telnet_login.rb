@@ -85,11 +85,11 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        print_good "Login Successful: #{result.credential}"
         start_telnet_session(ip, rport, result.credential.public, result.credential.private, scanner) if datastore['CreateSession']
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
         disconnect(scanner.sock)
       end
     end

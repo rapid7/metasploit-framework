@@ -10,35 +10,16 @@ module Msf::WebServices::Authentication
       # Check if request contains valid data and should be authenticated.
       # @return [Boolean] true if strategy should be run for the request; otherwise, false.
       def valid?
-        # Run the strategy so that #authenticate! can grant the bootstrap exemption.
-        return true unless auth_initialized?
-
         !bearer_token.nil?
       end
 
-      # Authenticate the request.
+      # Authenticate the request. Authentication is always enforced: there is no unauthenticated
+      # bootstrap, the first user is created out of band by msfdb.
       def authenticate!
-        unless auth_initialized?
-          return success!({ message: 'Initialize authentication by creating an initial user account.' })
-        end
-
         token = bearer_token
         throw(:warden, message: 'Invalid API token.', code: 401) if blank_token?(token)
 
         request.env['msf.api_token'].nil? ? auth_from_db(token) : auth_from_env(token)
-      end
-
-      # Whether the application has completed authentication bootstrapping.
-      #
-      # An application opts into the unauthenticated bootstrap flow - which allows an
-      # initial user account to be created before any credentials exist - by explicitly
-      # setting 'msf.auth_initialized' to false. Any other value, including the key
-      # being absent, requires authentication so that the strategy fails closed for
-      # applications that never advertise this state.
-      #
-      # @return [Boolean] true if authentication must be enforced; otherwise, false.
-      def auth_initialized?
-        request.env['msf.auth_initialized'] != false
       end
 
       # The token carried by an Authorization header using the Bearer scheme. Tokens are

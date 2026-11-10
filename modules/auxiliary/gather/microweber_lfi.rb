@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The admin\'s username for Microweber']),
         OptString.new('PASSWORD', [true, 'The admin\'s password for Microweber']),
         OptString.new('LOCAL_FILE_PATH', [true, 'The path of the local file.']),
-        OptBool.new('DEFANGED_MODE', [true, 'Run in defanged mode', true])
+        OptBool.new('DEFANGED_MODE', [true, 'Run in defanged mode. Block file retrieval that may delete the requested file from the target', true])
       ]
     )
   end

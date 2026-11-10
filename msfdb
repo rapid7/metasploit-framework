@@ -269,13 +269,18 @@ def write_db_config
   File.chmod(0640, @db_conf)
 end
 
+# Loads the database config, tolerating Psych versions that do not accept the aliases keyword.
+#
+# @return [Hash] the parsed config, or an empty Hash if the file is empty.
+def load_db_config_yaml
+  YAML.load_file(@db_conf, aliases: true) || {}
+rescue ArgumentError
+  YAML.load_file(@db_conf) || {}
+end
+
 def update_db_port
   if File.file?(@db_conf)
-    config = begin
-      YAML.load_file(@db_conf, aliases: true) || {}
-    rescue ArgumentError
-      YAML.load_file(@db_conf) || {}
-    end
+    config = load_db_config_yaml
     if config["production"] && config["production"]["port"]
       port = config["production"]["port"]
       if port != @options[:db_port]
@@ -411,21 +416,21 @@ def init_web_service
     generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
   end
 
-  if start_web_service(expect_auth: false)
-    if add_web_service_workspace && add_web_service_user
-      output_web_service_information
-    else
-      puts 'Failed to complete MSF web service configuration, please reinitialize.'
-      stop_web_service
-    end
+  # The first account is created directly in the database before the service starts, so the web
+  # service never has to accept an unauthenticated request to create it.
+  if add_web_service_user && start_web_service && add_web_service_workspace
+    output_web_service_information
+  else
+    puts 'Failed to complete MSF web service configuration, please reinitialize.'
+    stop_web_service
   end
 end
 
-def start_web_service_daemon(expect_auth:)
+def start_web_service_daemon
   if @db_driver.run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
-    response_data = web_service_online_check(expect_auth: expect_auth)
+    response_data = web_service_online_check
     is_online = response_data[:state] != :offline
     while !is_online && retry_count < @options[:retry_max]
       retry_count += 1
@@ -433,7 +438,7 @@ def start_web_service_daemon(expect_auth:)
         puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
       end
       sleep(@options[:retry_delay])
-      response_data = web_service_online_check(expect_auth: expect_auth)
+      response_data = web_service_online_check
       is_online = response_data[:state] != :offline
     end
 
@@ -459,7 +464,7 @@ def start_web_service_daemon(expect_auth:)
   end
 end
 
-def start_web_service(expect_auth: true)
+def start_web_service
   unless File.file?(@ws_conf)
     puts "No MSF web service configuration found at #{@ws_conf}, not starting"
     return false
@@ -487,7 +492,7 @@ def start_web_service(expect_auth: true)
   end
 
   if @options[:daemon]
-    start_web_service_daemon(expect_auth: expect_auth)
+    start_web_service_daemon
   else
     puts thin_cmd
     system "#{thin_cmd} start"
@@ -548,7 +553,7 @@ def generate_web_service_ssl(key:, cert:)
   File.chmod(mode_int, cert)
 end
 
-def web_service_online_check(expect_auth:)
+def web_service_online_check
   msf_version_uri = get_web_service_uri(path: '/api/v1/msf/version')
   response_data = http_request(uri: msf_version_uri, method: :get,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
@@ -559,19 +564,15 @@ def web_service_online_check(expect_auth:)
     response_data[:state] = :error
     response_data[:message] = 'Detected an SSL issue. Please set the same options used to initialize the web service or reinitialize.'
   elsif !response_data[:response].nil? && response_data[:response].dig(:error, :code) == 401
-    if expect_auth
-      response_data[:state] = :online
-    else
-      response_data[:state] = :error
-      response_data[:message] = 'MSF web service expects authentication. If you wish to reinitialize the web service account you will need to reinitialize the database.'
-    end
+    # The service always enforces authentication, so an unauthenticated request is expected to be rejected
+    response_data[:state] = :online
   elsif !response_data[:response].nil? && !response_data[:response].dig(:data, :metasploit_version).nil?
     response_data[:state] = :online
   else
     response_data[:state] = :error
   end
 
-  puts "web_service_online: expect_auth=#{expect_auth}, response_msg=#{response_data}" if @options[:debug]
+  puts "web_service_online: response_msg=#{response_data}" if @options[:debug]
   response_data
 end
 
@@ -580,6 +581,7 @@ def add_web_service_workspace(name: 'default')
   workspace_data = { name: name }
   workspaces_uri = get_web_service_uri(path: '/api/v1/workspaces')
   response_data = http_request(uri: workspaces_uri, data: workspace_data, method: :post,
+                               headers: { 'Authorization' => "Bearer #{@ws_api_token}" },
                                skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   response = response_data[:response]
   puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
@@ -593,20 +595,14 @@ end
 def add_web_service_user
   puts "Creating MSF web service user #{@msf_ws_user}"
 
-  # Generate new web service user password
-  cred_data = { username: @msf_ws_user, password: @msf_ws_pass }
-
-  # Send request to create new admin user
-  user_data = cred_data.merge({ admin: true })
-  user_uri = get_web_service_uri(path: '/api/v1/users')
-  response_data = http_request(uri: user_uri, data: user_data, method: :post,
-                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
-  response = response_data[:response]
-  puts "add_web_service_user: create user response=#{response}" if @options[:debug]
-  if response.nil? || response.dig(:data, :username) != @msf_ws_user
-    print_error "Error creating MSF web service user #{@msf_ws_user}"
+  # Create the admin user and its API token directly in the database, rather than over HTTP, so that
+  # no unauthenticated request to the web service is ever able to create the first account.
+  result = create_web_service_user_token
+  if result[:token].nil?
+    print_error "Error creating MSF web service user #{@msf_ws_user}: #{result[:error]}"
     return false
   end
+  @ws_api_token = result[:token]
 
   puts "\n#{'    ############################################################'.cyan}"
   print "#{'    ##              '.cyan}"
@@ -619,19 +615,29 @@ def add_web_service_user
 
   puts "\n#{'MSF web service username'.cyan.bold}: #{@msf_ws_user}"
   puts "#{'MSF web service password'.cyan.bold}: #{@msf_ws_pass}"
-
-  # Send request to create new API token for the user
-  generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
-                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
-  response = response_data[:response]
-  puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
-  if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
-    print_error "Error creating MSF web service user API token"
-    return false
-  end
   puts "#{'MSF web service user API token'.cyan.bold}: #{@ws_api_token}"
   return true
+end
+
+# Creates the initial admin user and issues its API token using the database that the web service
+# is configured to use.
+#
+# @return [Hash] { token: String } on success; { token: nil, error: String } describing why the user
+#   could not be created otherwise.
+def create_web_service_user_token
+  config = load_db_config_yaml['production']
+  return { token: nil, error: "No production section found in database config #{@db_conf}" } if config.nil?
+
+  # Only the database is needed, so skip loading modules and file logging.
+  framework = Msf::Simple::Framework.create('SkipDatabaseInit' => true, 'DeferModuleLoads' => true, 'DisableLogging' => true)
+  unless framework.db.connect(config) && framework.db.active
+    return { token: nil, error: "Could not connect to the database configured in #{@db_conf}: #{framework.db.error}" }
+  end
+
+  user = framework.db.report_user(username: @msf_ws_user, password: @msf_ws_pass, admin: true)
+  { token: framework.db.create_new_user_token(id: user.id, token_length: 40) }
+rescue StandardError => e
+  { token: nil, error: "#{e.class}: #{e.message}" }
 end
 
 def output_web_service_information

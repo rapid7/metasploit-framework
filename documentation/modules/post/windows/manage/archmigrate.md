@@ -24,7 +24,7 @@ If the selected migration executable does not exist, fallback to a sysnative fil
 
 ### IGNORE_SYSTEM
 
-Migrate even if you have SYSTEM privileges. Default: `true`
+Migrate even if you have SYSTEM privileges. Default: `false`
 
 
 ### Verification Steps
