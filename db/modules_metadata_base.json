@@ -333919,7 +333919,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-05-09 10:51:17 +0000",
+    "mod_time": "2026-11-07 18:13:07 +0000",
     "path": "/modules/post/windows/manage/enable_rdp.rb",
     "is_install_path": true,
     "ref_name": "windows/manage/enable_rdp",
