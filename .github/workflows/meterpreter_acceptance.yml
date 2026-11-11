@@ -71,4 +71,4 @@ jobs:
       metasploit_payloads_commit: ${{ github.event.inputs.metasploit_payloads_commit }}
       mettle_commit: ${{ github.event.inputs.mettle_commit }}
       build_metasploit_payloads: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
-      build_mettle: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+      build_mettle: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
