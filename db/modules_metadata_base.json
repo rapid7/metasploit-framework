@@ -2269,7 +2269,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-10-26 14:53:18 +0000",
     "path": "/modules/auxiliary/admin/http/dlink_dir_645_password_extractor.rb",
     "is_install_path": true,
     "ref_name": "admin/http/dlink_dir_645_password_extractor",
@@ -12788,7 +12788,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/admin/wemo/crockpot.rb",
     "is_install_path": true,
     "ref_name": "admin/wemo/crockpot",
@@ -25257,7 +25257,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-05-19 12:26:56 +0000",
+    "mod_time": "2026-10-23 16:02:33 +0000",
     "path": "/modules/auxiliary/gather/kerberoast.rb",
     "is_install_path": true,
     "ref_name": "gather/kerberoast",
@@ -26227,7 +26227,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/microweber_lfi.rb",
     "is_install_path": true,
     "ref_name": "gather/microweber_lfi",
@@ -27746,7 +27746,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-05-12 05:14:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/gather/qconvergeconsole_traversal.rb",
     "is_install_path": true,
     "ref_name": "gather/qconvergeconsole_traversal",
@@ -49708,7 +49708,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-10-29 12:09:31 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/auxiliary/scanner/http/xorcom_completepbx_diagnostics_file_read.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/xorcom_completepbx_diagnostics_file_read",
@@ -112242,7 +112242,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-06-02 10:32:30 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/cpanel_whm_auth_bypass_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/cpanel_whm_auth_bypass_rce",
@@ -118676,7 +118676,7 @@
       "Windows EXE Dropper",
       "Windows Command"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-10-25 16:31:19 +0000",
     "path": "/modules/exploits/multi/http/manageengine_adselfservice_plus_saml_rce_cve_2022_47966.rb",
     "is_install_path": true,
     "ref_name": "multi/http/manageengine_adselfservice_plus_saml_rce_cve_2022_47966",
@@ -121030,7 +121030,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2026-04-22 11:57:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/open_web_analytics_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/open_web_analytics_rce",
@@ -121353,6 +121353,70 @@
       ],
       "Reliability": [
         "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_multi/http/openfire_deleted_admin_rce_cve_2024_25420": {
+    "name": "Openfire Deleted Administrator Account Authentication Bypass RCE",
+    "fullname": "exploit/multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "aliases": [],
+    "rank": 500,
+    "disclosure_date": "2024-03-26",
+    "type": "exploit",
+    "author": [
+      "xRogue",
+      "Admin9961",
+      "h00die-gr3y <h00die.gr3y@gmail.com>",
+      "Jatin Mannepalli"
+    ],
+    "description": "Openfire versions before 4.8.1 did not remove a user's JID from the\n          admin.authorizedJIDs property when the user was deleted. If an attacker knows the\n          username of a deleted administrator and in-band registration is enabled, the attacker\n          can recreate that account and inherit administrative access. An authenticated Openfire\n          administrator can upload a management plugin containing a Java payload.\n\n          Openfire 4.8.1 prevents new stale entries when a user is deleted, but it does not migrate\n          entries created by an older version. An upgraded server can therefore remain exploitable\n          until the recreated account is deleted while the fix is present.\n\n          The ADMINUSERNAME option must identify a previously deleted administrator. The check\n          method does not create accounts and cannot determine whether this target-specific state\n          exists.",
+    "references": [
+      "CVE-2024-25420",
+      "GHSA-5xvc-rwv8-86p7",
+      "URL-https://www.hackthebox.com/blog/openfire-cves-explained-CVE-2024-25420-CVE-2024-25421",
+      "URL-https://github.com/rapid7/metasploit-framework/issues/19949"
+    ],
+    "platform": "Java",
+    "arch": "java",
+    "rport": 9090,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java Universal"
+    ],
+    "mod_time": "2026-11-03 22:48:33 +0000",
+    "path": "/modules/exploits/multi/http/openfire_deleted_admin_rce_cve_2024_25420.rb",
+    "is_install_path": true,
+    "ref_name": "multi/http/openfire_deleted_admin_rce_cve_2024_25420",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs",
+        "config-changes"
+      ],
+      "Reliability": [
+        "event-dependent"
       ]
     },
     "session_types": false,
@@ -122260,7 +122324,7 @@
       "Windows Command",
       "Linux Command"
     ],
-    "mod_time": "2026-09-02 10:28:21 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/multi/http/papercut_ng_external_user_lookup_rce.rb",
     "is_install_path": true,
     "ref_name": "multi/http/papercut_ng_external_user_lookup_rce",
@@ -144509,7 +144573,7 @@
     "targets": [
       "Unix Command"
     ],
-    "mod_time": "2026-11-05 12:24:43 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/unix/smtp/cisco_secure_email_gateway_amp_file_write_rce.rb",
     "is_install_path": true,
     "ref_name": "unix/smtp/cisco_secure_email_gateway_amp_file_write_rce",
@@ -212381,7 +212445,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/rdp/rdp_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/rdp/rdp_doublepulsar_rce",
@@ -214500,7 +214564,7 @@
     "targets": [
       "Windows 10 v1903-1909 x64"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/cve_2020_0796_smbghost.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/cve_2020_0796_smbghost",
@@ -216060,7 +216124,7 @@
       "Execute payload (x64)",
       "Neutralize implant"
     ],
-    "mod_time": "2026-04-22 11:58:58 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_doublepulsar_rce.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_doublepulsar_rce",
@@ -216256,7 +216320,7 @@
     "targets": [
       "Automatic"
     ],
-    "mod_time": "2025-09-22 19:52:39 +0000",
+    "mod_time": "2026-11-09 16:25:15 +0000",
     "path": "/modules/exploits/windows/smb/smb_shadow.rb",
     "is_install_path": true,
     "ref_name": "windows/smb/smb_shadow",
@@ -333855,7 +333919,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-05-09 10:51:17 +0000",
+    "mod_time": "2026-11-07 18:13:07 +0000",
     "path": "/modules/post/windows/manage/enable_rdp.rb",
     "is_install_path": true,
     "ref_name": "windows/manage/enable_rdp",

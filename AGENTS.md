@@ -23,7 +23,9 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 - Discover the current Ruby version from `.ruby-version` and supported versions from the gemspec.
 - Follow `.rubocop.yml`; lint changed Ruby and run `ruby tools/dev/msftidy.rb <module>` for changed modules. Avoid unrelated style sweeps.
-- Add `# frozen_string_literal: true` to new library files only; use `String.new` for mutable buffers. Do not add it to module/spec files, which mutate buffers extensively. Existing comments may remain; `Style/FrozenStringLiteralComment` is disabled project-wide.
+- Add `# frozen_string_literal: true` as the first line of new library files.
+- Prefer it as the first line of new module files. Use `String.new` or `.dup` for strings that need to change. If freezing causes compatibility problems, omit the comment and briefly explain why in the PR. Broad refactoring is not required.
+- Do not add it to existing modules as unrelated cleanup or to spec files. Existing comments may remain.
 - Keep lines readable; no line-length limit is enforced. Use `%q{}` for long multiline descriptions; multiline block comments may hold embedded payload/code snippets.
 - Avoid accessor-style `get_`/`set_` names. Parameter names require at least two characters, except established crypto abbreviations.
 - Successful returns must keep one type/shape on cached and uncached paths. Document exceptions or unambiguous failure sentinels and handle them in all callers.
@@ -148,6 +150,7 @@ AutoCheck must use `prepend`, not `include` (the module raises `NotImplementedEr
 - New modules require matching Markdown under `documentation/modules` using `documentation/modules/module_doc_template.md`, with reproducible vulnerable-target setup. Put Docker/Compose lab commands in Markdown rather than separate Docker files. Scenarios must be filled by a human.
 - Module documentation must include `Vulnerable Application` (affected/fixed versions and setup), `Verification Steps` (numbered steps with expected outcomes), and `Scenarios` (human-written real console output). Do not invent scenario results.
 - Document only specialist options under `###`; write `No specific options` when none apply. Keep scenario output current; use `run verbose=true` when useful for diagnosis/reproduction.
+- For `DefangedMode` or `DEFANGED_MODE`, explain the module-specific risk in both the datastore option description and a matching `### DefangedMode` or `### DEFANGED_MODE` subsection under `## Options` in the module documentation. State the default, what execution it blocks, and the consequences of setting it to `false`. Generic descriptions such as `Run in defanged mode` are insufficient; RuboCop checks the option description, and reviewers must check the documentation and accuracy of the reason.
 - Explain nonobvious constants, salts, offsets, fixed names/paths, double encoding, hardcoding, and compatibility workarounds nearby; include sources when available.
 - A lone ACTION can usually be omitted.
 

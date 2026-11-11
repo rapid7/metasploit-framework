@@ -56,7 +56,9 @@ Path of the file to retrieve (**before automatic deletion**).
 
 ### DefangedMode
 
-Safety switch (true by default). Set to **false** to actually perform the read-and-delete operation.
+Defaults to `true`, which blocks file retrieval. Setting it to `false` permits the
+read-and-delete operation: the file specified by `TARGETFILE` is retrieved and
+deleted from the remote system. Disable it only when that deletion is authorized.
 
 ## Scenarios
 

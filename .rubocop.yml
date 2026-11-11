@@ -35,6 +35,7 @@ require:
   - ./lib/rubocop/cop/lint/module_default_payload.rb
   - ./lib/rubocop/cop/lint/module_duplicate_option.rb
   - ./lib/rubocop/cop/lint/module_http_fingerprint.rb
+  - ./lib/rubocop/cop/lint/module_defanged_mode_description.rb
 
 Lint/CheckCodeMissingReason:
   Enabled: true
@@ -765,5 +766,14 @@ Lint/ModuleHttpFingerprint:
     Use a check method with AutoCheck instead.
   Enabled: true
   Severity: info
+  Include:
+    - 'modules/**/*'
+
+Lint/ModuleDefangedModeDescription:
+  Description: >-
+    Explain the module-specific risk prevented by DefangedMode in its datastore
+    option description. Document the same reason in the module documentation.
+  Enabled: true
+  Severity: warning
   Include:
     - 'modules/**/*'
