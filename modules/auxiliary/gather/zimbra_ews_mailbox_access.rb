@@ -374,9 +374,19 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     namespaces = { 'soap' => EWS_SOAP_NS, 'm' => EWS_MESSAGES_NS }
+    bodies = parsed[:document].xpath('/soap:Envelope/soap:Body', namespaces)
+    if bodies.any? && (bodies.length != 1 || bodies.first.element_children.length != 1)
+      return { status: :malformed, operation: operation, reason: "EWS #{operation} returned an ambiguous SOAP body" }
+    end
+
     fault = parsed[:document].at_xpath('/soap:Envelope/soap:Body/soap:Fault', namespaces)
     if fault
-      fault_code = soap_fault_code(parsed[:document])
+      fault_codes = fault.xpath('.//*[local-name()="Code"]')
+      if fault_codes.length > 1
+        return { status: :malformed, operation: operation, reason: "EWS #{operation} returned multiple SOAP Fault codes" }
+      end
+
+      fault_code = fault_codes.first&.text&.strip
       status = fault_code == 'service.PERM_DENIED' ? :access_denied : :ews_error
       return {
         status: status,
@@ -455,10 +465,6 @@ class MetasploitModule < Msf::Auxiliary
     return { status: :malformed, reason: "HTTP #{response.code} returned malformed or empty XML" } if document.root.nil? || document.errors.any?
 
     { status: :success, document: document }
-  end
-
-  def soap_fault_code(document)
-    document.xpath('//*[local-name()="Fault"]//*[local-name()="Code"]').map { |node| node.text.strip }.find { |value| value.include?('.') }
   end
 
   def list_folder(owner_uuid, folder_id:, maximum:, page_size:)
