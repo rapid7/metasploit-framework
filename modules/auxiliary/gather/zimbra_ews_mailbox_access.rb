@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -265,7 +263,8 @@ class MetasploitModule < Msf::Auxiliary
     attacker = if info[:status] == :success && info[:id].present?
                  { status: :success, uuid: info[:id], name: info[:name] }
                else
-                 resolve_zimbra_account(authentication[:token], datastore['USERNAME'])
+                 account_name = info[:status] == :success ? info[:name] : datastore['USERNAME']
+                 resolve_zimbra_account(authentication[:token], account_name)
                end
     return attacker.merge(reason: "Unable to resolve the attacker account: #{result_reason(attacker)}") unless attacker[:status] == :success
 
