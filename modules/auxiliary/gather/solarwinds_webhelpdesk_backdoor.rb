@@ -44,14 +44,24 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def valid_json_body?(jbody)
+    jbody.any? { |item| item.is_a?(Hash) && item.key?('shortSubject') }
+  end
+
   def check
     @auth = auth
     return Exploit::CheckCode::Unknown('Target is unreachable') unless @auth
 
+    jbody = @auth.get_json_document
+
     if @auth.code == 401
       return Exploit::CheckCode::Safe('Backdoor credentials returned 401 Unauthorized')
     elsif @auth.code == 200
-      return Exploit::CheckCode::Appears('Backdoor credentials returned 200 OK')
+      if valid_json_body?(jbody)
+        return Exploit::CheckCode::Appears('Backdoor credentials returned 200 OK')
+      else
+        return Exploit::CheckCode::Unknown('The software returned a valid HTTP code, but no expected data')
+      end
     end
 
     Exploit::CheckCode::Unknown("Unexpected HTTP response code: #{@auth.code}")
@@ -73,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, 'Target is unreachable') unless @auth
 
     jbody = @auth.get_json_document
-    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless jbody.any? { |item| item.is_a?(Hash) && item.key?('shortSubject') }
+    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless valid_json_body?(jbody) && @auth.code == 200
 
     report_service(
       host: rhost,
