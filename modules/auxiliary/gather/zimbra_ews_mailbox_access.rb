@@ -392,20 +392,31 @@ class MetasploitModule < Msf::Auxiliary
     return { status: :no_access, operation: operation, reason: "EWS returned HTTP #{response.code}" } if [401, 403].include?(response.code)
     return { status: :endpoint_not_found, operation: operation, reason: 'The EWS endpoint was not found' } if [404, 405].include?(response.code)
 
-    message = parsed[:document].at_xpath(
+    messages = parsed[:document].xpath(
       "/soap:Envelope/soap:Body/m:#{operation}Response/m:ResponseMessages/m:#{operation}ResponseMessage", namespaces
     )
-    unless message
-      return { status: :ews_error, operation: operation, reason: "HTTP #{response.code} did not contain an EWS #{operation} response" }
+    unless messages.length == 1
+      return { status: :malformed, operation: operation, reason: "EWS #{operation} returned #{messages.length} response messages; expected one" }
+    end
+
+    message = messages.first
+    response_codes = message.xpath('./m:ResponseCode', namespaces)
+    message_texts = message.xpath('./m:MessageText', namespaces)
+    if response_codes.length > 1 || message_texts.length > 1
+      return { status: :malformed, operation: operation, reason: "EWS #{operation} returned duplicate response fields" }
     end
 
     response_class = message['ResponseClass']
-    response_code = message.at_xpath('./m:ResponseCode', namespaces)&.text
-    message_text = message.at_xpath('./m:MessageText', namespaces)&.text.to_s.strip
+    response_code = response_codes.first&.text
+    message_text = message_texts.first&.text.to_s.strip
     code_less_denial = response_code.blank? && message_text.match?(/permission denied|do not have sufficient permissions/i)
     # Zimbra 10.1.16 dereferences a nil folder for an unshared foreign composite ID; the same ID succeeds after a read grant.
     code_less_denial ||= response_code.blank? && operation == 'GetFolder' &&
                          message_text.include?('getEffectiveACL()') && message_text.match?(/folder.*null/i)
+    unless response_code.present? || (response_class == 'Error' && code_less_denial)
+      return { status: :malformed, operation: operation, reason: "EWS #{operation} omitted a valid ResponseCode" }
+    end
+
     status = if response_class == 'Success' && response_code == 'NoError'
                response.code == 200 ? :success : :ews_error
              elsif response_class == 'Error' && (response_code == 'ErrorAccessDenied' || code_less_denial)
