@@ -17,7 +17,8 @@ module DNS
     # @param [Array] resolvers The resolvers to use when this rule is applied.
     # @param [Msf::Session::Comm] comm The communication channel to use when creating network connections.
     def initialize(wildcard: '*', resolvers: [], comm: nil)
-      ::ArgumentError.new("Invalid wildcard text: #{wildcard}") unless self.class.valid_wildcard?(wildcard)
+      raise ::ArgumentError, "Invalid wildcard text: #{wildcard}" unless self.class.valid_wildcard?(wildcard)
+
       @wildcard = wildcard
       socket_options = {}
       socket_options['Comm'] = comm unless comm.nil?
