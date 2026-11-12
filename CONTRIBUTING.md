@@ -48,9 +48,9 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** keep each PR focused on a single module, bug fix, or cohesive logical change.
 * **Do** add reviewer notes when useful: where to start, key changes, and work intentionally deferred or out of scope.
 * **Do** include [console output], especially for effects that can be witnessed in the  `msfconsole`.
-* **Do** test your code and submit the test output in your PR with any sensitive information removed. Console output, screenshots, and links to screen recordings are all useful evidence.
+* **Do** test your code and submit the test output in your PR with any sensitive information removed. Console output, screenshots, and links to screen recordings are all useful evidence. Record your results separately from the reviewer verification checklist.
 * **Do** state the operating system and relevant target software or hardware versions used for testing. Include Docker/Vagrant image names or setup instructions when applicable.
-* **Do** list [verification steps] so committers can test your code.
+* **Do** list [verification steps] as unchecked Markdown checkboxes (`- [ ]`) in your PR description. Leave them unchecked even if you have already performed the steps; reviewers perform and check off each step during review.
 * **Do** [reference associated issues] in your pull request description.
 * **Do** check the GitHub Actions results after submitting your PR, inspect failed jobs, and resolve failures relevant to your change.
 * **Don't** leave your pull request description blank.

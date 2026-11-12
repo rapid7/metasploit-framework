@@ -44,6 +44,8 @@ reviews:
           run/exploit output. For typo/comment/docs-only changes, inspection/preview and its
           result suffice; require no runtime lab or automated tests. Fail only for
           missing applicable information and state exactly what to add. Accept
-          any headings or checkbox state. If required linked evidence is
-          inaccessible, return Inconclusive and name it. Assess supplied evidence;
-          do not execute code or invent results.
+          any headings or checkbox state. Unchecked verification steps are
+          expected: reviewers perform and check them off during review. Assess
+          author testing from separately supplied results/evidence. If required
+          linked evidence is inaccessible, return Inconclusive and name it.
+          Assess supplied evidence; do not execute code or invent results.
