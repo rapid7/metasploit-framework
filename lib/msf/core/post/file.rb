@@ -6,6 +6,9 @@ require 'rex/post/file_stat'
 module Msf::Post::File
   include Msf::Post::Common
 
+  # Allow additional time for Unix shell reads of larger files over slower connections.
+  UNIX_FILE_READ_TIMEOUT = 60
+
   def initialize(info = {})
     super(
       update_info(
@@ -494,11 +497,11 @@ module Msf::Post::File
     return nil unless readable?(file_name)
 
     if command_exists?('cat')
-      return session.shell_command_token("cat \"#{file_name}\"")
+      return session.shell_command_token("cat \"#{file_name}\"", UNIX_FILE_READ_TIMEOUT)
     end
 
     # Result on systems without cat command
-    session.shell_command_token("while read line; do echo $line; done <#{file_name}")
+    session.shell_command_token("while read line; do echo $line; done <#{file_name}", UNIX_FILE_READ_TIMEOUT)
   end
 
   # Platform-agnostic file write. Writes given object content to a remote file.
