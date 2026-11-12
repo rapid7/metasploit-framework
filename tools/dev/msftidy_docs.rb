@@ -116,6 +116,8 @@ class MsftidyDoc
     'post' => 'post'
   }.freeze
 
+  PAYLOAD_SOURCE_DIRS = %w[adapters singles stagers stages].freeze
+
   def has_module
     doc_type = @full_filepath[%r{documentation/modules/([^/]+)/}, 1]
 
@@ -123,6 +125,14 @@ class MsftidyDoc
       singular = DOC_TYPE_TO_MODULE_DIR.key(doc_type)
       error("Doc is in documentation/modules/#{doc_type}/. Use the singular module type: documentation/modules/#{singular}/. Doc: #{@full_filepath}")
       return
+    end
+
+    if doc_type == 'payload'
+      payload_source_dir = @full_filepath[%r{documentation/modules/payload/([^/]+)/}, 1]
+      if PAYLOAD_SOURCE_DIRS.include?(payload_source_dir)
+        error("Payload docs must use the registered fullname without the #{payload_source_dir}/ source directory. Doc: #{@full_filepath}")
+        return
+      end
     end
 
     found = module_candidates(doc_type).any? { |path| File.file?(path) }
