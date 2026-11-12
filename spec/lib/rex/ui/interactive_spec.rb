@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Rex::Ui::Interactive do
+RSpec.describe Rex::Ui::Interactive do # rubocop:disable Metrics/BlockLength
   let(:interactive_class) do
     Class.new do
       include Rex::Ui::Interactive
@@ -303,6 +303,30 @@ RSpec.describe Rex::Ui::Interactive do
       expect([printed_while_typing, printed]).to eq(['', "\r\e[Jhello\n"])
     end
 
+    it 'prints output that arrives just before Enter below the entered line' do
+      prompts = []
+      allow(input).to receive(:pgets) do
+        prompts << input.prompt
+        if prompts.size == 1
+          pipe.last.write('$ ')
+          sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+          # What rb-readline does between key presses
+          rb_readline.send(Rex::Ui::Interactive::READLINE_EVENT_HOOK)
+          # Enter is pressed before the event hook runs again
+          pipe.last.write("uid=0(root)\nPassword: ")
+          sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+          'id'
+        else
+          interactive.interacting = false
+          'secret'
+        end
+      end
+
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
+
+      expect([printed, prompts]).to eq(["\r\e[Juid=0(root)\n", ['', 'Password: ']])
+    end
+
     it 'asks to background the session when Ctrl+Z is pressed' do
       allow(input).to receive(:pgets).and_raise(Rex::Ui::Interactive::ReadlineSuspend)
       # Answering yes stops interacting
@@ -368,6 +392,23 @@ RSpec.describe Rex::Ui::Interactive do
 
       expect { Timeout.timeout(5) { interactive.send(:interact_readline, nil) } }.to raise_error(Interrupt)
       expect(printed).to eq("\r\e[Jbye\n")
+    end
+
+    it 'prints output still queued when Ctrl+Z is pressed in place of the line being edited' do
+      printed_before_asking = nil
+      allow(input).to receive(:pgets) do
+        pipe.last.write("bye\n")
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+        raise Rex::Ui::Interactive::ReadlineSuspend
+      end
+      allow(interactive).to receive(:_suspend) do
+        printed_before_asking = printed.dup
+        interactive.interacting = false
+      end
+
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
+
+      expect(printed_before_asking).to eq("\r\e[Jbye\n")
     end
 
     it 'raises EOFError when the remote side closes' do

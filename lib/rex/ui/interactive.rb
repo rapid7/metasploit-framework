@@ -319,18 +319,19 @@ protected
       begin
         lock.synchronize { @readline_waiting = true }
         line = input.pgets
-        lock.synchronize { readline_stop_waiting(input, output) }
-
         lock.synchronize do
+          # The prompt stays on screen with the entered line. Output that
+          # arrived just before Enter is printed below them.
           @readline_pending = ''
           @readline_long_line = false
           input.prompt = ''
+          readline_stop_waiting(input, output)
         end
         # Ctrl+D sends an empty line, like the non-readline loop does
         _readline_write_remote(stream, line.to_s.chomp)
       rescue ReadlineSuspend
         lock.synchronize do
-          readline_stop_waiting(input, output)
+          readline_stop_interrupted(input, output)
           _suspend
         end
       rescue ReadlineDetach
@@ -347,11 +348,8 @@ protected
       readline_bind_tab(previous_tab) if previous_tab
       ::Signal.trap('TSTP', previous_tstp) if previous_tstp
       # Output can still be queued if reading the line was interrupted, e.g.
-      # by Ctrl+C. It is printed in place of the line being edited.
-      lock&.synchronize do
-        readline_clear_display(output) unless @readline_queue.empty? || @readline_long_line
-        readline_stop_waiting(input, output)
-      end
+      # by Ctrl+C
+      lock&.synchronize { readline_stop_interrupted(input, output) }
       input.prompt = old_prompt if input
     end
   end
@@ -408,6 +406,15 @@ protected
     @readline_waiting = false
     data = readline_dequeue
     readline_print_remote(data, input, output, false) unless data.empty?
+  end
+
+  #
+  # Prints anything still queued when reading a line was interrupted, e.g. by
+  # Ctrl+Z or Ctrl+C, in place of the prompt and the line being edited.
+  #
+  def readline_stop_interrupted(input, output)
+    readline_clear_display(output) unless @readline_queue.empty? || @readline_long_line
+    readline_stop_waiting(input, output)
   end
 
   #
