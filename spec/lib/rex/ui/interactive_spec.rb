@@ -19,7 +19,7 @@ RSpec.describe Rex::Ui::Interactive do
       end
 
       def _readline_read_remote(_stream)
-        remote_fd.read_nonblock(4096)
+        remote_fd.read_nonblock(Rex::Ui::Interactive::READLINE_SHORT_READ)
       end
 
       def _readline_write_remote(_stream, line)
@@ -35,7 +35,7 @@ RSpec.describe Rex::Ui::Interactive do
       allow(output).to receive(:prompting?).and_return(false)
     end
   end
-  let(:input_fd) { instance_double(IO, tty?: false) }
+  let(:input_fd) { instance_double(IO, tty?: true) }
   let(:input) do
     instance_double(Rex::Ui::Text::Input::Readline, fd: input_fd).tap do |input|
       prompt = 'msf > '
@@ -53,13 +53,33 @@ RSpec.describe Rex::Ui::Interactive do
   end
 
   describe '#interact_with_readline?' do
-    it 'is true for readline input' do
+    before(:each) do
+      stub_const('RbReadline', Module.new)
       allow(input).to receive(:is_a?).with(Rex::Ui::Text::Input::Readline).and_return(true)
+      allow(Rex::Compat).to receive(:is_windows).and_return(false)
+    end
+
+    it 'is true for rb-readline input on a terminal' do
       expect(interactive.send(:interact_with_readline?)).to be_truthy
     end
 
     it 'is false for other inputs that support pgets' do
       interactive.user_input = Rex::Ui::Text::Input::Stdio.new.extend(Rex::Ui::Text::Shell::InputShell)
+      expect(interactive.send(:interact_with_readline?)).to be_falsey
+    end
+
+    it 'is false when the input is not a terminal' do
+      allow(input_fd).to receive(:tty?).and_return(false)
+      expect(interactive.send(:interact_with_readline?)).to be_falsey
+    end
+
+    it 'is false without rb-readline' do
+      hide_const('RbReadline')
+      expect(interactive.send(:interact_with_readline?)).to be_falsey
+    end
+
+    it 'is false on Windows, where the line being edited cannot be redrawn' do
+      allow(Rex::Compat).to receive(:is_windows).and_return(true)
       expect(interactive.send(:interact_with_readline?)).to be_falsey
     end
   end
@@ -152,9 +172,44 @@ RSpec.describe Rex::Ui::Interactive do
 
   describe '#interact_readline' do
     let(:pipe) { IO.pipe }
+    let(:rb_readline) do
+      Module.new do
+        const_set(:RL_STATE_READCMD, 8)
+
+        def self.rl_event_hook
+          :previous_hook
+        end
+
+        def self.rl_isstate(_state)
+          true
+        end
+
+        def self.rl_event_hook=(_hook); end
+
+        def self._rl_move_vert(_row); end
+
+        def self.rl_set_prompt(_prompt); end
+
+        def self.rl_forced_update_display; end
+
+        def self.keymap
+          @keymap ||= { "\t" => :rl_complete }
+        end
+
+        def self.rl_function_of_keyseq(keyseq, _map, _type)
+          keymap[keyseq]
+        end
+
+        def self.rl_bind_key(key, function)
+          keymap[key] = function
+        end
+      end
+    end
 
     before(:each) do
       interactive.remote_fd = pipe.first
+      stub_const('RbReadline', rb_readline)
+      allow(rb_readline).to receive(:rl_event_hook=)
       allow(Signal).to receive(:trap).and_call_original
       allow(Signal).to receive(:trap).with('TSTP').and_return('DEFAULT')
       allow(Signal).to receive(:trap).with('TSTP', 'DEFAULT')
@@ -164,29 +219,25 @@ RSpec.describe Rex::Ui::Interactive do
       pipe.each(&:close)
     end
 
+    # Answers pgets with each of the lines in turn and stops interacting once
+    # the last one has been read
+    def type_lines(*lines)
+      allow(input).to receive(:pgets) do
+        interactive.interacting = false if lines.size == 1
+        lines.shift
+      end
+    end
+
     it 'sends each line without the trailing newline' do
-      allow(input).to receive(:pgets).and_return("id\n", 'whoami', nil)
+      type_lines("id\n", 'whoami')
 
       interactive.send(:interact_readline, nil)
 
       expect(interactive.remote_writes).to eq(%w[id whoami])
     end
 
-    it 'stops interacting at the end of non-terminal input' do
-      allow(input).to receive(:pgets).and_return(nil)
-
-      interactive.send(:interact_readline, nil)
-
-      expect(interactive.interacting).to be(false)
-    end
-
-    it 'sends an empty line for Ctrl+D on a terminal' do
-      allow(input_fd).to receive(:tty?).and_return(true)
-      allow(input).to receive(:pgets).and_return(nil, 'exit')
-      allow(interactive).to receive(:_readline_write_remote) do |_stream, line|
-        interactive.remote_writes << line
-        interactive.interacting = false if line == 'exit'
-      end
+    it 'sends an empty line for Ctrl+D' do
+      type_lines(nil, 'exit')
 
       interactive.send(:interact_readline, nil)
 
@@ -194,115 +245,72 @@ RSpec.describe Rex::Ui::Interactive do
     end
 
     it 'restores the previous prompt' do
-      allow(input).to receive(:pgets).and_return(nil)
+      type_lines('exit')
 
       interactive.send(:interact_readline, nil)
 
       expect(input.prompt).to eq('msf > ')
     end
 
-    it 'prints remote output that arrives while waiting for input' do
+    it 'restores the previous readline event hook' do
+      type_lines('exit')
+
+      interactive.send(:interact_readline, nil)
+
+      expect(rb_readline).to have_received(:rl_event_hook=).with(:previous_hook)
+    end
+
+    it 'sends Tab to the remote side instead of completing console commands' do
+      tab_while_typing = nil
       allow(input).to receive(:pgets) do
-        pipe.last.write("hello\n$ ")
-        sleep(0.1) until printed.include?('hello') || !interactive.interacting
-        nil
+        tab_while_typing = rb_readline.keymap["\t"]
+        interactive.interacting = false
+        'id'
+      end
+
+      interactive.send(:interact_readline, nil)
+
+      expect([tab_while_typing, rb_readline.keymap["\t"]]).to eq(%i[rl_tab_insert rl_complete])
+    end
+
+    it 'prints output that arrives while no line is being read straight away' do
+      allow(input).to receive(:pgets).and_return('id')
+      allow(interactive).to receive(:_readline_write_remote) do
+        pipe.last.write("uid=0(root)\n$ ")
+        sleep(0.01) until printed.include?("\n")
+        interactive.interacting = false
       end
 
       Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
 
-      expect(printed).to include("hello\n")
+      expect(printed).to eq("uid=0(root)\n")
     end
 
-    context 'when the line being edited can be redrawn' do
-      let(:rb_readline) do
-        Module.new do
-          const_set(:RL_STATE_READCMD, 8)
-
-          def self.rl_event_hook
-            :previous_hook
-          end
-
-          def self.rl_isstate(_state)
-            true
-          end
-
-          def self.rl_event_hook=(_hook); end
-
-          def self._rl_move_vert(_row); end
-
-          def self.rl_set_prompt(_prompt); end
-
-          def self.rl_forced_update_display; end
-
-          def self.keymap
-            @keymap ||= { "\t" => :rl_complete }
-          end
-
-          def self.rl_function_of_keyseq(keyseq, _map, _type)
-            keymap[keyseq]
-          end
-
-          def self.rl_bind_key(key, function)
-            keymap[key] = function
-          end
-        end
-      end
-      let(:printed_while_typing) { +'' }
-
-      before(:each) do
-        allow(input_fd).to receive(:tty?).and_return(true)
-        stub_const('RbReadline', rb_readline)
-        allow(rb_readline).to receive(:rl_event_hook=)
-
-        allow(input).to receive(:pgets) do
-          pipe.last.write("hello\n$ ")
-          sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
-          printed_while_typing << printed
-          # What rb-readline does between key presses
-          rb_readline.send(Rex::Ui::Interactive::READLINE_EVENT_HOOK)
-          interactive.interacting = false
-          'id'
-        end
+    it 'holds output that arrives while typing until readline is between key presses' do
+      printed_while_typing = nil
+      allow(input).to receive(:pgets) do
+        pipe.last.write("hello\n$ ")
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+        printed_while_typing = printed.dup
+        # What rb-readline does between key presses
+        rb_readline.send(Rex::Ui::Interactive::READLINE_EVENT_HOOK)
+        interactive.interacting = false
+        'id'
       end
 
-      it 'holds output that arrives while typing until readline is between key presses' do
-        Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
 
-        expect([printed_while_typing, printed]).to eq(['', "\r\e[Jhello\n"])
-      end
-
-      it 'restores the previous readline event hook' do
-        Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
-
-        expect(rb_readline).to have_received(:rl_event_hook=).with(:previous_hook)
-      end
-
-      it 'sends Tab to the remote side instead of completing console commands' do
-        tab_while_typing = nil
-        allow(input).to receive(:pgets) do
-          tab_while_typing = rb_readline.keymap["\t"]
-          interactive.interacting = false
-          'id'
-        end
-
-        Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
-
-        expect([tab_while_typing, rb_readline.keymap["\t"]]).to eq(%i[rl_tab_insert rl_complete])
-      end
+      expect([printed_while_typing, printed]).to eq(['', "\r\e[Jhello\n"])
     end
 
     it 'asks to background the session when Ctrl+Z is pressed' do
-      calls = 0
-      allow(input).to receive(:pgets) do
-        calls += 1
-        raise Rex::Ui::Interactive::ReadlineSuspend if calls == 1
+      allow(input).to receive(:pgets).and_raise(Rex::Ui::Interactive::ReadlineSuspend)
+      # Answering yes stops interacting
+      allow(interactive).to receive(:_suspend) { interactive.interacting = false }
 
-        nil
-      end
-      expect(interactive).to receive(:_suspend).once
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
 
-      interactive.send(:interact_readline, nil)
-
+      expect(interactive).to have_received(:_suspend).once
       expect(interactive.remote_writes).to be_empty
     end
 
@@ -312,16 +320,54 @@ RSpec.describe Rex::Ui::Interactive do
         tstp = handler
         'DEFAULT'
       end
-      calls = 0
-      allow(input).to receive(:pgets) do
-        calls += 1
-        tstp.call if calls == 1
-        nil
+      allow(input).to receive(:pgets) { tstp.call }
+      allow(interactive).to receive(:_suspend) do
+        tstp.call
+        interactive.interacting = false
       end
-      allow(interactive).to receive(:_suspend) { tstp.call }
 
-      expect { interactive.send(:interact_readline, nil) }.not_to raise_error
+      expect { Timeout.timeout(5) { interactive.send(:interact_readline, nil) } }.not_to raise_error
       expect(interactive).to have_received(:_suspend).once
+    end
+
+    it 'prints the last output before noticing that the remote side closed' do
+      allow(input).to receive(:pgets) do
+        pipe.last.write("logout\n")
+        pipe.last.close
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+        # What rb-readline does between key presses
+        rb_readline.send(Rex::Ui::Interactive::READLINE_EVENT_HOOK)
+        sleep(5)
+      end
+
+      expect { Timeout.timeout(5) { interactive.send(:interact_readline, nil) } }.to raise_error(EOFError)
+      expect(printed).to eq("\r\e[Jlogout\n")
+    end
+
+    it 'keeps reading without waiting for the event hook while more output is on its way' do
+      allow(input).to receive(:pgets) do
+        pipe.last.write('A' * Rex::Ui::Interactive::READLINE_SHORT_READ)
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+        pipe.last.write("\n$ ")
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).size == 2
+        interactive.interacting = false
+        'id'
+      end
+
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
+
+      expect(printed).to eq("#{'A' * Rex::Ui::Interactive::READLINE_SHORT_READ}\n")
+    end
+
+    it 'prints output still queued when interrupted in place of the line being edited' do
+      allow(input).to receive(:pgets) do
+        pipe.last.write("bye\n")
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).any?
+        raise Interrupt
+      end
+
+      expect { Timeout.timeout(5) { interactive.send(:interact_readline, nil) } }.to raise_error(Interrupt)
+      expect(printed).to eq("\r\e[Jbye\n")
     end
 
     it 'raises EOFError when the remote side closes' do

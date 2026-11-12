@@ -248,13 +248,20 @@ protected
   # Longest incomplete line used as the prompt. Anything longer is output
   # without a newline (or a progress bar) and is printed as it arrives.
   READLINE_PROMPT_MAX = 1024
+  # Reads shorter than this mean the remote side has stopped sending for now
+  READLINE_SHORT_READ = 4096
 
   #
   # Whether the local input is a readline input that can be used for line
-  # editing while interacting with a line-oriented remote stream.
+  # editing while interacting with a line-oriented remote stream. Output that
+  # arrives while a line is being edited is printed above it and the line is
+  # redrawn, which needs rb-readline on a terminal. On Windows rb-readline
+  # does not wait for input between calls to its event hook, so it is not
+  # used there.
   #
   def interact_with_readline?
-    defined?(Rex::Ui::Text::Input::Readline) && user_input.is_a?(Rex::Ui::Text::Input::Readline)
+    defined?(Rex::Ui::Text::Input::Readline) && user_input.is_a?(Rex::Ui::Text::Input::Readline) &&
+      defined?(::RbReadline) && user_input.fd.tty? && !Rex::Compat.is_windows
   end
 
   #
@@ -282,14 +289,11 @@ protected
     @readline_long_line = false
     @readline_waiting = false
     @readline_queue = []
+    @readline_dequeued = ::ConditionVariable.new
     input.prompt = ''
     previous_tab = readline_bind_tab(:rl_tab_insert)
-
-    redraw = readline_redraw_supported?(input)
-    if redraw
-      previous_event_hook = ::RbReadline.rl_event_hook
-      readline_event_hook(proc { lock.synchronize { readline_print_queued(input, output) } })
-    end
+    previous_event_hook = ::RbReadline.rl_event_hook
+    readline_event_hook(proc { lock.synchronize { readline_print_queued(input, output) } })
 
     begin
       # Only while reading a line, so Ctrl+Z at the question asked by _suspend
@@ -301,7 +305,7 @@ protected
     end
 
     reader = Rex::ThreadFactory.spawn('InteractReadlineReader', false) do
-      readline_read_loop(stream, input, output, lock, redraw)
+      readline_read_loop(stream, input, output, lock)
     rescue ::StandardError => e
       # The remote side went away; abort the readline call in progress so that
       # the session is closed, as it would be by the non-readline loop.
@@ -317,23 +321,13 @@ protected
         line = input.pgets
         lock.synchronize { readline_stop_waiting(input, output) }
 
-        if line.nil?
-          # Ctrl+D on a terminal sends an empty line, like the non-readline
-          # loop does; stop interacting at the end of piped input.
-          unless input.fd.tty?
-            self.interacting = false
-            break
-          end
-
-          line = ''
-        end
-
         lock.synchronize do
           @readline_pending = ''
           @readline_long_line = false
           input.prompt = ''
         end
-        _readline_write_remote(stream, line.chomp)
+        # Ctrl+D sends an empty line, like the non-readline loop does
+        _readline_write_remote(stream, line.to_s.chomp)
       rescue ReadlineSuspend
         lock.synchronize do
           readline_stop_waiting(input, output)
@@ -349,19 +343,31 @@ protected
       lock&.synchronize { finished = true }
       reader&.kill
       @readline_waiting = false
-      readline_event_hook(nil, previous_event_hook) if redraw
+      readline_event_hook(nil, previous_event_hook)
       readline_bind_tab(previous_tab) if previous_tab
       ::Signal.trap('TSTP', previous_tstp) if previous_tstp
+      # Output can still be queued if reading the line was interrupted, e.g.
+      # by Ctrl+C. It is printed in place of the line being edited.
+      lock&.synchronize do
+        readline_clear_display(output) unless @readline_queue.empty? || @readline_long_line
+        readline_stop_waiting(input, output)
+      end
       input.prompt = old_prompt if input
     end
   end
 
   #
   # Reads remote output until interaction stops. While a line is being typed
-  # the output is queued for readline's event hook when redrawing is
-  # supported, otherwise it is printed straight away.
+  # the output is queued for readline's event hook, otherwise it is printed
+  # straight away.
   #
-  def readline_read_loop(stream, input, output, lock, redraw)
+  # A short read may be the last output before the remote side closes, and
+  # the read that finds it closed also closes the session (see shell_read).
+  # So after a short read the hook prints the queued output before reading
+  # goes on, or it would be printed after the session was reported closed.
+  # After a longer read more output is likely on its way.
+  #
+  def readline_read_loop(stream, input, output, lock)
     while interacting
       fd = _remote_fd(stream)
       raise ::EOFError, 'The remote stream was closed' unless fd
@@ -372,8 +378,11 @@ protected
       next if data.nil? || data.empty?
 
       lock.synchronize do
-        if redraw && @readline_waiting
+        if @readline_waiting
           @readline_queue << data
+          if data.bytesize < READLINE_SHORT_READ
+            @readline_dequeued.wait(lock, 0.25) while interacting && !@readline_queue.empty?
+          end
         else
           readline_print_remote(data, input, output, false)
         end
@@ -389,9 +398,7 @@ protected
   def readline_print_queued(input, output)
     return if @readline_queue.empty? || !::RbReadline.rl_isstate(::RbReadline::RL_STATE_READCMD)
 
-    data = @readline_queue.join
-    @readline_queue.clear
-    readline_print_remote(data, input, output, true)
+    readline_print_remote(readline_dequeue, input, output, true)
   end
 
   #
@@ -399,9 +406,19 @@ protected
   #
   def readline_stop_waiting(input, output)
     @readline_waiting = false
+    data = readline_dequeue
+    readline_print_remote(data, input, output, false) unless data.empty?
+  end
+
+  #
+  # Takes the output queued while a line was being edited and lets the reader
+  # read more.
+  #
+  def readline_dequeue
     data = @readline_queue.join
     @readline_queue.clear
-    readline_print_remote(data, input, output, false) unless data.empty?
+    @readline_dequeued.broadcast
+    data
   end
 
   #
@@ -423,13 +440,7 @@ protected
 
     # While a long line is being printed the cursor is at the end of it and
     # the line being edited is not on screen, so there is nothing to wipe
-    unless @readline_long_line
-      if redraw
-        readline_clear_display(output)
-      elsif @readline_waiting && !lines.empty?
-        output.print("\n")
-      end
-    end
+    readline_clear_display(output) if redraw && !@readline_long_line
 
     unless lines.empty?
       output.print(lines.join("\n") + "\n")
@@ -459,15 +470,6 @@ protected
       ::RbReadline.rl_set_prompt(input.prompt)
       ::RbReadline.rl_forced_update_display
     end
-  end
-
-  #
-  # Whether the line being edited can be redrawn when output arrives. This
-  # needs rb-readline on a terminal. On Windows rb-readline does not wait for
-  # input between calls to its event hook, so the hook is not used there.
-  #
-  def readline_redraw_supported?(input)
-    defined?(::RbReadline) && input.fd.tty? && !Rex::Compat.is_windows
   end
 
   # Name of the RbReadline method that is set as rl_event_hook, which
