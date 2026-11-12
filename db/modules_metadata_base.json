@@ -51421,7 +51421,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-11-07 10:02:56 +0000",
     "path": "/modules/auxiliary/scanner/misc/oki_scanner.rb",
     "is_install_path": true,
     "ref_name": "scanner/misc/oki_scanner",
