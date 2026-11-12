@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def valid_json_body?(jbody)
-    jbody.any? { |item| item.is_a?(Hash) && item.key?('shortSubject') }
+    jbody.is_a?(Array) && jbody.any? { |item| item.is_a?(Hash) && item.key?('shortSubject') }
   end
 
   def check
