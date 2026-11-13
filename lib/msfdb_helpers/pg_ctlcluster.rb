@@ -1,34 +1,15 @@
-require 'msfdb_helpers/db_interface'
+require 'msfdb_helpers/managed_cluster'
 
 module MsfdbHelpers
-  class PgCtlcluster < DbInterface
-
-    def initialize(db_path:, options:, localconf:, db_conf:)
-      @db = db_path
-      @options = options
-      @pg_version = get_postgres_version
-      @localconf = localconf
-      @db_conf = db_conf
-      @pg_cluster_conf_root = "#{@localconf}/.local/etc/postgresql"
-      ENV['PG_CLUSTER_CONF_ROOT'] = @pg_cluster_conf_root
-      super(options)
-    end
-
-    def init(msf_pass, msftest_pass)
-      puts "Creating database at #{@db}"
-      Dir.mkdir(@db)
-      FileUtils.mkdir_p(@pg_cluster_conf_root)
-      run_cmd("pg_createcluster --user=$(whoami) -l #{@db.shellescape}/log -d #{@db.shellescape} -s /tmp --encoding=UTF8 #{@pg_version} #{@options[:msf_db_name].shellescape} -- --username=$(whoami) --auth-host=trust --auth-local=trust")
-      File.open("#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/postgresql.conf", 'a') do |f|
-        f.puts "port = #{@options[:db_port]}"
-      end
-
-      start
-
-      create_db_users(msf_pass, msftest_pass)
-
-      write_db_client_auth_config
-      restart
+  # postgresql-common lifecycle confined to a per-user configuration root.
+  class PgCtlcluster < ManagedCluster
+    # @param arguments [Hash] private cluster paths and msfdb options
+    def initialize(**arguments)
+      super
+      @pg_cluster_conf_root = File.join(@localconf, '.local', 'etc', 'postgresql')
+      version_file = File.join(@db, 'PG_VERSION')
+      @pg_version = File.file?(version_file) ? File.read(version_file).strip : server_version
+      raise SecurityError, 'Invalid private PostgreSQL version' unless @pg_version.match?(/\A(?:9\.\d+|\d{2,})\z/)
     end
 
     def delete
@@ -37,89 +18,105 @@ module MsfdbHelpers
 
         if @options[:delete_existing_data]
           puts "Deleting all data at #{@db}"
+          cleanup_socket_directory
           run_cmd("pg_dropcluster #{@pg_version} #{@options[:msf_db_name].shellescape}")
           FileUtils.rm_rf(@db)
           FileUtils.rm_rf("#{@localconf}/.local/etc/postgresql")
           FileUtils.rm_r(@db_conf, force: true)
+          complete_initialization!
         end
       else
         puts "No data at #{@db}, doing nothing"
       end
     end
 
-    def start
-      print "Starting database at #{@db}..."
-      status = run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} start -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log")
-      case status
-      when 0
-        puts 'success'.green.bold.to_s
-        return true
-      when 2
-        puts "Database already started at #{@db}"
-        return true
-      else
-        puts 'failed'.red.bold.to_s
-        return false
-      end
-    end
-
-    def stop
-      run_cmd("pg_ctlcluster #{get_postgres_version} #{@options[:msf_db_name].shellescape} stop -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape}")
-    end
-
-    def restart
-      run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} reload -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log")
-    end
-
-    def exists?
-      Dir.exist?(@db)
-    end
-
+    # @return [Integer] the private cluster's lifecycle status
     def status
-      if exists?
-        if run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} status -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape}") == 0
-          DatabaseStatus::RUNNING
-        else
-          DatabaseStatus::INACTIVE
-        end
-      else
-        DatabaseStatus::NOT_FOUND
-      end
+      return DatabaseStatus::NOT_FOUND unless exists?
+
+      run_cmd(['pg_ctlcluster', @pg_version, cluster_name, 'status']).zero? ? DatabaseStatus::RUNNING : DatabaseStatus::INACTIVE
     end
 
-    def write_db_client_auth_config
-      client_auth_config = "#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/pg_hba.conf"
-      super(client_auth_config)
-    end
-
+    # @return [Array<String>] required command-line utilities
     def self.requirements
-      %w[psql pg_ctlcluster pg_dropcluster pg_createcluster pg_config]
+      %w[pg_ctlcluster pg_dropcluster pg_createcluster pg_config]
     end
 
-    private
+    # @param cmd [String, Array<String>] command and arguments
+    # @param env [Hash] additional environment variables
+    # @param show_output_on_failure [Boolean] print captured output when the command fails
+    # @return [Integer] process exit status
+    def run_cmd(cmd, env: {}, show_output_on_failure: false)
+      super(cmd, env: env.merge('PG_CLUSTER_CONF_ROOT' => @pg_cluster_conf_root), show_output_on_failure: show_output_on_failure)
+    end
 
-    def get_postgres_version
-      output, _status = Open3.capture2('pg_config --version')    # Example outputs
-      # PostgreSQL 12.6 (Ubuntu 12.6-0ubuntu0.20.04.1)
-      # PostgreSQL 13.2 (Debian 13.2-1)
-      # PostgreSQL 11.11
-      /PostgreSQL\s(?<version>\d+)\.\d+/ =~ output
+    protected
+
+    def postgres_binary
+      output, result = Open3.capture2e('pg_config', '--bindir')
+      raise SecurityError, 'Could not locate the PostgreSQL server utilities' unless result.success?
+
+      # pg_config can point to a newer installed version than this existing cluster.
+      File.join(File.dirname(File.dirname(output.strip)), @pg_version, 'bin', 'postgres')
+    end
+
+    def validate_security_target!
+      super
+      path = File.join(cluster_config_directory, 'pg_ctl.conf')
+      return unless File.file?(path)
+
+      custom_options = File.readlines(path).any? do |line|
+        !line.strip.empty? && !line.lstrip.start_with?('#') && !line.match?(/\A\s*pg_ctl_options\s*=\s*(?:''|"")\s*(?:#.*)?\z/)
+      end
+      raise SecurityError, 'Custom pg_ctl startup options require manual authentication configuration review' if custom_options
+    end
+
+    def server_version
+      output, result = Open3.capture2e('pg_config', '--version')
+      version = output[/PostgreSQL\s+(9\.\d+|\d{2,})/, 1]
+      raise SecurityError, 'Could not determine the PostgreSQL server version' unless result.success? && version
+
       version
     end
 
-    def create_db_users(msf_pass, msftest_pass)
-      puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
-      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
-      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb")
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb")
-      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
-
-      conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
-      conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
-      conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
-      conn.finish
+    def initialize_cluster(password_file, authentication)
+      FileUtils.mkdir_p(@pg_cluster_conf_root, mode: 0o700)
+      checked_command!([
+        'pg_createcluster', '--user', Etc.getpwuid(Process.uid).name,
+        '-l', File.join(@db, 'log'), '-d', @db, '-s', @db, '--encoding=UTF8',
+        @pg_version, cluster_name, '--', '--username=postgres',
+        "--auth=#{authentication}", "--pwfile=#{password_file}"
+      ])
     end
+
+    def start_cluster
+      [0, 2].include?(run_cmd(['pg_ctlcluster', @pg_version, cluster_name, 'start', '--', '-w', '-t', '60']))
+    end
+
+    def stop_cluster
+      run_cmd(['pg_ctlcluster', '-m', 'fast', @pg_version, cluster_name, 'stop', '--', '-w', '-t', '60']).zero?
+    end
+
+    def cluster_config_directory
+      File.join(@pg_cluster_conf_root, @pg_version, cluster_name)
+    end
+
+    def cluster_name
+      name = @options[:msf_db_name]
+      unless name.is_a?(String) && !name.empty? && !%w[. ..].include?(name) && !name.match?(%r{[/\\\x00-\x1f]})
+        raise SecurityError, 'The private PostgreSQL cluster name must be one directory component'
+      end
+
+      name
+    end
+
+    def hba_config
+      File.join(cluster_config_directory, 'pg_hba.conf')
+    end
+
+    def postgresql_config
+      File.join(cluster_config_directory, 'postgresql.conf')
+    end
+
   end
 end
