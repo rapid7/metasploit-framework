@@ -959,6 +959,10 @@ class ReadableText
         sess_type << " #{session.platform}"
       end
 
+      if session.respond_to?(:async_mode_enabled?) && session.async_mode_enabled?
+        sess_type << ' (async)'
+      end
+
       if session.respond_to?(:last_checkin) && session.last_checkin
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
