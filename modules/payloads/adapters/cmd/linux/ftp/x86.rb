@@ -21,5 +21,11 @@ module MetasploitModule
         'AdaptedPlatform' => 'linux'
       )
     )
+    deregister_options('FETCH_COMMAND')
+    register_options(
+      [
+        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'FTP', %w[FTP TNFTP GET]])
+      ]
+    )
   end
 end
