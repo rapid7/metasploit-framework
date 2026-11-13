@@ -250,6 +250,9 @@ protected
   READLINE_PROMPT_MAX = 1024
   # Reads shorter than this mean the remote side has stopped sending for now
   READLINE_SHORT_READ = 4096
+  # Most output queued while a line is being typed. Reading waits while more
+  # is queued, e.g. during a history search, which does not print it.
+  READLINE_QUEUE_MAX = 1024 * 1024
 
   #
   # Whether the local input is a readline input that can be used for line
@@ -273,6 +276,9 @@ protected
   # Output that arrives while a line is being typed is printed from
   # rb-readline's event hook, which runs in the thread reading the line
   # between key presses, so the line can be redrawn without racing readline.
+  # Nothing is read while an entered line is handled, which may read the
+  # responses to commands it sends itself, e.g. a built-in command of a
+  # command shell such as upload.
   #
   # Classes using this must implement _readline_read_remote(stream) and
   # _readline_write_remote(stream, line).
@@ -290,6 +296,9 @@ protected
     @readline_waiting = false
     @readline_queue = []
     @readline_dequeued = ::ConditionVariable.new
+    @readline_handling = false
+    @readline_reading = false
+    @readline_turn = ::ConditionVariable.new
     input.prompt = ''
     previous_tab = readline_bind_tab(:rl_tab_insert)
     previous_event_hook = ::RbReadline.rl_event_hook
@@ -328,7 +337,7 @@ protected
           readline_stop_waiting(input, output)
         end
         # Ctrl+D sends an empty line, like the non-readline loop does
-        _readline_write_remote(stream, line.to_s.chomp)
+        readline_handle_line(lock) { _readline_write_remote(stream, line.to_s.chomp) }
       rescue ReadlineSuspend
         lock.synchronize do
           readline_stop_interrupted(input, output)
@@ -357,13 +366,14 @@ protected
   #
   # Reads remote output until interaction stops. While a line is being typed
   # the output is queued for readline's event hook, otherwise it is printed
-  # straight away.
+  # straight away. Nothing is read while an entered line is handled.
   #
   # A short read may be the last output before the remote side closes, and
   # the read that finds it closed also closes the session (see shell_read).
   # So after a short read the hook prints the queued output before reading
   # goes on, or it would be printed after the session was reported closed.
-  # After a longer read more output is likely on its way.
+  # After a longer read more output is likely on its way, so reading only
+  # waits while a lot of output is queued.
   #
   def readline_read_loop(stream, input, output, lock)
     while interacting
@@ -371,20 +381,68 @@ protected
       raise ::EOFError, 'The remote stream was closed' unless fd
 
       next unless Rex::ThreadSafe.select([fd], nil, nil, 0.25)
+      next unless readline_start_reading(lock)
 
-      data = _readline_read_remote(stream)
+      begin
+        data = _readline_read_remote(stream)
+      ensure
+        readline_stop_reading(lock)
+      end
       next if data.nil? || data.empty?
 
       lock.synchronize do
         if @readline_waiting
           @readline_queue << data
-          if data.bytesize < READLINE_SHORT_READ
-            @readline_dequeued.wait(lock, 0.25) while interacting && !@readline_queue.empty?
-          end
+          @readline_dequeued.wait(lock, 0.25) while interacting && readline_hold_reading?(data)
         else
           readline_print_remote(data, input, output, false)
         end
       end
+    end
+  end
+
+  #
+  # Whether the reader waits for the event hook to print the queued output
+  # before it reads on, see readline_read_loop
+  #
+  def readline_hold_reading?(data)
+    return false if @readline_queue.empty?
+
+    data.bytesize < READLINE_SHORT_READ || @readline_queue.sum(&:bytesize) > READLINE_QUEUE_MAX
+  end
+
+  #
+  # Handles an entered line while the reader is not reading, so that the
+  # session gets the responses to any commands it sends for the line itself.
+  #
+  def readline_handle_line(lock)
+    lock.synchronize do
+      @readline_handling = true
+      @readline_turn.wait(lock, 0.25) while @readline_reading
+    end
+    yield
+  ensure
+    lock.synchronize do
+      @readline_handling = false
+      @readline_turn.broadcast
+    end
+  end
+
+  #
+  # Waits until no entered line is being handled and returns whether the
+  # reader can read, which it can't once interaction has stopped
+  #
+  def readline_start_reading(lock)
+    lock.synchronize do
+      @readline_turn.wait(lock, 0.25) while @readline_handling && interacting
+      @readline_reading = interacting
+    end
+  end
+
+  def readline_stop_reading(lock)
+    lock.synchronize do
+      @readline_reading = false
+      @readline_turn.broadcast
     end
   end
 

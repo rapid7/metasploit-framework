@@ -273,17 +273,38 @@ RSpec.describe Rex::Ui::Interactive do # rubocop:disable Metrics/BlockLength
       expect([tab_while_typing, rb_readline.keymap["\t"]]).to eq(%i[rl_tab_insert rl_complete])
     end
 
-    it 'prints output that arrives while no line is being read straight away' do
-      allow(input).to receive(:pgets).and_return('id')
+    it 'does not read remote output while an entered line is handled' do
+      response = nil
+      allow(input).to receive(:pgets).and_return('download a b')
       allow(interactive).to receive(:_readline_write_remote) do
-        pipe.last.write("uid=0(root)\n$ ")
-        sleep(0.01) until printed.include?("\n")
+        # Like a built-in command of a command shell reading its response
+        pipe.last.write("token\n")
+        sleep(0.5)
+        response = pipe.first.read_nonblock(100, exception: false)
         interactive.interacting = false
       end
 
       Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
 
-      expect(printed).to eq("uid=0(root)\n")
+      expect([response, printed]).to eq(["token\n", ''])
+    end
+
+    it 'stops reading while a lot of output is queued' do
+      stub_const('Rex::Ui::Interactive::READLINE_QUEUE_MAX', 2 * Rex::Ui::Interactive::READLINE_SHORT_READ)
+      queued = nil
+      allow(input).to receive(:pgets) do
+        # Full reads the event hook does not print, e.g. during a history search
+        pipe.last.write('A' * 6 * Rex::Ui::Interactive::READLINE_SHORT_READ)
+        sleep(0.01) until interactive.instance_variable_get(:@readline_queue).size >= 3
+        sleep(0.5)
+        queued = interactive.instance_variable_get(:@readline_queue).size
+        interactive.interacting = false
+        'id'
+      end
+
+      Timeout.timeout(5) { interactive.send(:interact_readline, nil) }
+
+      expect(queued).to eq(3)
     end
 
     it 'holds output that arrives while typing until readline is between key presses' do
