@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rapid7/just-the-docs.git
-  revision: 5c7ea378f6392ea19b52e8019ebaca8fc2331733
+  revision: 7f5b1297877ffad470cd705c263b97a62e304b44
   branch: r7_ver_custom
   specs:
     just-the-docs (0.3.3)

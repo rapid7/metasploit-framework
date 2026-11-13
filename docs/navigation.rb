@@ -69,9 +69,14 @@ NAVIGATION_CONFIG = [
     nav_order: 3
   },
   {
+    title: 'GitHub Stats',
+    nav_order: 4,
+    href: 'https://docs.metasploit.com/stats/'
+  },
+  {
     title: 'Pentesting',
     folder: 'pentesting',
-    nav_order: 4,
+    nav_order: 5,
     children: [
       {
         path: 'Metasploit-Guide-Setting-Module-Options.md',
@@ -230,7 +235,7 @@ NAVIGATION_CONFIG = [
   {
     title: 'Using Metasploit',
     folder: 'using-metasploit',
-    nav_order: 5,
+    nav_order: 6,
     children: [
       {
         title: 'Getting Started',
@@ -462,7 +467,7 @@ NAVIGATION_CONFIG = [
   {
     title: 'Development',
     folder: 'development',
-    nav_order: 6,
+    nav_order: 7,
     children: [
       {
         title: 'Get Started ',
@@ -989,6 +994,6 @@ NAVIGATION_CONFIG = [
   },
   {
     path: 'Contact.md',
-    nav_order: 7
+    nav_order: 8
   },
 ].freeze
