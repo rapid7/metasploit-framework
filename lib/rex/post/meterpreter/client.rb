@@ -616,8 +616,14 @@ class Client
   # Clamp a Meterpreter request timeout when async mode is enabled. Job-lease
   # requests only need to cover rapid polling. Scheduled requests must safely
   # survive the longest valid work-window gap, including clock/DST drift.
-  def async_response_timeout(timeout)
+  # Shutdown retains its caller-provided wait so session cleanup stays bounded.
+  #
+  # @param timeout [Numeric, nil] caller-provided response timeout in seconds
+  # @param command_id [Integer, nil] Meterpreter command ID, when known
+  # @return [Numeric, nil] response timeout in seconds
+  def async_response_timeout(timeout, command_id: nil)
     return timeout unless async_mode_enabled? && timeout
+    return timeout if command_id == COMMAND_ID_CORE_SHUTDOWN
 
     minimum = if async_lease_enabled?
                 ASYNC_LEASE_POLL_INTERVAL * 3 + 10

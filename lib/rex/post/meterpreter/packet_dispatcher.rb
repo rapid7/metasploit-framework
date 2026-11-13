@@ -208,7 +208,7 @@ module PacketDispatcher
   # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
-    timeout = async_response_timeout(timeout) if respond_to?(:async_response_timeout)
+    timeout = async_response_timeout(timeout, command_id: packet.method) if respond_to?(:async_response_timeout)
 
     if packet.type == PACKET_TYPE_REQUEST && commands.present?
       # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
