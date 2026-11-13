@@ -6800,6 +6800,65 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_admin/http/zimbra_email_impersonation": {
+    "name": "Zimbra SaveDraftRequest Email Impersonation",
+    "fullname": "auxiliary/admin/http/zimbra_email_impersonation",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-08-13",
+    "type": "auxiliary",
+    "author": [
+      "Ayoub Nabil Boubagrat",
+      "Crypto-Cat"
+    ],
+    "description": "CVE-2026-73571 is an authorization failure in Zimbra Collaboration's\n          delegated SaveDraftRequest path. An ordinary authenticated user can\n          select another mailbox on the same mailbox server in the From element and cause Zimbra to\n          send the message under that account's owner context. The legitimate\n          MTA path also saves the message in the selected account's Sent folder.\n\n          The vulnerability requires no delegation grant or privileged account.\n          It is known to affect Zimbra 10.1.16, was absent in the original\n          10.1.0 release, and is fixed in 10.1.17. The exact introduced release\n          is unknown.\n\n          When the recipient is the authenticated attacker, or recipient\n          credentials are supplied, the module independently polls that Inbox\n          and verifies the resulting From address. Without that verification,\n          an accepted SOAP response remains unverified on every version.",
+    "references": [
+      "CVE-2026-73571",
+      "URL-https://wiki.zimbra.com/wiki/Zimbra_Security_Advisories",
+      "URL-https://www.rapid7.com/blog/post/ve-breaking-zimbra-identity-boundaries-part-1/",
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/CVE-2026-73571.md"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-11 12:24:10 +0000",
+    "path": "/modules/auxiliary/admin/http/zimbra_email_impersonation.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/zimbra_email_impersonation",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "account-lockouts"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_admin/http/zyxel_admin_password_extractor": {
     "name": "ZyXEL GS1510-16 Password Extractor",
     "fullname": "auxiliary/admin/http/zyxel_admin_password_extractor",
