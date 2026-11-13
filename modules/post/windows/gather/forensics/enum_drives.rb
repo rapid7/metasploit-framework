@@ -12,9 +12,6 @@
 #    http://msu-nftc.org
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::File
-  include Msf::Post::Windows::FileSystem
-
   def initialize(info = {})
     super(
       update_info(
@@ -98,14 +95,19 @@ class MetasploitModule < Msf::Post
       type = ''
     end
 
-    size = geometry[24, 31].unpack('Q')
+    size = geometry[24, 8].unpack1('Q')
+    size = 'N/A' if size == 0x4141414141414141
 
-    if size.to_s == '4702111234474983745'
-      size = 'N/A'
-    end
-
-    print_line('%<devname>-25s%<type>12s%<size>15i', devname: devname, type: type, size: size[0])
+    print_line(format('%<devname>-25s%<type>12s%<size>15s', devname: devname, type: type, size: size))
     client.railgun.kernel32.CloseHandle(handle)
+  end
+
+  def logical_drives
+    bitmask = client.railgun.kernel32.GetLogicalDrives()['return']
+
+    ('A'..'Z').each_with_index.filter_map do |letter, index|
+      letter if (bitmask & (1 << index)).nonzero?
+    end
   end
 
   def run
@@ -119,7 +121,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_line('<Logical Drives:>')
-    get_drives.each do |i|
+    logical_drives.each do |i|
       devname = "\\\\.\\#{i}:"
       print_device(devname)
     end

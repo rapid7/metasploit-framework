@@ -49,6 +49,13 @@ module Console::CommandDispatcher
     shell.client
   end
 
+  # Restrict a built-in client adapter to commands explicitly exposed by a micro manifest.
+  #
+  # @param [Array<String>] commands The command names the manifest exposes.
+  def micro_ui_commands=(commands)
+    @micro_ui_commands = commands
+  end
+
   # A meterpreter session *is* a client but for the smb session it *has* a (ruby smb) client
   # adding this here for parity with the smb session
   def session
@@ -60,7 +67,7 @@ module Console::CommandDispatcher
   #
   def filter_commands(all, reqs)
     all.delete_if do |cmd, _desc|
-      if reqs[cmd]&.any? { |req| !client.commands.include?(req) }
+      if (@micro_ui_commands && !@micro_ui_commands.include?(cmd)) || reqs[cmd]&.any? { |req| !client.commands.include?(req) }
         @filtered_commands << cmd
         true
       end

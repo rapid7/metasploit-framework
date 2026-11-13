@@ -140,6 +140,97 @@ class ClientCore < Extension
     commands
   end
 
+  # Check whether one or more canonical command IDs are microextension-owned.
+  #
+  # @param [Array<Integer>] commands The command IDs to query.
+  # @return [Hash{Integer => Boolean}] Availability keyed by command ID.
+  def micro_has_commands(*commands)
+    command_ids = commands.flatten.uniq
+    request = Packet.create_request(COMMAND_ID_CORE_MICRO_HAS_COMMAND)
+    command_ids.each { |command_id| request.add_tlv(TLV_TYPE_UINT, command_id) }
+
+    response = client.send_request(request)
+    present = response.get_tlvs(TLV_TYPE_UINT).map(&:value)
+
+    command_ids.to_h { |command_id| [command_id, present.include?(command_id)] }
+  end
+
+  # Load a resident COFF microextension.
+  #
+  # @param [String] name The unique microextension name.
+  # @param [String] image The COFF object contents.
+  # @return [Hash] The remote handle, registered command IDs, and channel types.
+  def micro_load(name, image)
+    request = Packet.create_request(COMMAND_ID_CORE_MICRO_LOAD)
+    request.add_tlv(TLV_TYPE_MICRO_NAME, name)
+    request.add_tlv(TLV_TYPE_MICRO_IMAGE, image, false, client.capabilities[:zlib])
+
+    response = client.send_packet_wait_response(request, client.response_timeout)
+    if response.nil?
+      raise Rex::TimeoutError, 'Send timed out'
+    elsif response.result != 0
+      error = client.lookup_error(response.result)
+      phase = response.get_tlv_value(TLV_TYPE_MICRO_DIAGNOSTIC)
+      error = "#{error} (#{phase})" if phase
+      raise RequestError.new(request.method, error, response.result)
+    end
+
+    {
+      handle: response.get_tlv_value(TLV_TYPE_MICRO_HANDLE),
+      commands: response.get_tlvs(TLV_TYPE_UINT).map(&:value),
+      channels: response.get_tlvs(TLV_TYPE_CHANNEL_TYPE).map(&:value)
+    }
+  end
+
+  # Enumerate resident microextensions.
+  #
+  # @return [Array<Hash>] Loaded microextension metadata.
+  def micro_extensions
+    response = client.send_request(Packet.create_request(COMMAND_ID_CORE_MICRO_ENUM))
+    response.get_tlvs(TLV_TYPE_MICRO_ENTRY).map do |entry|
+      {
+        name: entry.get_tlv_value(TLV_TYPE_MICRO_NAME),
+        handle: entry.get_tlv_value(TLV_TYPE_MICRO_HANDLE),
+        abi: entry.get_tlv_value(TLV_TYPE_MICRO_ABI),
+        commands: entry.get_tlvs(TLV_TYPE_UINT).map(&:value),
+        channels: entry.get_tlvs(TLV_TYPE_CHANNEL_TYPE).map(&:value)
+      }
+    end
+  end
+
+  # Return command IDs owned by resident microextensions.
+  #
+  # @return [Array<Integer>] Microextension command IDs.
+  def micro_command_ids
+    micro_extensions.flat_map { |extension| extension[:commands] }.uniq
+  end
+
+  # Return channel types owned by resident microextensions.
+  #
+  # @return [Array<String>] Microextension channel types.
+  def micro_channel_types
+    micro_extensions.flat_map { |extension| extension[:channels] }.uniq
+  end
+
+  # Unload a resident microextension by name or handle.
+  #
+  # @param [String, Integer] identifier The name or remote handle.
+  # @return [Hash] Command IDs and channel types removed by the microextension.
+  def micro_unload(identifier)
+    request = Packet.create_request(COMMAND_ID_CORE_MICRO_UNLOAD)
+    if identifier.is_a?(Integer)
+      request.add_tlv(TLV_TYPE_MICRO_HANDLE, identifier)
+    else
+      request.add_tlv(TLV_TYPE_MICRO_NAME, identifier)
+    end
+
+    response = client.send_request(request)
+    {
+      commands: response.get_tlvs(TLV_TYPE_UINT).map(&:value),
+      channels: response.get_tlvs(TLV_TYPE_CHANNEL_TYPE).map(&:value)
+    }
+  end
+
   def transport_list
     request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_LIST)
     response = client.send_request(request)
@@ -1017,4 +1108,3 @@ private
 end
 
 end; end; end
-
