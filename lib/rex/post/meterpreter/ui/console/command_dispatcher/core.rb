@@ -779,8 +779,11 @@ class Console::CommandDispatcher::Core
   #
   # Parse a day specification into a bitmask.
   #
+  # @param spec [String] day names or a hexadecimal/decimal bitmask
+  # @return [Integer] work-day bitmask
   def parse_work_days(spec)
-    return spec.to_i if spec =~ /\A0x[0-9a-f]+\z/i || spec =~ /\A\d+\z/
+    return spec.to_i(16) if spec =~ /\A0x[0-9a-f]+\z/i
+    return spec.to_i(10) if spec =~ /\A\d+\z/
 
     if spec == 'mon-fri'
       return 0x3E # bits 1-5

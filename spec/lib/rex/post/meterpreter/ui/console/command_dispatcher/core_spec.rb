@@ -21,5 +21,23 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core do
 
   subject(:command_dispatcher) { described_class.new(session.console) }
 
+  describe '#parse_work_days' do
+    it 'parses hexadecimal masks in base 16' do
+      expect(command_dispatcher.parse_work_days('0x3e')).to eq(62)
+    end
+
+    it 'accepts an uppercase hexadecimal prefix and digits' do
+      expect(command_dispatcher.parse_work_days('0X3E')).to eq(62)
+    end
+
+    it 'parses decimal masks in base 10' do
+      expect(command_dispatcher.parse_work_days('62')).to eq(62)
+    end
+
+    it 'keeps decimal masks with leading zeros in base 10' do
+      expect(command_dispatcher.parse_work_days('062')).to eq(62)
+    end
+  end
+
   it_behaves_like 'session command dispatcher'
 end
