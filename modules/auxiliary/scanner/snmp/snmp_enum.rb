@@ -4,6 +4,8 @@
 ##
 
 require 'English'
+require 'ipaddr'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
@@ -47,7 +49,8 @@ class MetasploitModule < Msf::Auxiliary
       'Location', 'Uptime snmp', 'Uptime system',
       'System date', 'domain', 'User accounts',
       'Network information', 'Network interfaces',
-      'Network IP', 'Routing information',
+      'Network IP', 'Routing Information',
+      'LLDP Neighbors', 'CDP Neighbors', 'MAC Address Table',
       'TCP connections and listening ports', 'Listening UDP ports',
       'Network services', 'Share', 'IIS server information',
       'Storage information', 'File system information',
@@ -313,6 +316,111 @@ class MetasploitModule < Msf::Auxiliary
 
     if !routing.empty?
       output_data['Routing Information'] = [['Destination', 'Next Hop', 'Mask', 'Metric']] + routing
+    end
+
+    lldp_neighbors = []
+    begin
+      # SNMP::Manager#walk drives row iteration off the FIRST column, so the
+      # mandatory lldpRemPortId must lead; lldpRemSysName and lldpRemPortDesc
+      # are optional and arrive as NoSuchInstance when a neighbor omits them.
+      snmp.walk([
+        '1.0.8802.1.1.2.1.4.1.1.6', '1.0.8802.1.1.2.1.4.1.1.7',
+        '1.0.8802.1.1.2.1.4.1.1.8', '1.0.8802.1.1.2.1.4.1.1.9'
+      ]) do |port_id, port_id_subtype, port_desc, remote_sys_name|
+        next unless snmp_values_present?(port_id, port_id_subtype)
+
+        name = snmp_value(remote_sys_name).strip
+        description = snmp_value(port_desc).strip
+
+        raw_port_id = port_id.value.to_s
+        display_port_id = if raw_port_id.match?(/\A[[:print:]]+\z/)
+                            raw_port_id.strip
+                          elsif port_id_subtype.value.to_i == 3 || raw_port_id.bytesize == 6
+                            raw_port_id.unpack('C*').map { |byte| format('%02x', byte) }.join(':')
+                          else
+                            raw_port_id.unpack1('H*').scan(/../).join(' ')
+                          end
+        lldp_neighbors << {
+          'System Name' => name,
+          'Port ID' => display_port_id,
+          'Port Description' => description
+        }
+      end
+      output_data['LLDP Neighbors'] = lldp_neighbors unless lldp_neighbors.empty?
+    rescue SNMP::ParseError, SNMP::RequestTimeout => e
+      vprint_status("LLDP walk failed: #{e.class}: #{e.message}")
+      elog('LLDP neighbor enumeration failed', error: e)
+    end
+
+    cdp_neighbors = []
+    begin
+      snmp.walk([
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.6', '1.3.6.1.4.1.9.9.23.1.2.1.1.3',
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.4', '1.3.6.1.4.1.9.9.23.1.2.1.1.7',
+        '1.3.6.1.4.1.9.9.23.1.2.1.1.8'
+      ]) do |device_id, address_type, address, device_port, platform|
+        # Only the Device ID is required; address/port/platform arrive as
+        # NoSuchInstance on devices that do not send those TLVs.
+        next unless snmp_values_present?(device_id)
+
+        id = device_id.value.to_s.strip
+        next if id.empty?
+
+        raw_address = snmp_value(address)
+        address_type_value = address_type.value.to_i
+        display_address = if (address_type_value == 1 && raw_address.bytesize == 4) || (address_type_value == 20 && raw_address.bytesize == 16)
+                            IPAddr.ntop(raw_address)
+                          elsif raw_address.match?(/\A[[:print:]]+\z/)
+                            raw_address.strip
+                          else
+                            raw_address.unpack1('H*').scan(/../).join(' ')
+                          end
+        cdp_neighbors << {
+          'Device ID' => id,
+          'IP Address' => display_address,
+          'Port' => snmp_value(device_port).strip,
+          'Platform' => snmp_value(platform).strip
+        }
+      end
+      output_data['CDP Neighbors'] = cdp_neighbors unless cdp_neighbors.empty?
+    rescue SNMP::ParseError, SNMP::RequestTimeout => e
+      vprint_status("CDP walk failed: #{e.class}: #{e.message}")
+      elog('CDP neighbor enumeration failed', error: e)
+    end
+
+    mac_table = []
+    begin
+      bridge_port_to_ifindex = {}
+      snmp.walk('1.3.6.1.2.1.17.1.4.1.2') do |ifindex|
+        next unless snmp_values_present?(ifindex)
+
+        bridge_port_to_ifindex[ifindex.name.to_a.last] = ifindex.value.to_i
+      end
+      interface_name_by_index = network_interfaces.to_h do |interface|
+        name = interface['Interface'].to_s.sub(/\A\[\s*\w+\s*\]\s*/, '')
+        [interface['Id'].to_i, name]
+      end
+
+      snmp.walk([
+        '1.3.6.1.2.1.17.4.3.1.1', '1.3.6.1.2.1.17.4.3.1.2',
+        '1.3.6.1.2.1.17.4.3.1.3'
+      ]) do |mac_address, bridge_port, status|
+        next unless snmp_values_present?(mac_address, bridge_port, status)
+        next if [2, 4].include?(status.value.to_i) || bridge_port.value.to_i.zero?
+
+        ifindex = bridge_port_to_ifindex[bridge_port.value.to_i]
+        port = interface_name_by_index[ifindex]
+        port = ifindex || bridge_port.value.to_i if port.to_s.empty?
+        mac_table << {
+          'MAC Address' => mac_address.value.to_s.unpack('C*').map { |byte| format('%02x', byte) }.join(':'),
+          'Port' => port.to_s,
+          'Status' => { 1 => 'other', 3 => 'learned', 5 => 'management' }.fetch(status.value.to_i, 'unknown')
+        }
+      end
+      output_data['MAC Address Table'] = mac_table unless mac_table.empty?
+    rescue SNMP::ParseError, SNMP::RequestTimeout => e
+      vprint_status("MAC address-table walk failed: #{e.class}: #{e.message}")
+      elog('Bridge MAC address-table enumeration failed', error: e)
     end
 
     tcp = []
@@ -887,6 +995,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def truncate_to_twidth(string, twidth)
     string.slice(0..twidth - 2)
+  end
+
+  def snmp_values_present?(*varbinds)
+    varbinds.none? { |varbind| varbind.value.to_s.match?(/\A(?:noSuchInstance|noSuchObject|endOfMibView)\z/) }
+  end
+
+  # The string value of a varbind whose instance is absent (optional MIB
+  # columns) is '' rather than the literal error text.
+  def snmp_value(varbind)
+    raw = varbind.value.to_s
+    raw.match?(/\A(?:noSuchInstance|noSuchObject|endOfMibView)\z/) ? '' : raw
   end
 
   def number_to_human_size(size, unit)
