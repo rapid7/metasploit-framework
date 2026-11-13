@@ -12,10 +12,36 @@ module MsfdbHelpers
       super(options)
     end
 
+    # @param msf_pass [String] password for the primary database user
+    # @param msftest_pass [String] password for the test database user
+    # @yield persist connection configuration before provisioning an owned cluster
+    # @return [Boolean] whether the database was configured successfully
+    # @raise [PG::ConnectionBad] if cluster initialization or startup fails
+    # @raise [PG::Error] if user or database provisioning fails
     def init(msf_pass, msftest_pass)
-      puts "Creating database at #{@db}"
-      Dir.mkdir(@db)
-      run_cmd("initdb --auth-host=trust --auth-local=trust --username=postgres -E UTF8 #{@db.shellescape}")
+      if initialization_pending?
+        unless File.read(initialization_marker) == 'setup'
+          raise PG::ConnectionBad, "PostgreSQL initialization did not finish at #{@db}; inspect the data before running msfdb reinit"
+        end
+
+        # Only clusters created by an interrupted msfdb init are resumed. Stop
+        # that server before changing its socket and authentication configuration.
+        if running? && stop != 0
+          raise PG::ConnectionBad, "Could not stop incomplete database at #{@db}; check #{@db}/log"
+        end
+      else
+        puts "Creating database at #{@db}"
+        Dir.mkdir(@db)
+        # initdb requires an empty directory, so its progress marker lives beside it.
+        File.write(initialization_marker, 'initdb', mode: 'w', perm: 0o600)
+        unless run_cmd("initdb --auth-host=trust --auth-local=trust --username=postgres -E UTF8 #{@db.shellescape}") == 0
+          raise PG::ConnectionBad, "Could not initialize PostgreSQL at #{@db}"
+        end
+
+        File.write(initialization_marker, 'setup')
+      end
+
+      yield if block_given?
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
@@ -32,15 +58,39 @@ module MsfdbHelpers
       elsif test_executable_file("#{@db}")
         @socket_directory = @db
       else
-        print_error("Attempt to create DB socket file at Temporary Directory and `~/.msf4/db` failed. Possibly because they are mounted with NOEXEC flags. Database initialization failed.")
+        raise PG::ConnectionBad, "Could not create a database socket at #{Dir.tmpdir} or #{@db}"
       end
 
-      start
+      # A timed-out pg_ctl can leave PostgreSQL starting in the background.
+      # Install the intended authentication rules before it can accept clients.
+      write_db_client_auth_config
+      unless start_database
+        raise PG::ConnectionBad, "PostgreSQL did not become ready at #{@db}; check #{@db}/log"
+      end
 
       create_db_users(msf_pass, msftest_pass)
+      true
+    end
 
-      write_db_client_auth_config
-      restart
+    # Serialize initialization, including the caller's configuration and migrations.
+    # A failed attempt remains distinguishable from an existing usable database.
+    # @yield initialize the database, write configuration and run migrations
+    # @return [void]
+    # @raise [PG::ConnectionBad] if another initializer holds the cluster lock
+    def with_initialization
+      File.open("#{@db}.lock", File::RDWR | File::CREAT, 0o600) do |lock|
+        unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+          raise PG::ConnectionBad, "Database initialization already in progress at #{@db}"
+        end
+
+        yield
+        File.delete(initialization_marker) if initialization_pending?
+      end
+    end
+
+    # @return [Boolean] whether this cluster has an incomplete initialization marker
+    def initialization_pending?
+      File.file?(initialization_marker)
     end
 
     # Creates and attempts to execute a testfile in the specified directory,
@@ -81,6 +131,7 @@ module MsfdbHelpers
         if @options[:delete_existing_data]
           puts "Deleting all data at #{@db}"
           FileUtils.rm_rf(@db)
+          File.delete(initialization_marker) if initialization_pending?
         end
 
         if @options[:delete_existing_data]
@@ -91,37 +142,19 @@ module MsfdbHelpers
       end
     end
 
+    # @return [Boolean] whether PostgreSQL started successfully or was already running
     def start
-      if status == DatabaseStatus::RUNNING
-        puts "Database already started at #{@db}"
-        return true
+      if initialization_pending?
+        print_error('Database initialization is incomplete; run msfdb init before starting it')
+        return false
       end
 
-      print "Starting database at #{@db}..."
-      pg_ctl_spawn_cmd = "pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log start &"
-      puts "spawn_cmd: #{pg_ctl_spawn_cmd}" if @options[:debug]
-      pg_ctl_pid = Process.spawn(pg_ctl_spawn_cmd)
-      Process.detach(pg_ctl_pid)
-      is_database_running = retry_until_truthy(timeout: 60) do
-        status == DatabaseStatus::RUNNING
-      end
-
-      if is_database_running
-        puts 'success'.green.bold.to_s
-        true
-      else
-        begin
-          Process.kill(:KILL, pg_ctl_pid)
-        rescue => e
-          puts "Failed to kill pg_ctl_pid=#{pg_ctl_pid} - #{e.class} #{e.message}" if @options[:debug]
-        end
-        puts 'failed'.red.bold.to_s
-        false
-      end
+      start_database
     end
 
+    # @return [Integer, nil] pg_ctl's exit status, or nil if the server is not running
     def stop
-      if status == DatabaseStatus::RUNNING
+      if running?
         puts "Stopping database at #{@db}"
         run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} stop")
       else
@@ -138,9 +171,14 @@ module MsfdbHelpers
       Dir.exist?(@db)
     end
 
+    # @return [Integer] the matching DatabaseStatus constant
     def status
+      return DatabaseStatus::NEEDS_INIT if initialization_pending?
+
       if exists?
-        if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
+        return DatabaseStatus::NEEDS_INIT unless File.file?(File.join(@db, 'PG_VERSION'))
+
+        if running?
           DatabaseStatus::RUNNING
         else
           DatabaseStatus::INACTIVE
@@ -150,19 +188,29 @@ module MsfdbHelpers
       end
     end
 
+    # @param msf_pass [String] password for the primary database user
+    # @param msftest_pass [String] password for the test database user
+    # @return [void]
+    # @raise [PG::Error] if user or database provisioning fails
     def create_db_users(msf_pass, msftest_pass)
       puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
-      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
-      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb", @socket_directory)
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb", @socket_directory)
-      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'", @socket_directory)
-      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'", @socket_directory)
+      PG.connect(host: @socket_directory, dbname: 'postgres', port: @options[:db_port], user: 'postgres') do |conn|
+        [[@options[:msf_db_user], msf_pass], [@options[:msftest_db_user], msftest_pass]].each do |user, password|
+          unless conn.exec_params('SELECT 1 FROM pg_roles WHERE rolname = $1', [user]).any?
+            conn.exec("CREATE ROLE #{conn.quote_ident(user)}")
+          end
+          conn.exec("ALTER ROLE #{conn.quote_ident(user)} LOGIN CREATEDB PASSWORD #{conn.escape_literal(password)}")
+        end
+      end
 
-      conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
-      conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
-      conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
-      conn.finish
+      # Use the application role so it owns both databases, including on retry.
+      PG.connect(host: @socket_directory, dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass) do |conn|
+        [@options[:msf_db_name], @options[:msftest_db_name]].each do |database|
+          unless conn.exec_params('SELECT 1 FROM pg_database WHERE datname = $1', [database]).any?
+            conn.exec("CREATE DATABASE #{conn.quote_ident(database)}")
+          end
+        end
+      end
     end
 
     def write_db_client_auth_config
@@ -174,32 +222,38 @@ module MsfdbHelpers
       %w[psql pg_ctl initdb createdb]
     end
 
-    protected
+    private
 
-    def retry_until_truthy(timeout:)
-      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
-      ending_time = start_time + timeout
-      retry_count = 0
-      while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
-        result = yield
-        return result if result
-
-        retry_count += 1
-        remaining_time_budget = ending_time - Process.clock_gettime(Process::CLOCK_MONOTONIC, :second)
-        break if remaining_time_budget <= 0
-
-        delay = 2**retry_count
-        if delay >= remaining_time_budget
-          delay = remaining_time_budget
-          puts("Final attempt. Sleeping for the remaining #{delay} seconds out of total timeout #{timeout}") if @options[:debug]
-        else
-          puts("Sleeping for #{delay} seconds before attempting again") if @options[:debug]
-        end
-
-        sleep delay
+    def start_database
+      if running?
+        puts "Database already started at #{@db}"
+        return true
       end
 
-      nil
+      print "Starting database at #{@db}..."
+      # Wait for readiness, not just a live postmaster. Avoid captured pipes:
+      # PostgreSQL can inherit them on Windows and keep capture2e waiting for EOF.
+      pg_ctl_spawn_cmd = ['pg_ctl', '-o', "-p #{@options[:db_port]}", '-D', @db, '-l', "#{@db}/log", '-w', '-t', '60', 'start']
+      puts "spawn_cmd: #{pg_ctl_spawn_cmd.shelljoin}" if @options[:debug]
+      pg_ctl_pid = Process.spawn(*pg_ctl_spawn_cmd)
+      startup_status = Process.detach(pg_ctl_pid).value
+
+      if startup_status.success?
+        puts 'success'.green.bold
+        true
+      else
+        puts 'failed'.red.bold
+        false
+      end
     end
+
+    def initialization_marker
+      "#{@db}.initializing"
+    end
+
+    def running?
+      run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
+    end
+
   end
 end
