@@ -50163,6 +50163,62 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/zimbra_graphql_brute": {
+    "name": "Zimbra GraphQL Authentication Rate Limit Bypass",
+    "fullname": "auxiliary/scanner/http/zimbra_graphql_brute",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "Zimbra Collaboration Network Edition exposes an unauthenticated GraphQL\n          authenticate mutation. Failed GraphQL authentication does not update the\n          source-IP failure counter enforced for SOAP authentication. GraphQL aliases\n          also permit many password candidates to be submitted in one HTTP request.\n\n          This module uses the standard Metasploit credential options and sends the\n          resulting username and password pairs through batches of aliased authenticate\n          mutations. A successful password is stored as a credential, but the returned\n          authentication token is not displayed or stored. An enabled per-account\n          lockout policy can still lock local target accounts.\n\n          Zimbra 10.1.0 through 10.1.21 are known to be affected. No fixed release has\n          been published.",
+    "references": [
+      "CVE-2026-93637",
+      "URL-https://www.rapid7.com/blog/post/ve-breaking-zimbra-identity-boundaries-part-1/",
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/CVE-2026-93637.md"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-13 11:27:13 +0000",
+    "path": "/modules/auxiliary/scanner/http/zimbra_graphql_brute.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/zimbra_graphql_brute",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "service-resource-loss"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "account-lockouts",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/ike/cisco_ike_benigncertain": {
     "name": "Cisco IKE Information Disclosure",
     "fullname": "auxiliary/scanner/ike/cisco_ike_benigncertain",
