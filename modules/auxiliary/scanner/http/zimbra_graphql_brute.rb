@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     # This loop buffers candidates, so AuthBrute's request delay is applied when each batch is transmitted below.
     each_user_pass(true) do |username, password|
       if state[:successful_users][username]
-        :skip_user
+        :next_user
       else
         batch << [username, password]
         if batch.length < datastore['BATCH_SIZE']
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
         else
           submit_credential_batch!(ip, service, batch, state)
           batch.clear
-          state[:stop] ? :next_user : nil
+          :next_user if state[:successful_users][username]
         end
       end
     end
@@ -128,6 +128,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_options!
     fail_with(Failure::BadConfig, 'BATCH_SIZE must be between 1 and 1,000') unless datastore['BATCH_SIZE'].between?(1, 1_000)
+    if datastore['BATCH_SIZE'] > 1 && datastore['STOP_ON_SUCCESS']
+      fail_with(Failure::BadConfig, 'BATCH_SIZE must be 1 when STOP_ON_SUCCESS is enabled so no later candidate is sent after a successful login')
+    end
+    # AuthBrute can record success only for the current candidate, not earlier aliases in a batch.
+    if datastore['BATCH_SIZE'] > 1 && datastore['MaxGuessesPerService'].to_i.abs.positive?
+      fail_with(Failure::BadConfig, 'BATCH_SIZE must be 1 when MaxGuessesPerService is enabled so skipped users do not consume the guess limit')
+    end
     # AuthBrute delays before yielding a new wave; an unsent batch would otherwise cross that boundary.
     if datastore['BATCH_SIZE'] > 1 && datastore['TRANSITION_DELAY'].to_f.positive?
       fail_with(Failure::BadConfig, 'BATCH_SIZE must be 1 when TRANSITION_DELAY is enabled so credential waves remain separated')
@@ -156,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
 
       state[:successful_users][hit[:username]] = true
       state[:successes] += 1
-      print_good("#{ip}:#{rport} - Valid credential found for #{hit[:username]}")
+      print_brute(level: :good, ip: ip, port: rport, msg: "Valid credential found for #{hit[:username]}")
       store_graphql_credential(ip, service, hit[:username], hit[:password])
     end
 
@@ -166,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       fail_with(Failure::UnexpectedReply, 'Stopping after preserving the definite credential result')
     elsif result[:status] == :rejected
-      vprint_status("#{ip}:#{rport} - GraphQL rejected #{pairs.length} credential candidate(s)")
+      print_brute(level: :vstatus, ip: ip, port: rport, msg: "GraphQL rejected #{pairs.length} credential candidate(s)")
     end
 
     state[:stop] = result[:hits].any? && datastore['STOP_ON_SUCCESS']
