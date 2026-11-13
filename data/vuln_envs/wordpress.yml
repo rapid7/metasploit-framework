@@ -1,0 +1,84 @@
+name: wordpress
+description: Vulnerable WordPress installation for security testing
+
+variants:
+  - name: "latest"
+    version: "4.9"
+    image: docker.io/eystsen/vulnerablewordpress
+    default: true
+
+shared:
+  ports:
+    http: 80
+
+  credentials:
+    default:
+      username: admin
+      password: admin
+
+  datastore_defaults:
+    TARGETURI: /
+
+  # Liveness only: confirms Apache/PHP are up and responding.
+  # Does NOT confirm WordPress is installed - a redirect to
+  # /wp-admin/install.php is a valid 302 here and is expected
+  # on first boot, since this image ships with wp-config.php
+  # pointed at a database but never runs the install step itself.
+  health_check:
+    type: http
+    path: /
+    expected_status: 302
+    interval: 3
+    timeout: 2
+    retries: 15
+
+  # One-time setup: drives the WordPress install wizard
+  # (creates the DB schema + admin account) using the
+  # credentials defined above. Runs once, after health_check
+  # passes and before the environment is considered ready.
+  provision:
+    type: http
+    method: post
+    path: /wp-admin/install.php?step=2
+    body:
+      weblog_title: "Vulnerable WP"
+      user_name: "{{ credentials.default.username }}"
+      admin_password: "{{ credentials.default.password }}"
+      admin_password2: "{{ credentials.default.password }}"
+      pw_weak: 1
+      admin_email: "admin@example.com"
+      blog_public: 0
+      Submit: "Install WordPress"
+    run_once: true
+
+  # Confirms provisioning actually succeeded: the login form
+  # (not the installer) must now be served.
+  verify:
+    type: http
+    path: /wp-login.php
+    expected_status: 200
+    match: "user_login"
+    interval: 3
+    timeout: 2
+    retries: 10
+
+  ci:
+    exploit:
+      # php/meterpreter/reverse_tcp does not work against this image:
+      # it has no PHP openssl extension (confirmed via
+      # `docker exec <container> php -m | grep -i openssl` returning
+      # nothing), so Meterpreter can never negotiate TLV encryption
+      # and the session gets closed as invalid immediately after
+      # opening. Plain shell sidesteps encryption negotiation entirely.
+      payload: php/reverse_php
+      options:
+        LPORT: 4444
+    validation:
+      expected_session: true
+      session_type: shell
+      expected_output: "uid="
+      timeout: 120
+
+profiles:
+  default:
+    description: Standard vulnerable WordPress
