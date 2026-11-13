@@ -27,6 +27,8 @@ module Console::InteractiveChannel
         _local_fd.raw do
           interact_stream(self)
         end
+      elsif interact_with_readline?
+        interact_readline(self)
       else
         interact_stream(self)
       end
@@ -94,6 +96,19 @@ module Console::InteractiveChannel
     self.on_print_proc.call(data.strip) if self.on_print_proc
     self.on_log_proc.call(data.strip) if self.on_log_proc
     user_output.print(data)
+  end
+
+  def _readline_read_remote(_channel)
+    data = lsock.sysread(16384)
+
+    on_print_proc&.call(data.strip)
+    on_log_proc&.call(data.strip)
+    data
+  end
+
+  def _readline_write_remote(_channel, line)
+    on_command_proc&.call(line.strip)
+    write(line + "\n")
   end
 
   #

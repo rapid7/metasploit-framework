@@ -82,7 +82,15 @@ class Console
     channel.on_log_proc = method(:log_output) if self.respond_to?(:log_output, true)
     channel.raw = raw
 
-    channel.interact(input, output)
+    # Lines typed into the channel go through readline. Give them their own
+    # history so they are not saved to the meterpreter history file, the same
+    # as command shell sessions.
+    history_manager = self.history_manager || framework&.history_manager
+    if history_manager && !raw
+      history_manager.with_context(name: :channel) { channel.interact(input, output) }
+    else
+      channel.interact(input, output)
+    end
     channel.reset_ui
   end
 
