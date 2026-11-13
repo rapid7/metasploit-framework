@@ -35,8 +35,9 @@ module Auxiliary::RServices
       begin
         sd = connect(true, { 'CPORT' => cport })
 
-      rescue Rex::BindFailed
-        # Ignore and try again
+      rescue Rex::BindFailed, Rex::InvalidDestination
+        # Ignore and try again. InvalidDestination (EADDRNOTAVAIL/EADDRINUSE on connect)
+        # means this source port is still tied up from a previous attempt.
         #vprint_error("Unable to connect: #{$!}")
 
       rescue Rex::ConnectionError => e
