@@ -105,6 +105,21 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
       end
     end
 
+    it 'sends async settings using wire-protocol IDs 732 through 737' do
+      client_core.async_mode(enabled: true, poll_interval: 60, jitter: 10, work_start: 9, work_end: 17, work_days: 0x3E)
+
+      expect(client).to have_received(:send_request) do |request|
+        expect([
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_BOOL | 732),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_UINT | 733),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_UINT | 734),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_UINT | 735),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_UINT | 736),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_META_TYPE_UINT | 737)
+        ]).to eq([true, 60, 10, 9, 17, 0x3E])
+      end
+    end
+
     it 'leaves console-specific job validation to the console' do
       client.async_config.merge!(lease_ttl: 29, job_timeout: 28)
 
