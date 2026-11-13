@@ -106,7 +106,7 @@ class Console
   ].freeze
 
   ASYNC_WORKER_BLOCKED_COMMANDS = %w[
-    async background bg exit quit irb pry sessions
+    async background bg bgrun exit quit irb pry sessions
     channel shell interact portfwd rportfwd powershell_shell
     detach sleep transport migrate pivot secure
   ].freeze
