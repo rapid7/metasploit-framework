@@ -69,7 +69,7 @@ module Msf::MCP
     # - Cleans up resources
     #
     # @return [void]
-   def shutdown
+    def shutdown
       ilog({
         message: 'Shutting down'
       }, LOG_SOURCE, LOG_INFO)
@@ -148,7 +148,6 @@ module Msf::MCP
       return unless @options[:enable_logging_cli] || @config.dig(:logging, :enabled)
 
       log_file = @options[:log_file_cli] || @config.dig(:logging, :log_file)
-      level = @config.dig(:logging, :level)
       threshold = case @config.dig(:logging, :level).upcase
                   when 'DEBUG'
                     Rex::Logging::LEV_3
@@ -160,7 +159,7 @@ module Msf::MCP
                     Rex::Logging::LEV_0
                   end
       inner = Msf::MCP::Logging::Sinks::JsonFlatfile.new(log_file)
-      sink  = @config.dig(:logging, :sanitize) ? Msf::MCP::Logging::Sinks::Sanitizing.new(inner) : inner
+      sink = @config.dig(:logging, :sanitize) ? Msf::MCP::Logging::Sinks::Sanitizing.new(inner) : inner
 
       deregister_log_source(LOG_SOURCE) if log_source_registered?(LOG_SOURCE)
       register_log_source(LOG_SOURCE, sink, threshold)
@@ -189,7 +188,7 @@ module Msf::MCP
         @output.puts "Loading configuration from #{@options[:config_path]}"
         @config = Msf::MCP::Config::Loader.load(@options[:config_path])
       else
-        @output.puts "No configuration file specified, using defaults"
+        @output.puts 'No configuration file specified, using defaults'
         @config = Msf::MCP::Config::Loader.load_from_hash({})
       end
 
@@ -215,9 +214,9 @@ module Msf::MCP
     #
     # @return [void]
     def validate_configuration
-      @output.puts "Validating configuration..."
+      @output.puts 'Validating configuration...'
       Msf::MCP::Config::Validator.validate!(@config)
-      @output.puts "Configuration valid"
+      @output.puts 'Configuration valid'
     end
 
     # Initialize the rate limiter
@@ -261,11 +260,11 @@ module Msf::MCP
     # @return [void]
     def authenticate_metasploit
       if @config[:msf_api][:type] == 'messagepack'
-        @output.puts "Authenticating with Metasploit..."
+        @output.puts 'Authenticating with Metasploit...'
         @msf_client.authenticate(@config[:msf_api][:user].to_s, @config[:msf_api][:password].to_s)
-        @output.puts "Authentication successful"
+        @output.puts 'Authentication successful'
       else
-        @output.puts "Using JSON-RPC with token authentication"
+        @output.puts 'Using JSON-RPC with token authentication'
       end
     end
 
@@ -273,10 +272,10 @@ module Msf::MCP
     #
     # @return [void]
     def initialize_mcp_server
-      @output.puts "Initializing MCP server..."
+      @output.puts 'Initializing MCP server...'
       dangerous_actions = @config&.dig(:mcp, :dangerous_actions) == true
       if dangerous_actions
-        @output.puts "WARNING: dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible."
+        @output.puts 'WARNING: dangerous actions mode is ENABLED. Destructive tools (module execution, session control) are accessible.'
       end
       @mcp_server = Msf::MCP::Server.new(
         msf_client: @msf_client,
@@ -294,24 +293,38 @@ module Msf::MCP
       port = @config.dig(:mcp, :port) || 3000
 
       if transport == :http
-        @output.puts "Starting MCP server on HTTP transport..."
-        @output.puts "MCP server listening on http://#{Rex::Socket.to_authority(host, port)}/"
+        ssl_enabled = @config.dig(:mcp, :ssl) == true
+        if !ssl_enabled && %i[ssl_cert ssl_key].any? { |k| !@config.dig(:mcp, k).to_s.empty? }
+          @output.puts 'Warning: mcp.ssl_cert/mcp.ssl_key are configured but mcp.ssl is not true; serving cleartext HTTP and ignoring the certificate.'
+        end
+        ssl_cert, ssl_key, ssl_generated = ssl_enabled ? resolve_ssl_paths(host) : [nil, nil, false]
+        scheme = ssl_enabled ? 'https' : 'http'
+        @output.puts "Starting MCP server on HTTP#{ssl_enabled ? 'S' : ''} transport..."
+        @output.puts "MCP server listening on #{scheme}://#{Rex::Socket.to_authority(host, port)}/"
+        if ssl_enabled
+          @output.puts "TLS: enabled (certificate: #{ssl_cert})"
+          if ssl_generated
+            @output.puts '  Using an auto-generated self-signed certificate -- clients must explicitly trust it.'
+            @output.puts '  For anything beyond local testing, supply mcp.ssl_cert/mcp.ssl_key with a certificate'
+            @output.puts '  from a trusted CA (e.g. Let\'s Encrypt). See the MCP server wiki page for details.'
+          end
+        end
         auth_token = resolve_auth_token
         case auth_token
         when :disabled
-          @output.puts "Authentication: disabled"
+          @output.puts 'Authentication: disabled'
           auth_token = nil
         when :enabled
-          @output.puts "Authentication: enabled"
+          @output.puts 'Authentication: enabled'
           auth_token = @config.dig(:mcp, :auth_token)
         when :generated
           auth_token = @mcp_server.class.generate_auth_token
-          @output.puts "Authentication: Bearer token (auto-generated)"
+          @output.puts 'Authentication: Bearer token (auto-generated)'
           @output.puts "  Configure your MCP client with: Authorization: Bearer #{auth_token}"
         else
-          raise RuntimeError, 'auth_token did not resolve to a supported value.'
+          raise Msf::MCP::Error, "auth_token did not resolve to a supported value: #{auth_token.inspect}"
         end
-        @output.puts "Press Ctrl+C to shutdown"
+        @output.puts 'Press Ctrl+C to shutdown'
 
         min_threads = @config.dig(:mcp, :min_threads) || Msf::MCP::Server::PUMA_MIN_THREADS
         max_threads = @config.dig(:mcp, :max_threads) || Msf::MCP::Server::PUMA_MAX_THREADS
@@ -325,7 +338,9 @@ module Msf::MCP
             auth_token: auth_token,
             min_threads: min_threads,
             max_threads: max_threads,
-            workers: workers
+            workers: workers,
+            ssl_cert: ssl_cert,
+            ssl_key: ssl_key
           )
         rescue Errno::EADDRINUSE => e
           @output.puts "#{e.class}: #{e.message}"
@@ -336,9 +351,9 @@ module Msf::MCP
           }, LOG_SOURCE, LOG_ERROR)
         end
       else
-        @output.puts "Starting MCP server on stdio transport..."
-        @output.puts "Server ready - waiting for MCP requests"
-        @output.puts "Press Ctrl+C to shutdown"
+        @output.puts 'Starting MCP server on stdio transport...'
+        @output.puts 'Server ready - waiting for MCP requests'
+        @output.puts 'Press Ctrl+C to shutdown'
         @mcp_server.start(transport: :stdio)
       end
     end
@@ -356,6 +371,23 @@ module Msf::MCP
       else
         :generated
       end
+    end
+
+    # Resolve the certificate/key paths to use for the HTTP transport's TLS listener.
+    #
+    # If the operator configured explicit paths, those are used as-is (already
+    # validated by Config::Validator). Otherwise a self-signed certificate is
+    # generated (or reused from a previous run) via TlsCertGenerator.
+    #
+    # @param host [String] Host the server will bind to, used for the certificate's SAN
+    # @return [Array(String, String, Boolean)] [cert_path, key_path, generated]
+    def resolve_ssl_paths(host)
+      cert = @config.dig(:mcp, :ssl_cert)
+      key = @config.dig(:mcp, :ssl_key)
+      return [cert, key, false] if cert.to_s != '' && key.to_s != ''
+
+      cert, key = Msf::MCP::Config::TlsCertGenerator.ensure_self_signed_certificate(host: host)
+      [cert, key, true]
     end
 
     # Error handlers
