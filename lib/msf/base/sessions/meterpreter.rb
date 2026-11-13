@@ -159,6 +159,30 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     }
   end
 
+  # Builds the list of Meterpreter extensions to auto-load for this session,
+  # removing case-insensitive duplicates. The +load+ command lowercases the
+  # extension name internally, so an operator-supplied name such as "Stdapi"
+  # and the auto-added "stdapi" refer to the same extension and must not be
+  # loaded twice.
+  #
+  # @param datastore [Msf::DataStore] the session/module datastore
+  # @return [Array<String>] de-duplicated extension names to auto-load
+  def auto_load_extensions(datastore)
+    extensions = datastore['AutoLoadExtensions']
+    extensions = extensions.split(',') if extensions.is_a?(String)
+    extensions = Array(extensions).map(&:strip).reject(&:empty?)
+
+    # This should be removed on MSF 7. The unhook extension is broken, so it is
+    # intentionally not auto-loaded (see
+    # https://github.com/rapid7/metasploit-framework/pull/20514):
+    # extensions.push('unhook') if datastore['AutoUnhookProcess'] && platform == 'windows'
+    extensions.push('stdapi') if datastore['AutoLoadStdapi']
+    extensions.push('priv') if datastore['AutoLoadStdapi'] && platform == 'windows'
+    extensions.push('android') if platform == 'android'
+
+    extensions.uniq(&:downcase)
+  end
+
   def bootstrap(datastore = {}, handler = nil)
     session = self
 
@@ -208,25 +232,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     load_embedded_extensions(datastore)
 
-    extensions = datastore['AutoLoadExtensions']
-    if extensions.is_a?(String)
-      extensions = extensions.split(',')
-    end
-    extensions = Array(extensions).map(&:strip).reject(&:empty?)
-
-    # BEGIN: This should be removed on MSF 7
-    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
-    # The unhook extension is broken. reference: https://github.com/rapid7/metasploit-framework/pull/20514
-
-    #extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
-    extensions.push('stdapi') if datastore['AutoLoadStdapi']
-    extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform == 'windows'
-    extensions.push('android') if session.platform == 'android'
-    extensions = extensions.uniq
-    # END
-    # TODO: abstract this a little, perhaps a "post load" function that removes
-    # platform-specific stuff?
-    extensions.each do |extension|
+    auto_load_extensions(datastore).each do |extension|
       begin
         console.run_single("load #{extension}")
         # console.run_single('unhook_pe') if extension == 'unhook'
