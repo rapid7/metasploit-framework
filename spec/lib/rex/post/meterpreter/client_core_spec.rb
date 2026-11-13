@@ -7,6 +7,62 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
     expect(described_class).to eq(Rex::Post::Meterpreter::ClientCore)
   end
 
+  describe '#get_target_time' do
+    subject(:sample) { client_core.get_target_time }
+
+    let(:client_core) { described_class.new(client) }
+    let(:client) { instance_double(Rex::Post::Meterpreter::Client) }
+    let(:response) { instance_double(Rex::Post::Meterpreter::Packet) }
+    let(:utc_ts) { 1_700_000_000 }
+    let(:local_ts) { 1_700_003_600 }
+    let(:sampled_at) { Time.utc(2026, 8, 11, 12) }
+
+    before do
+      allow(client).to receive(:send_request).and_return(response)
+      allow(response).to receive(:get_tlv_value).with(Rex::Post::Meterpreter::TLV_TYPE_TARGET_UNIX_TS).and_return(utc_ts)
+      allow(response).to receive(:get_tlv_value).with(Rex::Post::Meterpreter::TLV_TYPE_TARGET_LOCAL_UNIX_TS).and_return(local_ts)
+      allow(Time).to receive(:now).and_return(sampled_at)
+    end
+
+    it 'returns nil when the target does not support the command' do
+      error = Rex::Post::Meterpreter::RequestError.new(Rex::Post::Meterpreter::COMMAND_ID_CORE_GET_TARGET_TIME, 'Unsupported command')
+      allow(client).to receive(:send_request).and_raise(error)
+
+      expect(sample).to be_nil
+    end
+
+    it 'returns the target timestamps, UTC offset, and sample time' do
+      expect(sample).to eq(
+        target_unix_ts: utc_ts,
+        target_local_ts: local_ts,
+        utc_offset: 3600,
+        sampled_at: sampled_at
+      )
+    end
+
+    context 'when the UTC timestamp is missing' do
+      let(:utc_ts) { nil }
+
+      it 'returns nil' do
+        expect(sample).to be_nil
+      end
+    end
+
+    context 'when the local timestamp is missing' do
+      let(:local_ts) { nil }
+
+      it 'returns nil' do
+        expect(sample).to be_nil
+      end
+    end
+
+    it 'propagates request timeouts' do
+      allow(client).to receive(:send_request).and_raise(Rex::TimeoutError, 'Send timed out')
+
+      expect { sample }.to raise_error(Rex::TimeoutError, 'Send timed out')
+    end
+  end
+
   describe "#use" do
 
     before(:example) do

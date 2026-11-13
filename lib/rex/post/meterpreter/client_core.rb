@@ -569,6 +569,8 @@ class ClientCore < Extension
       utc_offset:      local_ts - utc_ts,
       sampled_at:      ::Time.now
     }
+  rescue Rex::Post::Meterpreter::RequestError
+    nil
   end
 
   #
