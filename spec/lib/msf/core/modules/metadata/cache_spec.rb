@@ -71,6 +71,7 @@ RSpec.describe Msf::Modules::Metadata::Cache do
     allow(mod).to receive(:respond_to?).with(:targets).and_return(false)
     allow(mod).to receive(:respond_to?).with(:session_types).and_return(false)
     allow(mod).to receive(:respond_to?).with(:payload_type).and_return(false)
+    allow(mod).to receive(:respond_to?).with(:cached_size).and_return(false)
     mod
   end
 

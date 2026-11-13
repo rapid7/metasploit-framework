@@ -1618,6 +1618,10 @@ RSpec.describe Msf::Ui::Debug do
     end
     let(:framework) { instance_double(::Msf::Framework, version: 'VERSION', db: db) }
     context 'Empty workspace with DB connected' do
+      before do
+        allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
+      end
+
       it 'prints the debug output containing 0 counts' do
         expected_output = <<~OUTPUT
           ##  %grnDatabase Configuration%clr
@@ -1651,6 +1655,10 @@ RSpec.describe Msf::Ui::Debug do
       let!(:vuln) { FactoryBot.create(:mdm_vuln, host: host) }
       let!(:service) { FactoryBot.create(:mdm_service, host: host) }
       let!(:note) { FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln) }
+
+      before do
+        allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
+      end
 
       it 'prints the debug output with the correct values' do
         expected_output = <<~OUTPUT
