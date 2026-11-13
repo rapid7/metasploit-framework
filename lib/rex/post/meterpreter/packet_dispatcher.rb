@@ -796,7 +796,11 @@ module HttpPacketDispatcher
     else
       resp.body = ""
       body = req.body
-      cli.send_response(resp)
+      begin
+        cli.send_response(resp)
+      rescue ::StandardError => e
+        elog("Exception sending a reply to the writer request #{cli.inspect}", error: e)
+      end
       if body && body.length > 0
         body = self.unwrap_packet(body) if self.respond_to?(:unwrap_packet)
         packet = Packet.new(0)
