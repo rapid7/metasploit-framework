@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'set'
-require 'securerandom'
 require 'rex/post/meterpreter'
 require 'rex'
 
@@ -999,7 +998,7 @@ class Console::CommandDispatcher::Core
         arg
       end
     end.join(' ')
-    rid = SecureRandom.hex(16)
+    rid = Rex::Text.rand_text_hex(32)
 
     # Capture the output handle now so completion notifications go to the
     # operator's console (not the async shell's buffer).
@@ -1080,12 +1079,14 @@ class Console::CommandDispatcher::Core
     end
   end
 
+  # Validate target polling settings and console-specific job limits.
+  #
+  # @param cfg [Hash{Symbol => Integer}] normalized async configuration
+  # @return [String, nil] the first validation error, or nil when valid
   def async_config_validation_error(cfg)
-    return 'Poll interval must be between 10 and 86400 seconds.' unless cfg[:poll_interval].between?(10, 86400)
-    return 'Jitter must be between 0 and 99 percent.' unless cfg[:jitter].between?(0, 99)
-    return 'Work start must be between 0 and 23.' unless cfg[:work_start].between?(0, 23)
-    return 'Work end must be between 0 and 24.' unless cfg[:work_end].between?(0, 24)
-    return 'Work days must select at least one day.' unless cfg[:work_days].between?(1, 0x7F)
+    validation_error = client.async_config_validation_error(cfg)
+    return validation_error if validation_error
+
     return 'Lease TTL must be between 30 and 3600 seconds.' unless cfg[:lease_ttl].between?(30, 3600)
     return 'Job timeout must be at least the lease TTL.' unless cfg[:job_timeout] >= cfg[:lease_ttl]
 

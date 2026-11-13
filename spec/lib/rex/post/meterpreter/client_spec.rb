@@ -5,6 +5,82 @@ require 'rex/post/meterpreter/client'
 RSpec.describe Rex::Post::Meterpreter::Client do
   subject(:client) { described_class.allocate }
 
+  describe '#async_config_validation_error' do
+    let(:config) { client.async_config }
+
+    it 'accepts the minimum target polling settings' do
+      config.merge!(poll_interval: 10, jitter: 0, work_start: 0, work_end: 0, work_days: 1)
+
+      expect(client.async_config_validation_error(config)).to be_nil
+    end
+
+    it 'accepts the maximum target polling settings' do
+      config.merge!(poll_interval: 86400, jitter: 99, work_start: 23, work_end: 24, work_days: 0x7F)
+
+      expect(client.async_config_validation_error(config)).to be_nil
+    end
+
+    it 'rejects a polling interval below ten seconds' do
+      config[:poll_interval] = 9
+
+      expect(client.async_config_validation_error(config)).to eq('Poll interval must be between 10 and 86400 seconds.')
+    end
+
+    it 'rejects a polling interval above one day' do
+      config[:poll_interval] = 86401
+
+      expect(client.async_config_validation_error(config)).to eq('Poll interval must be between 10 and 86400 seconds.')
+    end
+
+    it 'rejects negative jitter' do
+      config[:jitter] = -1
+
+      expect(client.async_config_validation_error(config)).to eq('Jitter must be between 0 and 99 percent.')
+    end
+
+    it 'rejects jitter above 99 percent' do
+      config[:jitter] = 100
+
+      expect(client.async_config_validation_error(config)).to eq('Jitter must be between 0 and 99 percent.')
+    end
+
+    it 'rejects a negative work start hour' do
+      config[:work_start] = -1
+
+      expect(client.async_config_validation_error(config)).to eq('Work start must be between 0 and 23.')
+    end
+
+    it 'rejects a work start hour of 24' do
+      config[:work_start] = 24
+
+      expect(client.async_config_validation_error(config)).to eq('Work start must be between 0 and 23.')
+    end
+
+    it 'rejects a negative work end hour' do
+      config[:work_end] = -1
+
+      expect(client.async_config_validation_error(config)).to eq('Work end must be between 0 and 24.')
+    end
+
+    it 'rejects a work end hour above 24' do
+      config[:work_end] = 25
+
+      expect(client.async_config_validation_error(config)).to eq('Work end must be between 0 and 24.')
+    end
+
+    it 'rejects an empty work day mask' do
+      config[:work_days] = 0
+
+      expect(client.async_config_validation_error(config)).to eq('Work days must select at least one day.')
+    end
+
+    it 'rejects a work day mask with bits outside the week' do
+      config[:work_days] = 0x80
+
+      expect(client.async_config_validation_error(config)).to eq('Work days must select at least one day.')
+    end
+  end
+
   describe '#send_packet_wait_response' do
     let(:packet) { Rex::Post::Meterpreter::Packet.create_request(Rex::Post::Meterpreter::COMMAND_ID_CORE_GET_TARGET_TIME) }
     let(:waiter) { instance_double(Rex::Post::Meterpreter::PacketResponseWaiter, wait: nil) }

@@ -63,6 +63,65 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
     end
   end
 
+  describe '#async_mode' do
+    subject(:client_core) { described_class.new(client) }
+
+    let(:client) { Rex::Post::Meterpreter::Client.allocate }
+    let(:response) { instance_double(Rex::Post::Meterpreter::Packet) }
+    let(:enabled) { true }
+
+    before do
+      allow(client).to receive(:send_request).and_return(response)
+      allow(response).to receive(:get_tlv_value).with(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_ENABLED).and_return(enabled)
+    end
+
+    it 'rejects invalid settings before sending a request and preserves the error message' do
+      expect { client_core.async_mode(enabled: true, poll_interval: 9) }
+        .to raise_error(Rex::ArgumentError, 'An invalid argument was specified. Poll interval must be between 10 and 86400 seconds')
+
+      expect(client).not_to have_received(:send_request)
+    end
+
+    it 'normalizes numeric strings before validating and serializing target settings' do
+      client_core.async_mode(enabled: true, poll_interval: '10', jitter: '99', work_start: '23', work_end: '0', work_days: '1')
+
+      expect(client).to have_received(:send_request) do |request|
+        expect([
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_POLL_INTERVAL),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_POLL_JITTER),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_WORK_START),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_WORK_END),
+          request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_WORK_DAYS)
+        ]).to eq([10, 99, 23, 0, 1])
+      end
+    end
+
+    it 'uses the saved target settings when options are omitted' do
+      client.async_config[:poll_interval] = 120
+      client_core.async_mode(enabled: true)
+
+      expect(client).to have_received(:send_request) do |request|
+        expect(request.get_tlv_value(Rex::Post::Meterpreter::TLV_TYPE_ASYNC_POLL_INTERVAL)).to eq(120)
+      end
+    end
+
+    it 'leaves console-specific job validation to the console' do
+      client.async_config.merge!(lease_ttl: 29, job_timeout: 28)
+
+      expect(client_core.async_mode(enabled: true)).to eq(response)
+    end
+
+    context 'when disabling async mode' do
+      let(:enabled) { false }
+
+      it 'does not reject invalid saved polling settings' do
+        client.async_config[:poll_interval] = 0
+
+        expect(client_core.async_mode(enabled: false)).to eq(response)
+      end
+    end
+  end
+
   describe "#use" do
 
     before(:example) do

@@ -589,17 +589,17 @@ class ClientCore < Extension
   #
   def async_mode(opts = {})
     if opts[:enabled]
-      poll_interval = opts.fetch(:poll_interval, client.async_config[:poll_interval]).to_i
-      jitter = opts.fetch(:jitter, client.async_config[:jitter]).to_i
-      work_start = opts.fetch(:work_start, client.async_config[:work_start]).to_i
-      work_end = opts.fetch(:work_end, client.async_config[:work_end]).to_i
-      work_days = opts.fetch(:work_days, client.async_config[:work_days]).to_i
-      raise ArgumentError, 'Poll interval must be between 10 and 86400 seconds' unless poll_interval.between?(10, 86400)
-      raise ArgumentError, 'Jitter must be between 0 and 99 percent' unless jitter.between?(0, 99)
-      raise ArgumentError, 'Work start must be between 0 and 23' unless work_start.between?(0, 23)
-      raise ArgumentError, 'Work end must be between 0 and 24' unless work_end.between?(0, 24)
-      raise ArgumentError, 'Work days must select at least one day' unless work_days.between?(1, 0x7F)
-      opts = opts.merge(poll_interval: poll_interval, jitter: jitter, work_start: work_start, work_end: work_end, work_days: work_days)
+      config = {
+        poll_interval: opts.fetch(:poll_interval, client.async_config[:poll_interval]).to_i,
+        jitter: opts.fetch(:jitter, client.async_config[:jitter]).to_i,
+        work_start: opts.fetch(:work_start, client.async_config[:work_start]).to_i,
+        work_end: opts.fetch(:work_end, client.async_config[:work_end]).to_i,
+        work_days: opts.fetch(:work_days, client.async_config[:work_days]).to_i
+      }
+      validation_error = client.async_config_validation_error(config)
+      raise ArgumentError, validation_error.delete_suffix('.') if validation_error
+
+      opts = opts.merge(config)
     end
 
     request = Packet.create_request(COMMAND_ID_CORE_ASYNC_MODE)

@@ -550,6 +550,20 @@ class Client
     @async_config ||= { poll_interval: 60, jitter: 0, work_start: 0, work_end: 24, work_days: 0x7F, lease_ttl: 300, job_timeout: 86400 }
   end
 
+  # Validate the target's async polling interval, jitter, work hours and days.
+  #
+  # @param cfg [Hash{Symbol => Integer}] normalized target polling configuration
+  # @return [String, nil] the first validation error, or nil when valid
+  def async_config_validation_error(cfg)
+    return 'Poll interval must be between 10 and 86400 seconds.' unless cfg[:poll_interval].between?(10, 86400)
+    return 'Jitter must be between 0 and 99 percent.' unless cfg[:jitter].between?(0, 99)
+    return 'Work start must be between 0 and 23.' unless cfg[:work_start].between?(0, 23)
+    return 'Work end must be between 0 and 24.' unless cfg[:work_end].between?(0, 24)
+    return 'Work days must select at least one day.' unless cfg[:work_days].between?(1, 0x7F)
+
+    nil
+  end
+
   def async_mode_enabled?
     !!self.async_mode_enabled
   end
@@ -631,6 +645,8 @@ class Client
                 cfg = async_config
                 poll = cfg[:poll_interval].to_i
                 worst_case = poll + (poll * cfg[:jitter].to_i / 100)
+                # Allow three maximum-jitter polls for command delivery and response
+                # collection, plus ten seconds for processing and network overhead.
                 AsyncWindow::MAXIMUM_GAP + ASYNC_SCHEDULE_SAFETY_MARGIN + worst_case * 3 + 10
               end
     [timeout.to_i, minimum].max
@@ -657,6 +673,12 @@ class Client
     self.async_lease_enabled = false
   end
 
+  # Renew the target's rapid-poll lease every third of its TTL, with a minimum
+  # interval of ten seconds. The condition variable lets stopping wake the
+  # renewal thread immediately instead of waiting for the interval to expire.
+  #
+  # @param ttl [Integer] target-side lease lifetime in seconds
+  # @return [Thread] the lease renewal thread
   def start_async_lease_renewer(ttl)
     @async_lease_mutex ||= ::Mutex.new
     @async_lease_condition ||= ::ConditionVariable.new
