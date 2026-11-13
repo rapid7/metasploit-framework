@@ -117,10 +117,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     message = "Submitted #{state[:submitted]} credential candidate(s) in #{state[:requests]} GraphQL request(s)"
+    authority = Rex::Socket.to_authority(ip, rport)
     if state[:successes].positive?
-      print_good("#{message}; found #{state[:successes]} valid credential(s)")
+      print_good("#{authority} - #{message}; found #{state[:successes]} valid credential(s)")
     else
-      print_status("#{message}; no accepted credential was returned")
+      print_status("#{authority} - #{message}; no accepted credential was returned")
     end
   end
 
