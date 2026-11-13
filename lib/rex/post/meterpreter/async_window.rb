@@ -58,7 +58,7 @@ module Rex
         end
 
         def self.allowed?(hour, wday, work_start, work_end, work_days)
-          return true if work_start == work_end
+          return (work_days & (1 << wday)) != 0 if work_start == work_end
 
           if work_start < work_end
             (work_days & (1 << wday)) != 0 && hour >= work_start && hour < work_end

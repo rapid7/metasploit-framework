@@ -59,7 +59,14 @@ RSpec.describe Rex::Post::Meterpreter::AsyncWindow do
     end
 
     it 'treats equal start and end as a full-day window on active days' do
-      expect(described_class.seconds_until_next_window(at('2026-08-05 12:30:00'), 9, 9, 0x7F)).to eq(0)
+      expect(described_class.seconds_until_next_window(at('2026-08-10 12:30:00'), 9, 9, 0x02)).to eq(0)
+    end
+
+    it 'waits until Monday for a Monday-only full-day window evaluated on Tuesday' do
+      now = at('2026-08-11 12:30:00')
+      expected = at('2026-08-17 00:00:00') - now
+
+      expect(described_class.seconds_until_next_window(now, 9, 9, 0x02)).to eq(expected)
     end
   end
 end
