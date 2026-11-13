@@ -35500,7 +35500,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-10-29 12:06:55 +0000",
     "path": "/modules/auxiliary/scanner/http/coldfusion_locale_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/coldfusion_locale_traversal",
