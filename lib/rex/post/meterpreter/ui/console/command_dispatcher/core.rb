@@ -1043,9 +1043,8 @@ class Console::CommandDispatcher::Core
         ::Thread.current[:msf_async_bypass_post] = nil
         begin
           client.console = saved_console if swap_console && saved_console
-          if client.respond_to?(:init_ui) && (saved_user_input || saved_user_output)
-            client.init_ui(saved_user_input, saved_user_output)
-          end
+          client.user_input = saved_user_input if client.respond_to?(:user_input=)
+          client.user_output = saved_user_output if client.respond_to?(:user_output=)
         rescue ::Exception
           # Best-effort restoration; don't mask the original error
         end

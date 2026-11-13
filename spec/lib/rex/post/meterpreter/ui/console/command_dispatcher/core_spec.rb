@@ -39,5 +39,60 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core do
     end
   end
 
+  describe '#async_subcmd_run' do
+    let(:store) { instance_double(Rex::Post::Meterpreter::AsyncResultStore, complete: nil) }
+    let(:async_shell) { instance_double(Rex::Post::Meterpreter::Ui::Console, run_single: nil) }
+    let(:saved_user_input) { Object.new }
+    let(:saved_user_output) { Object.new }
+
+    before do
+      allow(client).to receive(:async_mode_enabled?).and_return(true)
+      allow(client).to receive(:async_store).and_return(store)
+      allow(store).to receive(:enqueue_work).and_yield('0123456789abcdef')
+      allow(client).to receive(:async_shell).with(console).and_return(async_shell)
+      allow(client).to receive(:with_async_lease).and_yield
+      allow(client).to receive(:async_config).and_return(job_timeout: 30)
+      allow(client).to receive(:async_seconds_until_next_window).and_return(0)
+      allow(client).to receive(:target_time_sample_age).and_return(0)
+      allow(client).to receive(:console=)
+      allow(client).to receive(:user_input).and_return(saved_user_input)
+      allow(client).to receive(:user_output).and_return(saved_user_output)
+      allow(client).to receive(:user_input=)
+      allow(client).to receive(:user_output=)
+      allow(client).to receive(:init_ui)
+    end
+
+    it 'restores session handles without reinitializing the console UI' do
+      command_dispatcher.async_subcmd_run(['sysinfo'])
+
+      expect(client).to have_received(:user_input=).with(saved_user_input)
+      expect(client).to have_received(:user_output=).with(saved_user_output)
+      expect(client).not_to have_received(:init_ui)
+    end
+
+    context 'when both saved session handles are nil' do
+      let(:saved_user_input) { nil }
+      let(:saved_user_output) { nil }
+
+      it 'restores both nil handles' do
+        command_dispatcher.async_subcmd_run(['sysinfo'])
+
+        expect(client).to have_received(:user_input=).with(nil)
+        expect(client).to have_received(:user_output=).with(nil)
+      end
+    end
+
+    it 'restores the session handles when the async command fails' do
+      error = Rex::TimeoutError.new('Async command timed out')
+      allow(async_shell).to receive(:run_single).and_raise(error)
+
+      expect { command_dispatcher.async_subcmd_run(['sysinfo']) }.to raise_error(error)
+
+      expect(client).to have_received(:user_input=).with(saved_user_input)
+      expect(client).to have_received(:user_output=).with(saved_user_output)
+      expect(client).not_to have_received(:init_ui)
+    end
+  end
+
   it_behaves_like 'session command dispatcher'
 end
