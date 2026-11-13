@@ -1,0 +1,177 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+e:I[97367,["$2","$3","$4"],"OutletBoundary"]
+f:"$Sreact.suspense"
+11:"ViewportBoundary"
+12:I[97367,["$2","$3","$4"],"$11"]
+14:"MetadataBoundary"
+15:I[97367,["$2","$3","$4"],"$14"]
+17:I[68027,["$2","$3","$4"],"default",1]
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+:HL["/stats/_next/static/media/605ce01b664af129-s.p.0wgildi0cnwt9.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+a:X
+c:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":["$Ld",[["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true,"nonce":"$undefined"}]],["$","$Le",null,{"children":["$","$f",null,{"name":"Next.MetadataOutlet","children":"$@10"}]}]]}],"p":false,"v":null}}]]
+b:[["children",{"s":{"n":"repo","t":"d","k":"metasploit-payloads","s":[]},"h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qc"}]]
+9:[["children",{"s":"queue","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qb"}]]
+0:{"P":null,"c":["","queue","metasploit-payloads",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true,"nonce":"$undefined"}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]}]]}],"p":false,"v":null},"c":"$Q9"},"h":{"r":["$","$1","h",{"children":[null,["$","$L12",null,{"children":"$L13"}],["$","$L15",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$f",null,{"name":"Next.Metadata","children":"$L16"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$17",[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+a:C
+13:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+10:null
+16:[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]
+18:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+19:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+1a:I[75170,["$2","$3","$4","$18","$19"],"Dashboard"]
+1b:T75c,When a TCP frame arrives in separate reads, `dispatch_tcp` can parse an incomplete header or retire the connection when the rest of the body is temporarily unavailable.
+
+Buffer partial headers and bodies across reads, dispatch complete frames in order, and retain any trailing partial frame. Reject lengths shorter than the header, and stop processing buffered frames after shutdown or a transport switch.
+
+Builds on the EOF handling in [#802](https://github.com/rapid7/metasploit-payloads/pull/802) by preserving partial frames until more data arrives.
+
+Verification:
+
+1. Download `check-php-transport.rb` and `php-transport-fixture.php` from the [regression directory](https://github.com/pauljccode/metasploit-payloads/tree/bd8142bd71ddbf0430ae9e2154f0e9b02313f611/.github/ci) into the same directory. Use Ruby 3.4 and PHP with the sockets extension.
+2. Against master (`0aa09117`), run `ruby check-php-transport.rb /path/to/meterpreter.php baseline tcp`. Expect five reproduced failures and seven passing controls.
+3. Against this branch, run the same command with `candidate tcp`. All 12 cases should pass, including fragmented/coalesced frames, EOF, invalid length, shutdown and transport switching.
+
+The fixture uses loopback sockets and holds the second fragment until dispatch returns to select; it does not depend on a sleep to produce fragmentation. Received packets are recorded rather than executed.
+
+[Independent TCP regressions](https://github.com/pauljccode/metasploit-payloads/actions/runs/37171586443) passed on PHP 5.3, 7.4 and 8.3 on both Linux and Windows.
+
+[Acceptance of this commit](https://github.com/pauljccode/metasploit-framework/actions/runs/37525871387) passed 610 PHP examples across PHP 5.3/7.4/8.3 on Linux and Windows, plus PHP 5.3 on Intel macOS. The workflow's separate released-Mettle Linux job timed out; that job does not install this candidate.
+1c:Taa2,## Summary
+
+This PR reduces the static Windows API surface of Meterpreter’s C stdapi extensions. Fixed WinAPI calls are now routed through typed `MetApi.win_api` entries backed by hash-resolved, process-lifetime cached wrappers in `metsrv`.
+
+This applies to the monolithic stdapi extension and the audio, filesystem, network, Railgun, system, UI, and webcam split extensions.
+
+## Changes
+
+- Expands `MetApi.win_api` for the required Kernel32, Advapi32, User32, Ws2_32, Iphlpapi, Psapi, Ole32, Winmm, Netapi32, Wtsapi32, and related APIs.
+- Adds thread-safe, one-time export resolution while preserving `GetLastError`, forwarded-export behavior, API-set resolution, and module lifetime.
+- Extends the direct-syscall paths used by process, thread, token, and virtual-memory operations, with Win32-compatible fallbacks where required.
+- Replaces stdapi’s source-owned fixed WinAPI calls and optional system-DLL lookups with the centralized API table.
+- Moves keyboard and mouse input suppression into stdapi, removing the embedded `hook.dll` resource and `%TEMP%\hook.dll` extraction.
+- Uses a per-load marker to distinguish Meterpreter-generated input from physical input and prefers the `win32u` hook path where available.
+- Updates CMake and Visual Studio projects to remove the hook resource.
+- Fixes bounds errors uncovered while validating filesystem search and nested directory creation.
+
+The extension initialization contract is unchanged, but `metsrv` and stdapi consumers must be rebuilt and shipped from the same revision because the `MetApi` layout changes atomically.
+
+## Impact
+
+The available x86/x64 monolithic artifacts import only `kernel32.dll` and `msvcrt.dll`, with no ordinal or delay imports. Named imports fell from the planning baseline of 303/311 to 92/99 respectively; remaining entries are primarily CRT, compiler, and loader support.
+
+Request-selected DLL/procedure resolution and Railgun’s arbitrary API invocation remain dynamic by design.
+
+## Validation
+
+Run the meterpreter harness, validate the PE have less imports in the IAT
+
+<!-- This is an auto-generated comment: release notes by coderabbit.ai -->
+
+<!-- coderabbit-ai-generated:v1 -->
+
+## Summary by CodeRabbit
+
+* **Bug Fixes**
+  * Improved reliability of Windows file, network, process, and system operations, with clearer error reporting in several workflows.
+  * Updated memory handling for better compatibility across system architectures.
+  * Improved handling of process launches and network interface information when certain Windows APIs are unavailable.
+* **Updates**
+  * Keyboard and mouse input handling has been revised.
+
+<!-- end of auto-generated comment: release notes by coderabbit.ai -->1d:T74a,## Summary
+
+Adds an opt-in compile-time obfuscation path for C Windows Meterpreter. The goal is to increase payload diversity between builds by supporting a configurable LLVM/MinGW obfuscator, randomized WinAPI hashes, and encoded migration stubs.
+
+## Changes
+
+- Adds `Dockerfile.obfuscation` and `.env.example` for building a compatible LLVM/MinGW toolchain from configurable repositories, versions, and compiler flags.
+- Adds `OBFUSCATION=1` support to select the obfuscation image and forwards obfuscation/hash configuration into Docker builds.
+- Generates metsrv WinAPI hash constants during CMake configuration:
+  - `RANDOM_HASH=1` generates a new seed and rotation key.
+  - `METSRV_HASH_SEED` and `METSRV_HASH_KEY` allow reproducible builds.
+  - Stable fallback hashes are retained for MSVC and non-randomized builds.
+- Adds a source manifest and regeneration tool for keeping the WinAPI hash table synchronized with `winapi.h`.
+- Automatically disables the reflective loader when hashes are randomized because it contains hash constants that must remain stable.
+- Stores APC, remote-thread, PoolParty, and WOW64 migration stubs as base64 and decodes them on demand, avoiding their raw byte signatures in the compiled binary. Base64 is used for representation diversification, not encryption.
+- Adds the base64 decoder to both CMake and Visual Studio projects and ignores local `.env` files.
+
+No Meterpreter protocol changes are introduced. The custom toolchain and hash randomization remain opt-in.
+
+## Testing
+
+- `python3 tools/regen_winapi_hashes.py --check`
+- Meterpreter MinGW Docker build passed.
+- Meterpreter Visual Studio 2022 build passed.
+- The acceptance workflow currently fails in the unrelated `mettle macos-15-intel` job.
+
+## Dependency
+
+Blocked by #814, which removes functions from stdapi’s import address table.1e:Tfb2,## Add MSVC ARM64 platform support to metsrv
+
+This PR adds ARM64 Windows support to `metsrv` the core Meterpreter server DLL. It builds on the groundwork already merged by @xaitax (ARM64 ReflectiveLoader in rapid7/ReflectiveDLLInjection#20 and WinExec payload in rapid7/metasploit-framework#20357) and extends it to the full metsrv DLL.
+
+The goal was simple: get `metsrv.ARM64.dll` building cleanly with MSVC (Visual Studio 2022, v143 toolset) targeting ARM64 Windows. Took a few iterations to get there ARM64 is stricter than x86/x64 in a few ways that exposed some assumptions baked into the existing codebase.
+
+---
+
+## What changed and why
+
+### `metsrv.vcxproj`
+
+Added `Debug|ARM64`, `Release|ARM64`, and `r7_release|ARM64` configurations. ARM64 requires the modern v143 toolset the existing `v141_xp` used by other platforms doesn't support it. Assembly is wired through MARMASM (Microsoft ARM Assembler) using `marmasm.props`/`marmasm.targets` not MASM, which is x86 only. x86/x64 trampolines are excluded from ARM64 builds and vice versa. `RandomizedBaseAddress` is forced to `true` for ARM64 configs since `/DYNAMICBASE:NO` is explicitly rejected by the ARM64 linker.
+
+### `metsrv.def`
+
+Removed the `NAME server.dll` directive. This was causing a silent linker failure the ARM64 output filename is `metsrv.ARM64.dll` and the mismatched NAME directive was preventing the DLL from being produced at all.
+
+### `base_inject.c` / `base_inject.h` / `metapi.c`
+
+Guarded `inject_via_remotethread_wow64` with `#ifndef _M_ARM64` in both the definition and the declaration. The WOW64 x86→x64 transition mechanism simply doesn't exist on ARM64 there's no 32-bit subsystem to bridge to. Also guarded the function pointer reference in the inject API table in `metapi.c` the same way.
+
+### `pool_party_ext.h`
+
+Changed the `_CLIENT_ID` struct guard from `#ifndef __MINGW32__` to `#if !defined(__MINGW32__) && !defined(_WINTERNL_)`. The newer Windows SDK (10.0.26100.0) already defines `_CLIENT_ID` in `winternl.h`, so the local definition was causing a redefinition error.
+
+### `common.h`
+
+Added `#include <ws2tcpip.h>` after `#include <winsock2.h>`. Without it, `inet_pton` is simply not declared.
+
+### `metsrv.h`
+
+The file was doing `#undef _WIN32_WINNT` then hardcoding `_WIN32_WINNT_WINXP`, which overrode any fix made in `common.h`. Added a conditional so ARM64 gets `0x0600` (Vista) instead ARM64 Windows minimum is 10, but Vista is the minimum needed to get `inet_pton` and other modern Winsock APIs without errors.
+
+### `server_transport_tcp.c`
+
+Replaced `inet_addr` with `inet_pton` and `gethostbyname` with `getaddrinfo`. Also replaced `WSADuplicateSocketA` with `WSADuplicateSocketW` and updated the `WSAPROTOCOL_INFOA` field in `TCPMIGRATECONTEXT` to `WSAPROTOCOL_INFOW`. These deprecated ANSI Winsock APIs are hard errors on ARM64 with the newer SDK.
+
+### `server_pivot_named_pipe.c`
+
+Renamed the local `AddMandatoryAce` function to `AddMandatoryAce_` to avoid a conflict with the SDK's dllimport declaration. At `_WIN32_WINNT=0x0600` the Windows SDK exposes `AddMandatoryAce` as a dllimport, which conflicts with the existing local static definition.
+
+---
+
+## Build output
+
+Tested on Windows 10 x64 with Visual Studio 2022 (v143 toolset, SDK 10.0.26100.0):
+```
+msbuild metsrv.vcxproj /p:Configuration=Debug /p:Platform=ARM64 /p:VCToolsVersion=14.44.35207
+```
+
+<img width="1476" height="699" alt="image" src="https://github.com/user-attachments/assets/7658a79f-8b90-4f95-b526-b5d3f42e488b" />
+
+
+---
+
+## Notes
+
+- Only `metsrv.vcxproj` was modified other projects in the solution (`elevator`, `stdapi` etc.) have pre-existing `v141_xp` issues that are unrelated to this PR
+- Extensions (`stdapi`, `priv`) and the Ruby payload module are follow-on work this PR focuses on getting the core DLL building first
+- MinGW cross-compilation support (Linux → ARM64 Windows) was explored in an earlier iteration but MSVC was prioritized per @dledda-r7's feedbackd:["$","$L1a",null,{"owner":"rapid7","repo":"metasploit-payloads","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":821,"title":"meterpreter micro-extensions","author":"dledda-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4","status":"open","description":"\n\n<!-- This is an auto-generated comment: release notes by coderabbit.ai -->\n\n<!-- coderabbit-ai-generated:v1 -->\n\n## Summary by CodeRabbit\n\n* **New Features**\n  * Added support for managing optional runtime extensions, including listing active extensions and handling their commands and communication channels.\n  * Extension loading now reports diagnostic information when a request cannot be completed.\n* **Bug Fixes**\n  * Improved cleanup and error handling when extension initialization or registration fails.\n\n<!-- end of auto-generated comment: release notes by coderabbit.ai -->","createdAt":"2026-10-06T14:47:24Z","updatedAt":"2026-10-23T12:27:22Z","commentCount":1,"totalChanges":1396,"filesChanged":10,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/821","vulnRefs":[]},{"number":818,"title":"Preserve incomplete PHP transport packets","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"$1b","createdAt":"2026-10-04T02:43:29Z","updatedAt":"2026-10-07T17:13:40Z","commentCount":2,"totalChanges":35,"filesChanged":1,"modules":[],"assignees":[{"login":"dledda-r7","avatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4"}],"labels":[{"name":"php","color":"fbca04"}],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/818","vulnRefs":[]},{"number":814,"title":"Remove Functions from Stdapi IAT","author":"dledda-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4","status":"open","description":"$1c","createdAt":"2026-08-27T06:29:48Z","updatedAt":"2026-10-23T14:30:52Z","commentCount":1,"totalChanges":7511,"filesChanged":65,"modules":[],"assignees":[{"login":"cdelafuente-r7","avatarUrl":"https://avatars.githubusercontent.com/u/56716719?u=742106a5d45f3f0b208d4e88badee1be8d6c4800&v=4"}],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/814","vulnRefs":[]},{"number":813,"title":"Compile Time Obfuscation in Meterpreter","author":"dledda-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4","status":"open","description":"$1d","createdAt":"2026-08-26T14:26:17Z","updatedAt":"2026-10-29T10:51:11Z","commentCount":1,"totalChanges":1276,"filesChanged":14,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/813","vulnRefs":[]},{"number":807,"title":"Async Mode Windows Meterpreter","author":"dledda-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4","status":"open","description":"Framework: https://github.com/rapid7/metasploit-framework/pull/21685\n\n<!-- This is an auto-generated comment: release notes by coderabbit.ai -->\n## Summary by CodeRabbit\n\n- **New Features**\n  - Added asynchronous HTTP polling with configurable intervals, jitter, business-hour schedules, and active-day settings.\n  - Added interruptible polling and lease management, including enabling, renewal, expiration, and release.\n  - Added target UTC and local timestamps to applicable responses.\n  - Commands can execute inline while asynchronous HTTP mode is active.\n  - Added queued response delivery to improve communication efficiency during asynchronous operation.\n  - Added automatic polling pauses outside configured work windows and prompt wake-up when activity resumes.\n<!-- end of auto-generated comment: release notes by coderabbit.ai -->","createdAt":"2026-07-20T16:09:24Z","updatedAt":"2026-10-21T18:46:09Z","commentCount":1,"totalChanges":717,"filesChanged":12,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/807","vulnRefs":[]},{"number":800,"title":"Fix incorrect `Py_XDECREF/Py_DECREF` call on stolen reference after `PyList_SetItem` failure","author":"wr-web","authorAvatarUrl":"https://avatars.githubusercontent.com/u/55612496?u=fc3082d453f879b5219224f198fd6ee772e799ce&v=4","status":"open","description":"Close #799 ","createdAt":"2026-05-10T10:04:21Z","updatedAt":"2026-05-10T10:04:21Z","commentCount":0,"totalChanges":2,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/800","vulnRefs":[]},{"number":794,"title":"Add ARM64 cross-compilation support for Windows Meterpreter","author":"SilentSobs","authorAvatarUrl":"https://avatars.githubusercontent.com/u/157403288?u=3a4804f9be9f20dfb6b57a43ea99a22982b86721&v=4","status":"open","description":"$1e","createdAt":"2026-03-15T11:14:35Z","updatedAt":"2026-10-20T13:42:07Z","commentCount":1,"totalChanges":2240,"filesChanged":13,"modules":[],"assignees":[{"login":"bwatters-r7","avatarUrl":"https://avatars.githubusercontent.com/u/17987018?u=562c1b6600d722e45a20f2202dddeb2d6db1f091&v=4"}],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"windows","testingEnvReason":"PR description: Tested on Windows 10 x64 with Visual Studio 2022 (v143 toolset, SDK 10.0.26100.0):. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/794","vulnRefs":[]},{"number":791,"title":"Extension Encryption ","author":"xHector1337","authorAvatarUrl":"https://avatars.githubusercontent.com/u/140441119?u=a5777604c7cae5fe406cd6c70d066cfa5618521a&v=4","status":"open","description":"## Extension Encryption: Encryption Manager\r\n\r\nThis PR creates the basic encryption manager, and start wiring decryption logic inside metsrv.\r\n\r\nCoverage:\r\n- Initialization of Extension Encryption Manager inside the server setup\r\n- Insertion of an extension if flagged as `ENCRYPTABLE` and if it was load by ReflectiveLoader\r\n- Decryption of extension if command handler is within extension mem space\r\n- Decryption of scheduler event handler if handler is within extension mem space\r\n\r\nAt the moment the default CryptographicManager is the a \"debug\" manager that will just force metsrv to rewrite the *same bytes* to the extension memory space, this chained with a testing extension loaded with the `ENCRYPTABLE` flag set to true will be used as first PoC to ensure writing the memory will not cause any issue for extension loaded with ReflectiveLoader.\r\n\r\n","createdAt":"2026-02-02T15:02:21Z","updatedAt":"2026-08-10T09:22:58Z","commentCount":2,"totalChanges":778,"filesChanged":8,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-payloads/pull/791","vulnRefs":[]}],"generatedAt":"2026-11-13T17:43:46.737Z"}]

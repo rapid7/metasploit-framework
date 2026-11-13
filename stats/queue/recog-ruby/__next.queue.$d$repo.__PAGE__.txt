@@ -1,0 +1,131 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+11:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+12:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+13:I[75170,["$2","$3","$4","$11","$12"],"Dashboard"]
+19:"ViewportBoundary"
+1a:I[97367,["$2","$3","$4"],"$19"]
+1b:"MetadataBoundary"
+1c:I[97367,["$2","$3","$4"],"$1b"]
+1d:"$Sreact.suspense"
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+a:X
+d:X
+d:C
+14:T19a2,Updates the requirements on [ffi](https://github.com/ffi/ffi) to permit the latest version.
+<details>
+<summary>Changelog</summary>
+<p><em>Sourced from <a href="https://github.com/ffi/ffi/blob/master/CHANGELOG.md">ffi's changelog</a>.</em></p>
+<blockquote>
+<h2>1.17.4 / 2026-03-26</h2>
+<p>Fixed:</p>
+<ul>
+<li>Fix union by-value ABI mismatch with float and double types on ARM64 and X86_64.
+See <a href="https://redirect.github.com/ffi/ffi/issues/1177">#1177</a> and <a href="https://redirect.github.com/ffi/ffi/issues/1178">#1178</a> for details.</li>
+<li>Exclude libffi files, which are unnecessary. <a href="https://redirect.github.com/ffi/ffi/issues/1176">#1176</a></li>
+</ul>
+<h2>1.17.3 / 2025-12-29</h2>
+<p>Fixed:</p>
+<ul>
+<li>Opt-in for MFA requirement explicitly. <a href="https://redirect.github.com/ffi/ffi/issues/1159">#1159</a></li>
+<li>Fix type signature for FFI::AutoPointer#initialize, FFI::StructByReference#native_type and FFI::Struct#auto_ptr . <a href="https://redirect.github.com/ffi/ffi/issues/1158">#1158</a></li>
+<li>Fix function signature of function_call in FFI trampoline. <a href="https://redirect.github.com/ffi/ffi/issues/1154">#1154</a>
+It failed on <code>aarch64-mingw-ucrt</code>.</li>
+<li>Add workaround for segmentation faults on <code>aarch64-mingw-ucrt</code>. <a href="https://redirect.github.com/ffi/ffi/issues/1154">#1154</a></li>
+<li>Call super in <code>Library#freeze</code> . <a href="https://redirect.github.com/ffi/ffi/issues/1154">#1154</a></li>
+<li>Deny duplication of AutoPointer per #dup and #clone . <a href="https://redirect.github.com/ffi/ffi/issues/1173">#1173</a>
+They led to double free before.</li>
+</ul>
+<p>Added:</p>
+<ul>
+<li>Add binary gems for Ruby-4.0, now providing binary gems for Ruby-3.0 to 4.0.</li>
+<li>Add msys2_mingw_dependencies for Windows Mingw for automatic installation of libffi. <a href="https://redirect.github.com/ffi/ffi/issues/1143">#1143</a></li>
+<li>Mark callback dispatcher thread as fork safe for Puma. <a href="https://redirect.github.com/ffi/ffi/issues/1156">#1156</a></li>
+<li>Add missing FFI::Platform module and LastError signatures. <a href="https://redirect.github.com/ffi/ffi/issues/1169">#1169</a></li>
+</ul>
+<p>Removed:</p>
+<ul>
+<li>Drop fat binary gems for Ruby &lt; 3.0</li>
+<li>Remove <code>FFI::TypesGenerator</code> from distributed gems. <a href="https://redirect.github.com/ffi/ffi/issues/1164">#1164</a></li>
+<li>Remove libffi build dir after install, safing some install space. <a href="https://redirect.github.com/ffi/ffi/issues/1157">#1157</a></li>
+</ul>
+<h2>1.17.2 / 2025-04-15</h2>
+<p>Fixed:</p>
+<ul>
+<li><a href="https://redirect.github.com/ffi/ffi/issues/1144">#1144</a>, <a href="https://redirect.github.com/ffi/ffi/issues/1145">#1145</a> Update libffi to 3.4.8 to fix installation issues on latest Macos on ARM64</li>
+<li>Various adjustments to run the specs cleanly on Ruby-3.5 master branch.</li>
+</ul>
+<h2>1.17.1 / 2024-12-30</h2>
+<p>Fixed:</p>
+<ul>
+<li><a href="https://redirect.github.com/ffi/ffi/issues/1117">#1117</a> Restart async callback dispatcher thread after fork.</li>
+<li><a href="https://redirect.github.com/ffi/ffi/issues/1133">#1133</a> Add ruby-3.4 native gem.</li>
+<li><a href="https://redirect.github.com/ffi/ffi/issues/1134">#1134</a> Fix FFI::DataConverter non-generic usage in RBS files.</li>
+</ul>
+<!-- raw HTML omitted -->
+</blockquote>
+<p>... (truncated)</p>
+</details>
+<details>
+<summary>Commits</summary>
+<ul>
+<li><a href="https://github.com/ffi/ffi/commit/949809c4dafcc157769bd6126cfe6921ab0ba618"><code>949809c</code></a> Bump VERSION to 1.17.4</li>
+<li><a href="https://github.com/ffi/ffi/commit/92717750c2e1aa8e3517e5d3d59b31602697e86f"><code>9271775</code></a> Merge pull request <a href="https://redirect.github.com/ffi/ffi/issues/1178">#1178</a> from cfis/fix-union-arm64-abi</li>
+<li><a href="https://github.com/ffi/ffi/commit/37438392021681ac0da2a1412937746c413f089d"><code>3743839</code></a> Skip failing specs on JRuby</li>
+<li><a href="https://github.com/ffi/ffi/commit/7078a4ebd13d66d29512056f43f7702ad034d864"><code>7078a4e</code></a> Fix MSVC build.</li>
+<li><a href="https://github.com/ffi/ffi/commit/93a85caf1bc2bfb0bc8f5a22689a9758b5a59442"><code>93a85ca</code></a> Move union-by-value argument tests to the section excluded by Truffleruby</li>
+<li><a href="https://github.com/ffi/ffi/commit/b0c95a9356ca9180d25f65e0054e367de5914f06"><code>b0c95a9</code></a> Correctly handle unions with mixed floating point types.</li>
+<li><a href="https://github.com/ffi/ffi/commit/5348a51c6da4dd3fa1781be4b44486b1a2fa3ef6"><code>5348a51</code></a> Simplify the union type selection</li>
+<li><a href="https://github.com/ffi/ffi/commit/dd15f68f346b5e7883b8df9014c5b3dcec10cc10"><code>dd15f68</code></a> Extend the union tests</li>
+<li><a href="https://github.com/ffi/ffi/commit/372045ecff01974dc81c4943157eea3334e89827"><code>372045e</code></a> Fix union by-value ABI mismatch on ARM64. See <a href="https://redirect.github.com/ffi/ffi/issues/1177">#1177</a> for details.</li>
+<li><a href="https://github.com/ffi/ffi/commit/60dbd77d90070fd55eed596aab045c2df0813499"><code>60dbd77</code></a> Merge pull request <a href="https://redirect.github.com/ffi/ffi/issues/1180">#1180</a> from ffi/add-more-arm64</li>
+<li>Additional commits viewable in <a href="https://github.com/ffi/ffi/compare/v1.16.3...v1.17.4">compare view</a></li>
+</ul>
+</details>
+<br />
+
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start)
+[//]: # (dependabot-automerge-end)
+
+---
+
+<details>
+<summary>Dependabot commands and options</summary>
+<br />
+
+You can trigger Dependabot actions by commenting on this PR:
+- `@dependabot rebase` will rebase this PR
+- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
+
+
+</details>10:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L13",null,{"owner":"rapid7","repo":"recog-ruby","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":23,"title":"Update ffi requirement from 1.16.3 to 1.17.4","author":"dependabot","authorAvatarUrl":"https://avatars.githubusercontent.com/in/29110?v=4","status":"open","description":"$14","createdAt":"2026-06-04T04:33:25Z","updatedAt":"2026-06-04T04:33:26Z","commentCount":0,"totalChanges":2,"filesChanged":1,"modules":[],"assignees":[],"labels":[{"name":"dependencies","color":"0366d6"},{"name":"ruby","color":"ce2d2d"}],"reviewDecision":"review_required","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog-ruby/pull/23","vulnRefs":[]}],"generatedAt":"2026-11-13T17:44:49.034Z"}],["$L15","$L16"],"$L17"]}],"p":"$@18","v":null,"s":"$a"}}]]
+e:[["children",{"s":{"n":"repo","t":"d","k":"recog-ruby","s":[]},"h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@f","v":"$d","s":"$a"},"c":"$Q10"}]]
+b:[["children",{"s":"queue","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@c","v":"$d","s":"$a"},"c":"$Qe"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]}]}]]}],"p":"$@9","v":null,"s":"$a"},"c":"$Qb"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1a",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$1d",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@1e","v":null,"s":"$a"}},"a":"$@1f","u":"$@20","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+21:I[97367,["$2","$3","$4"],"OutletBoundary"]
+15:["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true}]
+16:["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true}]
+17:["$","$L21",null,{"children":["$","$1d",null,{"name":"Next.MetadataOutlet","children":"$@22"}]}]
+a:300
+22:null
+20:true
+a:C
+1f:0
+f:"$undefined"
+c:"$undefined"
+9:"$undefined"
+1e:"$undefined"
+18:"$undefined"

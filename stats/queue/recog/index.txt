@@ -1,0 +1,218 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+e:I[97367,["$2","$3","$4"],"OutletBoundary"]
+f:"$Sreact.suspense"
+11:"ViewportBoundary"
+12:I[97367,["$2","$3","$4"],"$11"]
+14:"MetadataBoundary"
+15:I[97367,["$2","$3","$4"],"$14"]
+17:I[68027,["$2","$3","$4"],"default",1]
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+:HL["/stats/_next/static/media/605ce01b664af129-s.p.0wgildi0cnwt9.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+a:X
+c:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":["$Ld",[["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true,"nonce":"$undefined"}]],["$","$Le",null,{"children":["$","$f",null,{"name":"Next.MetadataOutlet","children":"$@10"}]}]]}],"p":false,"v":null}}]]
+b:[["children",{"s":{"n":"repo","t":"d","k":"recog","s":[]},"h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qc"}]]
+9:[["children",{"s":"queue","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qb"}]]
+0:{"P":null,"c":["","queue","recog",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true,"nonce":"$undefined"}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]}]]}],"p":false,"v":null},"c":"$Q9"},"h":{"r":["$","$1","h",{"children":[null,["$","$L12",null,{"children":"$L13"}],["$","$L15",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$f",null,{"name":"Next.Metadata","children":"$L16"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$17",[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+a:C
+13:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+10:null
+16:[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]
+18:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+19:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+1a:I[75170,["$2","$3","$4","$18","$19"],"Dashboard"]
+1b:T497,## Description
+A detailed description of your changes.
+-Add OS CPE to Array Networks ArrayOS AG fingerprint for CVE-2025-66644 
+-sorted the identifiers and added the tag for checks 
+
+
+## Motivation and Context
+Explanation of why these changes are being proposed, including any links to other relevant issues or pull requests.
+
+
+## How Has This Been Tested?
+A clear and concise description of your changes were tested.
+
+
+## Types of changes
+<!--- What types of changes does your code introduce? Remove any that do not apply: -->
+- Bug fix (non-breaking change which fixes an issue)
+- New feature (non-breaking change which adds functionality)
+- Breaking change (fix or feature that would cause existing functionality to change)
+
+
+## Checklist:
+<!--- After submitting the PR, check all of the boxes that apply. -->
+- [ ] I have updated the documentation accordingly (or changes are not required).
+- [ ] I have added tests to cover my changes (or new tests are not required).
+- [x] All new and existing tests passed.
+<img width="1017" height="113" alt="image" src="https://github.com/user-attachments/assets/6a7dcbf5-5555-45a9-ac8d-0e908f648dda" />
+
+1c:T4f3,## Description
+I have added fingerprint in xml/http_cookies.xml to detect WHMCS login pages.
+
+
+## Motivation and Context
+I have used to detect WHMCS and did not found a fingerprint for the same so contributed here.
+
+
+## How Has This Been Tested?
+I have tested against a example URL using following command
+ curl --silent -I -k <example_url> | grep --color=never -i '^Set-Cookie:' | cut -d: -f2- | bin/recog_match xml/http_cookies.xml -
+ and output is 
+ MATCH: {"matched"=>"WHMCompleteSolution (WHMCS) session cookie", "cookie"=>"WHMCS", "service.vendor"=>"WHMCS", "service.product"=>"WHMCompleteSolution", "service.cpe23"=>"cpe:2.3:a:whmcs:whmcompletesolution:*:*:*:*:*:*:*:*", "tags"=>"web,session,hosting-billing", "service.protocol"=>"http", "fingerprint_db"=>"http_header.cookie", "data"=>"WHMCSy551iLvnhYt7=fbadc7baf8acaac14c125682937f711a; path=/; secure; HttpOnly"}
+
+
+## Types of changes
+- New feature (non-breaking change which adds functionality)
+
+
+## Checklist:
+<!--- After submitting the PR, check all of the boxes that apply. -->
+- [x] I have updated the documentation accordingly (or changes are not required).
+- [x] I have added tests to cover my changes (or new tests are not required).
+- [x] All new and existing tests passed.
+1d:T8c9,## Description
+I noticed that Windows AD instances could reply with the domainControllerFunctionality attribute before or after the OID from the supportedCapabilities attribute that determines it as ADC or LDS. I fixed the Windows fingerprints to allow the identification of such servers.
+
+## Motivation and Context
+There is no current open issue related to the current change. I observed the behavior of a few instances of LDAP servers and updated their fingerprints.
+
+## How Has This Been Tested?
+I tested manually against LDAP servers in my research. I could identify the servers as AD, whereas before, I identified them as Windows Server (without AD). However, the auto testers are not passing now. I added ```s``` to the regex pattern ```(?im:``` of the fingerprints. For example:
+```
+(?ims:(?:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x013)|(?:domainControllerFunctionality1.{1,5}\x04\x013.*1.2.840.113556.1.4.1851))
+``` 
+Rationale: I wrote a Golang application that uses the [recog-go](https://github.com/runZeroInc/recog-go) lib. Then, the [Go regex](https://pkg.go.dev/regexp/syntax) indicates that ```s``` "let . match \n", which is necessary. However, the ruby auto testers does not recognize such letter:
+
+```
+rake tests
+...
+An error occurred while loading ./spec/lib/fingerprint_self_test_spec.rb.
+Failure/Error: db = Recog::DB.new(xml_file_name)
+
+RegexpError:
+  undefined group option: /(?ims:(?:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x017)|(?:domainControllerFunctionality1.{1,5}\x04\x017.*1.2.840.113556.1.4.800))/
+...
+Finished in 0.00005 seconds (files took 8.01 seconds to load)
+0 examples, 0 failures, 1 error occurred outside of examples
+...
+```
+
+Removing the ```s```, the issue disappears.
+
+## Types of changes
+<!--- What types of changes does your code introduce? Remove any that do not apply: -->
+- Bug fix (non-breaking change which fixes an issue)
+
+
+## Checklist:
+<!--- After submitting the PR, check all of the boxes that apply. -->
+- [x] I have updated the documentation accordingly (or changes are not required).
+- [x] I have added tests to cover my changes (or new tests are not required).
+- [ ] All new and existing tests passed.
+1e:T1a5d,Updates the requirements on [ffi](https://github.com/ffi/ffi) to permit the latest version.
+<details>
+<summary>Changelog</summary>
+<p><em>Sourced from <a href="https://github.com/ffi/ffi/blob/master/CHANGELOG.md">ffi's changelog</a>.</em></p>
+<blockquote>
+<h2>1.17.0 / 2024-06-02</h2>
+<p>Fixed:</p>
+<ul>
+<li>Add FFI::AbstractMemory#read_array_of_string . It was defined but not exposed to Ruby nor tested. <a href="https://redirect.github.com/ffi/ffi/issues/1070">#1070</a></li>
+</ul>
+<h2>1.17.0.rc2 / 2024-04-22</h2>
+<p>Fixed:</p>
+<ul>
+<li>Add missing write barriers to StructLayout#initialize causing a segfault with GC.stress. <a href="https://redirect.github.com/ffi/ffi/issues/1079">#1079</a></li>
+</ul>
+<h2>1.17.0.rc1 / 2024-04-08</h2>
+<p>Fixed:</p>
+<ul>
+<li>Fix type definitions on <code>aarch64-linux</code>. <a href="https://redirect.github.com/ffi/ffi/issues/1067">#1067</a>, <a href="https://redirect.github.com/ffi/ffi/issues/1066">#1066</a></li>
+<li>Use RB_TEST for <code>Pointer.autorelease=</code> . <a href="https://redirect.github.com/ffi/ffi/issues/1065">#1065</a>
+So that <code>false</code> and <code>nil</code> are treated as falsey and anything else as truthy.</li>
+<li>Replace Fixnum by Integer. <a href="https://redirect.github.com/ffi/ffi/issues/1064">#1064</a>
+Fixnum is no longer present in the ruby language.</li>
+<li>Update <code>FFI::NativeType</code> doc. <a href="https://redirect.github.com/ffi/ffi/issues/1061">#1061</a></li>
+<li>Store FFI::Type::Mapped of FFI::StrPtrConverter in global instead of custom type map</li>
+<li>Various documentation fixes. <a href="https://redirect.github.com/ffi/ffi/issues/1042">#1042</a></li>
+<li>Update <code>FFI::Pointer#==</code> to return <code>false</code> if a pointer is compared to a non-pointer object, which is the expected behavior. <a href="https://redirect.github.com/ffi/ffi/issues/1083">#1083</a></li>
+<li>Avoid warning about undefined wariable <code>@ffi_functions</code> <a href="https://redirect.github.com/ffi/ffi/issues/1085">#1085</a></li>
+<li>Fix a very unlikely GC bug when using a callback block. # 1089</li>
+</ul>
+<p>Added:</p>
+<ul>
+<li>Provide binary gems for many platforms. <a href="https://redirect.github.com/ffi/ffi/issues/990">#990</a></li>
+<li>Add Windows fat binary gem for Ruby-3.3</li>
+<li>Add RBS type definitions for many user facing parts of the FFI API. <a href="https://redirect.github.com/ffi/ffi/issues/1042">#1042</a></li>
+<li>Improve fallback search path logic. <a href="https://redirect.github.com/ffi/ffi/issues/1088">#1088</a>
+Respect LD_LIBRARY_PATH and DYLD_LIBRARY_PATH on Macos.</li>
+<li>Update libffi to current git master branch.</li>
+</ul>
+<p>Removed:</p>
+<ul>
+<li>Remove <code>enum CHAR_ARRAY</code> which is no longer used. <a href="https://redirect.github.com/ffi/ffi/issues/1063">#1063</a></li>
+</ul>
+<h2>1.16.3 / 2023-10-04</h2>
+<p>Fixed:</p>
+<ul>
+<li>Fix gcc error when building on CentOS 7. <a href="https://redirect.github.com/ffi/ffi/issues/1052">#1052</a></li>
+<li>Avoid trying to store new DataConverter type in frozen TypeDefs hash. <a href="https://redirect.github.com/ffi/ffi/issues/1057">#1057</a></li>
+</ul>
+<!-- raw HTML omitted -->
+</blockquote>
+<p>... (truncated)</p>
+</details>
+<details>
+<summary>Commits</summary>
+<ul>
+<li><a href="https://github.com/ffi/ffi/commit/ecfb225096ae76ba2a5e8115f046bd0ac23095e6"><code>ecfb225</code></a> Update date in CHANGELOG</li>
+<li><a href="https://github.com/ffi/ffi/commit/8a3da1ef536d2dc5968219215f1c8d1c25b203ac"><code>8a3da1e</code></a> Bump VERSION to 1.17.0</li>
+<li><a href="https://github.com/ffi/ffi/commit/b7a57413ceeaac2b0e9aaf89da9042bef9475f7d"><code>b7a5741</code></a> Merge pull request <a href="https://redirect.github.com/ffi/ffi/issues/1102">#1102</a> from larskanis/bigdecimal</li>
+<li><a href="https://github.com/ffi/ffi/commit/05e5bf90b378d690dbfb1219caf4bc35dc5cea27"><code>05e5bf9</code></a> Install bigdecimal unconditional</li>
+<li><a href="https://github.com/ffi/ffi/commit/4172d1740f397dfac6332d11db71b7e8c0d5f72e"><code>4172d17</code></a> Update CHANGELOG for ffi-1.17.0</li>
+<li><a href="https://github.com/ffi/ffi/commit/2a54bbcb5f4087c67150fd432d68a08537a40093"><code>2a54bbc</code></a> Merge branch 'master' of github.com:ffi/ffi</li>
+<li><a href="https://github.com/ffi/ffi/commit/17cd509d2134aae611510668918238254522f5b6"><code>17cd509</code></a> Merge pull request <a href="https://redirect.github.com/ffi/ffi/issues/1101">#1101</a> from larskanis/ci-ractor</li>
+<li><a href="https://github.com/ffi/ffi/commit/8955e2575513f3e807fa6e43b7b9afaf00f52771"><code>8955e25</code></a> CI: Exclude Ractor tests on Windows-Ruby-3.3</li>
+<li><a href="https://github.com/ffi/ffi/commit/78f8bbdb9276d3140ad82775dd0e3411785e7916"><code>78f8bbd</code></a> CI: Add ruby dev package to install bigdecimal.gem on alpine with ruby-3.3</li>
+<li><a href="https://github.com/ffi/ffi/commit/3b3056bf7b5c134317cbcb3a784aecd70ed5a4e9"><code>3b3056b</code></a> Use a longer timeout for external rubies</li>
+<li>Additional commits viewable in <a href="https://github.com/ffi/ffi/compare/v1.16.3...v1.17.0">compare view</a></li>
+</ul>
+</details>
+<br />
+
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start)
+[//]: # (dependabot-automerge-end)
+
+---
+
+<details>
+<summary>Dependabot commands and options</summary>
+<br />
+
+You can trigger Dependabot actions by commenting on this PR:
+- `@dependabot rebase` will rebase this PR
+- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+- `@dependabot merge` will merge this PR after your CI passes on it
+- `@dependabot squash and merge` will squash and merge this PR after your CI passes on it
+- `@dependabot cancel merge` will cancel a previously requested merge and block automerging
+- `@dependabot reopen` will reopen this PR if it is closed
+- `@dependabot close` will close this PR and stop Dependabot recreating it. You can achieve the same result by closing it manually
+- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
+
+
+</details>d:["$","$L1a",null,{"owner":"rapid7","repo":"recog","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":685,"title":"Add examples to fixed-literal fingerprints that had none","author":"MRX-72","authorAvatarUrl":"https://avatars.githubusercontent.com/u/94920917?u=75da5b0217d9014a586b0cd578e125cc57cb3e68&v=4","status":"open","description":"recog_verify warns about fingerprints that ship without a test case. Eight of them match a fixed string, so the example is just the literal from the pattern - the same thing existing fingerprints like ^Transmission$ already do with <example>Transmission</example>. This adds those examples.\n\nIn http_servers.xml: NetWare HTTP Stack, HTTP/1.0 (HP JetDirect), YAMAHA-RT, JRun Web Server, Xerox_MicroServer/Xerox11, D-Link MiniAVServer. In snmp_sysdescr.xml: Castelle FaxPress Product and the Intel NetportExpress print server. Each pattern is anchored with no captures or metacharacters, so the matching input is exactly the literal between the anchors.\n\nrecog_verify passes afterwards with eight fewer \"no test cases\" warnings and no failures, and recog_standardize leaves the additions as-is.\n\nRelates to #416\n","createdAt":"2026-09-19T15:28:18Z","updatedAt":"2026-09-20T22:12:17Z","commentCount":1,"totalChanges":8,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/685","vulnRefs":[]},{"number":684,"title":"Bumping Snyk org-wide to 3.12 or higher","author":"dshafranskiy-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/167208426?u=1e9974b6e6d0858c0ada83b2abddbcd68961d96c&v=4","status":"open","description":"No dependencies conflicts were detected.\r\nException in the code had expired","createdAt":"2026-09-16T14:25:04Z","updatedAt":"2026-09-16T14:27:04Z","commentCount":0,"totalChanges":10,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/684","vulnRefs":[]},{"number":683,"title":"Update SIMATIC NET and S7 Info","author":"apldev7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/321422883?v=4","status":"open","description":"The OS and CPE information were incorrectly attributed to the S7 and SIMATIC NET signatures.\r\n\r\n## Description\r\nRemoved incorrect Microsoft Windows OS and CPE metadata from the SIMATIC S7 and SIMATIC NET fingerprints. These devices do not run Windows.\r\n\r\n\r\n## Motivation and Context\r\nThe existing metadata caused S7 and SIMATIC NET devices to be incorrectly identified as Windows systems.\r\n\r\n\r\n## How Has This Been Tested?\r\nVerified that the affected signatures no longer report Windows OS or CPE information while retaining the existing Siemens hardware identification.\r\n\r\n\r\n## Types of changes\r\n- Bug fix (non-breaking change which fixes an issue)\r\n\r\n## Checklist:\r\n<!--- After submitting the PR, check all of the boxes that apply. -->\r\n- [ ] I have updated the documentation accordingly (or changes are not required).\r\n- [ ] I have added tests to cover my changes (or new tests are not required).\r\n- [ ] All new and existing tests passed.\r\n","createdAt":"2026-08-26T13:49:18Z","updatedAt":"2026-08-26T13:49:18Z","commentCount":0,"totalChanges":20,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/683","vulnRefs":[]},{"number":674,"title":"VC- 12898 : Added fingerprint for ubiquiti unifi os","author":"apatole-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/253270848?u=436e6ef548c1b8f9bc5abe497d0da3fce32fe925&v=4","status":"open","description":"## Description\r\nA detailed description of your changes.\r\n\r\n\r\n## Motivation and Context\r\nExplanation of why these changes are being proposed, including any links to other relevant issues or pull requests.\r\n\r\n\r\n## How Has This Been Tested?\r\nA clear and concise description of your changes were tested.\r\n\r\n\r\n## Types of changes\r\n<!--- What types of changes does your code introduce? Remove any that do not apply: -->\r\n- Bug fix (non-breaking change which fixes an issue)\r\n- New feature (non-breaking change which adds functionality)\r\n- Breaking change (fix or feature that would cause existing functionality to change)\r\n\r\n\r\n## Checklist:\r\n<!--- After submitting the PR, check all of the boxes that apply. -->\r\n- [ ] I have updated the documentation accordingly (or changes are not required).\r\n- [ ] I have added tests to cover my changes (or new tests are not required).\r\n- [ ] All new and existing tests passed.\r\n","createdAt":"2026-07-02T07:32:28Z","updatedAt":"2026-07-03T11:37:57Z","commentCount":0,"totalChanges":23,"filesChanged":4,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/674","vulnRefs":[]},{"number":673,"title":"ssh_banners: match OpenSSH on Debian with +debNuM package suffix","author":"ruashots","authorAvatarUrl":"https://avatars.githubusercontent.com/u/80407016?u=370a944a49188074f883de794d2d90dbe749542f&v=4","status":"open","description":"The generic \"OpenSSH running on Debian (unknown release)\" fingerprint matches bare `Debian-N` and `Debian-N~bpoX` package comments, but not the `+debNuM` revision suffix that current Debian (12/13) uses for security updates — e.g. `OpenSSH_10.0p2 Debian-7+deb13u4`.\n\nSuch banners are common on any patched Debian host, and today they fail to fingerprint at all — losing both the OpenSSH service identification and the Debian OS attribution.\n\nThis extends the `openssh.comment` capture group with an optional `(?:\\+deb\\d+u\\d+)?` and adds a matching example. The three existing examples (`Debian-5~bpo.1`, `Debian-4bpo1`, `Debian-10`) still match unchanged.","createdAt":"2026-06-28T21:14:09Z","updatedAt":"2026-06-28T21:14:09Z","commentCount":0,"totalChanges":3,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/673","vulnRefs":[]},{"number":672,"title":"Add Overseerr and Prowlarr html_title fingerprints","author":"ruashots","authorAvatarUrl":"https://avatars.githubusercontent.com/u/80407016?u=370a944a49188074f883de794d2d90dbe749542f&v=4","status":"open","description":"Two Servarr-ecosystem self-hosted apps that currently aren't identified by title:\n\n- **Overseerr** — `<title>Sign In - Overseerr</title>`. Recog already has its fork **Jellyseerr** but not the original Overseerr; this mirrors that entry.\n- **Prowlarr** — `<title>Login - Prowlarr</title>`. Recog's only Prowlarr entry is an HTTP-Basic-auth realm rule (`Basic realm=\"Prowlarr\"`), but Prowlarr serves a login *page* (no Basic auth), so it goes unidentified (falls through to the Kestrel `Server` header). This adds the missing title fingerprint.\n\nBoth patterns verified against live instances and confirmed not to cross-match a sibling app's title.","createdAt":"2026-06-28T04:55:01Z","updatedAt":"2026-06-28T04:55:01Z","commentCount":0,"totalChanges":16,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/672","vulnRefs":[]},{"number":671,"title":"Add Proxmox Backup Server html_title fingerprint","author":"ruashots","authorAvatarUrl":"https://avatars.githubusercontent.com/u/80407016?u=370a944a49188074f883de794d2d90dbe749542f&v=4","status":"open","description":"Adds an `html_title` fingerprint for **Proxmox Backup Server** (PBS), which is currently unidentified. Its web UI (port 8007) serves `<title>… - Proxmox Backup Server</title>`, mirroring the existing Proxmox VE title fingerprint.\n\nWithout it, a PBS host falls through to the **shared Proxmox-family favicon** fingerprint (`908db8e5…`), which labels it `Virtual Environment` — a misidentification, since PBS, PVE, and PMG all serve that same favicon. The title is the disambiguating signal.\n\n- Pattern: `^.{1,256} - Proxmox Backup Server$`\n- Example: `proxmox-backup-server - Proxmox Backup Server` (verified against a live PBS 4.x instance)\n- CPE: `cpe:/a:proxmox:proxmox_backup_server:-`\n\n(Side note for maintainers: the shared favicon entry asserting `Virtual Environment` specifically may be worth demoting to vendor/family, since it can't distinguish PVE/PBS/PMG — happy to follow up separately.)","createdAt":"2026-06-28T01:59:17Z","updatedAt":"2026-06-28T01:59:17Z","commentCount":0,"totalChanges":11,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/671","vulnRefs":[]},{"number":661,"title":"Add OS CPE to Array Networks ArrayOS AG fingerprint","author":"mpandey-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/248615475?u=a01a59a6a4724c7768f22d00a9f83d9ead0623fb&v=4","status":"open","description":"$1b","createdAt":"2026-02-18T17:23:12Z","updatedAt":"2026-02-19T06:01:36Z","commentCount":0,"totalChanges":1568,"filesChanged":6,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/661","vulnRefs":[{"id":"CVE-2025-66644","cveAliases":[],"cvssScore":9.8,"cvssVector":"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H","cvssVersion":"3.1","source":"fkie-nvd-mirror","status":"scored","knownExploited":true}]},{"number":654,"title":"Updating SAP Netweaver Application server banner","author":"shpatil-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/198737326?u=05005e76febf0760bcdf9531948134e198c1851a&v=4","status":"open","description":"## Description\r\nA detailed description of your changes.\r\nPR is in progress\r\n\r\n\r\n\r\n## Motivation and Context\r\nExplanation of why these changes are being proposed, including any links to other relevant issues or pull requests.\r\n\r\n\r\n## How Has This Been Tested?\r\nA clear and concise description of your changes were tested.\r\n\r\n\r\n## Types of changes\r\n<!--- What types of changes does your code introduce? Remove any that do not apply: -->\r\n- Bug fix (non-breaking change which fixes an issue)\r\n- New feature (non-breaking change which adds functionality)\r\n- Breaking change (fix or feature that would cause existing functionality to change)\r\n\r\n\r\n## Checklist:\r\n<!--- After submitting the PR, check all of the boxes that apply. -->\r\n- [ ] I have updated the documentation accordingly (or changes are not required).\r\n- [ ] I have added tests to cover my changes (or new tests are not required).\r\n- [ ] All new and existing tests passed.\r\n","createdAt":"2025-10-17T16:42:44Z","updatedAt":"2025-10-17T16:42:54Z","commentCount":0,"totalChanges":2,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/654","vulnRefs":[]},{"number":650,"title":"Add fingerprint for WHMCompleteSolution session cookie","author":"SnazzyNivesh522","authorAvatarUrl":"https://avatars.githubusercontent.com/u/115729819?u=cdc78c3e83fae02869835568d727cf65b93eb091&v=4","status":"open","description":"$1c","createdAt":"2025-08-25T13:15:09Z","updatedAt":"2025-08-25T13:15:09Z","commentCount":0,"totalChanges":14,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/650","vulnRefs":[]},{"number":630,"title":"Update LDAP fingerprints for Windows","author":"gustavoluvizotto","authorAvatarUrl":"https://avatars.githubusercontent.com/u/11511831?v=4","status":"open","description":"$1d","createdAt":"2024-10-21T09:07:57Z","updatedAt":"2024-10-21T09:07:57Z","commentCount":0,"totalChanges":60,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/630","vulnRefs":[]},{"number":616,"title":"Update ffi requirement from 1.16.3 to 1.17.0","author":"dependabot","authorAvatarUrl":"https://avatars.githubusercontent.com/in/29110?v=4","status":"open","description":"$1e","createdAt":"2024-06-13T11:54:09Z","updatedAt":"2024-06-13T11:54:10Z","commentCount":0,"totalChanges":2,"filesChanged":1,"modules":[],"assignees":[],"labels":[{"name":"dependencies","color":"0366d6"},{"name":"ruby","color":"ce2d2d"}],"reviewDecision":"review_required","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/616","vulnRefs":[]},{"number":590,"title":"Update CPE values","author":"inokii","authorAvatarUrl":"https://avatars.githubusercontent.com/u/7478234?u=750287275a332fab5f824bedc6c08e2e310c50b7&v=4","status":"open","description":"## Description\r\nUpdates CPE values.\r\n\r\n### Notes\r\n* `a:progress:openedge_explorer` created on 2023-07-05\r\n* `a:tenable:security_center` created on 2023-07-05\r\n* `h:cisco:adaptive_security_appliance` deprecated by `o:cisco:adaptive_security_appliance_software` on 2023-08-15\r\n* `a:mariadb:maxscale` created on 2023-08-21\r\n\r\n\r\n## Motivation and Context\r\nValid CPE values are great!\r\n\r\n\r\n## How Has This Been Tested?\r\n* `rake tests`\r\n* `bundle exec ./bin/recog_verify --no-warnings xml/*.xml`\r\n\r\n\r\n## Types of changes\r\n- Bug fix (non-breaking change which fixes an issue)\r\n\r\n\r\n## Checklist:\r\n<!--- After submitting the PR, check all of the boxes that apply. -->\r\n- [x] I have updated the documentation accordingly (or changes are not required).\r\n- [x] I have added tests to cover my changes (or new tests are not required).\r\n- [x] All new and existing tests passed.\r\n","createdAt":"2023-09-08T21:43:16Z","updatedAt":"2023-09-08T21:43:30Z","commentCount":0,"totalChanges":21,"filesChanged":9,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/590","vulnRefs":[]},{"number":585,"title":"2 match windows version from masscan output","author":"sfacchini-quantavis","authorAvatarUrl":"https://avatars.githubusercontent.com/u/135589605?v=4","status":"open","description":"## Description\r\nAdded file smb_banners.xml to match smb banners _version_ field to identify windows versions\r\n\r\n## Motivation and Context\r\nImproved Coverage\r\n\r\n## How Has This Been Tested?\r\nbundle exec ./bin/recog_verify xml/smb_banners.xml\r\nrake tests\r\n\r\n## Types of changes\r\n- New feature (non-breaking change which adds functionality)\r\n\r\n## Checklist:\r\n<!--- After submitting the PR, check all of the boxes that apply. -->\r\n- [x] I have updated the documentation accordingly (or changes are not required).\r\n- [x] I have added tests to cover my changes (or new tests are not required).\r\n- [x] All new and existing tests passed.\r\n","createdAt":"2023-08-22T09:37:48Z","updatedAt":"2023-08-22T09:38:10Z","commentCount":0,"totalChanges":284,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"review_required","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/recog/pull/585","vulnRefs":[]}],"generatedAt":"2026-11-13T17:44:51.692Z"}]

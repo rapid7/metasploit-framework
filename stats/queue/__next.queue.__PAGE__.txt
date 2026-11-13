@@ -1,0 +1,81 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+f:"/stats/_next/static/chunks/3zt_16xndew4w.js"
+10:I[22016,["$2","$3","$4","$f"],""]
+43:"ViewportBoundary"
+44:I[97367,["$2","$3","$4"],"$43"]
+45:"MetadataBoundary"
+46:I[97367,["$2","$3","$4"],"$45"]
+47:"$Sreact.suspense"
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+a:X
+d:X
+d:C
+e:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","div",null,{"className":"mx-auto max-w-[1400px] px-4 py-8","children":[["$","h1",null,{"className":"mb-2 text-2xl font-bold text-foreground","children":"Open PR queues"}],["$","p",null,{"className":"mb-6 max-w-2xl text-sm text-muted-foreground","children":["Every ","rapid7"," repo below gets the same triage queue: sortable/filterable PR table, CI and review status, assignee breakdown, and search. Module scope, inferred testing environment, and CVE/CVSS evidence are specific to ","rapid7","/","metasploit-framework","'s exploit/auxiliary/post module layout, so those will read as empty or \"framework\" on other repos."]}],["$","ul",null,{"className":"space-y-2","children":[["$","li",null,{"children":[["$","$L10",null,{"href":"/queue/metasploit-framework/","className":"text-lg font-semibold text-primary underline underline-offset-4","children":["rapid7","/","metasploit-framework"]}],["$","span",null,{"className":"ml-2 text-xs text-muted-foreground","children":"flagship repo"}]]}],[["$","li","cpe_utils",{"children":["$","$L10",null,{"href":"/queue/cpe_utils/","className":"text-primary underline underline-offset-4","children":["rapid7","/","cpe_utils"]}]}],["$","li","hamlbars",{"children":["$","$L10",null,{"href":"/queue/hamlbars/","className":"text-primary underline underline-offset-4","children":["rapid7","/","hamlbars"]}]}],["$","li","jsobfu",{"children":["$","$L10",null,{"href":"/queue/jsobfu/","className":"text-primary underline underline-offset-4","children":["rapid7","/","jsobfu"]}]}],["$","li","just-the-docs",{"children":["$","$L10",null,{"href":"/queue/just-the-docs/","className":"text-primary underline underline-offset-4","children":["rapid7","/","just-the-docs"]}]}],["$","li","libeio",{"children":["$","$L10",null,{"href":"/queue/libeio/","className":"text-primary underline underline-offset-4","children":["rapid7","/","libeio"]}]}],["$","li","libev",{"children":["$","$L10",null,{"href":"/queue/libev/","className":"text-primary underline underline-offset-4","children":["rapid7","/","libev"]}]}],["$","li","marionette.carpenter",{"children":["$","$L10",null,{"href":"/queue/marionette.carpenter/","className":"text-primary underline underline-offset-4","children":["rapid7","/","marionette.carpenter"]}]}],["$","li","metakitty",{"children":["$","$L10",null,{"href":"/queue/metakitty/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metakitty"]}]}],"$L11","$L12","$L13","$L14","$L15","$L16","$L17","$L18","$L19","$L1a","$L1b","$L1c","$L1d","$L1e","$L1f","$L20","$L21","$L22","$L23","$L24","$L25","$L26","$L27","$L28","$L29","$L2a","$L2b","$L2c","$L2d","$L2e","$L2f","$L30","$L31","$L32","$L33","$L34","$L35","$L36","$L37","$L38","$L39","$L3a","$L3b","$L3c","$L3d","$L3e","$L3f"]]}]]}],["$L40"],"$L41"]}],"p":"$@42","v":null,"s":"$a"}}]]
+b:[["children",{"s":"queue","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@c","v":"$d","s":"$a"},"c":"$Qe"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]}]}]]}],"p":"$@9","v":null,"s":"$a"},"c":"$Qb"},"h":{"r":["$","$1","h",{"children":[null,["$","$L44",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L46",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$47",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@48","v":null,"s":"$a"}},"a":"$@49","u":"$@4a","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+4b:I[97367,["$2","$3","$4"],"OutletBoundary"]
+11:["$","li","metasm",{"children":["$","$L10",null,{"href":"/queue/metasm/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasm"]}]}]
+12:["$","li","metasploit-aggregator",{"children":["$","$L10",null,{"href":"/queue/metasploit-aggregator/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-aggregator"]}]}]
+13:["$","li","metasploit-concern",{"children":["$","$L10",null,{"href":"/queue/metasploit-concern/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-concern"]}]}]
+14:["$","li","metasploit-credential",{"children":["$","$L10",null,{"href":"/queue/metasploit-credential/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-credential"]}]}]
+15:["$","li","metasploit-erd",{"children":["$","$L10",null,{"href":"/queue/metasploit-erd/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-erd"]}]}]
+16:["$","li","metasploit-model",{"children":["$","$L10",null,{"href":"/queue/metasploit-model/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-model"]}]}]
+17:["$","li","metasploit-omnibus",{"children":["$","$L10",null,{"href":"/queue/metasploit-omnibus/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-omnibus"]}]}]
+18:["$","li","metasploit-omnibus-cache",{"children":["$","$L10",null,{"href":"/queue/metasploit-omnibus-cache/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-omnibus-cache"]}]}]
+19:["$","li","metasploit-payloads",{"children":["$","$L10",null,{"href":"/queue/metasploit-payloads/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-payloads"]}]}]
+1a:["$","li","metasploit-vagrant-builders",{"children":["$","$L10",null,{"href":"/queue/metasploit-vagrant-builders/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-vagrant-builders"]}]}]
+1b:["$","li","metasploit-yard",{"children":["$","$L10",null,{"href":"/queue/metasploit-yard/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit-yard"]}]}]
+1c:["$","li","metasploit_data_models",{"children":["$","$L10",null,{"href":"/queue/metasploit_data_models/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploit_data_models"]}]}]
+1d:["$","li","metasploitable3",{"children":["$","$L10",null,{"href":"/queue/metasploitable3/","className":"text-primary underline underline-offset-4","children":["rapid7","/","metasploitable3"]}]}]
+1e:["$","li","meterpreter-deps",{"children":["$","$L10",null,{"href":"/queue/meterpreter-deps/","className":"text-primary underline underline-offset-4","children":["rapid7","/","meterpreter-deps"]}]}]
+1f:["$","li","mettle",{"children":["$","$L10",null,{"href":"/queue/mettle/","className":"text-primary underline underline-offset-4","children":["rapid7","/","mettle"]}]}]
+20:["$","li","mettle-deps",{"children":["$","$L10",null,{"href":"/queue/mettle-deps/","className":"text-primary underline underline-offset-4","children":["rapid7","/","mettle-deps"]}]}]
+21:["$","li","mimikatz",{"children":["$","$L10",null,{"href":"/queue/mimikatz/","className":"text-primary underline underline-offset-4","children":["rapid7","/","mimikatz"]}]}]
+22:["$","li","msfrpc-client",{"children":["$","$L10",null,{"href":"/queue/msfrpc-client/","className":"text-primary underline underline-offset-4","children":["rapid7","/","msfrpc-client"]}]}]
+23:["$","li","network_interface",{"children":["$","$L10",null,{"href":"/queue/network_interface/","className":"text-primary underline underline-offset-4","children":["rapid7","/","network_interface"]}]}]
+24:["$","li","omnibus",{"children":["$","$L10",null,{"href":"/queue/omnibus/","className":"text-primary underline underline-offset-4","children":["rapid7","/","omnibus"]}]}]
+25:["$","li","recog",{"children":["$","$L10",null,{"href":"/queue/recog/","className":"text-primary underline underline-offset-4","children":["rapid7","/","recog"]}]}]
+26:["$","li","recog-ruby",{"children":["$","$L10",null,{"href":"/queue/recog-ruby/","className":"text-primary underline underline-offset-4","children":["rapid7","/","recog-ruby"]}]}]
+27:["$","li","ReflectiveDLLInjection",{"children":["$","$L10",null,{"href":"/queue/ReflectiveDLLInjection/","className":"text-primary underline underline-offset-4","children":["rapid7","/","ReflectiveDLLInjection"]}]}]
+28:["$","li","rex-arch",{"children":["$","$L10",null,{"href":"/queue/rex-arch/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-arch"]}]}]
+29:["$","li","rex-bin_tools",{"children":["$","$L10",null,{"href":"/queue/rex-bin_tools/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-bin_tools"]}]}]
+2a:["$","li","rex-core",{"children":["$","$L10",null,{"href":"/queue/rex-core/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-core"]}]}]
+2b:["$","li","rex-encoder",{"children":["$","$L10",null,{"href":"/queue/rex-encoder/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-encoder"]}]}]
+2c:["$","li","rex-exploitation",{"children":["$","$L10",null,{"href":"/queue/rex-exploitation/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-exploitation"]}]}]
+2d:["$","li","rex-java",{"children":["$","$L10",null,{"href":"/queue/rex-java/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-java"]}]}]
+2e:["$","li","rex-mime",{"children":["$","$L10",null,{"href":"/queue/rex-mime/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-mime"]}]}]
+2f:["$","li","rex-nop",{"children":["$","$L10",null,{"href":"/queue/rex-nop/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-nop"]}]}]
+30:["$","li","rex-ole",{"children":["$","$L10",null,{"href":"/queue/rex-ole/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-ole"]}]}]
+31:["$","li","rex-powershell",{"children":["$","$L10",null,{"href":"/queue/rex-powershell/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-powershell"]}]}]
+32:["$","li","rex-random_identifier",{"children":["$","$L10",null,{"href":"/queue/rex-random_identifier/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-random_identifier"]}]}]
+33:["$","li","rex-registry",{"children":["$","$L10",null,{"href":"/queue/rex-registry/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-registry"]}]}]
+34:["$","li","rex-rop_builder",{"children":["$","$L10",null,{"href":"/queue/rex-rop_builder/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-rop_builder"]}]}]
+35:["$","li","rex-socket",{"children":["$","$L10",null,{"href":"/queue/rex-socket/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-socket"]}]}]
+36:["$","li","rex-sslscan",{"children":["$","$L10",null,{"href":"/queue/rex-sslscan/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-sslscan"]}]}]
+37:["$","li","rex-struct2",{"children":["$","$L10",null,{"href":"/queue/rex-struct2/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-struct2"]}]}]
+38:["$","li","rex-text",{"children":["$","$L10",null,{"href":"/queue/rex-text/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-text"]}]}]
+39:["$","li","rex-zip",{"children":["$","$L10",null,{"href":"/queue/rex-zip/","className":"text-primary underline underline-offset-4","children":["rapid7","/","rex-zip"]}]}]
+3a:["$","li","ruby_smb",{"children":["$","$L10",null,{"href":"/queue/ruby_smb/","className":"text-primary underline underline-offset-4","children":["rapid7","/","ruby_smb"]}]}]
+3b:["$","li","sigar",{"children":["$","$L10",null,{"href":"/queue/sigar/","className":"text-primary underline underline-offset-4","children":["rapid7","/","sigar"]}]}]
+3c:["$","li","ssh-badkeys",{"children":["$","$L10",null,{"href":"/queue/ssh-badkeys/","className":"text-primary underline underline-offset-4","children":["rapid7","/","ssh-badkeys"]}]}]
+3d:["$","li","vagrant-aws",{"children":["$","$L10",null,{"href":"/queue/vagrant-aws/","className":"text-primary underline underline-offset-4","children":["rapid7","/","vagrant-aws"]}]}]
+3e:["$","li","windows_error",{"children":["$","$L10",null,{"href":"/queue/windows_error/","className":"text-primary underline underline-offset-4","children":["rapid7","/","windows_error"]}]}]
+3f:["$","li","yard-metasploit-erd",{"children":["$","$L10",null,{"href":"/queue/yard-metasploit-erd/","className":"text-primary underline underline-offset-4","children":["rapid7","/","yard-metasploit-erd"]}]}]
+40:["$","script","script-0",{"src":"/stats/_next/static/chunks/3zt_16xndew4w.js","async":true}]
+41:["$","$L4b",null,{"children":["$","$47",null,{"name":"Next.MetadataOutlet","children":"$@4c"}]}]
+a:300
+4c:null
+4a:true
+a:C
+49:0
+c:"$undefined"
+9:"$undefined"
+48:"$undefined"
+42:"$undefined"

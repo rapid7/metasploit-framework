@@ -1,0 +1,208 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+11:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+12:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+13:I[75170,["$2","$3","$4","$11","$12"],"Dashboard"]
+1c:"ViewportBoundary"
+1d:I[97367,["$2","$3","$4"],"$1c"]
+1e:"MetadataBoundary"
+1f:I[97367,["$2","$3","$4"],"$1e"]
+20:"$Sreact.suspense"
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+a:X
+d:X
+d:C
+14:T5a0,macOS package upgrades can leave old gem registrations behind. After a Ruby platform change, these can produce missing-extension warnings, including when the new Ruby supplies the same version as a default gem.
+
+After installing the new payload, the installer retires obsolete non-default registrations whose gemspec and associated files still match the previous receipt. Modified and user-added registrations and all gem contents are preserved.
+
+Verification: `ruby test/retire_package_gems_test.rb` passes all 16 tests (53 assertions). Full ARM64 and native Intel Omnibus builds pass fresh-install and controlled upgrade/reinstall checks. A real older-package upgrade also passes on ARM64 macOS 14.8.7. User-installed and modified gems, saved settings and existing PostgreSQL records survive. Intel testing ran on macOS 15.7.9; package tests used the combined dependency/PostgreSQL validation branch ([details and output](https://github.com/pauljccode/metasploit-omnibus/blob/e57d693489365002ec7f2d004be6df8cb196594a/VALIDATION.txt)).
+
+To check the installer on a disposable Mac, upgrade an older package with `sudo installer -pkg <candidate.pkg> -target /`, then run `msfdb -h`: unchanged obsolete gems should no longer produce missing-extension warnings. Modified and user-added registrations should remain, and reinstalling the candidate should preserve the same state.
+
+Codex assisted with implementation, tests and this description.
+15:T473,The RepoForge key and release-RPM URLs return 404, stopping fresh CentOS 6 builder creation. This patch switches both downloads and the installed repository configuration to a working HTTPS mirror. The build checks each download against its pinned SHA-256 hash before importing the key or installing the RPM. Existing package signature checks remain enabled.
+
+This fixes the RepoForge failure in [#255](https://github.com/rapid7/metasploit-omnibus/pull/255) and applies independently of its bootstrap changes.
+
+Verification: a complete CentOS 6 image build and toolchain checks pass on native x86 CI with only this fix applied to master.
+
+The fix also works with proposed upgrades to zlib 1.4 ([archive PR](https://github.com/rapid7/metasploit-omnibus-cache/pull/30)) and libffi 3.8.0 ([archive PR](https://github.com/rapid7/metasploit-omnibus-cache/pull/31)). In that integration test, package build, fresh installation, compression/Fiddle, console and database checks all passed.
+
+[Validation details and reproduction steps](https://github.com/pauljccode/metasploit-omnibus/blob/2a716af480263f1a023a24f54560705804985983/VALIDATION.txt).
+16:T1659,Bumps [addressable](https://github.com/sporkmonger/addressable) from 2.8.8 to 2.9.0.
+<details>
+<summary>Changelog</summary>
+<p><em>Sourced from <a href="https://github.com/sporkmonger/addressable/blob/main/CHANGELOG.md">addressable's changelog</a>.</em></p>
+<blockquote>
+<h2>Addressable 2.9.0 <!-- raw HTML omitted --></h2>
+<ul>
+<li>fixes ReDoS vulnerability in Addressable::Template#match (fixes incomplete
+remediation in 2.8.10)</li>
+</ul>
+<h2>Addressable 2.8.10 <!-- raw HTML omitted --></h2>
+<ul>
+<li>fixes ReDoS vulnerability in Addressable::Template#match</li>
+</ul>
+<h2>Addressable 2.8.9 <!-- raw HTML omitted --></h2>
+<ul>
+<li>Reduce gem size by excluding test files (<a href="https://redirect.github.com/sporkmonger/addressable/issues/569">#569</a>)</li>
+<li>No need for bundler as development dependency (<a href="https://redirect.github.com/sporkmonger/addressable/issues/571">#571</a>, <a href="https://github.com/sporkmonger/addressable/commit/5fc1d93">5fc1d93</a>)</li>
+<li>idna/pure: stop building the useless <code>COMPOSITION_TABLE</code> (removes the <code>Addressable::IDNA::COMPOSITION_TABLE</code> constant) (<a href="https://redirect.github.com/sporkmonger/addressable/issues/564">#564</a>)</li>
+</ul>
+<p><a href="https://redirect.github.com/sporkmonger/addressable/issues/569">#569</a>: <a href="https://redirect.github.com/sporkmonger/addressable/pull/569">sporkmonger/addressable#569</a>
+<a href="https://redirect.github.com/sporkmonger/addressable/issues/571">#571</a>: <a href="https://redirect.github.com/sporkmonger/addressable/pull/571">sporkmonger/addressable#571</a>
+<a href="https://redirect.github.com/sporkmonger/addressable/issues/564">#564</a>: <a href="https://redirect.github.com/sporkmonger/addressable/pull/564">sporkmonger/addressable#564</a></p>
+</blockquote>
+</details>
+<details>
+<summary>Commits</summary>
+<ul>
+<li><a href="https://github.com/sporkmonger/addressable/commit/0c3e8589b23d4402903a9b4e1fdeba4e43c52ca4"><code>0c3e858</code></a> Revving version and changelog</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/91915c1f7aafa3e2c9f42e2f4e21d948c7a861b8"><code>91915c1</code></a> Fixing additional vulnerable paths</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/a091e39ff02fc321b21dea3a0df585bef2ba3744"><code>a091e39</code></a> Add many more adversarial test cases to ensure we don't have any ReDoS regres...</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/463a819665a3b85ce5ce894c90bd7bfa3b9d2e15"><code>463a819</code></a> Regenerate gemspec on newer rubygems</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/0afcb0b9672bee301e5e96ed850fec05b2fcabb0"><code>0afcb0b</code></a> Improve from O(n^2) to O(n)</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/c87f768f22ab00376ed2f8cb106f59c9d0652d3a"><code>c87f768</code></a> Fix a ReDoS vulnerability in URI template matching</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/0d7e9b259fb0940d1a85064b04f678a7984409a5"><code>0d7e9b2</code></a> Fix links for 2.8.9 in CHANGELOG (<a href="https://redirect.github.com/sporkmonger/addressable/issues/573">#573</a>)</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/e2091200b31553f19248eb871f071852409796f8"><code>e209120</code></a> Update version, gemspec, and CHANGELOG for 2.8.9 (<a href="https://redirect.github.com/sporkmonger/addressable/issues/572">#572</a>)</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/387587492b6536748ed12a11c3fdb44a48885f28"><code>3875874</code></a> Reduce gem size by excluding test files (<a href="https://redirect.github.com/sporkmonger/addressable/issues/569">#569</a>)</li>
+<li><a href="https://github.com/sporkmonger/addressable/commit/3e57cc6018f94231aabb47fd341acd1b40f1e71a"><code>3e57cc6</code></a> CI: back to <code>windows-2022</code> for MRI job</li>
+<li>Additional commits viewable in <a href="https://github.com/sporkmonger/addressable/compare/addressable-2.8.8...addressable-2.9.0">compare view</a></li>
+</ul>
+</details>
+<br />
+
+
+[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=addressable&package-manager=bundler&previous-version=2.8.8&new-version=2.9.0)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start)
+[//]: # (dependabot-automerge-end)
+
+---
+
+<details>
+<summary>Dependabot commands and options</summary>
+<br />
+
+You can trigger Dependabot actions by commenting on this PR:
+- `@dependabot rebase` will rebase this PR
+- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
+You can disable automated security fix PRs for this repo from the [Security Alerts page](https://github.com/rapid7/metasploit-omnibus/network/alerts).
+
+</details>17:T16a0,Bumps [json](https://github.com/ruby/json) from 2.18.1 to 2.19.2.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/ruby/json/releases">json's releases</a>.</em></p>
+<blockquote>
+<h2>v2.19.2</h2>
+<h2>What's Changed</h2>
+<ul>
+<li>Fix a format string injection vulnerability in <code>JSON.parse(doc, allow_duplicate_key: false)</code>. <code>CVE-2026-33210</code></li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/ruby/json/compare/v2.19.1...v2.19.2">https://github.com/ruby/json/compare/v2.19.1...v2.19.2</a></p>
+<h2>v2.19.1</h2>
+<h2>What's Changed</h2>
+<ul>
+<li>Fix a compiler dependent GC bug introduced in <code>2.18.0</code>.</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/ruby/json/compare/v2.19.0...v2.19.1">https://github.com/ruby/json/compare/v2.19.0...v2.19.1</a></p>
+<h2>v2.19.0</h2>
+<h2>What's Changed</h2>
+<ul>
+<li>Fix <code>allow_blank</code> parsing option to no longer allow invalid types (e.g. <code>load([], allow_blank: true)</code> now raise a type error).</li>
+<li>Add <code>allow_invalid_escape</code> parsing option to ignore backslashes that aren't followed by one of the valid escape characters.</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/ruby/json/compare/v2.18.1...v2.19.0">https://github.com/ruby/json/compare/v2.18.1...v2.19.0</a></p>
+</blockquote>
+</details>
+<details>
+<summary>Changelog</summary>
+<p><em>Sourced from <a href="https://github.com/ruby/json/blob/master/CHANGES.md">json's changelog</a>.</em></p>
+<blockquote>
+<h3>2026-03-18 (2.19.2)</h3>
+<ul>
+<li>Fix a format string injection vulnerability in <code>JSON.parse(doc, allow_duplicate_key: false)</code>. <code>CVE-2026-33210</code>.</li>
+</ul>
+<h3>2026-03-08 (2.19.1)</h3>
+<ul>
+<li>Fix a compiler dependent GC bug introduced in <code>2.18.0</code>.</li>
+</ul>
+<h3>2026-03-06 (2.19.0)</h3>
+<ul>
+<li>Fix <code>allow_blank</code> parsing option to no longer allow invalid types (e.g. <code>load([], allow_blank: true)</code> now raise a type error).</li>
+<li>Add <code>allow_invalid_escape</code> parsing option to ignore backslashes that aren't followed by one of the valid escape characters.</li>
+</ul>
+</blockquote>
+</details>
+<details>
+<summary>Commits</summary>
+<ul>
+<li><a href="https://github.com/ruby/json/commit/54f8a878aebee090476a53c851c943128894be62"><code>54f8a87</code></a> Release 2.19.2</li>
+<li><a href="https://github.com/ruby/json/commit/393b41c3e5f87491e1e34fa59fa78ff6fa179a74"><code>393b41c</code></a> Fix a format string injection vulnerability</li>
+<li><a href="https://github.com/ruby/json/commit/dbf6bb12aac85db939df1180028aea06c8d3b762"><code>dbf6bb1</code></a> Merge pull request <a href="https://redirect.github.com/ruby/json/issues/953">#953</a> from ruby/dependabot/github_actions/actions/create-gi...</li>
+<li><a href="https://github.com/ruby/json/commit/7187315b4571ade59d68a1fad84be2794cda744d"><code>7187315</code></a> Bump actions/create-github-app-token from 2 to 3</li>
+<li><a href="https://github.com/ruby/json/commit/4a42a04280d96d8dd94558078c16f1c078c38e1b"><code>4a42a04</code></a> Release 2.19.1</li>
+<li><a href="https://github.com/ruby/json/commit/13689c269970f18316952541f8544830ec2dc5c4"><code>13689c2</code></a> Add missing GC_GUARD in <code>fbuffer_append_str</code></li>
+<li><a href="https://github.com/ruby/json/commit/a11acc1ff496627e5d72c71d6d1229e8c8ffeaa1"><code>a11acc1</code></a> Release 2.19.0</li>
+<li><a href="https://github.com/ruby/json/commit/0a4fb79cd97f535701cc2240ac736d76b9af5025"><code>0a4fb79</code></a> fbuffer.h: Use size_t over unsigned long</li>
+<li><a href="https://github.com/ruby/json/commit/a29fcdcb4a78164daa14f6af05812690dd3ac939"><code>a29fcdc</code></a> Add depth validation to Jruby and TruffleRuby implementations</li>
+<li><a href="https://github.com/ruby/json/commit/de993aa76639078da891f46351a36f77d51ad3d3"><code>de993aa</code></a> Reject negative depth; add overflow guards to prevent hang/crash</li>
+<li>Additional commits viewable in <a href="https://github.com/ruby/json/compare/v2.18.1...v2.19.2">compare view</a></li>
+</ul>
+</details>
+<br />
+
+
+[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=json&package-manager=bundler&previous-version=2.18.1&new-version=2.19.2)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
+
+Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
+
+[//]: # (dependabot-automerge-start)
+[//]: # (dependabot-automerge-end)
+
+---
+
+<details>
+<summary>Dependabot commands and options</summary>
+<br />
+
+You can trigger Dependabot actions by commenting on this PR:
+- `@dependabot rebase` will rebase this PR
+- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
+- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency
+- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
+- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
+You can disable automated security fix PRs for this repo from the [Security Alerts page](https://github.com/rapid7/metasploit-omnibus/network/alerts).
+
+</details>10:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L13",null,{"owner":"rapid7","repo":"metasploit-omnibus","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":257,"title":"Retire obsolete gem registrations after macOS package upgrades","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"$14","createdAt":"2026-11-08T20:42:59Z","updatedAt":"2026-11-08T20:42:59Z","commentCount":0,"totalChanges":325,"filesChanged":5,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/257","vulnRefs":[]},{"number":256,"title":"Restore RepoForge access in the CentOS 6 builder","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"$15","createdAt":"2026-11-08T12:05:19Z","updatedAt":"2026-11-08T12:30:12Z","commentCount":0,"totalChanges":12,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/256","vulnRefs":[]},{"number":255,"title":"Update docker certs","author":"adfoster-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/60357436?v=4","status":"open","description":"Update docker certs","createdAt":"2026-11-03T14:03:22Z","updatedAt":"2026-11-03T14:03:34Z","commentCount":0,"totalChanges":7013,"filesChanged":8,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/255","vulnRefs":[]},{"number":254,"title":"Use an Ubuntu 24.04 runner to fix DNS failures in Ubuntu 12.04 x86 builds","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"The Ubuntu 12.04 x86 build image cannot resolve package hosts under Docker 29.4.2 on the Ubuntu 26 runner. A [resolver trace and controlled comparison](https://github.com/pauljccode/metasploit-omnibus/actions/runs/41271262954) showed its legacy socket calls returning `ENOSYS` with the default container filter. The same image resolved hosts on Ubuntu 24.04.\n\nSelect Ubuntu 24.04 for this matrix entry and include the selected runner in the job name. Other entries continue to use their existing runner.\n\n## Verification\n\nRun Verify and confirm that `ubuntu-24.04 - ubuntu1204-x86` builds and installs the package and passes its database and console checks. This job passed in the [complete package run](https://github.com/pauljccode/metasploit-omnibus/actions/runs/41274625596), which also includes the separate packaging and Framework fixes. Workflow lint passes.\n","createdAt":"2026-11-03T08:32:18Z","updatedAt":"2026-11-03T08:32:18Z","commentCount":0,"totalChanges":6,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/254","vulnRefs":[]},{"number":247,"title":"Update installation config","author":"adfoster-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/60357436?v=4","status":"open","description":"Update installation config to allow installing to C:/ or D:/","createdAt":"2026-06-26T23:00:08Z","updatedAt":"2026-06-29T11:19:00Z","commentCount":0,"totalChanges":84,"filesChanged":5,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/247","vulnRefs":[]},{"number":244,"title":"Bump addressable from 2.8.8 to 2.9.0","author":"dependabot","authorAvatarUrl":"https://avatars.githubusercontent.com/in/29110?v=4","status":"open","description":"$16","createdAt":"2026-04-08T08:57:22Z","updatedAt":"2026-04-08T08:57:23Z","commentCount":0,"totalChanges":5,"filesChanged":1,"modules":[],"assignees":[],"labels":[{"name":"dependencies","color":"0366d6"},{"name":"ruby","color":"ce2d2d"}],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/244","vulnRefs":[]},{"number":241,"title":"Bump json from 2.18.1 to 2.19.2","author":"dependabot","authorAvatarUrl":"https://avatars.githubusercontent.com/in/29110?v=4","status":"open","description":"$17","createdAt":"2026-03-19T12:54:29Z","updatedAt":"2026-03-19T12:54:30Z","commentCount":0,"totalChanges":3,"filesChanged":1,"modules":[],"assignees":[],"labels":[{"name":"dependencies","color":"0366d6"},{"name":"ruby","color":"ce2d2d"}],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/241","vulnRefs":[{"id":"CVE-2026-33210","cveAliases":[],"cvssScore":9.1,"cvssVector":"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H","cvssVersion":"3.1","source":"fkie-nvd-mirror","status":"scored","knownExploited":false}]},{"number":199,"title":"Test m1 building","author":"adfoster-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/60357436?v=4","status":"open","description":"Test m1 building","createdAt":"2024-05-20T21:59:44Z","updatedAt":"2025-01-19T22:11:41Z","commentCount":9,"totalChanges":9,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"unknown","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/metasploit-omnibus/pull/199","vulnRefs":[]}],"generatedAt":"2026-11-13T17:43:47.640Z"}],["$L18","$L19"],"$L1a"]}],"p":"$@1b","v":null,"s":"$a"}}]]
+e:[["children",{"s":{"n":"repo","t":"d","k":"metasploit-omnibus","s":[]},"h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@f","v":"$d","s":"$a"},"c":"$Q10"}]]
+b:[["children",{"s":"queue","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@c","v":"$d","s":"$a"},"c":"$Qe"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]}]}]]}],"p":"$@9","v":null,"s":"$a"},"c":"$Qb"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1d",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1f",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$20",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@21","v":null,"s":"$a"}},"a":"$@22","u":"$@23","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+24:I[97367,["$2","$3","$4"],"OutletBoundary"]
+18:["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true}]
+19:["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true}]
+1a:["$","$L24",null,{"children":["$","$20",null,{"name":"Next.MetadataOutlet","children":"$@25"}]}]
+a:300
+25:null
+23:true
+a:C
+22:0
+f:"$undefined"
+c:"$undefined"
+9:"$undefined"
+21:"$undefined"
+1b:"$undefined"

@@ -1,0 +1,104 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+11:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+12:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+13:I[75170,["$2","$3","$4","$11","$12"],"Dashboard"]
+1b:"ViewportBoundary"
+1c:I[97367,["$2","$3","$4"],"$1b"]
+1d:"MetadataBoundary"
+1e:I[97367,["$2","$3","$4"],"$1d"]
+1f:"$Sreact.suspense"
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+a:X
+d:X
+d:C
+14:T73b,An I/O completion can be stranded when a worker notifies the event loop between `eio_done_poll` stopping the async watcher and `eio_async_cb` restarting it. `ev_async_start` clears the pending notification, leaving a completed request queued without an event-loop callback.
+
+Keep the watcher active while polling. Retain the required done-poll callback as a no-op because bundled libeio invokes it unconditionally.
+
+Verification:
+
+1. Download `check-eio-notifications.py` and `eio-notification-probe.c` from the [reproducer directory](https://github.com/pauljccode/mettle/tree/80fd76a19a25e59390a4fa5f5ebf927f73f6df87/.github/ci) into the same directory. The runner requires Python 3, a C compiler, make and tar; it builds the bundled libeio 1.0.2 and libev 4.33.
+2. Run `python3 check-eio-notifications.py /path/to/mettle baseline` against master (`4dd76ae`), then repeat with `candidate` against this branch. The probe extracts the actual callbacks and forces the worker to finish in the stop/start interval.
+3. Confirm that both notifications are sent in each case, but only the corrected callbacks deliver both completions:
+
+```text
+mode=stop-start notifications=2 completed=1 pending=1
+mode=keep-active notifications=2 completed=2 pending=0
+```
+
+[The race reproducer](https://github.com/pauljccode/mettle/actions/runs/37171623851) passed on Linux, Intel macOS and Apple Silicon macOS. [Mettle Verify](https://github.com/pauljccode/mettle/actions/runs/37171709003) passed all eight Ruby/platform jobs, each with 65 examples and zero failures.
+
+[Acceptance of this commit](https://github.com/pauljccode/metasploit-framework/actions/runs/37532568189) passed 51 Linux and 46 Intel macOS examples. Both jobs build this PR's commit and verify installed files against the retained packages. The deterministic probe above isolates the notification race.
+15:T53a,An exited process can leave a dangling pointer in its channel. If the allocator reuses that address, closing the old channel can send `SIGINT` to a newer child. The [failing log](https://github.com/pauljccode/metasploit-framework/actions/runs/37078460668/job/111073508810) shows a new child receiving `SIGINT` immediately after delayed channel-close requests, consistent with this defect; allocator reuse was not captured.
+
+Detach the process in the exit callback, allow cleanup after normal exit, and free the callback context on every exit path. Remove the read-time shutdown to avoid freeing the detached channel while `channel_read` still uses it. Non-interactive channels retain read-response-before-close ordering.
+
+Related to [#64](https://github.com/rapid7/mettle/issues/64) and [#65](https://github.com/rapid7/mettle/pull/65), which addressed callbacks retaining a freed channel; this fixes a channel retaining a freed process.
+
+Verification:
+
+- [Mettle Verify](https://github.com/pauljccode/mettle/actions/runs/37106129279): all eight macOS/Linux Ruby jobs passed, each with 65 examples and zero failures.
+- [Acceptance and repeated checks](https://github.com/pauljccode/mettle/actions/runs/37103216635): Linux passed 51 examples and native Intel macOS passed 46, plus ten focused `post/test/cmd_exec` repetitions per platform.
+16:Ta4d,**DO NOT LAND THIS!**
+
+As a lark, I wanted to see what would be required to get mettle built for riscv64.  It turns out it is possible, but we will need to make some changes to things outside this repo.  **I've patched things here that have no business being patched in this repo.**
+
+There are two things I've hotpatched in here that should not be in here:
+1. We point to a musl build chain in AWS.  I think R7 controls the AWS bucket, but it is from 2017 and does not support riscv, so we should update that.  A good first might be to verify that the new Bootlin toolchain I'm using for riscv is not terrible and works with all the existing arches, then we can look to update the version that R7 hosts.  Worst case, we can look to host a second version that works with riscv.  To that point, the version that builds riscv seems to have an odd bug in the libpcap build code, so we might need to pr a patch for that or replicate the hotpatch here across all the arches.
+2. We point to the libsigar release forked into @busterb's repo.  That version does not support riscv, but I don't think any of the upstream ones do, either?  This PR includes a very minor patch to the libsigar library, but we should put up a PR to the @busterb libsigar instead of patching it here.  He's a cool dude, I bet he'd be OK with it.
+
+Here it is working on a stageless reverse_tcp:
+```
+msf exploit(multi/handler) > set payload linux/x64/meterpreter_reverse_tcp 
+payload => linux/x64/meterpreter_reverse_tcp
+msf exploit(multi/handler) > set lport 4567
+lport => 4567
+msf exploit(multi/handler) > set lhost 10.5.135.210
+lhost => 10.5.135.210
+msf exploit(multi/handler) > run
+[*] Started reverse TCP handler on 10.5.135.210:4567 
+[*] Meterpreter session 1 opened (10.5.135.210:4567 -> 10.5.132.225:50326) at 2026-07-17 18:20:29 -0500
+
+meterpreter > sysinfo
+Computer     : bananapif3
+OS           : Ubuntu 24.04 (Linux 6.6.100-legacy-spacemit)
+Architecture : riscv64
+BuildTuple   : riscv64-linux-musl
+Meterpreter  : x64/linux
+meterpreter > getuid
+Server username: msfuser
+meterpreter > exit
+[*] Shutting down session: 1
+
+[*] 10.5.132.225 - Meterpreter session 1 closed.  Reason: User exit
+```
+Things I did not test:
+I did not test a staged payload because we don't have a riscv meterpreter stager in framework yet.
+
+I 100% used Claude to help out on this- It took a couple tries before I found a musl build set that worked, and I absolutely offloaded that, plus tracking down the build bug in libpcap was not fun even with Claude's help.
+
+I'm tossing this up as proof riscv is possible, but we do have some work ahead of us.10:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L13",null,{"owner":"rapid7","repo":"mettle","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":300,"title":"Replace the obsolete Ruby preview with Ruby 4.0.9 in Verify","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"Verify fails during Ruby setup on ubuntu-latest because ruby/setup-ruby has no Ubuntu 26.04 build for 3.5.0-preview1. Replace that preview with stable Ruby 4.0.9, pinned to the exact release. The existing Ruby 3.2–3.4 entries and latest OS runners remain unchanged.\n\nFailure: https://github.com/rapid7/mettle/actions/runs/43236319453/job/131244741113\n\nValidation: all eight Verify matrix jobs pass in private CI ([results and output](https://github.com/pauljccode/mettle/blob/f70d32809f3a9659877710dd2b90269cbd178b92/VALIDATION.txt)). The local suite also passes on Ruby 4.0.9 (65 examples).\n","createdAt":"2026-11-12T18:03:13Z","updatedAt":"2026-11-12T18:03:13Z","commentCount":0,"totalChanges":2,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/mettle/pull/300","vulnRefs":[]},{"number":299,"title":"Keep EIO completion notifications active","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"$14","createdAt":"2026-10-04T02:43:27Z","updatedAt":"2026-11-12T14:45:16Z","commentCount":5,"totalChanges":3,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/mettle/pull/299","vulnRefs":[]},{"number":298,"title":"Fix process channel cleanup after exit","author":"pauljccode","authorAvatarUrl":"https://avatars.githubusercontent.com/u/216248898?v=4","status":"open","description":"$15","createdAt":"2026-10-03T16:24:02Z","updatedAt":"2026-10-07T04:52:45Z","commentCount":0,"totalChanges":9,"filesChanged":1,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/mettle/pull/298","vulnRefs":[]},{"number":297,"title":"DO NOT LAND - Test to get riscv64/loongarch64 meterpreter builds - DO NOT LAND","author":"bwatters-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/17987018?u=562c1b6600d722e45a20f2202dddeb2d6db1f091&v=4","status":"open","description":"$16","createdAt":"2026-07-18T00:19:48Z","updatedAt":"2026-10-16T16:31:38Z","commentCount":2,"totalChanges":169,"filesChanged":10,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/mettle/pull/297","vulnRefs":[]},{"number":287,"title":"Adds migrate command for Linux x64/x86","author":"msutovsky-r7","authorAvatarUrl":"https://avatars.githubusercontent.com/u/190406428?v=4","status":"open","description":"This adds support for `migrate` command on Mettle side for Linux x64/x86. This PR only adds support for Mettle to inject migrate stub and execute payload, session handling needs to be taken care in Framework. Currently, the `migrate` needs privilege to use `ptrace` syscall.","createdAt":"2025-10-23T09:43:35Z","updatedAt":"2026-10-23T13:53:12Z","commentCount":0,"totalChanges":704,"filesChanged":14,"modules":[],"assignees":[{"login":"dledda-r7","avatarUrl":"https://avatars.githubusercontent.com/u/171709318?u=1b95174056ba711e53816c46bc793466b258cd0d&v=4"}],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/mettle/pull/287","vulnRefs":[]}],"generatedAt":"2026-11-13T17:44:47.069Z"}],["$L17","$L18"],"$L19"]}],"p":"$@1a","v":null,"s":"$a"}}]]
+e:[["children",{"s":{"n":"repo","t":"d","k":"mettle","s":[]},"h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@f","v":"$d","s":"$a"},"c":"$Q10"}]]
+b:[["children",{"s":"queue","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@c","v":"$d","s":"$a"},"c":"$Qe"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]]}]}]}]]}],"p":"$@9","v":null,"s":"$a"},"c":"$Qb"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$1f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@20","v":null,"s":"$a"}},"a":"$@21","u":"$@22","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+23:I[97367,["$2","$3","$4"],"OutletBoundary"]
+17:["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true}]
+18:["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true}]
+19:["$","$L23",null,{"children":["$","$1f",null,{"name":"Next.MetadataOutlet","children":"$@24"}]}]
+a:300
+24:null
+22:true
+a:C
+21:0
+f:"$undefined"
+c:"$undefined"
+9:"$undefined"
+20:"$undefined"
+1a:"$undefined"

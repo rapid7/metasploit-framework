@@ -1,0 +1,347 @@
+1:"$Sreact.fragment"
+2:"/stats/_next/static/chunks/0hxqlocqx2rj8.js"
+3:"/stats/_next/static/chunks/3uqycv8tjri2x.js"
+4:"/stats/_next/static/chunks/34lkgjwm6t8_2.js"
+5:I[46798,["$2","$3","$4"],"TooltipProvider"]
+6:I[55068,["$2","$3","$4"],"SiteNav"]
+7:I[39756,["$2","$3","$4"],"default"]
+8:I[37457,["$2","$3","$4"],"default"]
+e:I[97367,["$2","$3","$4"],"OutletBoundary"]
+f:"$Sreact.suspense"
+11:"ViewportBoundary"
+12:I[97367,["$2","$3","$4"],"$11"]
+14:"MetadataBoundary"
+15:I[97367,["$2","$3","$4"],"$14"]
+17:I[68027,["$2","$3","$4"],"default",1]
+:HL["/stats/_next/static/chunks/1y8b04ey1i6t8.css","style"]
+:HL["/stats/_next/static/media/605ce01b664af129-s.p.0wgildi0cnwt9.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+a:X
+c:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":["$Ld",[["$","script","script-0",{"src":"/stats/_next/static/chunks/03aensi6bgvl3.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/1e531ik6ezbuh.js","async":true,"nonce":"$undefined"}]],["$","$Le",null,{"children":["$","$f",null,{"name":"Next.MetadataOutlet","children":"$@10"}]}]]}],"p":false,"v":null}}]]
+b:[["children",{"s":{"n":"repo","t":"d","k":"ruby_smb","s":[]},"h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qc"}]]
+9:[["children",{"s":"queue","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qb"}]]
+0:{"P":null,"c":["","queue","ruby_smb",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/stats/_next/static/chunks/0hxqlocqx2rj8.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/stats/_next/static/chunks/3uqycv8tjri2x.js","async":true,"nonce":"$undefined"}],["$","script","script-2",{"src":"/stats/_next/static/chunks/34lkgjwm6t8_2.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"font-sans aN_Ytq_variable","children":["$","body",null,{"className":"antialiased","children":["$","$L5",null,{"children":[["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]}]]}],"p":false,"v":null},"c":"$Q9"},"h":{"r":["$","$1","h",{"children":[null,["$","$L12",null,{"children":"$L13"}],["$","$L15",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$f",null,{"name":"Next.Metadata","children":"$L16"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$17",[["$","link","0",{"rel":"stylesheet","href":"/stats/_next/static/chunks/1y8b04ey1i6t8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"HFz5DoPrCi4Cxw-rQVoVF"}
+a:C
+13:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+10:null
+16:[["$","title","0",{"children":"metasploit-framework dashboard"}],["$","meta","1",{"name":"description","content":"Open pull request queue and historical stats for the rapid7 Metasploit project repos."}]]
+18:"/stats/_next/static/chunks/03aensi6bgvl3.js"
+19:"/stats/_next/static/chunks/1e531ik6ezbuh.js"
+1a:I[75170,["$2","$3","$4","$18","$19"],"Dashboard"]
+1b:Te7d,## Description
+
+The remaining half of #304. #309 moved the server to pick its own preferred mechanism out of the client's `mechTypeList`, which closes the reorder gap, but a `mechListMIC` check is still needed to catch an on-path attacker who **drops** a mechanism from the list before the server sees it. This PR adds that verifier.
+
+`Provider::Multi::Authenticator` now remembers the DER-encoded `mechTypeList` from the first `NegTokenInit`. When the client attaches a `mechListMIC` to its final `NegTokenResp` the server computes HMAC-MD5 under the NTLM client-to-server signing key derived from the negotiated session key and constant-time compares it to the client's MIC. If the comparison fails, auth returns `STATUS_LOGON_FAILURE`.
+
+Per `[MS-SPNG]` section 3.2.5.5 the MIC is REQUIRED on the mismatch path #309 introduced (server-chosen mechanism differs from the client's first-listed one). On the single-mechanism / no-mismatch path RFC 4178 keeps the MIC OPTIONAL, so the server only verifies when the client sent one.
+
+Depends on #309 - this branch is stacked on it.
+
+## Scope
+
+- **NTLM session keys only.** A Kerberos-negotiated session takes the existing `on_mech_token` handler path and the MIC check is skipped, because the Kerberos sub-provider does not hold the service key needed to derive a verifier. That is a separate hardening.
+- **Verifies the client's MIC, does not emit a server MIC.** Clients that insist on receiving a server-side `mechListMIC` are a follow-up.
+- **Covers the DROP attack when the client is spec-compliant.** A client that is MS-SPNG conformant (Windows is) signs over its own view of the mechTypeList. An attacker who removes OIDs between the client and the server breaks the HMAC. A client that omits the MIC entirely on the single-mech path still slips past (as RFC 4178 permits); server-side policy of "always require MIC in multi-mech mode" is a separate PR if someone wants it.
+
+## Lab PoC
+
+Scripted NTLM client + authenticator wired up to five scenarios. The baseline column swaps `lib/ruby_smb/gss/provider/multi.rb` to #309's version (no verifier). Everything else identical.
+
+| | Baseline (#309 base) | This branch |
+|---|---|---|
+| A - happy, no MIC                                         | SUCCESS | SUCCESS |
+| B - drop attack, client sends NO MIC                      | SUCCESS (attack wins) | SUCCESS (MIC was OPTIONAL here per RFC 4178) |
+| **C - drop attack, client sends MIC over ORIGINAL list**  | **SUCCESS (attack wins)** | **FAIL (attack caught)** |
+| D - happy, correct MIC over [NTLM]                        | SUCCESS | SUCCESS |
+| E - happy, tampered MIC                                   | SUCCESS (not verified) | FAIL (tampering caught) |
+
+C is the real target: a spec-conformant Windows client in a drop-attack scenario produces exactly these bytes, and the verifier catches it.
+
+## Verification Steps
+
+- [x] `bundle exec rspec spec/lib/ruby_smb/gss/provider/multi_spec.rb` passes with the four new MIC tests
+- [x] Lab PoC produces the table above when run against the two branches
+- [x] Existing routing / continuation / NTLM-exchange specs in this file continue to pass unchanged
+
+## Test Evidence
+
+New describe block `the client's mechListMIC on the final leg` with four cases:
+
+- `accepts a valid MIC on the single-mechanism (no-mismatch) path`
+- `rejects a MIC that was computed over a different mechTypeList`
+- `rejects a MIC with one bit flipped`
+- `leaves the single-mechanism path alone when no MIC is sent (RFC 4178 marks it OPTIONAL)`
+
+## Related
+
+- Issue: #304 (closes the mechListMIC half)
+- Depends on: #309 (server-preference routing + accept-incomplete / supportedMech)
+1c:T143e,## Description
+
+Addresses #304. `Provider::Multi::Authenticator#process` routed each NegTokenInit by reading only the client's first-listed mechanism, so a client (or an on-path attacker rewriting the mechTypeList before signing was in effect) that reordered the list could steer the server to a weaker sub-provider without removing any mechanism. On a server built with `Multi.new([kerberos_provider, ntlm_provider])`, a client-asserted `[NTLM, Kerberos]` was routed to NTLM even though both sides supported Kerberos.
+
+Walk the full mechTypeList, pick the server's most-preferred advertised mechanism that the client also offers, and route to that. When that choice differs from the mechanism the client's optimistic mechToken was built for, reply with a NegTokenResp carrying `accept-incomplete` and `supportedMech` per RFC 4178 section 4.2.2 so the client resends a token for the server-selected mechanism.
+
+## What this is and is not
+
+This is server-side routing hardening that prevents client ordering from forcing a weaker common mechanism. It is **not** a replacement for a `mechListMIC` verifier: an on-path attacker who rewrites the client's mechTypeList before signing is in effect can still drop mechanisms the client would otherwise have offered. Full integrity for the negotiated mechanism list requires computing and verifying the `mechListMIC` (RFC 4178 §5.1), which is tracked separately on #304 and left for a follow-up.
+
+## Wire-level demonstration
+
+A localhost MitM harness sends `[Kerberos, NTLM]` from the client to a transparent TCP proxy, which rewrites the mechTypeList to `[NTLM, Kerberos]` and replaces the Kerberos optimistic mechToken with an NTLM Type 1 message, then forwards the resulting SMB2 SessionSetup to a `Multi(Kerberos, NTLM)` ruby_smb server on the other side.
+
+Same bytes on the wire in both runs. Only `lib/ruby_smb/gss/provider/multi.rb` is swapped between runs:
+
+| | Before (upstream/master) | After (this branch) |
+|---|---|---|
+| MitM-rewritten SessionSetup | 105 bytes | 105 bytes |
+| Server-selected mechanism | **NTLMSSP** `1.3.6.1.4.1.311.2.2.10` | **Kerberos** `1.2.840.113554.1.2.2` |
+| Reply buffer | 217 B NTLM Type 2 challenge | 22 B NegTokenResp accept-incomplete, supportedMech=Kerberos |
+| nt_status | STATUS_MORE_PROCESSING_REQUIRED (0xC0000016) | STATUS_MORE_PROCESSING_REQUIRED (0xC0000016) |
+| Routing outcome | downgrade succeeds | downgrade refused |
+
+Before (upstream):
+
+```
+[INFO] mitm: rewriting [Kerberos, NTLM] -> [NTLM, Kerberos], replacing mechToken with NTLM Type 1
+[INFO] target server: SessionSetup security_blob 105 bytes
+[INFO] target server: authenticator result nt_status=0xc0000016 buffer=217B
+[INFO] target server: supportedMech=1.3.6.1.4.1.311.2.2.10   # NTLMSSP
+```
+
+After (this branch):
+
+```
+[INFO] mitm: rewriting [Kerberos, NTLM] -> [NTLM, Kerberos], replacing mechToken with NTLM Type 1
+[INFO] target server: SessionSetup security_blob 105 bytes
+[INFO] SPNEGO: client listed 1.3.6.1.4.1.311.2.2.10 first; server prefers 1.2.840.113554.1.2.2, requesting a token for it
+[INFO] target server: authenticator result nt_status=0xc0000016 buffer=22B
+[INFO] target server: supportedMech=1.2.840.113554.1.2.2   # Kerberos
+```
+
+## Routing matrix
+
+With server advertisement `[Kerberos, NTLM]`:
+
+| Client mechTypeList | Server chooses | Response |
+|---|---|---|
+| `[Kerberos, NTLM]` | Kerberos | Routes mechToken straight to Kerberos sub-provider |
+| `[NTLM, Kerberos]` | Kerberos | `accept-incomplete` + `supportedMech = Kerberos`, awaits new token |
+| `[NTLM]` | NTLM | Routes mechToken to NTLM sub-provider |
+| `[Kerberos]` | Kerberos | Routes mechToken to Kerberos sub-provider |
+| `[NEGOEX]` (no overlap) | none | Returns nil (same as prior behaviour for unsupported) |
+| `[]` (empty) | none | Returns nil, logged |
+
+## Continuation after `accept-incomplete`
+
+Covered by a new spec: client lists `[NTLM, Kerberos]`, server responds `accept-incomplete` naming Kerberos, client re-sends a NegTokenResp carrying a Kerberos token, which is dispatched to the Kerberos sub-provider's `on_mech_token` as if it had been named first.
+
+## Verification Steps
+
+- [x] `bundle exec rspec spec/lib/ruby_smb/gss/provider/multi_spec.rb` passes with the matrix + continuation specs added
+- [x] Offline ASN.1 PoC confirms `client_mech_oids` returns the exact OID strings in client-listed order for `[Kerberos, NTLM]`, `[NTLM, Kerberos]`, `[NTLM]`, `[Kerberos]`
+- [x] Localhost MitM harness: swapping only `multi.rb` between runs reproduces the downgrade on upstream/master and refuses it on this branch (output above)
+- [x] Existing single-mechanism tests continue to pass (the helper `gss_init` now delegates to `gss_init_list` so previous call sites are byte-identical)
+
+## Test Evidence
+
+New describe blocks in `spec/lib/ruby_smb/gss/provider/multi_spec.rb`:
+
+- `#process when a client offers more than one mechanism` covers the six matrix rows above.
+- `#process after replying accept-incomplete to a reordered client` exercises the two-leg continuation.
+
+## Related
+
+- Issue: #304
+- Does **not** supersede the mechListMIC-verification follow-up on #304; both are needed for the full-stack SPNEGO downgrade defence.
+1d:T8c0,## Description
+
+`GenericPacket.read` (lib/ruby_smb/generic_packet.rb:51-63) falls back to `SMB1::Packet::EmptyPacket` when the raw bytes can be parsed as neither the request class nor `SMB2::Packet::ErrorPacket`. A well-formed SMB2 header followed by a truncated or malformed body therefore returned an SMB1 EmptyPacket from an SMB2 request class's `.read`. `handle_smb2` only checked `is_a?(SMB2::Packet::ErrorPacket)`, missed the fallback, and dispatched the SMB1 object to the SMB2 `do_*` method, which raised NoMethodError on `request.smb2_header` and dropped the connection without a reply.
+
+The rescue branch was also missing an early return and wrote `response.smb_header.nt_status`, which does not exist on an SMB2 ErrorPacket.
+
+Return STATUS_DATA_ERROR from the rescue, add `SMB1::Packet::EmptyPacket` to the parse-failure check, and use `smb2_header` when stamping the status. This matches `handle_smb1`'s shape so an unparsable body always reaches the client as an SMB2 error.
+
+## Lab PoC
+
+Reproducer builds an SMB2 header with `command = SESSION_SETUP` and appends a two-byte body, then hands it to `RubySMB::Server::ServerClient#handle_smb2`.
+
+Before (upstream/master at b303067):
+
+```
+[CRASH] NoMethodError: undefined method 'smb2_header' for #<RubySMB::SMB1::Packet::EmptyPacket>
+  lib/ruby_smb/server/server_client/session_setup.rb:58:in `do_session_setup_smb2'
+  lib/ruby_smb/server/server_client.rb:405:in `handle_smb2'
+```
+
+After (this branch):
+
+```
+[OK] response: RubySMB::SMB2::Packet::ErrorPacket, status=0xc000003e  # STATUS_DATA_ERROR
+```
+
+## Verification Steps
+
+- [x] `bundle exec rspec spec/lib/ruby_smb/server/server_client_spec.rb` passes locally (27 examples, 0 failures)
+- [x] `bundle exec rspec spec/lib/ruby_smb/server/` passes locally (365 examples, 0 failures)
+- [x] Reproducer against the live `ServerClient#handle_smb2` returns an `SMB2::Packet::ErrorPacket` with `STATUS_DATA_ERROR` for a truncated SESSION_SETUP body (upstream crashed with NoMethodError on `request.smb2_header`)
+
+## Test Evidence
+
+365 examples in `spec/lib/ruby_smb/server/`, 0 failures. New describe `#handle_smb2 with a malformed request body` asserts both the SMB2 ErrorPacket reply and that `do_session_setup_smb2` is not invoked.1e:T886,## Description
+
+`Gss::Provider::NTLM::Authenticator#process_gss_type3` assumed every SPNEGO NegTokenResp carries a tag-[2] response_token and that each tagged element wraps exactly one child. RFC 4178 section 4.2.2 marks every NegTokenResp field OPTIONAL, so this is not true. A legitimate NegTokenResp carrying only `neg_result` or only `mech_list_mic`, or one with an empty-constructed tag [2], raised a NoMethodError that escaped the server-client thread and dropped the connection with no SMB reply.
+
+Walk the inner sequence with a nil-safe accessor, bail out when the response_token is absent, and wrap the Net::NTLM parse so bytes that are not a valid Type 3 message produce a logged error and a nil return instead of killing the thread.
+
+## Lab PoC
+
+Reproducer handed to `RubySMB::Gss::Provider::NTLM::Authenticator#process` with four DER-valid NegTokenResp shapes.
+
+Before (upstream/master at b303067):
+
+```
+[CRASH] empty inner sequence:              NoMethodError: undefined method 'size'  for nil
+[CRASH] only mech_list_mic [3]:            NoMethodError: undefined method 'size'  for nil
+[CRASH] response_token [2] with garbage:   ArgumentError: unknown type: 1954112045
+[CRASH] empty-constructed response_token:  NoMethodError: undefined method 'value' for nil
+```
+
+After (this branch):
+
+```
+[OK]    empty inner sequence:              nil
+[OK]    only mech_list_mic [3]:            nil
+[OK]    response_token [2] with garbage:   nil
+[OK]    empty-constructed response_token:  nil
+```
+
+## Verification Steps
+
+- [x] `bundle exec rspec spec/lib/ruby_smb/gss/provider/ntlm/authenticator_spec.rb` passes locally (22 examples in the Authenticator spec, 0 failures)
+- [x] `bundle exec rspec spec/lib/ruby_smb/gss/` passes locally (103 examples, 0 failures)
+- [x] Reproducer against the live `Authenticator#process` returns `nil` for all four malformed-NegTokenResp shapes shown in Lab PoC (upstream crashed on each)
+
+## Test Evidence
+
+103 examples in `spec/lib/ruby_smb/gss/`, 0 failures. New context `#process when the NegTokenResp is malformed` covers five shapes: empty inner sequence, response_token absent, mech_list_mic only, empty response_token, non-NTLM response_token.1f:Tafd,Fixes #261.
+
+## Problem
+
+Loading `ruby_smb` after a mocking library has patched `Object` raises a
+`SyntaxError` from BinData while the gem's own struct definitions are being
+built:
+
+```
+SyntaxError: field 'stub' shadows an existing method in RubySMB::Dcerpc::Request
+```
+
+The common trigger is an RSpec suite configured with `config.mock_with :rspec`,
+because rspec-mocks adds a `#stub` helper to `BasicObject`/`Object`. If that
+happens before `require 'ruby_smb'` (a normal `spec_helper.rb` ordering), the
+inherited `#stub` collides with the legitimate `:stub` field on
+`RubySMB::Dcerpc::Request`.
+
+The root cause is in BinData's field-name guard
+(`BinData::DSLMixin::DSLFieldValidator#name_shadows_method?`), which calls
+`@the_class.method_defined?(name)`. Without the second argument,
+`method_defined?` also returns `true` for methods inherited from ancestors such
+as `Object`, `Kernel` and `Hash`, so any field whose name matches an inherited
+helper method is wrongly rejected.
+
+## Fix
+
+This adds a small compatibility shim (`lib/ruby_smb/compatibility.rb`, required
+immediately after `require 'bindata'`) that narrows the guard to
+`@the_class.method_defined?(name, false)`. The `false` restricts the check to
+methods defined directly on the struct class, which is what the guard is meant
+to enforce.
+
+Why this does not weaken the guard:
+
+- Field accessors are installed per instance with `define_singleton_method`, so
+  an inherited method that happens to share a field's name never gets in the way
+  at runtime. Only a method defined directly on the struct class is a genuine
+  collision, and that case still raises.
+- Names that clash with `Hash` methods or BinData DSL internals are handled by a
+  separate, independent check (`name_is_reserved?` against
+  `BinData::Struct::RESERVED`). That list is unchanged, so reserved names such as
+  `keys` still raise.
+
+This is purely a compatibility/loosening of which field names are accepted. It
+does not rename, retype, or otherwise change any BinData data definition, so the
+versioning note in CONTRIBUTING.md (minor bump on BinData definition changes)
+does not apply here.
+
+## Tests
+
+`spec/lib/ruby_smb/compatibility_spec.rb` covers all three branches:
+
+- an inherited method that shares a field name no longer blocks the field
+  (the #261 regression),
+- a field that shadows a method defined directly on the struct still raises, and
+- a field that collides with a BinData reserved name (`keys`) still raises.
+
+# Verification Steps
+
+- [ ] `bundle install`
+
+## `rake spec`
+- [ ] `rake spec`
+- [ ] VERIFY no failures
+
+## Manual scenario
+
+```ruby
+require 'rspec/mocks/standalone'   # adds Object#stub, as `mock_with :rspec` does
+require 'ruby_smb'                  # previously raised "field 'stub' shadows an existing method"
+puts 'loaded ruby_smb cleanly'
+```
+20:Tb85,## Summary
+
+`RubySMB::Field::SecurityDescriptor` parsed the MS-DTYP `Control` field with the wrong bit ordering, so the decoded flags did not match the bytes on the wire. For the self-relative descriptor reported in #289 (`Control` word `0x9404`, little-endian bytes `04 94`), `dacl_present` and `self_relative` both decoded as `0` even though the DACL is present and the descriptor is self-relative. That is why `Client#get_key_security_descriptor` returned a structure with `dacl_present: 0` and an empty `dacl` despite a valid `offset_dacl`.
+
+Fixes #289.
+
+## Root cause
+
+The `Control` field is an unsigned 16-bit value transmitted little-endian ([MS-DTYP 2.4.6 SECURITY_DESCRIPTOR](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/7d4dac05-9cef-4563-a058-f108abecce1d)). MS-DTYP numbers the `Control` bits most-significant-first:
+
+```
+SR RM PS PD SI DI SC DC | SS DT SD SP DD DP GD OD
+```
+
+As a value of the 16-bit word that is `SR=0x8000`, `RM=0x4000`, `PS=0x2000`, `PD=0x1000`, `SI=0x0800`, `DI=0x0400`, `SC=0x0200`, `DC=0x0100`, `SS=0x0080`, `DT=0x0040`, `SD=0x0020`, `SP=0x0010`, `DD=0x0008`, `DP=0x0004`, `GD=0x0002`, `OD=0x0001`.
+
+The low byte (the first byte read) carries `SS..OD` and the high byte (the second byte read) carries `SR..DC`. The previous `bit1` declarations did not follow that layout, so each flag landed on the wrong bit. Decoding `0x9404` with the old code produced `sacl_protected`, `owner_defaulted`, `dacl_defaulted` and `sacl_defaulted` instead of the correct `self_relative`, `dacl_protected`, `dacl_auto_inherited` and `dacl_present`.
+
+## Fix
+
+Declare the `bit1` fields most-significant-first within each byte, low byte first and then high byte, so every flag maps to its MS-DTYP bit value. Decoding `0x9404` now yields exactly `self_relative` (`0x8000`), `dacl_protected` (`0x1000`), `dacl_auto_inherited` (`0x0400`) and `dacl_present` (`0x0004`).
+
+The existing per-flag examples in the spec asserted the previous incorrect masks (for example `self_relative` was checked against `0x0001` and `dacl_present` against `0x2000`); they are corrected to the MS-DTYP values. A regression test parses the self-relative descriptor from the issue and checks the decoded flags and the DACL offset.
+
+Note: this changes the on-the-wire bit mapping of a BinData definition, which `CONTRIBUTING.md` documents as a change that warrants a minor version bump.
+
+## Verification Steps
+
+- [ ] `bundle install`
+
+### `rake spec`
+
+- [ ] `bundle exec rspec spec/lib/ruby_smb/field/security_descriptor.rb`
+- [ ] VERIFY no failures
+
+### Manual scenario
+
+```ruby
+require 'ruby_smb'
+
+# Self-relative descriptor from issue #289 (Control 0x9404)
+bytes = "\x01\x00\x04\x94\x8C\x00\x00\x00\x9C\x00\x00\x00\x00\x00\x00\x00\x14\x00\x00\x00".b
+control = RubySMB::Field::SecurityDescriptor.read(bytes).control
+
+control.dacl_present  # => 1  (was 0 before this change)
+control.self_relative # => 1  (was 0 before this change)
+```
+d:["$","$L1a",null,{"owner":"rapid7","repo":"ruby_smb","repos":["cpe_utils","hamlbars","jsobfu","just-the-docs","libeio","libev","marionette.carpenter","metakitty","metasm","metasploit-aggregator","metasploit-concern","metasploit-credential","metasploit-erd","metasploit-framework","metasploit-model","metasploit-omnibus","metasploit-omnibus-cache","metasploit-payloads","metasploit-vagrant-builders","metasploit-yard","metasploit_data_models","metasploitable3","meterpreter-deps","mettle","mettle-deps","mimikatz","msfrpc-client","network_interface","omnibus","recog","recog-ruby","ReflectiveDLLInjection","rex-arch","rex-bin_tools","rex-core","rex-encoder","rex-exploitation","rex-java","rex-mime","rex-nop","rex-ole","rex-powershell","rex-random_identifier","rex-registry","rex-rop_builder","rex-socket","rex-sslscan","rex-struct2","rex-text","rex-zip","ruby_smb","sigar","ssh-badkeys","vagrant-aws","windows_error","yard-metasploit-erd"],"repoPrCounts":{"hamlbars":0,"cpe_utils":0,"jsobfu":0,"just-the-docs":0,"metakitty":0,"libeio":0,"marionette.carpenter":0,"libev":0,"metasploit-credential":1,"metasploit-concern":0,"metasm":2,"metasploit-aggregator":0,"metasploit-model":0,"metasploit-erd":0,"metasploit-omnibus":8,"metasploit-framework":121,"metasploit-vagrant-builders":1,"metasploit-payloads":8,"metasploit-omnibus-cache":2,"metasploit-yard":0,"metasploit_data_models":2,"metasploitable3":11,"meterpreter-deps":1,"mettle":5,"mimikatz":0,"mettle-deps":1,"network_interface":0,"msfrpc-client":0,"recog-ruby":1,"recog":14,"omnibus":0,"ReflectiveDLLInjection":0,"rex-encoder":0,"rex-bin_tools":0,"rex-arch":0,"rex-core":0,"rex-nop":0,"rex-exploitation":0,"rex-mime":0,"rex-java":0,"rex-powershell":0,"rex-random_identifier":0,"rex-registry":0,"rex-ole":0,"rex-sslscan":0,"rex-struct2":0,"rex-rop_builder":0,"rex-socket":1,"rex-zip":0,"rex-text":1,"sigar":1,"ruby_smb":6,"vagrant-aws":0,"yard-metasploit-erd":0,"windows_error":1,"ssh-badkeys":2},"pullRequests":[{"number":310,"title":"Verify the client's mechListMIC on the final SPNEGO leg","author":"Pushpenderrathore","authorAvatarUrl":"https://avatars.githubusercontent.com/u/75983347?u=4dd595c13e50556ec15d8f577050058dd6b1ce86&v=4","status":"open","description":"$1b","createdAt":"2026-10-04T10:22:50Z","updatedAt":"2026-10-04T10:27:53Z","commentCount":0,"totalChanges":330,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"windows","testingEnvReason":"PR description: C is the real target: a spec-conformant Windows client in a drop-attack scenario produces exactly these bytes, and the verifier catches it.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/310","vulnRefs":[]},{"number":309,"title":"Pick the mechanism from the server's preference, not the client's","author":"Pushpenderrathore","authorAvatarUrl":"https://avatars.githubusercontent.com/u/75983347?u=4dd595c13e50556ec15d8f577050058dd6b1ce86&v=4","status":"open","description":"$1c","createdAt":"2026-10-03T08:10:21Z","updatedAt":"2026-10-03T08:10:21Z","commentCount":0,"totalChanges":110,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/309","vulnRefs":[]},{"number":307,"title":"Reply with STATUS_DATA_ERROR when an SMB2 request fails to parse","author":"Pushpenderrathore","authorAvatarUrl":"https://avatars.githubusercontent.com/u/75983347?u=4dd595c13e50556ec15d8f577050058dd6b1ce86&v=4","status":"open","description":"$1d","createdAt":"2026-10-02T15:50:20Z","updatedAt":"2026-10-02T15:53:52Z","commentCount":0,"totalChanges":41,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/307","vulnRefs":[]},{"number":306,"title":"Validate the SPNEGO NegTokenResp before parsing an NTLM Type 3","author":"Pushpenderrathore","authorAvatarUrl":"https://avatars.githubusercontent.com/u/75983347?u=4dd595c13e50556ec15d8f577050058dd6b1ce86&v=4","status":"open","description":"$1e","createdAt":"2026-10-02T15:43:31Z","updatedAt":"2026-10-02T15:53:49Z","commentCount":1,"totalChanges":72,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"failing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/306","vulnRefs":[]},{"number":300,"title":"Ignore inherited methods in BinData field-name guard (#261)","author":"arpitjain099","authorAvatarUrl":"https://avatars.githubusercontent.com/u/3242828?u=07e4989cb48491f0d48295a01f11abee1fa7d336&v=4","status":"open","description":"$1f","createdAt":"2026-06-03T22:25:32Z","updatedAt":"2026-06-03T22:25:32Z","commentCount":0,"totalChanges":93,"filesChanged":3,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/300","vulnRefs":[]},{"number":299,"title":"Fix SECURITY_DESCRIPTOR Control bitfield ordering","author":"arpitjain099","authorAvatarUrl":"https://avatars.githubusercontent.com/u/3242828?u=07e4989cb48491f0d48295a01f11abee1fa7d336&v=4","status":"open","description":"$20","createdAt":"2026-06-03T04:07:48Z","updatedAt":"2026-06-03T04:07:48Z","commentCount":0,"totalChanges":113,"filesChanged":2,"modules":[],"assignees":[],"labels":[],"reviewDecision":"none","ciStatus":"passing","testingEnv":"framework","testingEnvReason":"Changes are confined to framework, tooling, tests, or general documentation; no target module changes detected.. Inferred from PR evidence; target availability is not verified.","githubUrl":"https://github.com/rapid7/ruby_smb/pull/299","vulnRefs":[]}],"generatedAt":"2026-11-13T17:44:52.895Z"}]
