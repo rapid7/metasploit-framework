@@ -55,6 +55,11 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
       expect(described_class.to_cmd(['test.exe'] + [''])).to eq('test.exe ""')
       expect(described_class.to_cmd(['test.exe'] + ['', ''])).to eq('test.exe "" ""')
     end
+
+    it 'should quote newlines and carriage returns' do
+      expect(described_class.to_cmd(['test.exe'] + ["a\nb"])).to eq("test.exe \"a\nb\"")
+      expect(described_class.to_cmd(['test.exe'] + ["a\rb"])).to eq("test.exe \"a\rb\"")
+    end
   end
 
   describe 'argv_to_commandline processing' do

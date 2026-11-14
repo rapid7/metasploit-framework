@@ -35,5 +35,13 @@ RSpec.describe Msf::Sessions::CommandShellUnix do
       expect(described_class.to_cmd(['./test'] + ["\"$PATH\""])).to eq("./test '\"$PATH\"'")
       expect(described_class.to_cmd(['./test'] + ["it's \"$PATH\""])).to eq("./test it\\''s \"$PATH\"'")
     end
+
+    it 'should quote newlines, carriage returns and tabs' do
+      # A bare newline is a command separator in a POSIX shell, so it must be quoted
+      expect(described_class.to_cmd(['./test'] + ["a\nb"])).to eq("./test 'a\nb'")
+      expect(described_class.to_cmd(['nslookup'] + ["example.com\nid"])).to eq("nslookup 'example.com\nid'")
+      expect(described_class.to_cmd(['./test'] + ["a\rb"])).to eq("./test 'a\rb'")
+      expect(described_class.to_cmd(['./test'] + ["a\tb"])).to eq("./test 'a\tb'")
+    end
   end
 end

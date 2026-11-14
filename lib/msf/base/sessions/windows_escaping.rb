@@ -76,7 +76,7 @@ module Msf::Sessions
       # To do this, we'll consider each argument character-by-character. Each time we encounter a percent sign, we break out of any quotes
       # (if we've been inside them in the current "token"), and then start a new "token".
 
-      quote_requiring = ['"', '^', ' ', "\t", "\v", '&', '<', '>', '|']
+      quote_requiring = ['"', '^', ' ', "\t", "\v", "\n", "\r", '&', '<', '>', '|']
 
       escaped_cmd_and_args = cmd_and_args.map do |arg|
         # Escape quote chars by doubling them up, except those preceeded by a backslash (which are already effectively escaped, and handled below)
