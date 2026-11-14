@@ -61,6 +61,15 @@ module Msf::Sessions
     # Convert the executable and argument array to a command that can be run in this command shell
     # @param cmd_and_args [Array<String>] The process path and the arguments to the process
     def to_cmd(cmd_and_args)
+      # cmd.exe breaks its input into separate commands at a carriage return or
+      # line feed before it applies any quoting, so a line break embedded in an
+      # argument cannot be neutralised by quoting and would start a second
+      # command. There is no safe escaping for this, so reject such arguments
+      # rather than emit a command line that runs attacker-controlled input.
+      if cmd_and_args.any? { |arg| arg.to_s.match?(/[\r\n]/) }
+        raise ArgumentError, 'Windows command shell arguments cannot contain carriage returns or line feeds'
+      end
+
       # The space, caret and quote chars need to be inside double-quoted strings.
       # The percent character needs to be escaped using a caret char, while being outside a double-quoted string.
       #
