@@ -56,9 +56,11 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
       expect(described_class.to_cmd(['test.exe'] + ['', ''])).to eq('test.exe "" ""')
     end
 
-    it 'should quote newlines and carriage returns' do
-      expect(described_class.to_cmd(['test.exe'] + ["a\nb"])).to eq("test.exe \"a\nb\"")
-      expect(described_class.to_cmd(['test.exe'] + ["a\rb"])).to eq("test.exe \"a\rb\"")
+    it 'should reject arguments containing line breaks' do
+      # cmd.exe ends a command at a line break even inside quotes, so quoting
+      # cannot neutralise it; such arguments must be rejected
+      expect { described_class.to_cmd(['test.exe'] + ["a\nb"]) }.to raise_error(ArgumentError)
+      expect { described_class.to_cmd(['test.exe'] + ["a\rb"]) }.to raise_error(ArgumentError)
     end
   end
 
