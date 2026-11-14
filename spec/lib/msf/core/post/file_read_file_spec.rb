@@ -54,5 +54,47 @@ RSpec.describe Msf::Post::File do
 
       expect(subject.read_file(file_name)).to eq(file_content)
     end
+
+    context 'when the session supports idle read timeouts' do
+      before do
+        allow(subject).to receive(:readable?).with(file_name).and_return(true)
+        allow(subject).to receive(:command_exists?).with('cat').and_return(true)
+      end
+
+      it 'defines an absolute ceiling larger than the idle timeout' do
+        expect(described_class::UNIX_FILE_READ_MAX_TIMEOUT).to be > described_class::UNIX_FILE_READ_TIMEOUT
+      end
+
+      it 'reads a Unix file with cat inside with_idle_read_timeout' do
+        expect(session).to receive(:with_idle_read_timeout)
+          .with(described_class::UNIX_FILE_READ_MAX_TIMEOUT) { |*, &block| block.call }
+        expect(session).to receive(:shell_command_token)
+          .with("cat \"#{file_name}\"", described_class::UNIX_FILE_READ_TIMEOUT)
+          .and_return(file_content)
+
+        expect(subject.read_file(file_name)).to eq(file_content)
+      end
+
+      it 'reads a Unix file without cat inside with_idle_read_timeout' do
+        allow(subject).to receive(:command_exists?).with('cat').and_return(false)
+
+        expect(session).to receive(:with_idle_read_timeout)
+          .with(described_class::UNIX_FILE_READ_MAX_TIMEOUT) { |*, &block| block.call }
+        expect(session).to receive(:shell_command_token)
+          .with("while read line; do echo $line; done <#{file_name}", described_class::UNIX_FILE_READ_TIMEOUT)
+          .and_return(file_content)
+
+        expect(subject.read_file(file_name)).to eq(file_content)
+      end
+
+      it 'does not use idle read timeouts for Windows files' do
+        allow(session).to receive(:platform).and_return('windows')
+
+        expect(session).not_to receive(:with_idle_read_timeout)
+        expect(session).to receive(:shell_command_token).with("type \"#{file_name}\"").and_return(file_content)
+
+        expect(subject.read_file(file_name)).to eq(file_content)
+      end
+    end
   end
 end
