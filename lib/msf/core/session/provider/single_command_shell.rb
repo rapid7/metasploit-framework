@@ -55,13 +55,20 @@ module SingleCommandShell
       parts_needed = 1 + (wanted_idx * 2)
     end
 
+    # By default +timeout+ is an absolute deadline. Inside #with_idle_read_timeout
+    # it is an inactivity timeout instead, bounded by an absolute ceiling.
+    idle = !@idle_read_max_timeout.nil?
+    ceiling = idle ? @idle_read_max_timeout : timeout
+
     # Read until we get the data between two tokens or absolute timeout.
     begin
-      ::Timeout.timeout(timeout) do
+      ::Timeout.timeout(ceiling) do
         buf = ''
         idx = nil
+        last_activity = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         loop do
           if (tmp = shell_read(-1))
+            last_activity = Process.clock_gettime(Process::CLOCK_MONOTONIC) unless tmp.empty?
             buf << tmp
             # see if we have the wanted idx
             unless buf.nil?
@@ -75,6 +82,9 @@ module SingleCommandShell
               end
             end
           end
+
+          # Give up once nothing has arrived for +timeout+ seconds.
+          break if idle && Process.clock_gettime(Process::CLOCK_MONOTONIC) - last_activity > timeout
         end
       end
     rescue Timeout::Error
@@ -82,6 +92,23 @@ module SingleCommandShell
     end
     # failed to get any data or find the token!
     nil
+  end
+
+  #
+  # Run the given block with #shell_read_until_token treating its +timeout+ as
+  # an inactivity timeout (reset whenever data arrives) rather than an absolute
+  # deadline, so large outputs on slow links are not discarded while they are
+  # still being received. A command that never stops producing output would
+  # otherwise never time out, so +max_timeout+ is an absolute ceiling per read.
+  #
+  # Callers that do not use this keep the existing absolute-timeout behaviour.
+  #
+  def with_idle_read_timeout(max_timeout)
+    previous = @idle_read_max_timeout
+    @idle_read_max_timeout = max_timeout
+    yield
+  ensure
+    @idle_read_max_timeout = previous
   end
 
   def shell_command_token(cmd, timeout=10)
