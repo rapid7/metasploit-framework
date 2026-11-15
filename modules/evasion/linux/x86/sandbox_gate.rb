@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Evasion
 
     register_options(
       [
-        OptString.new('FILENAME', [true, 'Output filename', 'env_gate.elf']),
+        OptString.new('FILENAME', [true, 'Output filename', 'payload.elf']),
         OptInt.new('CORES', [true, 'Minimum CPU cores required to pass check', 2]),
         OptInt.new('UPTIME', [true, 'Minimum system uptime in seconds required to pass check', 600]),
         OptBool.new('CHECK_DOCKER', [true, 'Enable /.dockerenv container detection check', true]),
