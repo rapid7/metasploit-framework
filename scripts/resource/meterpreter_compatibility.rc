@@ -11,10 +11,14 @@ framework.sessions.values.map do |session|
 
   Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.sort.each do |extension_name|
     puts "[#{Time.now}][#{extension_name}] Starting to loading extension"
+    # Acceptance runs the console through a pipe, so flush before a load can block.
+    $stdout.flush
     session.core.use(extension_name)
     puts "[#{Time.now}][#{extension_name}] Loaded extension"
-  rescue ::RuntimeError, ::MetasploitPayloads::Error
-    puts "[#{Time.now}][#{extension_name}] Failed loading"
+    $stdout.flush
+  rescue ::RuntimeError, ::MetasploitPayloads::Error => e
+    puts "[#{Time.now}][#{extension_name}] Failed loading: #{e.class}: #{e.message}"
+    $stdout.flush
     # noop
   end
 end
