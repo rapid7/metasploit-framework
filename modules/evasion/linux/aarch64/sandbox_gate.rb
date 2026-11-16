@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Evasion
       fail_with(Failure::BadConfig, 'Gate stub assembly failed')
     end
 
-    final_elf = Msf::Util::EXE.to_linux_aarch64_elf(framework,gate_stub + raw_payload)
+    final_elf = Msf::Util::EXE.to_linux_aarch64_elf(framework, gate_stub + raw_payload)
 
     File.binwrite(datastore['FILENAME'], final_elf)
     File.chmod(0o755, datastore['FILENAME'])
