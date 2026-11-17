@@ -81,7 +81,6 @@ Defaults to `false`. No local Garak installation is needed to write YAML; disabl
 The configuration selects `ollama.OllamaGeneratorChat`. For authenticated services,
 export `OLLAMA_API_KEY` before launching Garak.
 
-
 ### SUGGEST_PROBES
 
 Defaults to `true`. Query model capabilities and compare against local garak
