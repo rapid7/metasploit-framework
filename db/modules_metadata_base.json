@@ -73826,6 +73826,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/beyondtrust_rs_mrs_file_upload": {
+    "name": "BeyondTrust Remote Support MRS Origin Validation File Upload",
+    "fullname": "exploit/linux/http/beyondtrust_rs_mrs_file_upload",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-10-15",
+    "type": "exploit",
+    "author": [
+      "jheysel"
+    ],
+    "description": "An anonymous attacker can forge the MRS local router alias and invoke the\n          appliance-side thin worker's native file-transfer service. This module\n          uploads a PHP payload into the site's public directory and requests its\n          extensionless URL. PHP and Unix command payloads execute as the site user.\n          Tested on Remote Support 24.1.2; other affected releases and fixed builds\n          have not been established. Public issue-menu sessions and thin chat are required.",
+    "references": [
+      "URL-https://docs.beyondtrust.com/rs/docs/va-install",
+      "URL-https://www.rapid7.com/blog/post/ra-rapid7-analysis-unauthenticated-file-upload-to-rce-in-beyondtrust-remote-support-cve-2026-102764/",
+      "CVE-2026-102764"
+    ],
+    "platform": "PHP,Unix",
+    "arch": "php, cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP",
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-17 09:40:11 +0000",
+    "path": "/modules/exploits/linux/http/beyondtrust_rs_mrs_file_upload.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/beyondtrust_rs_mrs_file_upload",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_linux/http/bitbucket_git_cmd_injection": {
     "name": "Bitbucket Git Command Injection",
     "fullname": "exploit/linux/http/bitbucket_git_cmd_injection",
