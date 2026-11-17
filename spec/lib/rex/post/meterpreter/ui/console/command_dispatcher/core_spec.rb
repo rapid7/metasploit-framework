@@ -75,7 +75,9 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core do
   describe '#async_subcmd_run' do
     let(:rid) { '0123456789abcdef0123456789abcdef' }
     let(:store) { instance_double(Rex::Post::Meterpreter::AsyncResultStore, complete: nil) }
-    let(:async_shell) { instance_double(Rex::Post::Meterpreter::Ui::Console, run_single: nil) }
+    let(:async_input) { StringIO.new }
+    let(:async_output) { StringIO.new }
+    let(:async_shell) { instance_double(Rex::Post::Meterpreter::Ui::Console, input: async_input, output: async_output, run_single: nil) }
     let(:saved_user_input) { Object.new }
     let(:saved_user_output) { Object.new }
 
@@ -109,6 +111,27 @@ RSpec.describe Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core do
       expect(client).to have_received(:user_input=).with(saved_user_input)
       expect(client).to have_received(:user_output=).with(saved_user_output)
       expect(client).not_to have_received(:init_ui)
+    end
+
+    context 'when post setup initializes the session UI' do
+      let(:saved_user_input) { StringIO.new }
+      let(:session_ui) { Class.new { include Rex::Ui::Subscriber }.new }
+
+      before do
+        session_ui.user_input = saved_user_input
+        session_ui.user_output = saved_user_output
+        allow(client).to receive(:user_input) { session_ui.user_input }
+        allow(client).to receive(:user_output) { session_ui.user_output }
+        allow(client).to receive(:user_input=) { |input| session_ui.user_input = input }
+        allow(client).to receive(:user_output=) { |output| session_ui.user_output = output }
+        allow(async_shell).to receive(:run_single) { session_ui.init_ui(async_input, async_output) }
+      end
+
+      it 'keeps the borrowed operator input open' do
+        command_dispatcher.async_subcmd_run(['run', 'post/multi/gather/env'])
+
+        expect(saved_user_input).not_to be_closed
+      end
     end
 
     context 'when both saved session handles are nil' do

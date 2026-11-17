@@ -1025,7 +1025,11 @@ class Console::CommandDispatcher::Core
       saved_console     = swap_console ? client.console : nil
       saved_user_input  = client.respond_to?(:user_input)  ? client.user_input  : nil
       saved_user_output = client.respond_to?(:user_output) ? client.user_output : nil
-      client.console    = async_shell if swap_console
+      # SessionCompatibility calls init_ui during Post setup. Redirect the
+      # borrowed handles first so init_ui does not close the operator input.
+      client.user_input = async_shell.input if client.respond_to?(:user_input=)
+      client.user_output = async_shell.output if client.respond_to?(:user_output=)
+      client.console = async_shell if swap_console
 
       # Signal to Msf::SessionCompatibility that post modules dispatched from
       # this worker thread are allowed to run against the async session.
