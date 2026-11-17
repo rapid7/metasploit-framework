@@ -87,7 +87,6 @@ Optional case-insensitive substring to narrow the active probe list, such as
 Python executable with the Garak package installed, used to list probes.
 Defaults to `python3`.
 
-
 ### OUTPUT_YAML
 
 Set `OUTPUT_YAML true` to save a Garak YAML configuration in Metasploit loot for
