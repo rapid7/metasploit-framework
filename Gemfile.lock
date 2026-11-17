@@ -345,7 +345,7 @@ GEM
       json_schemer (>= 2.4)
     memory_profiler (1.1.0)
     metasm (1.0.6)
-    metasploit-concern (5.0.7)
+    metasploit-concern (5.0.8)
       activemodel (>= 7.0, < 9.0)
       activesupport (>= 7.0, < 9.0)
       drb
@@ -366,7 +366,7 @@ GEM
       rex-socket
       rubyntlm
       rubyzip (>= 3.1.1, < 4.0)
-    metasploit-model (5.0.6)
+    metasploit-model (5.0.8)
       activemodel (>= 7.0, < 9.0)
       activesupport (>= 7.0, < 9.0)
       bigdecimal
@@ -374,7 +374,7 @@ GEM
       mutex_m
       railties (>= 7.0, < 9.0)
     metasploit-payloads (2.0.257)
-    metasploit_data_models (6.0.19)
+    metasploit_data_models (6.0.20)
       activerecord (>= 7.0, < 9.0)
       activesupport (>= 7.0, < 9.0)
       arel-helpers
