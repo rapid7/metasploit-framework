@@ -61,7 +61,6 @@ actual discovery key nor the unauthenticated `unused` placeholder is saved. The
 suggested plugin command selects that child environment variable. Export it before
 starting msfconsole, or append `REST_API_KEY=<value>` to that command.
 
-
 ### API_KEY
 
 Optional bearer token for protected servers. This value is used for discovery
