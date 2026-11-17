@@ -106,7 +106,6 @@ probe selection is written and the suggested command uses `probes.test.Blank`.
 When enabled, YAML replaces the default JSON flow configuration. The REST request
 template and `$KEY` authentication placeholder are retained.
 
-
 ### API_KEY
 
 Optional existing Langflow API key sent in `x-api-key` for discovery. It is never
