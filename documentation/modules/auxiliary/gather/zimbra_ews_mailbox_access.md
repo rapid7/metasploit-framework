@@ -104,17 +104,6 @@ MIME content enabled.
 Numeric victim item ID required by `READ`. Use an ID returned by `LIST` for the
 same `FOLDER` and `VICTIM`.
 
-### AutoCheck
-
-Runs the behavioral authorization check before an action. Setting `AutoCheck`
-to `false` skips that cross-mailbox gate, but the action still authenticates,
-resolves both accounts, and proves that ordinary EWS works for the attacker.
-
-### ForceExploit
-
-Allows AutoCheck to continue after a `Safe` or `Unknown` result. It does not
-override invalid action options, rejected credentials, or an unusable EWS
-endpoint.
 
 ## Actions
 
