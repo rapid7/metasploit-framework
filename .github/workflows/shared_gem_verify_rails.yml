@@ -98,6 +98,26 @@ jobs:
         run: |
           docker exec postgres sh -c 'until pg_isready -U postgres; do echo waiting for postgres; sleep 2; done; echo postgres is ready'
 
+      - name: Install matching PostgreSQL client
+        env:
+          POSTGRES_VERSION: ${{ matrix.postgres }}
+        run: |
+          postgres_major="${POSTGRES_VERSION%%.*}"
+          # Newer pg_dump versions can emit SQL unsupported by the test server.
+          # https://www.postgresql.org/download/linux/ubuntu/
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y --no-install-recommends "postgresql-client-${postgres_major}"
+          echo "/usr/lib/postgresql/${postgres_major}/bin" >> "$GITHUB_PATH"
+        shell: bash
+
+      - name: Log PostgreSQL versions
+        run: |
+          pg_dump --version
+          psql --version
+          docker exec postgres psql -U postgres -c 'SHOW server_version;'
+
       - name: Checkout code
         uses: actions/checkout@v4
 
