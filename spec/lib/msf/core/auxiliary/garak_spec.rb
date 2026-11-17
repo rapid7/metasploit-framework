@@ -32,8 +32,27 @@ RSpec.describe Msf::Auxiliary::Garak do
     end
 
     it 'checks CLI startup using the configured interpreter' do
-      expect(helper).to receive(:execute_garak).with(['/tmp/garak-env/bin/python', '-m', 'garak', '--version'], anything).and_return(double(success?: true))
+      expect(helper).to receive(:execute_garak).with(['/tmp/garak-env/bin/python', '-m', 'garak', '--version'], anything) do |_command, output|
+        File.write(output, 'garak LLM vulnerability scanner v0.17.1.pre1 ( https://github.com/NVIDIA/garak )')
+        double(success?: true)
+      end
       expect { helper.validate_garak_python }.not_to raise_error
+    end
+
+    it 'rejects an installed Garak release without the required CLI and metadata behavior' do
+      allow(helper).to receive(:execute_garak) do |_command, output|
+        File.write(output, 'garak LLM vulnerability scanner v0.15.9 ( https://github.com/NVIDIA/garak )')
+        double(success?: true)
+      end
+      expect { helper.validate_garak_python }.to raise_error(Msf::Auxiliary::Failed, /0\.15\.9 is unsupported.*0\.16\.0/)
+    end
+
+    it 'rejects an unrecognized Garak version response' do
+      allow(helper).to receive(:execute_garak) do |_command, output|
+        File.write(output, 'garak development build')
+        double(success?: true)
+      end
+      expect { helper.validate_garak_python }.to raise_error(Msf::Auxiliary::Failed, /unrecognized version/)
     end
 
     it 'reports the missing dependency and how to select an environment' do
@@ -64,6 +83,7 @@ RSpec.describe Msf::Auxiliary::Garak do
   end
 
   describe '#garak_probe_suggestions' do
+    let(:target_types) { %w[ollama.OllamaGeneratorChat ollama.OllamaGenerator] }
     let(:metadata) do
       {
         'probes' => {
@@ -87,7 +107,7 @@ RSpec.describe Msf::Auxiliary::Garak do
     end
 
     it 'suggests text probes for a text model and excludes image requirements' do
-      result = helper.garak_probe_suggestions(['text'], metadata)
+      result = helper.garak_probe_suggestions(['text'], metadata, target_types: target_types)
       expect(result['input_types']).to eq(['text'])
       expect(result['probes']['probes.test.Text'].values).to eq(%w[suggested suggested])
       expect(result['probes']['probes.test.Image'].values).to eq(%w[incompatible incompatible])
@@ -95,7 +115,7 @@ RSpec.describe Msf::Auxiliary::Garak do
     end
 
     it 'requires both the model and adapter to accept every probe input type' do
-      result = helper.garak_probe_suggestions(%w[text image], metadata)
+      result = helper.garak_probe_suggestions(%w[text image], metadata, target_types: target_types)
       expect(result['input_types']).to eq(%w[text image])
       expect(result['probes']['probes.test.Image']).to eq('ollama.OllamaGeneratorChat' => 'suggested', 'ollama.OllamaGenerator' => 'incompatible')
       expect(result['probes']['probes.test.Audio'].values).to eq(%w[incompatible incompatible])
@@ -103,26 +123,26 @@ RSpec.describe Msf::Auxiliary::Garak do
 
     [nil, ['text', nil]].each do |input_types|
       it "retains unknown compatibility for missing or invalid input types #{input_types.inspect}" do
-        result = helper.garak_probe_suggestions(input_types, metadata)
+        result = helper.garak_probe_suggestions(input_types, metadata, target_types: target_types)
         expect(result['probes'].values.flat_map(&:values).uniq).to eq(['unknown'])
       end
     end
 
     it 'marks generation probes incompatible when the model has no generation input modality' do
-      result = helper.garak_probe_suggestions([], metadata)
+      result = helper.garak_probe_suggestions([], metadata, target_types: target_types)
       expect(result['probes']['probes.test.Text'].values).to eq(%w[incompatible incompatible])
     end
 
     it 'does not assume missing adapter metadata supports an input type' do
       metadata['generators'] = {}
-      result = helper.garak_probe_suggestions(['text'], metadata)
+      result = helper.garak_probe_suggestions(['text'], metadata, target_types: target_types)
       expect(result['probes']['probes.test.Text'].values).to eq(%w[unknown unknown])
     end
 
     it 'does not silently exclude new capability types' do
       metadata['probes']['probes.test.Future'] = { 'modality' => { 'in' => ['future_media'] } }
       metadata['generators'].transform_values! { |_| { 'modality' => { 'in' => %w[text future_media] } } }
-      result = helper.garak_probe_suggestions(%w[text future_media], metadata)
+      result = helper.garak_probe_suggestions(%w[text future_media], metadata, target_types: target_types)
       expect(result['probes']['probes.test.Future'].values).to eq(%w[suggested suggested])
     end
   end
@@ -130,7 +150,10 @@ RSpec.describe Msf::Auxiliary::Garak do
   describe '#garak_probe_metadata' do
     let(:cache) do
       {
-        'probes' => { 'probes.test.Text' => { 'modality' => { 'in' => ['text'] } } },
+        'probes' => {
+          'probes.base.Probe' => { 'active' => false, 'modality' => { 'in' => ['text'] } },
+          'probes.test.Text' => { 'modality' => { 'in' => ['text'] } }
+        },
         'generators' => { 'generators.ollama.OllamaGeneratorChat' => { 'modality' => { 'in' => ['text'] } } },
         'detectors' => {}, 'harnesses' => {}, 'buffs' => {}
       }
@@ -150,8 +173,8 @@ RSpec.describe Msf::Auxiliary::Garak do
         File.write(cache_path, cache.to_json)
         double(success?: true)
       end
-      expect(helper.garak_probe_metadata).to eq(
-        'probes' => cache['probes'],
+      expect(helper.garak_probe_metadata(target_types: %w[ollama.OllamaGeneratorChat ollama.OllamaGenerator])).to eq(
+        'probes' => { 'probes.test.Text' => cache.dig('probes', 'probes.test.Text') },
         'generators' => {
           'ollama.OllamaGeneratorChat' => cache.dig('generators', 'generators.ollama.OllamaGeneratorChat'),
           'ollama.OllamaGenerator' => nil
@@ -161,7 +184,7 @@ RSpec.describe Msf::Auxiliary::Garak do
 
     it 'reports a timed-out metadata process' do
       allow(helper).to receive(:execute_garak).and_return(nil)
-      expect { helper.garak_probe_metadata }.to raise_error(Msf::Auxiliary::Failed, /exceeded RunTimeout/)
+      expect { helper.garak_probe_metadata(target_types: ['ollama.OllamaGenerator']) }.to raise_error(Msf::Auxiliary::Failed, /exceeded RunTimeout/)
     end
 
     ['invalid', '{}', '{"probes":{},"generators":{},"detectors":{},"harnesses":{},"buffs":{}}'].each do |contents|
@@ -172,7 +195,7 @@ RSpec.describe Msf::Auxiliary::Garak do
           File.write(cache_path, contents)
           double(success?: true)
         end
-        expect { helper.garak_probe_metadata }.to raise_error(Msf::Auxiliary::Failed, /metadata/)
+        expect { helper.garak_probe_metadata(target_types: ['ollama.OllamaGenerator']) }.to raise_error(Msf::Auxiliary::Failed, /metadata/)
       end
     end
   end

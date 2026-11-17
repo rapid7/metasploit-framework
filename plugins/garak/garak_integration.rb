@@ -21,7 +21,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
           Runs an installed garak package to assess an AI target and imports its JSONL
           evaluation report as loot. Displays per-probe detector results without
           treating heuristic detections as confirmed vulnerabilities. Requires a
-          POSIX host and a Python environment with the garak package installed.
+          POSIX host and a Python environment with garak 0.16.0 or newer installed.
           Target connections are made by garak and do not use Metasploit routing.
         },
         'Author' => ['bwatters-r7'], # Original integration implementation
@@ -56,7 +56,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     register_advanced_options([
       Msf::OptInt.new('REST_TIMEOUT', [false, 'Override the garak REST generator request timeout in seconds']),
       Msf::OptString.new('REST_API_KEY', [false, 'API key passed only through the garak child environment']),
-      Msf::OptString.new('REST_API_KEY_ENV', [false, 'Existing environment variable containing a REST generator API key'], regex: /\A[A-Za-z_][A-Za-z0-9_]*\z/),
+      Msf::OptString.new('REST_API_KEY_ENV', [false, 'Existing environment variable containing the selected generator API key'], regex: /\A[A-Za-z_][A-Za-z0-9_]*\z/),
       Msf::OptPath.new('CONFIG_FILE', [false, 'Local garak YAML or JSON configuration file']),
       Msf::OptAddress.new('DB_HOST', [false, 'Target address for database attribution (omit for workspace notes)']),
       Msf::OptPort.new('DB_PORT', [false, 'Target TCP service port for database attribution']),
@@ -65,14 +65,17 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     register_garak_options
   end
 
-  def garak_command(prefix, endpoint: nil)
+  def garak_command(report_prefix:, endpoint: nil)
     command = [
       datastore['PYTHON'], '-u', '-m', 'garak',
-      '--target_type', datastore['TARGET_TYPE'], '--generations', datastore['GENERATIONS'].to_s, '--report_prefix', prefix
+      '--target_type', datastore['TARGET_TYPE'], '--generations', datastore['GENERATIONS'].to_s,
+      '--report_prefix', report_prefix
     ]
     command.concat(['--spec', datastore['PROBES']]) if datastore['PROBES'].present?
     command.concat(['--target_name', datastore['TARGET_NAME']]) if datastore['TARGET_NAME'].present?
     command.concat(['--config', File.expand_path(datastore['CONFIG_FILE'])]) if datastore['CONFIG_FILE'].present?
+    adapter = ENDPOINT_ALIASES.fetch(datastore['TARGET_TYPE'], datastore['TARGET_TYPE']).to_s
+    plugin, klass = adapter.split('.', 2)
     options = {}
     if endpoint
       adapter = endpoint_adapter
@@ -80,14 +83,16 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       options = { plugin => { klass => { ENDPOINT_OPTIONS.fetch(adapter) => endpoint } } }
     end
     if datastore['REST_TIMEOUT'].present?
-      options['rest'] ||= {}
-      options['rest']['RestGenerator'] ||= {}
-      options['rest']['RestGenerator']['request_timeout'] = datastore['REST_TIMEOUT']
+      options[plugin] ||= {}
+      options[plugin][klass] ||= {}
+      options[plugin][klass]['request_timeout'] = datastore['REST_TIMEOUT']
     end
-    if datastore['REST_API_KEY_ENV'].present? && ENDPOINT_ALIASES.fetch(datastore['TARGET_TYPE'], datastore['TARGET_TYPE']) == 'rest.RestGenerator'
-      options['rest'] ||= {}
-      options['rest']['RestGenerator'] ||= {}
-      options['rest']['RestGenerator']['key_env_var'] = datastore['REST_API_KEY_ENV']
+    if datastore['REST_API_KEY_ENV'].present?
+      fail_with(Failure::BadConfig, 'REST_API_KEY_ENV requires a full module.Class TARGET_TYPE') if klass.blank?
+
+      options[plugin] ||= {}
+      options[plugin][klass] ||= {}
+      options[plugin][klass]['key_env_var'] = datastore['REST_API_KEY_ENV']
     end
     command.concat(['--generator_options', options.to_json]) unless options.empty?
     command << '--verbose' if datastore['VERBOSE']
@@ -124,7 +129,10 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     end
     if datastore['RHOSTS'].present?
       endpoint_adapter if datastore['CONFIG_FILE'].blank?
-      return super if datastore['TARGET_NAME'].blank? && model_discovery_supported?
+      if datastore['CONFIG_FILE'].present? && Msf::RhostsWalker.new(datastore['RHOSTS'], datastore).to_enum.take(2).length > 1
+        fail_with(Failure::BadConfig, 'CONFIG_FILE fixes one target endpoint and cannot be combined with multiple RHOSTS; use one RHOST for attribution, or clear RHOSTS and set DB_HOST')
+      end
+      return super if datastore['CONFIG_FILE'].blank? && datastore['TARGET_NAME'].blank? && model_discovery_supported?
 
       validate_scan
       if datastore['DB_HOST'].present? || datastore['DB_PORT'].present?
@@ -149,7 +157,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
   end
 
   def run_host(ip)
-    return list_target_names if datastore['TARGET_NAME'].blank? && model_discovery_supported?
+    return list_target_names if datastore['CONFIG_FILE'].blank? && datastore['TARGET_NAME'].blank? && model_discovery_supported?
 
     endpoint = if datastore['CONFIG_FILE'].blank?
                  "#{datastore['SSL'] ? 'https' : 'http'}://#{Rex::Socket.to_authority(ip, datastore['RPORT'])}#{datastore['TARGETURI']}"
@@ -207,8 +215,10 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'PROBES or CONFIG_FILE run.spec is required for SCAN. Use garak_list_probes and optionally set PROBE_FILTER (for example, dan). Examples: probes.test.Blank for a smoke test, probes.dan,-probes.dan.Dan_11_0 for a family with an exclusion.')
     end
     if datastore['TARGET_NAME'].blank?
-      guidance = if model_discovery_supported?
+      guidance = if model_discovery_supported? && datastore['CONFIG_FILE'].blank?
                    'Set RHOSTS, RPORT, SSL and TARGETURI to list models, or set TARGET_NAME explicitly'
+                 elsif model_discovery_supported?
+                   'Set TARGET_NAME explicitly; automatic model discovery requires CONFIG_FILE to be unset'
                  else
                    'Model discovery is not supported for this TARGET_TYPE; obtain the model name or endpoint from the provider and set TARGET_NAME'
                  end
@@ -238,32 +248,65 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     validate_scan
     association ||= database_association
     Dir.mktmpdir('msf-garak-') do |directory|
-      prefix = File.join(directory, 'scan')
+      report_prefix = File.join(directory, 'scan')
       output_path = File.join(directory, 'console.log')
       print_status('Running garak locally; this can take several minutes')
       key_env_var = datastore['REST_API_KEY_ENV'].presence || 'REST_API_KEY'
       environment = {}
       environment[key_env_var] = datastore['REST_API_KEY'] if datastore['REST_API_KEY'].present?
-      status = execute_garak(garak_command(prefix, endpoint: endpoint), output_path, environment: environment)
+      status = execute_garak(garak_command(report_prefix: report_prefix, endpoint: endpoint), output_path, environment: environment)
+      console = ''
       if File.file?(output_path)
         console = File.binread(output_path)
         path = store_loot('garak.console', 'text/plain', association[:host], console, 'garak-console.log')
         print_status("Garak console log saved to #{path}")
         console.each_line { |line| vprint_status("Garak: #{line.chomp}") }
       end
-      report_path = "#{prefix}.report.jsonl"
-      if File.file?(report_path)
-        import_report(File.binread(report_path), association: association)
-      else
-        print_warning('Garak did not produce a JSONL report')
-      end
+      report_paths = store_garak_artifacts(directory, report_prefix: report_prefix, association: association)
+      print_warning('Garak did not produce a JSONL report') if report_paths.empty?
       fail_with(Failure::TimeoutExpired, 'Garak exceeded RunTimeout; partial results were preserved') unless status
       if !status.success? && console.to_s.include?('requests.exceptions.ReadTimeout:')
         fail_with(Failure::TimeoutExpired, 'Garak REST request timed out waiting for the target; increase REST_TIMEOUT or plugins.generators.rest.RestGenerator.request_timeout in CONFIG_FILE and verify the flow completes; partial results were preserved')
       end
-      fail_with(Failure::Unknown, "Garak failed (#{status}); inspect the console log and Python dependencies") unless status.success?
-      fail_with(Failure::UnexpectedReply, 'Garak exited without a JSONL report') unless File.file?(report_path)
+      fail_with(Failure::Unknown, "Garak failed (#{status}); inspect the retained console, Garak logs and run artifacts") unless status.success?
+      fail_with(Failure::UnexpectedReply, 'Garak exited without a JSONL report') if report_paths.empty?
     end
+  end
+
+  def store_garak_artifacts(workspace, report_prefix:, association:)
+    log_path = File.join(workspace, 'garak', 'garak.log')
+    run_directory = File.join(workspace, 'garak', 'garak_runs')
+    artifacts = Dir.glob("#{report_prefix}.*")
+    artifacts.concat(Dir.glob(File.join(run_directory, '**', '*')))
+    artifacts.select! { |path| File.file?(path) }
+    artifacts.uniq!
+    artifacts.unshift(log_path) if File.file?(log_path)
+    report_paths = artifacts.select { |path| path.end_with?('.report.jsonl') }
+
+    artifacts.each do |path|
+      if report_paths.include?(path)
+        import_report(File.binread(path), association: association)
+        next
+      end
+
+      type, content_type = garak_artifact_metadata(path)
+      loot_path = store_loot(type, content_type, association[:host], File.binread(path), File.basename(path), 'Garak output artifact')
+      print_status("Garak output artifact saved to #{loot_path}")
+    end
+    report_paths
+  end
+
+  def garak_artifact_metadata(path)
+    basename = File.basename(path)
+    return ['garak.log', 'text/plain'] if basename == 'garak.log'
+    return ['garak.hitlog', 'application/x-ndjson'] if basename.end_with?('.hitlog.jsonl')
+    # store_loot forces text/* files to a .txt extension. Retain this report as
+    # binary so the interactive HTML artifact remains directly openable.
+    return ['garak.report.html', 'application/octet-stream'] if basename.end_with?('.report.html')
+    return ['garak.artifact.jsonl', 'application/x-ndjson'] if basename.end_with?('.jsonl')
+    return ['garak.artifact.json', 'application/json'] if basename.end_with?('.json')
+
+    ['garak.artifact', 'application/octet-stream']
   end
 
   def database_association

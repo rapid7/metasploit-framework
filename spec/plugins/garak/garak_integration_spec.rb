@@ -15,9 +15,10 @@ RSpec.describe 'Garak integration' do
     allow(mod).to receive(:validate_scan)
     allow(mod).to receive(:store_loot).and_return('/tmp/saved-console')
     allow(mod).to receive(:import_report)
-    allow(mod).to receive(:execute_garak) do |_command, output, **_kwargs|
+    allow(mod).to receive(:execute_garak) do |command, output, **_kwargs|
       File.write(output, 'requests.exceptions.ReadTimeout: Read timed out. (read timeout=20)')
-      File.write(File.join(File.dirname(output), 'scan.report.jsonl'), '{}')
+      report_prefix = command[command.index('--report_prefix') + 1]
+      File.write("#{report_prefix}.report.jsonl", '{}')
       instance_double(Process::Status, success?: false)
     end
     expect { mod.scan_garak }.to raise_error(Msf::Auxiliary::Failed, /increase REST_TIMEOUT/)
@@ -92,7 +93,7 @@ RSpec.describe 'Garak integration' do
       it "maps the endpoint for #{adapter} while retaining provider configuration" do
         mod.datastore['TARGET_TYPE'] = adapter
         mod.datastore['CONFIG_FILE'] = '/tmp/provider.yaml'
-        command = mod.garak_command('/tmp/report', endpoint: 'https://[2001:db8::1]:8443/api/generate')
+        command = mod.garak_command(report_prefix: '/tmp/report', endpoint: 'https://[2001:db8::1]:8443/api/generate')
         expect(JSON.parse(command[command.index('--generator_options') + 1])).to eq(plugin => { klass => { key => 'https://[2001:db8::1]:8443/api/generate' } })
         expect(command[command.index('--config') + 1]).to eq('/tmp/provider.yaml')
       end
@@ -102,18 +103,32 @@ RSpec.describe 'Garak integration' do
       it "overrides REST timeout with endpoint #{endpoint.inspect} without dropping configuration" do
         mod.datastore['TARGET_TYPE'] = 'rest.RestGenerator'
         mod.datastore['REST_TIMEOUT'] = 300
-        command = mod.garak_command('/tmp/report', endpoint: endpoint)
+        command = mod.garak_command(report_prefix: '/tmp/report', endpoint: endpoint)
         settings = JSON.parse(command[command.index('--generator_options') + 1]).dig('rest', 'RestGenerator')
         expect(settings['request_timeout']).to eq(300)
         expect(settings['uri']).to eq(endpoint) if endpoint
       end
     end
 
+    it 'applies the API key environment variable to the selected provider' do
+      mod.datastore['TARGET_TYPE'] = 'openai.OpenAICompatible'
+      mod.datastore['REST_API_KEY_ENV'] = 'OPENAI_API_KEY'
+      command = mod.garak_command(report_prefix: '/tmp/report')
+      settings = JSON.parse(command[command.index('--generator_options') + 1])
+      expect(settings).to eq('openai' => { 'OpenAICompatible' => { 'key_env_var' => 'OPENAI_API_KEY' } })
+    end
+
+    it 'requires a full provider class for an API key environment override' do
+      mod.datastore['TARGET_TYPE'] = 'openai'
+      mod.datastore['REST_API_KEY_ENV'] = 'OPENAI_API_KEY'
+      expect { mod.garak_command(report_prefix: '/tmp/report') }.to raise_error(Msf::Auxiliary::Failed, /full module.Class TARGET_TYPE/)
+    end
+
     it 'passes arbitrary adapters through without injecting endpoint settings' do
       mod.datastore['TARGET_TYPE'] = 'custom.Provider'
       mod.datastore['TARGET_NAME'] = 'custom-model'
       mod.datastore['CONFIG_FILE'] = '/tmp/provider.yaml'
-      command = mod.garak_command('/tmp/report')
+      command = mod.garak_command(report_prefix: '/tmp/report')
       expect(command[command.index('--target_type') + 1]).to eq('custom.Provider')
       expect(command[command.index('--target_name') + 1]).to eq('custom-model')
       expect(command[command.index('--config') + 1]).to eq('/tmp/provider.yaml')
@@ -121,13 +136,13 @@ RSpec.describe 'Garak integration' do
     end
 
     it 'omits the model argument when none is configured' do
-      expect(mod.garak_command('/tmp/report')).not_to include('--target_name')
+      expect(mod.garak_command(report_prefix: '/tmp/report')).not_to include('--target_name')
     end
 
     it 'keeps model names and paths as literal arguments' do
       mod.datastore['TARGET_NAME'] = 'model;$(touch /tmp/should-not-exist)'
       mod.datastore['CONFIG_FILE'] = '/tmp/config with spaces.yaml'
-      command = mod.garak_command('/tmp/report with spaces')
+      command = mod.garak_command(report_prefix: '/tmp/report with spaces')
       expect(command[command.index('--target_name') + 1]).to eq(mod.datastore['TARGET_NAME'])
       expect(command[command.index('--config') + 1]).to eq('/tmp/config with spaces.yaml')
       expect(command[command.index('--report_prefix') + 1]).to eq('/tmp/report with spaces')
@@ -135,7 +150,7 @@ RSpec.describe 'Garak integration' do
 
     it 'passes include and exclude probe selectors as one literal argument' do
       mod.datastore['PROBES'] = 'probes.packagehallucination,-probes.packagehallucination.JavaScript'
-      command = mod.garak_command('/tmp/report')
+      command = mod.garak_command(report_prefix: '/tmp/report')
       expect(command[command.index('--spec') + 1]).to eq(mod.datastore['PROBES'])
     end
 
@@ -147,12 +162,23 @@ RSpec.describe 'Garak integration' do
         mod.datastore['TARGET_NAME'] = 'http://192.0.2.1/run'
         allow(mod).to receive(:validate_garak_runtime)
         expect { mod.validate_scan }.not_to raise_error
-        expect(mod.garak_command('/tmp/report')).not_to include('--spec')
+        command = mod.garak_command(report_prefix: '/tmp/report')
+        expect(command).not_to include('--spec')
+        expect(command[command.index('--report_prefix') + 1]).to eq('/tmp/report')
       end
     end
   end
 
   describe '#run' do
+    it 'rejects multiple RHOSTS when one configured endpoint is authoritative' do
+      mod.datastore['TARGET_TYPE'] = 'rest.RestGenerator'
+      mod.datastore['TARGET_NAME'] = 'http://192.0.2.1/run'
+      mod.datastore['CONFIG_FILE'] = '/tmp/provider.yaml'
+      mod.datastore['RHOSTS'] = '192.0.2.1-192.0.2.2'
+      expect(mod).not_to receive(:scan_garak)
+      expect { mod.run }.to raise_error(Msf::Auxiliary::Failed, /cannot be combined with multiple RHOSTS/)
+    end
+
     it 'rejects an unmapped adapter when remote hosts are supplied' do
       mod.datastore['TARGET_TYPE'] = 'custom.Provider'
       mod.datastore['RHOSTS'] = '192.0.2.1'
@@ -238,7 +264,7 @@ RSpec.describe 'Garak integration' do
 
   describe '#available_generators' do
     it 'returns generator names from the package metadata cache' do
-      allow(mod).to receive(:garak_plugin_cache).and_return('generators' => { 'generators.test.Blank' => {}, 'generators.test.Repeat' => {}, 'not-a-generator' => {} })
+      allow(mod).to receive(:garak_plugin_cache).and_return('generators' => { 'generators.base.Generator' => {}, 'generators.test.Blank' => {}, 'generators.test.Repeat' => {}, 'not-a-generator' => {} })
       expect(mod.available_generators).to eq(%w[test test.Blank test.Repeat])
     end
   end

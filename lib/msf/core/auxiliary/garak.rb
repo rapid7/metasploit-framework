@@ -79,10 +79,11 @@ module Msf::Auxiliary::Garak
   # Read garak's plugin metadata without instantiating probes or generators.
   # @param target_types [Array<String>] Generator names to inspect
   # @return [Hash] Probe and generator metadata
-  def garak_probe_metadata(target_types: OLLAMA_TARGET_TYPES)
+  def garak_probe_metadata(target_types:)
     cache = garak_plugin_cache
     generators = target_types.to_h { |name| [name, cache['generators']["generators.#{name}"]] }
-    { 'probes' => cache['probes'], 'generators' => generators }
+    probes = cache['probes'].reject { |name, _| garak_base_plugin?(name, category: 'probes') }
+    { 'probes' => probes, 'generators' => generators }
   end
 
   # Compare declared probe inputs with model and generator inputs. Unknown
@@ -91,7 +92,7 @@ module Msf::Auxiliary::Garak
   # @param metadata [Hash] Local garak metadata
   # @param target_types [Array<String>] Generator names to compare
   # @return [Hash] Model inputs and per-probe compatibility for each adapter
-  def garak_probe_suggestions(input_types, metadata, target_types: OLLAMA_TARGET_TYPES)
+  def garak_probe_suggestions(input_types, metadata, target_types:)
     inputs = input_types if input_types.is_a?(Array) && input_types.all? { |value| value.is_a?(String) }
     probes = metadata['probes'].sort.to_h.transform_values do |probe|
       required = garak_input_types(probe)
@@ -162,6 +163,7 @@ module Msf::Auxiliary::Garak
   # https://github.com/NVIDIA/garak/tree/main/garak/generators
   OLLAMA_TARGET_TYPES = %w[ollama.OllamaGeneratorChat ollama.OllamaGenerator].freeze
   OPENAI_COMPATIBLE_TARGET_TYPE = 'openai.OpenAICompatible'
+  MINIMUM_GARAK_VERSION = Rex::Version.new('0.16.0')
   ENDPOINT_OPTIONS = OLLAMA_TARGET_TYPES.to_h { |adapter| [adapter, 'host'] }.merge(
     'rest.RestGenerator' => 'uri',
     OPENAI_COMPATIBLE_TARGET_TYPE => 'uri'
@@ -186,10 +188,20 @@ module Msf::Auxiliary::Garak
     prefix = "#{category}."
     names = garak_plugin_cache.fetch(category).filter_map do |name, metadata|
       next if active_only && metadata.is_a?(Hash) && metadata['active'] == false
+      next if garak_base_plugin?(name, category: category)
 
       name.delete_prefix(prefix) if name.start_with?(prefix)
     end
     (names + names.map { |name| name.split('.', 2).first }).uniq.sort
+  end
+
+  # Identify Garak framework classes that are not runnable selections.
+  # @param name [String] Fully qualified Garak plugin name
+  # @param category [String] CLI plugin category
+  # @return [Boolean] Whether the name belongs to the category's base module
+  def garak_base_plugin?(name, category:)
+    prefix = "#{category}.base"
+    name == prefix || name.start_with?("#{prefix}.")
   end
 
   # Build and read garak's plugin cache in an isolated cache directory.
@@ -239,9 +251,20 @@ module Msf::Auxiliary::Garak
       output_path = File.join(directory, 'python.log')
       status = execute_garak([python, '-m', 'garak', '--version'], output_path)
       fail_with(Msf::Module::Failure::TimeoutExpired, "Garak startup check using PYTHON=#{python} exceeded RunTimeout") unless status
-      next if status.success?
-
       output = File.file?(output_path) ? File.binread(output_path).force_encoding(::Encoding::UTF_8).scrub : ''
+      if status.success?
+        version_string = output[/\bgarak LLM vulnerability scanner v(\d+(?:\.\d+){2}(?:[.\w-]*))/, 1]
+        unless version_string && Rex::Version.correct?(version_string)
+          fail_with(Msf::Module::Failure::BadConfig, "Garak returned an unrecognized version using PYTHON=#{python}. #{guidance}")
+        end
+
+        version = Rex::Version.new(version_string)
+        if version < MINIMUM_GARAK_VERSION
+          fail_with(Msf::Module::Failure::BadConfig, "Garak #{version} is unsupported; install Garak #{MINIMUM_GARAK_VERSION} or newer. #{guidance}")
+        end
+        next
+      end
+
       output.each_line { |line| vprint_status("Garak: #{line.chomp}") }
       reason = output.lines.reverse.find { |line| line.match?(/\A(?:[\w.]*Error|[\w.]*Exception):/) }&.strip || "Process exited with status #{status.exitstatus}"
       fail_with(Msf::Module::Failure::BadConfig, "Garak cannot start using PYTHON=#{python}: #{reason}. #{guidance}")

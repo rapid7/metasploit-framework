@@ -9,11 +9,16 @@ python3 -m venv .venv
 .venv/bin/python -m pip install garak
 ```
 
-Set `PYTHON` to that environment's interpreter. The integration expects Garak's
-`--target_type`, `--spec`, and `--report_prefix` CLI. Scan and listing commands
-require a POSIX Metasploit host. Garak inherits provider credentials from the
-msfconsole environment and makes its own model connections;
-Metasploit routes and proxies do not apply to those connections.
+Set `PYTHON` to that environment's interpreter. The integration supports Garak
+0.16.0 or newer and expects its `--target_type`, `--spec`, and `--report_prefix`
+CLI. Scan and listing commands require a POSIX Metasploit host. Garak inherits
+provider credentials from the msfconsole environment and makes its own model
+connections; Metasploit routes and proxies do not apply to those connections.
+
+The official Metasploit Docker image uses Alpine Linux, for which current
+Garak/PyTorch releases may not provide compatible wheels. Use a native
+Metasploit installation or build a glibc-based image containing both Framework
+and a complete Garak environment.
 
 Before starting a scan or reading local garak metadata, the integration checks
 that `PYTHON` can start the installed CLI. An invalid executable or missing
@@ -86,9 +91,10 @@ in Garak's config or `OPENAICOMPATIBLE_API_KEY`.
 Endpoint overrides support `ollama`, `ollama.OllamaGeneratorChat`,
 `ollama.OllamaGenerator`, `rest`, `rest.RestGenerator`, and
 `openai.OpenAICompatible` when `CONFIG_FILE` is omitted. With a configuration,
-its endpoint remains authoritative while `RHOSTS` drives host iteration and
-database attribution. Leave `RHOSTS` unset for other generators and specify
-their endpoint in `CONFIG_FILE`.
+its endpoint remains authoritative while one optional `RHOSTS` value supplies
+database attribution. Ranges are rejected in this mode because the same
+configured endpoint cannot be attributed to multiple hosts. Leave `RHOSTS`
+unset for other generators and specify their endpoint in `CONFIG_FILE`.
 Discovery can run without Garak when `SUGGEST_PROBES=false`; otherwise it reads
 local probe metadata. Suggestions compare input capabilities only and retain
 unknown compatibility when metadata is missing.
@@ -107,8 +113,10 @@ This isolates logs, reports, cached plugin metadata, and downloaded resources
 between scans. Provider configuration and credentials can still be inherited
 from the environment or selected explicitly with `CONFIG_FILE`.
 
-Reports and console logs are saved as loot, including partial reports after a
-timeout or failed execution. Valid evaluations print passed/failed counts.
+Reports, hitlogs, directly openable HTML results, internal Garak logs and console
+logs are saved as loot, including partial artifacts after a timeout or failed
+execution. Garak's temporary cache is discarded. Valid evaluations print
+passed/failed counts.
 With a connected database, imports record deduplicated `garak.run`,
 `garak.evaluation`, and completed `garak.attempt` notes. Heuristic detector
 failures are not reported as confirmed host vulnerabilities.

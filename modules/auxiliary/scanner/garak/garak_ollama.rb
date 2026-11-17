@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @probe_metadata = nil
-    @probe_metadata = garak_probe_metadata if datastore['SUGGEST_PROBES']
+    @probe_metadata = garak_probe_metadata(target_types: OLLAMA_TARGET_TYPES) if datastore['SUGGEST_PROBES']
     super
   rescue SystemCallError, IOError => e
     elog('Garak metadata query failed', error: e)
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     input_types << 'text' if capabilities&.include?('completion')
     input_types << 'image' if capabilities&.include?('vision')
     input_types = nil if capabilities.nil? || !(capabilities - %w[completion vision embedding tools thinking]).empty?
-    result = garak_probe_suggestions(input_types, @probe_metadata)
+    result = garak_probe_suggestions(input_types, @probe_metadata, target_types: OLLAMA_TARGET_TYPES)
     report_garak_probe_suggestions(ip: ip, name: name, capabilities: capabilities, result: result, metadata: @probe_metadata, namespace: 'ollama')
   end
 end
