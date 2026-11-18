@@ -2,7 +2,9 @@
 
 RSpec tests live under this directory. Follow [Better Specs](https://www.betterspecs.org/)
 when creating or updating tests throughout Framework, including library, module, and
-acceptance specs. Every `it` block must have a human-readable description.
+acceptance specs. Every example must produce a meaningful, human-readable
+description. RSpec-generated descriptions are acceptable when they clearly
+describe the expected behavior; otherwise, provide an explicit description.
 
 Keep examples focused and deterministic. Use `described_class`, `let`/`let!` for
 setup, and `before` for side effects where appropriate. Prefer one expectation

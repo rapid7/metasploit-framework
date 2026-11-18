@@ -5,7 +5,9 @@ such as verifying msfconsole opens successfully, and can generate Meterpreter pa
 create handlers, etc.
 
 When creating or updating acceptance specs, follow [Better Specs](https://www.betterspecs.org/)
-and the [RSpec guidance](../README.md), including a human-readable description for every `it` block.
+and the [RSpec guidance](../README.md). Every example must produce a meaningful,
+human-readable description. RSpec-generated descriptions are acceptable when they
+clearly describe the expected behavior; otherwise, provide an explicit description.
 
 The test suite runs on the current host, so the Meterpreter runtimes should be available.
 There is no remote host support currently.

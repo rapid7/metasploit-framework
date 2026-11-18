@@ -23,8 +23,10 @@ reviews:
     - path: "spec/**/*.rb"
       instructions: >-
         For new or updated RSpec tests, follow https://www.betterspecs.org/
-        and AGENTS.md's Testing guidance, including human-readable descriptions
-        for every it block. Apply this to library, module, and acceptance specs.
+        and AGENTS.md's Testing guidance. Every example must produce a meaningful,
+        human-readable description. RSpec-generated descriptions are acceptable
+        when they clearly describe the expected behavior; otherwise, provide an
+        explicit description. Apply this to library, module, and acceptance specs.
         Keep examples focused and deterministic and cover relevant valid,
         invalid, and boundary cases. Follow the existing test requirements;
         do not require module or application tests unless requested.

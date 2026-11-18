@@ -242,7 +242,7 @@ When writing or modifying code in `lib/`:
 
 ## Testing
 
-- Follow [Better Specs](https://www.betterspecs.org/) when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every `it` block must have a human-readable description.
+- Follow [Better Specs](https://www.betterspecs.org/) when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every example must produce a meaningful, human-readable description. RSpec-generated descriptions are acceptable when they clearly describe the expected behavior; otherwise, provide an explicit description.
 - Tests live in `spec/` mirroring the `lib/` structure
 - Run a single spec file: `bundle exec rspec spec/path/to/spec.rb`
 - Run a single example by line: `bundle exec rspec spec/path/to/spec.rb:42`

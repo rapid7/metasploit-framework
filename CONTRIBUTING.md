@@ -138,7 +138,7 @@ Keep modernization PRs focused: one pattern fix per PR, or one subsystem at a ti
 * **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.
 
 #### <u>RSpec Tests</u>
-* **Do** follow [Better Specs] when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every `it` block must have a human-readable description.
+* **Do** follow [Better Specs] when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every example must produce a meaningful, human-readable description. RSpec-generated descriptions are acceptable when they clearly describe the expected behavior; otherwise, provide an explicit description.
 * **Do** keep examples focused and deterministic, and cover relevant valid, invalid, and boundary cases. See the [RSpec README](spec/README.md) for more guidance.
 
 #### <u>Bug Fixes</u>
