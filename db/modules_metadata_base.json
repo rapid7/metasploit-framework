@@ -41119,7 +41119,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-06-19 07:54:56 +0000",
+    "mod_time": "2026-11-17 11:13:52 +0000",
     "path": "/modules/auxiliary/scanner/http/litellm_proxy_sqli.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/litellm_proxy_sqli",
