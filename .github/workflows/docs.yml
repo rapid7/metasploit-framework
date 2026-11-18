@@ -50,6 +50,9 @@ jobs:
         include:
           - { ruby: '3.5.0-preview1', os: ubuntu-24.04 }
 
+    env:
+      BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
+
     name: Ruby ${{ matrix.ruby }}
     steps:
       - name: Checkout code
@@ -61,8 +64,6 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Setup Ruby
-        env:
-          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
         uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'

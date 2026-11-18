@@ -73,6 +73,7 @@ jobs:
     env:
       RAILS_ENV: test
       RAILS_VERSION: ${{ matrix.rails }}
+      BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby.version, 'preview') && 'true' || 'false' }}"
 
     name: ${{ matrix.ruby.os }} - Ruby ${{ matrix.ruby.version }} - Rails ${{ matrix.rails }} - PostgreSQL ${{ matrix.postgres }}
     steps:
@@ -123,8 +124,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Ruby
-        env:
-          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby.version, 'preview') && 'true' || 'false' }}"
         uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
         with:
           ruby-version: ${{ matrix.ruby.version }}
@@ -132,6 +131,9 @@ jobs:
 
       - name: Update Rails version
         run: |
+          # setup-ruby enables deployment for existing lockfiles; allow the Rails switch.
+          bundle config set --local deployment false
+
           # Add the gem explicitly if it doesn't exist
           if ! grep -q "gem ['\"]rails['\"]" Gemfile; then
             echo 'gem "rails"' >> Gemfile          
