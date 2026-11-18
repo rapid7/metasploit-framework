@@ -174,6 +174,30 @@ RSpec.describe UrlChecker do
       expect(initial_http).to receive(:open_timeout=).with(satisfy { |value| value.positive? && value <= described_class::ADDRESS_OPEN_TIMEOUT })
       checker.send(:check_url, entry)
     end
+
+    it 'bounds a stalled connection opening across TCP and TLS' do
+      stub_const('UrlChecker::ADDRESS_OPEN_TIMEOUT', 0.02)
+      allow(initial_http).to receive(:start) do
+        sleep 0.1 if pinned.last == unreachable_ipv6
+      end
+
+      expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
+      expect(pinned).to eq([unreachable_ipv6, reachable_ipv4])
+    end
+
+    it 'stops after the cumulative connection-opening budget is spent' do
+      addresses = (1..5).map { |index| "192.0.2.#{index}" }
+      clock = 0.0
+      allow(Addrinfo).to receive(:getaddrinfo).and_return(addresses.map { |address| Addrinfo.ip(address) })
+      allow(checker).to receive(:monotonic_time) { clock }
+      allow(initial_http).to receive(:start) do
+        clock += described_class::ADDRESS_OPEN_TIMEOUT
+        raise Errno::EHOSTUNREACH
+      end
+
+      expect(checker.send(:check_url, entry)[:status]).to match(/\AError:/)
+      expect(pinned).to eq(addresses.first(4))
+    end
   end
 
   %w[127.0.0.1 169.254.169.254 10.0.0.1 ::1 fe80::1 fd00::1 ::ffff:127.0.0.1].each do |address|
@@ -213,22 +237,32 @@ RSpec.describe UrlChecker do
     checker.send(:fetch_wayback_snapshot, result)
   end
 
-  it 'keeps one connection deadline across Wayback retries' do
+  it 'excludes response time and retry delay from the Wayback connection budget' do
     result = { url: 'URL-https://docs.example.test/page' }
-    deadlines = []
+    clock = 0.0
+    attempts = 0
+    archive_http = instance_double(Net::HTTP, :use_ssl= => nil, :ipaddr= => nil, :open_timeout= => nil, finish: nil)
+    allow(Net::HTTP).to receive(:new).with('archive.org', 443, nil).and_return(archive_http)
     allow(checker).to receive(:fetch_wayback_snapshot).and_call_original
-    allow(checker).to receive(:sleep)
-    allow(checker).to receive(:handle_wayback_response)
-    allow(checker).to receive(:get_response) do |_, deadline:|
-      deadlines << deadline
-      raise Net::OpenTimeout if deadlines.length == 1
-
+    allow(checker).to receive(:monotonic_time) { clock }
+    allow(checker).to receive(:sleep) { clock += described_class::RETRY_DELAY }
+    allow(archive_http).to receive(:start) do
+      attempts += 1
+      clock += 1
+    end
+    allow(archive_http).to receive(:get) do
+      clock += 25 if attempts == 1
       final_response
+    end
+    allow(checker).to receive(:handle_wayback_response) do |_, value|
+      raise JSON::ParserError, 'bad response' if attempts == 1
+
+      value[:archived_snapshot] = 'recovered'
     end
 
     checker.send(:fetch_wayback_snapshot, result)
 
-    expect(deadlines.length).to eq(2)
-    expect(deadlines.uniq.length).to eq(1)
+    expect(attempts).to eq(2)
+    expect(result[:archived_snapshot]).to eq('recovered')
   end
 end

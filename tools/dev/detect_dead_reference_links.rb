@@ -17,6 +17,7 @@ require 'optparse'
 require 'benchmark'
 require 'ipaddr'
 require 'socket'
+require 'timeout'
 
 class UrlChecker
   WAYBACK_MACHINE_API_URL = 'https://archive.org/wayback/available?url='
@@ -152,19 +153,24 @@ class UrlChecker
   # IPv6 connectivity) does not hide a reachable one.
   # @param [URI] uri The URI to send the GET request to
   # @return [Net::HTTPResponse] The HTTP response
-  def get_response(uri, deadline: Process.clock_gettime(Process::CLOCK_MONOTONIC) + CONNECTION_BUDGET)
+  def get_response(uri, connection_budget: { remaining: CONNECTION_BUDGET })
     last_error = nil
     public_addresses(uri).each do |address|
-      remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      break if remaining <= 0
+      break if connection_budget[:remaining] <= 0
 
       http = http_client(uri, address)
-      http.open_timeout = [ADDRESS_OPEN_TIMEOUT, remaining].min
+      open_timeout = [ADDRESS_OPEN_TIMEOUT, connection_budget[:remaining]].min
+      http.open_timeout = open_timeout
+      started_at = monotonic_time
       begin
-        http.start
-      rescue SystemCallError, Net::OpenTimeout => e
+        # Net::HTTP may apply open_timeout once for TCP and again for TLS.
+        # Bound the entire opening phase, while leaving response reads alone.
+        Timeout.timeout(open_timeout) { http.start }
+      rescue SystemCallError, Timeout::Error => e
         last_error = e
         next
+      ensure
+        connection_budget[:remaining] -= monotonic_time - started_at
       end
 
       begin
@@ -174,6 +180,10 @@ class UrlChecker
       end
     end
     raise(last_error || Net::OpenTimeout.new('Connection timeout budget exceeded'))
+  end
+
+  def monotonic_time
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 
   # Resolve once and return the addresses for the host, refusing the whole
@@ -255,11 +265,11 @@ class UrlChecker
     cleaned_url = url_result[:url].sub(/^URL-/, '')
     wayback_url = "#{WAYBACK_MACHINE_API_URL}#{URI.encode_www_form_component(cleaned_url)}"
     retries = 0
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + CONNECTION_BUDGET
+    connection_budget = { remaining: CONNECTION_BUDGET }
 
     begin
       uri = URI.parse(wayback_url)
-      response = get_response(uri, deadline: deadline)
+      response = get_response(uri, connection_budget: connection_budget)
       handle_wayback_response(response, url_result)
     rescue StandardError => e
       retries += 1
