@@ -26,6 +26,8 @@ class UrlChecker
   BATCH_SIZE = 1000 # Number of URLs to process in each batch
   MAX_RETRIES = 3 # Maximum number of retries for failed requests to the Wayback Machine
   RETRY_DELAY = 5 # Delay in seconds between retries
+  CONNECTION_BUDGET = 20 # Maximum time spent opening connections for one destination
+  ADDRESS_OPEN_TIMEOUT = 5 # Leave time to try another resolved address
   NON_PUBLIC_IPV4_RANGES = %w[
     0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16
     172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.88.99.0/24 192.168.0.0/16
@@ -150,14 +152,28 @@ class UrlChecker
   # IPv6 connectivity) does not hide a reachable one.
   # @param [URI] uri The URI to send the GET request to
   # @return [Net::HTTPResponse] The HTTP response
-  def get_response(uri)
+  def get_response(uri, deadline: Process.clock_gettime(Process::CLOCK_MONOTONIC) + CONNECTION_BUDGET)
     last_error = nil
     public_addresses(uri).each do |address|
-      return http_client(uri, address).get(uri.request_uri)
-    rescue SystemCallError, Net::OpenTimeout => e
-      last_error = e
+      remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      break if remaining <= 0
+
+      http = http_client(uri, address)
+      http.open_timeout = [ADDRESS_OPEN_TIMEOUT, remaining].min
+      begin
+        http.start
+      rescue SystemCallError, Net::OpenTimeout => e
+        last_error = e
+        next
+      end
+
+      begin
+        return http.get(uri.request_uri)
+      ensure
+        http.finish
+      end
     end
-    raise last_error
+    raise(last_error || Net::OpenTimeout.new('Connection timeout budget exceeded'))
   end
 
   # Resolve once and return the addresses for the host, refusing the whole
@@ -239,10 +255,11 @@ class UrlChecker
     cleaned_url = url_result[:url].sub(/^URL-/, '')
     wayback_url = "#{WAYBACK_MACHINE_API_URL}#{URI.encode_www_form_component(cleaned_url)}"
     retries = 0
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + CONNECTION_BUDGET
 
     begin
       uri = URI.parse(wayback_url)
-      response = get_response(uri)
+      response = get_response(uri, deadline: deadline)
       handle_wayback_response(response, url_result)
     rescue StandardError => e
       retries += 1

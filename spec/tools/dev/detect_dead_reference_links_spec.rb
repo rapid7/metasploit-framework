@@ -30,6 +30,11 @@ RSpec.describe UrlChecker do
     allow(redirect_http).to receive(:ipaddr=)
     allow(initial_http).to receive(:use_ssl=)
     allow(redirect_http).to receive(:use_ssl=)
+    [initial_http, redirect_http].each do |http|
+      allow(http).to receive(:open_timeout=)
+      allow(http).to receive(:start)
+      allow(http).to receive(:finish)
+    end
     allow(Net::HTTP).to receive(:new).with('docs.example.test', 443, nil).and_return(initial_http, redirect_http)
     allow(initial_http).to receive(:get).with('/old').and_return(redirect_response)
     allow(initial_http).to receive(:get).with('/new').and_return(final_response)
@@ -112,21 +117,21 @@ RSpec.describe UrlChecker do
   end
 
   context 'when a host resolves to several public addresses' do
-    let(:unreachable_ipv6) { '2606:4700:4700::1111' }
-    let(:reachable_ipv4) { '93.184.216.34' }
+    let(:unreachable_ipv6) { '2001:db8::1' }
+    let(:reachable_ipv4) { '192.0.2.1' }
     let(:pinned) { [] }
 
     before do
       allow(Addrinfo).to receive(:getaddrinfo).and_return([Addrinfo.ip(unreachable_ipv6), Addrinfo.ip(reachable_ipv4)])
+      allow(checker).to receive(:public_address?).and_return(true)
       allow(Net::HTTP).to receive(:new).with('docs.example.test', 443, nil).and_return(initial_http)
       allow(initial_http).to receive(:ipaddr=) { |address| pinned << address }
+      allow(initial_http).to receive(:get).with('/old').and_return(final_response)
     end
 
     it 'does not report a live link as an error when the first address is unreachable' do
-      allow(initial_http).to receive(:get).with('/old') do
+      allow(initial_http).to receive(:start) do
         raise Errno::EHOSTUNREACH, "connect(2) for \"#{pinned.last}\" port 443" if pinned.last == unreachable_ipv6
-
-        final_response
       end
 
       expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
@@ -134,20 +139,28 @@ RSpec.describe UrlChecker do
     end
 
     it 'falls back to the next address on a connect timeout' do
-      allow(initial_http).to receive(:get).with('/old') do
+      allow(initial_http).to receive(:start) do
         raise Net::OpenTimeout, 'execution expired' if pinned.last == unreachable_ipv6
-
-        final_response
       end
 
       expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
     end
 
     it 'reports the last error when no address is reachable' do
-      allow(initial_http).to receive(:get).with('/old').and_raise(Errno::ECONNREFUSED)
+      allow(initial_http).to receive(:start) do
+        raise Errno::ECONNREFUSED, pinned.last
+      end
 
-      expect(checker.send(:check_url, entry)[:status]).to match(/\AError: Connection refused/)
+      expect(checker.send(:check_url, entry)[:status]).to include(reachable_ipv4)
       expect(pinned).to eq([unreachable_ipv6, reachable_ipv4])
+    end
+
+    it 'does not retry another address after a response read fails' do
+      allow(initial_http).to receive(:get).with('/old').and_raise(Errno::ECONNRESET)
+
+      expect(checker.send(:check_url, entry)[:status]).to match(/\AError: Connection reset/)
+      expect(pinned).to eq([unreachable_ipv6])
+      expect(initial_http).to have_received(:finish)
     end
 
     it 'does not retry other addresses after a non-connection error' do
@@ -155,6 +168,11 @@ RSpec.describe UrlChecker do
 
       expect(checker.send(:check_url, entry)[:status]).to eq('Error: bad certificate')
       expect(pinned).to eq([unreachable_ipv6])
+    end
+
+    it 'limits the time spent opening each connection' do
+      expect(initial_http).to receive(:open_timeout=).with(satisfy { |value| value.positive? && value <= described_class::ADDRESS_OPEN_TIMEOUT })
+      checker.send(:check_url, entry)
     end
   end
 
@@ -186,12 +204,31 @@ RSpec.describe UrlChecker do
 
   it 'encodes the cleaned original URL as a single Wayback query parameter' do
     result = { url: 'URL-https://docs.example.test/page?a=1&b=2#section' }
-    archive_http = instance_double(Net::HTTP, :use_ssl= => nil, :ipaddr= => nil)
+    archive_http = instance_double(Net::HTTP, :use_ssl= => nil, :ipaddr= => nil, :open_timeout= => nil, start: nil, finish: nil)
     allow(Net::HTTP).to receive(:new).with('archive.org', 443, nil).and_return(archive_http)
     allow(checker).to receive(:handle_wayback_response)
     allow(checker).to receive(:fetch_wayback_snapshot).and_call_original
     encoded_url = URI.encode_www_form_component('https://docs.example.test/page?a=1&b=2#section')
     expect(archive_http).to receive(:get).with("/wayback/available?url=#{encoded_url}").and_return(final_response)
     checker.send(:fetch_wayback_snapshot, result)
+  end
+
+  it 'keeps one connection deadline across Wayback retries' do
+    result = { url: 'URL-https://docs.example.test/page' }
+    deadlines = []
+    allow(checker).to receive(:fetch_wayback_snapshot).and_call_original
+    allow(checker).to receive(:sleep)
+    allow(checker).to receive(:handle_wayback_response)
+    allow(checker).to receive(:get_response) do |_, deadline:|
+      deadlines << deadline
+      raise Net::OpenTimeout if deadlines.length == 1
+
+      final_response
+    end
+
+    checker.send(:fetch_wayback_snapshot, result)
+
+    expect(deadlines.length).to eq(2)
+    expect(deadlines.uniq.length).to eq(1)
   end
 end
