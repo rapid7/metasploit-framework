@@ -155,7 +155,8 @@ module Msf::RPC::JSON
             !JSON_RPC_RESPONSE_MEMBER_TYPES[tmp_member].one? { |type| value.is_a?(type) }
       end
 
-      return false if response[:jsonrpc] != JSON_RPC_VERSION
+      version_key = @symbolize_names ? :jsonrpc : 'jsonrpc'
+      return false if response[version_key] != JSON_RPC_VERSION
 
       result_key = @symbolize_names ? :result : :result.to_s
       error_key = @symbolize_names ? :error : :error.to_s
