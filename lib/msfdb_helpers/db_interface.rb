@@ -1,4 +1,5 @@
 require 'open3'
+require 'securerandom'
 require 'tmpdir'
 
 module MsfdbHelpers
@@ -93,6 +94,7 @@ module MsfdbHelpers
     def migrate_database(config_path)
       env = {
         'MSF_DATABASE_CONFIG' => config_path,
+        'SECRET_KEY_BASE' => ENV.fetch('SECRET_KEY_BASE') { SecureRandom.hex(64) },
         'SCHEMA' => ENV.fetch('SCHEMA') { File.join(File.dirname(config_path), 'schema.rb') },
         'RAILS_ENV' => 'development',
         'DATABASE_URL' => nil,
