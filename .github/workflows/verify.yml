@@ -61,18 +61,32 @@ jobs:
           --health-retries 5
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ruby:
           - '3.2'
           - '3.3'
           - '3.4'
+          - '4.0'
         os:
           - ubuntu-latest
         include:
           - os: ubuntu-latest
             ruby: '3.2'
             test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" MSF_FEATURE_DEFER_MODULE_LOADS=1'
+          # The 3.5 preview has no prebuilt Ruby for newer Ubuntu runners.
+          - os: ubuntu-24.04
+            ruby: '3.5.0-preview1'
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+          - os: ubuntu-24.04
+            ruby: '3.5.0-preview1'
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+          - os: ubuntu-24.04
+            ruby: '3.5.0-preview1'
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+          - os: ubuntu-24.04
+            ruby: '3.5.0-preview1'
+            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
@@ -101,7 +115,7 @@ jobs:
         env:
           # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
           BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
-        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
