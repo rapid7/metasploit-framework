@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (6.5.11)
+    metasploit-framework (6.5.12)
       aarch64
       abbrev
       actionpack (~> 8.1.4.1)
