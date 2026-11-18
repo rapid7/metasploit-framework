@@ -66,7 +66,7 @@ module Msf
         raise ArgumentError, 'Usage: garak_set OPTION VALUE' unless args.length == 2
 
         key = option_name(args.first)
-        raise ArgumentError, 'REST_API_KEY is only accepted per command; set REST_API_KEY_ENV for inherited credentials' if key == 'REST_API_KEY'
+        raise ArgumentError, 'API_KEY is only accepted per command; set API_KEY_ENV for inherited credentials' if key == 'API_KEY'
 
         settings[key] = args.last
         print_status("Garak option #{key} set")

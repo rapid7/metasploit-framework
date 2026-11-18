@@ -36,19 +36,19 @@ RSpec.describe Msf::Plugin::Garak::ConsoleCommandDispatcher do
     expect(dispatcher).to receive(:print_error).with(/Unknown Garak option/).exactly(3).times
     dispatcher.cmd_garak_scan('TYPO=value')
     dispatcher.cmd_garak_scan('ACTION=IMPORT')
-    dispatcher.cmd_garak_scan('API_KEY=value')
+    dispatcher.cmd_garak_scan('REST_API_KEY=value')
   end
 
-  it 'accepts a REST API key for an individual scan' do
-    expect(Msf::Simple::Auxiliary).to receive(:run_simple).with(anything, hash_including('Options' => { 'REST_API_KEY' => 'test-key' }))
-    dispatcher.cmd_garak_scan('REST_API_KEY=test-key')
-    expect(dispatcher.send(:build_runner, 'scan').datastore['REST_API_KEY']).to be_nil
+  it 'accepts an API key for an individual scan' do
+    expect(Msf::Simple::Auxiliary).to receive(:run_simple).with(anything, hash_including('Options' => { 'API_KEY' => 'test-key' }))
+    dispatcher.cmd_garak_scan('API_KEY=test-key')
+    expect(dispatcher.send(:build_runner, 'scan').datastore['API_KEY']).to be_nil
   end
 
-  it 'does not retain a REST API key as a plugin default' do
-    expect(dispatcher).to receive(:print_error).with(/REST_API_KEY is only accepted per command/)
-    dispatcher.cmd_garak_set('REST_API_KEY', 'test-key')
-    expect(dispatcher.send(:build_runner, 'scan').datastore['REST_API_KEY']).to be_nil
+  it 'does not retain an API key as a plugin default' do
+    expect(dispatcher).to receive(:print_error).with(/API_KEY is only accepted per command/)
+    dispatcher.cmd_garak_set('API_KEY', 'test-key')
+    expect(dispatcher.send(:build_runner, 'scan').datastore['API_KEY']).to be_nil
   end
 
   it 'rejects malformed arguments before execution' do

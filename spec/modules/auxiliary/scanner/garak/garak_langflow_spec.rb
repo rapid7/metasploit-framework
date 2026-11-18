@@ -240,7 +240,7 @@ RSpec.describe 'Garak Langflow discovery' do
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.Dan_11_0')
     expect(mod).to have_received(:print_status).with('Probe: probes.dan.AntiDAN')
     expect(mod).to have_received(:print_status).with('Or run in a terminal: python3 -m garak --config /tmp/target.yaml')
-    expect(mod).to have_received(:print_status).with(satisfy { |message| message.include?('CONFIG_FILE=/tmp/target.yaml') && message.include?('REST_API_KEY_ENV=LANGFLOW_API_KEY') && !message.include?('PROBES=') })
+    expect(mod).to have_received(:print_status).with(satisfy { |message| message.include?('CONFIG_FILE=/tmp/target.yaml') && message.include?('API_KEY_ENV=LANGFLOW_API_KEY') && !message.include?('PROBES=') })
     expect(mod).to have_received(:print_good).with('Garak YAML configuration saved: /tmp/target.yaml').once
     expect(mod).not_to have_received(:print_good).with('Garak configuration saved: /tmp/target.yaml')
   end

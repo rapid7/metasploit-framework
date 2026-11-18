@@ -10,7 +10,7 @@ python3 -m venv .venv
 ```
 
 Set `PYTHON` to that environment's interpreter. The integration supports Garak
-0.16.0 or newer and expects its `--target_type`, `--spec`, and `--report_prefix`
+0.16.0 or newer and expects its `--target_type` and `--spec`
 CLI. Scan and listing commands require a POSIX Metasploit host. Garak inherits
 provider credentials from the msfconsole environment and makes its own model
 connections; Metasploit routes and proxies do not apply to those connections.
@@ -103,8 +103,8 @@ Langflow discovery is available through `auxiliary/scanner/garak/garak_langflow`
 It reads saved flow graphs and writes REST generator configurations for supported
 text flows. Generated configurations name `LANGFLOW_API_KEY` as the `key_env_var`
 and contain `$KEY`, never the value. Export that variable before starting
-msfconsole, or add `REST_API_KEY` to an individual scan; generated commands do
-not print the secret. `REST_API_KEY` cannot be retained with `garak_set`. See the
+msfconsole, or add `API_KEY` to an individual scan; generated commands do not
+print the secret. `API_KEY` cannot be retained with `garak_set`. See the
 [scanner documentation](../../documentation/modules/auxiliary/scanner/garak/garak_langflow.md)
 for discovery options and execution limitations.
 

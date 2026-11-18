@@ -44,7 +44,7 @@ to untrusted networks.
 Generated configurations set `key_env_var` to `LANGFLOW_API_KEY` and substitute
 that environment value for `$KEY` in the `x-api-key` header. Export the key before
 starting msfconsole so both plugin and terminal commands inherit it. Alternatively,
-append `REST_API_KEY=<key>` to a suggested plugin command; the value is supplied
+append `API_KEY=<key>` to a suggested plugin command; the value is supplied
 only to its child process, but remains visible in console history. Discovery never
 prints or saves the key. Authentication can be required for a flow run even when
 anonymous discovery succeeds.
@@ -56,7 +56,7 @@ option) to review a selection and increase the timeout for large suites.
 ```text
 load garak
 garak_set PYTHON /path/to/.venv/bin/python
-garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://127.0.0.1:7860/api/v1/run/<flow-id> CONFIG_FILE=/path/to/saved/config.json PROBES=probes.test.Blank REST_API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
+garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://127.0.0.1:7860/api/v1/run/<flow-id> CONFIG_FILE=/path/to/saved/config.json PROBES=probes.test.Blank API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
 ```
 
 Use the exact discovered values, including the base path. The REST generator uses
@@ -163,7 +163,7 @@ msf auxiliary(scanner/garak/garak_langflow) > run verbose=true
   rest.RestGenerator
 
 [+] Garak YAML configuration saved: /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
-[*] Use garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python REST_API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
+[*] Use garak_scan TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python API_KEY_ENV=LANGFLOW_API_KEY VERBOSE=true
 [*] Or run in a terminal: /tmp/msf-garak-live-venv/bin/python -m garak --config /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
 [*] Garak values: TARGET_TYPE=rest.RestGenerator TARGET_NAME=http://10.5.134.138:7860/api/v1/run/776f41d8-1649-4a78-a60e-c52edca467ea CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
 [*] Candidate target names (generation support has not been tested)
@@ -180,7 +180,7 @@ msf auxiliary(scanner/garak/garak_langflow) > run verbose=true
   -------                               ----                                 ----------                                                   -------------
   776f41d8-1649-4a78-a60e-c52edca467ea  Garak Documentation Basic Prompting  ChatInput, ChatOutput, LanguageModelComponent, Prompt, note  /home/tmoose/.msf4/loot/20261026153323_default_10.5.134.138_langflow.garak.c_602925.yaml
 
-[*] API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass REST_API_KEY explicitly, if flow execution requires authentication
+[*] API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass API_KEY explicitly to garak_scan, if flow execution requires authentication
 [*] Run garak_scan while this module is active to inherit RHOSTS, RPORT and SSL; flow execution and response extraction remain unverified
 [+] Available PROBES selections from the local garak installation:
 [*] Probe: probes.test.Blank

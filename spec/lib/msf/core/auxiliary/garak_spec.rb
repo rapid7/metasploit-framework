@@ -228,11 +228,11 @@ RSpec.describe Msf::Auxiliary::Garak do
       message = nil
       allow(helper).to receive(:print_status) { |value| message = value }
       helper.print_garak_scan_command(config_path: '/tmp/config file.json', target_type: 'rest.RestGenerator', target_name: 'http://192.0.2.1/run', key_env_var: 'LANGFLOW_API_KEY')
-      expect(Shellwords.split(message.delete_prefix('Use '))).to include('garak_scan', 'REST_API_KEY_ENV=LANGFLOW_API_KEY', 'PYTHON=/path with spaces/python', 'CONFIG_FILE=/tmp/config file.json', 'PROBES=probes.test.Blank', 'VERBOSE=true')
+      expect(Shellwords.split(message.delete_prefix('Use '))).to include('garak_scan', 'API_KEY_ENV=LANGFLOW_API_KEY', 'PYTHON=/path with spaces/python', 'CONFIG_FILE=/tmp/config file.json', 'PROBES=probes.test.Blank', 'VERBOSE=true')
     end
 
     it 'omits an absent credential environment variable' do
-      expect(helper).to receive(:print_status) { |message| expect(message).not_to include('REST_API_KEY') }
+      expect(helper).to receive(:print_status) { |message| expect(message).not_to match(/(?:^| )API_KEY(?:=|_ENV=)/) }
       helper.print_garak_scan_command(config_path: '/tmp/config.json', target_type: 'rest.RestGenerator', target_name: 'http://192.0.2.1/run')
     end
 

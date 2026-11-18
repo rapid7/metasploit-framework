@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
     print_warning('No saved flows were returned; specify FLOW_ID or enable INCLUDE_EXAMPLES if appropriate') if targets.empty?
     report_note(host: ip, port: rport, proto: 'tcp', type: 'langflow.garak.targets', update: :unique_data, data: { version: release.to_s, targets: targets })
     unless targets.empty?
-      print_status('API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass REST_API_KEY explicitly, if flow execution requires authentication')
+      print_status('API_KEY is used only for discovery; set LANGFLOW_API_KEY before starting msfconsole, or pass API_KEY explicitly to garak_scan, if flow execution requires authentication')
       print_status('Run garak_scan while this module is active to inherit RHOSTS, RPORT and SSL; flow execution and response extraction remain unverified')
       if datastore['SUGGEST_PROBES'] && targets.any? { |target| target[:config_file] }
         list_garak_probes(names: probe_names)

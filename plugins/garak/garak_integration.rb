@@ -55,8 +55,8 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     ])
     register_advanced_options([
       Msf::OptInt.new('REST_TIMEOUT', [false, 'Override the garak REST generator request timeout in seconds']),
-      Msf::OptString.new('REST_API_KEY', [false, 'API key passed only through the garak child environment']),
-      Msf::OptString.new('REST_API_KEY_ENV', [false, 'Existing environment variable containing the selected generator API key'], regex: /\A[A-Za-z_][A-Za-z0-9_]*\z/),
+      Msf::OptString.new('API_KEY', [false, 'API key passed only through the garak child environment']),
+      Msf::OptString.new('API_KEY_ENV', [false, 'Existing environment variable containing the selected generator API key'], regex: /\A[A-Za-z_][A-Za-z0-9_]*\z/),
       Msf::OptPath.new('CONFIG_FILE', [false, 'Local garak YAML or JSON configuration file']),
       Msf::OptAddress.new('DB_HOST', [false, 'Target address for database attribution (omit for workspace notes)']),
       Msf::OptPort.new('DB_PORT', [false, 'Target TCP service port for database attribution']),
@@ -65,11 +65,10 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     register_garak_options
   end
 
-  def garak_command(report_prefix:, endpoint: nil)
+  def garak_command(endpoint: nil)
     command = [
       datastore['PYTHON'], '-u', '-m', 'garak',
-      '--target_type', datastore['TARGET_TYPE'], '--generations', datastore['GENERATIONS'].to_s,
-      '--report_prefix', report_prefix
+      '--target_type', datastore['TARGET_TYPE'], '--generations', datastore['GENERATIONS'].to_s
     ]
     command.concat(['--spec', datastore['PROBES']]) if datastore['PROBES'].present?
     command.concat(['--target_name', datastore['TARGET_NAME']]) if datastore['TARGET_NAME'].present?
@@ -87,12 +86,13 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
       options[plugin][klass] ||= {}
       options[plugin][klass]['request_timeout'] = datastore['REST_TIMEOUT']
     end
-    if datastore['REST_API_KEY_ENV'].present?
-      fail_with(Failure::BadConfig, 'REST_API_KEY_ENV requires a full module.Class TARGET_TYPE') if klass.blank?
+    key_env_var = datastore['API_KEY_ENV'].presence || 'API_KEY'
+    if datastore['API_KEY_ENV'].present? || datastore['API_KEY'].present?
+      fail_with(Failure::BadConfig, 'API_KEY or API_KEY_ENV requires a full module.Class TARGET_TYPE') if klass.blank?
 
       options[plugin] ||= {}
       options[plugin][klass] ||= {}
-      options[plugin][klass]['key_env_var'] = datastore['REST_API_KEY_ENV']
+      options[plugin][klass]['key_env_var'] = key_env_var
     end
     command.concat(['--generator_options', options.to_json]) unless options.empty?
     command << '--verbose' if datastore['VERBOSE']
@@ -248,13 +248,12 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     validate_scan
     association ||= database_association
     Dir.mktmpdir('msf-garak-') do |directory|
-      report_prefix = File.join(directory, 'scan')
       output_path = File.join(directory, 'console.log')
       print_status('Running garak locally; this can take several minutes')
-      key_env_var = datastore['REST_API_KEY_ENV'].presence || 'REST_API_KEY'
+      key_env_var = datastore['API_KEY_ENV'].presence || 'API_KEY'
       environment = {}
-      environment[key_env_var] = datastore['REST_API_KEY'] if datastore['REST_API_KEY'].present?
-      status = execute_garak(garak_command(report_prefix: report_prefix, endpoint: endpoint), output_path, environment: environment)
+      environment[key_env_var] = datastore['API_KEY'] if datastore['API_KEY'].present?
+      status = execute_garak(garak_command(endpoint: endpoint), output_path, environment: environment)
       console = ''
       if File.file?(output_path)
         console = File.binread(output_path)
@@ -262,7 +261,7 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
         print_status("Garak console log saved to #{path}")
         console.each_line { |line| vprint_status("Garak: #{line.chomp}") }
       end
-      report_paths = store_garak_artifacts(directory, report_prefix: report_prefix, association: association)
+      report_paths = store_garak_artifacts(directory, association: association)
       print_warning('Garak did not produce a JSONL report') if report_paths.empty?
       fail_with(Failure::TimeoutExpired, 'Garak exceeded RunTimeout; partial results were preserved') unless status
       if !status.success? && console.to_s.include?('requests.exceptions.ReadTimeout:')
@@ -273,11 +272,10 @@ class Msf::Plugin::Garak::Runner < Msf::Auxiliary
     end
   end
 
-  def store_garak_artifacts(workspace, report_prefix:, association:)
+  def store_garak_artifacts(workspace, association:)
     log_path = File.join(workspace, 'garak', 'garak.log')
     run_directory = File.join(workspace, 'garak', 'garak_runs')
-    artifacts = Dir.glob("#{report_prefix}.*")
-    artifacts.concat(Dir.glob(File.join(run_directory, '**', '*')))
+    artifacts = Dir.glob(File.join(run_directory, '**', '*'))
     artifacts.select! { |path| File.file?(path) }
     artifacts.uniq!
     artifacts.unshift(log_path) if File.file?(log_path)

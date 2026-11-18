@@ -42,7 +42,7 @@ module Msf::Auxiliary::Garak
   # @param config [Hash] Generator configuration containing string keys
   # @param target_type [String] Garak generator name
   # @param target_name [String] Model name or REST URL
-  # @param key_env_var [String, nil] Environment variable used by the REST configuration
+  # @param key_env_var [String, nil] Environment variable used by the generator configuration
   # @return [String] Saved loot path
   def store_garak_yaml(ip:, namespace:, config:, target_type:, target_name:, key_env_var: nil)
     settings = config.merge('plugins' => config.fetch('plugins').merge('target_type' => target_type, 'target_name' => target_name))
@@ -66,12 +66,12 @@ module Msf::Auxiliary::Garak
   # @param target_type [String] Garak generator name
   # @param target_name [String] Model name or REST URL
   # @param probes [String, nil] CLI probe selection; omit to retain the configuration spec
-  # @param key_env_var [String, nil] Environment variable used by the REST configuration
+  # @param key_env_var [String, nil] Environment variable used by the generator configuration
   # @return [void]
   def print_garak_scan_command(config_path:, target_type:, target_name:, probes: 'probes.test.Blank', key_env_var: nil)
     options = { 'TARGET_TYPE' => target_type, 'TARGET_NAME' => target_name, 'CONFIG_FILE' => config_path, 'PYTHON' => datastore['PYTHON'].presence || 'python3' }
     options['PROBES'] = probes if probes.present?
-    options['REST_API_KEY_ENV'] = key_env_var if key_env_var.present?
+    options['API_KEY_ENV'] = key_env_var if key_env_var.present?
     options['VERBOSE'] = 'true'
     print_status("Use garak_scan #{options.map { |key, value| "#{key}=#{Shellwords.escape(value)}" }.join(' ')}")
   end

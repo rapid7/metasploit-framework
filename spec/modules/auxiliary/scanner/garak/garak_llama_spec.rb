@@ -135,6 +135,6 @@ RSpec.describe 'Garak llama.cpp discovery' do
     expect(generator['key_env_var']).to eq('OPENAICOMPATIBLE_API_KEY')
     expect(generator).not_to have_key('api_key')
     expect(config.to_json).not_to include('secret-discovery-key')
-    expect(mod).to have_received(:print_status).with(a_string_including('REST_API_KEY_ENV=OPENAICOMPATIBLE_API_KEY'))
+    expect(mod).to have_received(:print_status).with(a_string_including('API_KEY_ENV=OPENAICOMPATIBLE_API_KEY'))
   end
 end

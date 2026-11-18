@@ -59,7 +59,7 @@ Defaults to `false`. No local Garak installation is needed to write YAML; disabl
 Generated YAML names `OPENAICOMPATIBLE_API_KEY` through `key_env_var`; neither an
 actual discovery key nor the unauthenticated `unused` placeholder is saved. The
 suggested plugin command selects that child environment variable. Export it before
-starting msfconsole, or append `REST_API_KEY=<value>` to that command.
+starting msfconsole, or append `API_KEY=<value>` to that command.
 
 ### API_KEY
 
@@ -138,7 +138,7 @@ msf auxiliary(scanner/garak/garak_llama) > run
   stories260k
 
 [+] Garak YAML configuration saved: /home/tmoose/.msf4/loot/20261026153824_default_10.5.134.138_llama.garak.conf_052666.yaml
-[*] Use garak_scan TARGET_TYPE=openai.OpenAICompatible TARGET_NAME=stories260k CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153824_default_10.5.134.138_llama.garak.conf_052666.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python PROBES=probes.test.Blank REST_API_KEY_ENV=OPENAICOMPATIBLE_API_KEY VERBOSE=true
+[*] Use garak_scan TARGET_TYPE=openai.OpenAICompatible TARGET_NAME=stories260k CONFIG_FILE=/home/tmoose/.msf4/loot/20261026153824_default_10.5.134.138_llama.garak.conf_052666.yaml PYTHON=/tmp/msf-garak-live-venv/bin/python PROBES=probes.test.Blank API_KEY_ENV=OPENAICOMPATIBLE_API_KEY VERBOSE=true
 [*] Or run in a terminal: /tmp/msf-garak-live-venv/bin/python -m garak --config /home/tmoose/.msf4/loot/20261026153824_default_10.5.134.138_llama.garak.conf_052666.yaml --spec probes.test.Blank
 [*] This example tests connectivity only; use garak_list_probes to select security probes
 [*] Export OPENAICOMPATIBLE_API_KEY before starting Garak; use the actual key or unused for an unauthenticated server. API_KEY is not written to YAML
