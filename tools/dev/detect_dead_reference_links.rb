@@ -119,9 +119,8 @@ class UrlChecker
 
     begin
       # Get the HTTP response and handle redirects
-      http = http_client(uri)
-      response = get_response(http, uri)
-      response = follow_redirects(http, uri, response)
+      response = get_response(uri)
+      response = follow_redirects(uri, response)
     rescue StandardError => e
       handle_error(url_result, e)
     else
@@ -145,18 +144,27 @@ class UrlChecker
     false
   end
 
-  # Sends an HTTP GET request to the specified URI
-  # @param [Net::HTTP] http The HTTP client
+  # Sends an HTTP GET request to the specified URI. Every address the host
+  # resolves to is checked first; the request is then attempted against each
+  # address in turn, so an unreachable address (e.g. IPv6 on a host without
+  # IPv6 connectivity) does not hide a reachable one.
   # @param [URI] uri The URI to send the GET request to
   # @return [Net::HTTPResponse] The HTTP response
-  def get_response(http, uri)
-    http.get(uri.request_uri)
+  def get_response(uri)
+    last_error = nil
+    public_addresses(uri).each do |address|
+      return http_client(uri, address).get(uri.request_uri)
+    rescue SystemCallError, Net::OpenTimeout => e
+      last_error = e
+    end
+    raise last_error
   end
 
-  # Resolve once and pin the connection to a checked public address. Retain the
-  # hostname for Host/TLS and disable environment proxies so they cannot resolve
-  # the destination independently of this check.
-  def http_client(uri)
+  # Resolve once and return the addresses for the host, refusing the whole
+  # destination if any of them is non-public.
+  # @param [URI] uri The URI to resolve
+  # @return [Array<String>] The checked public addresses, in resolver order
+  def public_addresses(uri)
     unless uri.is_a?(URI::HTTP) && uri.hostname
       raise ArgumentError, 'Only absolute HTTP(S) destinations are supported'
     end
@@ -166,8 +174,15 @@ class UrlChecker
       raise ArgumentError, "Refusing non-public destination: #{uri.hostname}"
     end
 
+    addresses
+  end
+
+  # Build a client pinned to a checked public address. Retain the hostname for
+  # Host/TLS and disable environment proxies so they cannot resolve the
+  # destination independently of this check.
+  def http_client(uri, address)
     http = Net::HTTP.new(uri.hostname, uri.port, nil)
-    http.ipaddr = addresses.first
+    http.ipaddr = address
     http.use_ssl = uri.scheme == 'https'
     http
   end
@@ -182,17 +197,15 @@ class UrlChecker
   end
 
   # Follows HTTP redirects up to a maximum limit (MAX_REDIRECTS)
-  # @param [Net::HTTP] http The HTTP client
   # @param [URI] uri The original URI
   # @param [Net::HTTPResponse] response The HTTP response to process
-  def follow_redirects(http, uri, response)
+  def follow_redirects(uri, response)
     redirect_count = 0
     while response.is_a?(Net::HTTPRedirection) && redirect_count < MAX_REDIRECTS
       location = response['location']
       @logger.info("Redirecting to: #{location}")
       uri = URI.join(uri.to_s, location)
-      http = http_client(uri)
-      response = get_response(http, uri)
+      response = get_response(uri)
       redirect_count += 1
     end
     response
@@ -229,7 +242,7 @@ class UrlChecker
 
     begin
       uri = URI.parse(wayback_url)
-      response = get_response(http_client(uri), uri)
+      response = get_response(uri)
       handle_wayback_response(response, url_result)
     rescue StandardError => e
       retries += 1

@@ -111,6 +111,53 @@ RSpec.describe UrlChecker do
     checker.send(:check_url, entry)
   end
 
+  context 'when a host resolves to several public addresses' do
+    let(:unreachable_ipv6) { '2606:4700:4700::1111' }
+    let(:reachable_ipv4) { '93.184.216.34' }
+    let(:pinned) { [] }
+
+    before do
+      allow(Addrinfo).to receive(:getaddrinfo).and_return([Addrinfo.ip(unreachable_ipv6), Addrinfo.ip(reachable_ipv4)])
+      allow(Net::HTTP).to receive(:new).with('docs.example.test', 443, nil).and_return(initial_http)
+      allow(initial_http).to receive(:ipaddr=) { |address| pinned << address }
+    end
+
+    it 'does not report a live link as an error when the first address is unreachable' do
+      allow(initial_http).to receive(:get).with('/old') do
+        raise Errno::EHOSTUNREACH, "connect(2) for \"#{pinned.last}\" port 443" if pinned.last == unreachable_ipv6
+
+        final_response
+      end
+
+      expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
+      expect(pinned).to eq([unreachable_ipv6, reachable_ipv4])
+    end
+
+    it 'falls back to the next address on a connect timeout' do
+      allow(initial_http).to receive(:get).with('/old') do
+        raise Net::OpenTimeout, 'execution expired' if pinned.last == unreachable_ipv6
+
+        final_response
+      end
+
+      expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
+    end
+
+    it 'reports the last error when no address is reachable' do
+      allow(initial_http).to receive(:get).with('/old').and_raise(Errno::ECONNREFUSED)
+
+      expect(checker.send(:check_url, entry)[:status]).to match(/\AError: Connection refused/)
+      expect(pinned).to eq([unreachable_ipv6, reachable_ipv4])
+    end
+
+    it 'does not retry other addresses after a non-connection error' do
+      allow(initial_http).to receive(:get).with('/old').and_raise(OpenSSL::SSL::SSLError, 'bad certificate')
+
+      expect(checker.send(:check_url, entry)[:status]).to eq('Error: bad certificate')
+      expect(pinned).to eq([unreachable_ipv6])
+    end
+  end
+
   %w[127.0.0.1 169.254.169.254 10.0.0.1 ::1 fe80::1 fd00::1 ::ffff:127.0.0.1].each do |address|
     it "rejects a redirect resolving to #{address} before creating a client" do
       redirect_response['location'] = 'https://internal.example.test/new'
