@@ -30394,6 +30394,69 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/zimbra_ews_mailbox_access": {
+    "name": "Zimbra EWS Cross-Mailbox FindItem Authorization Bypass",
+    "fullname": "auxiliary/gather/zimbra_ews_mailbox_access",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "Zimbra Collaboration Network Edition's Exchange Web Services extension accepts\n          composite folder identifiers containing an account UUID. In affected versions,\n          FindItem constructs its authorization context from the mailbox selected by that\n          UUID instead of the account that authenticated. This permits an EWS-enabled user\n          to read another account's messages, MIME content, and attachments without a share\n          or delegation grant.\n\n          This module resolves the victim UUID through authenticated Zimbra SOAP, verifies\n          that EWS works for the attacker's own mailbox, and then exercises the vulnerable\n          FindItem path. LIST stores selected folder metadata as CSV loot. READ finds a\n          selected item within that folder and stores its complete MIME message as loot.\n\n          Zimbra 10.1.0 through 10.1.19 are affected. Zimbra 10.1.20 fixes the issue.",
+    "references": [
+      "CVE-2026-10631",
+      "URL-https://wiki.zimbra.com/wiki/Zimbra_Security_Advisories"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-11 14:12:29 +0000",
+    "path": "/modules/auxiliary/gather/zimbra_ews_mailbox_access.rb",
+    "is_install_path": true,
+    "ref_name": "gather/zimbra_ews_mailbox_access",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "LIST",
+        "description": "List items in a victim mailbox folder"
+      },
+      {
+        "name": "READ",
+        "description": "Save a victim message and its attachments as complete MIME"
+      }
+    ]
+  },
   "auxiliary_gather/zookeeper_info_disclosure": {
     "name": "Apache ZooKeeper Information Disclosure",
     "fullname": "auxiliary/gather/zookeeper_info_disclosure",
