@@ -33,6 +33,7 @@ PATH
       bigdecimal (< 4.1.2)
       bootsnap
       bson
+      cgi
       chunky_png
       csv
       date (>= 3.4.1)
@@ -236,6 +237,7 @@ GEM
     builder (3.3.0)
     byebug (13.0.0)
       reline (>= 0.6.0)
+    cgi (0.5.2)
     chunky_png (1.4.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.8)
@@ -749,4 +751,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.5.22
+   2.7.2

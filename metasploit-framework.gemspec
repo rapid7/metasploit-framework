@@ -280,6 +280,7 @@ Gem::Specification.new do |spec|
     abbrev
     base64
     benchmark
+    cgi
     csv
     drb
     fiddle
