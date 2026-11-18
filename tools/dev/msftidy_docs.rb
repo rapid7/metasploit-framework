@@ -10,6 +10,7 @@
 
 require 'fileutils'
 require 'find'
+require 'json'
 require 'time'
 
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
@@ -116,7 +117,26 @@ class MsftidyDoc
     'post' => 'post'
   }.freeze
 
+  MODULE_METADATA_PATH = File.expand_path('../../db/modules_metadata_base.json', __dir__).freeze
   PAYLOAD_SOURCE_DIRS = %w[adapters singles stagers stages].freeze
+
+  #
+  # Maps each payload's registered fullname to its source path, as recorded in the
+  # module metadata. Loaded once, since the metadata file is large.
+  #
+  def self.payload_paths_by_fullname
+    @payload_paths_by_fullname ||= begin
+      JSON.parse(File.read(MODULE_METADATA_PATH)).each_value.each_with_object({}) do |entry, paths|
+        paths[entry['fullname']] = entry['path'] if entry['type'] == 'payload'
+      end
+    rescue Errno::ENOENT, JSON::ParserError
+      {}
+    end
+  end
+
+  def payload_paths_by_fullname
+    self.class.payload_paths_by_fullname
+  end
 
   def has_module
     doc_type = @full_filepath[%r{documentation/modules/([^/]+)/}, 1]
@@ -151,25 +171,20 @@ class MsftidyDoc
     base = @full_filepath.sub(%r{documentation/modules/#{Regexp.escape(doc_type)}/}, "modules/#{module_dir}/")
     return module_source_paths(base) unless doc_type == 'payload'
 
-    # Payload docs are named after the payload's fullname, which hides the
-    # singles/stages/stagers split used on disk:
-    #   payload/linux/x64/exec                -> payloads/singles/linux/x64/exec
-    #   payload/windows/meterpreter/reverse_tcp -> payloads/stages/windows/meterpreter
-    #                                             + payloads/stagers/windows/reverse_tcp
+    # Payload docs are named after the payload's registered fullname, which does not
+    # map one-to-one onto files: staged payloads are a stager plus a stage, adapted
+    # payloads come from an adapter, and some stagers are named differently from the
+    # payload (find_tag is findtag_ord.rb). The module metadata records the source
+    # path for each fullname, so use that, and only guess a singles path for a
+    # payload that is not in the metadata yet.
     payload_root = base[%r{\A(.*?modules/payloads/)}, 1]
     rest = base.sub(payload_root, '')
-    candidates = module_source_paths(base)
-    candidates += module_source_paths("#{payload_root}singles/#{rest}") unless rest.start_with?('singles/')
+    candidates = module_source_paths("#{payload_root}singles/#{rest}")
+    metadata_path = payload_paths_by_fullname["payload/#{rest.sub(/\.md$/, '')}"]
+    return candidates unless metadata_path
 
-    stage_dir, stager = File.split(rest)
-    platform_dir, stage = File.split(stage_dir)
-    if stage_dir != '.' && platform_dir != '.' && stager != '.'
-      stage_paths = module_source_paths("#{payload_root}stages/#{platform_dir}/#{stage}.md")
-      stager_paths = module_source_paths("#{payload_root}stagers/#{platform_dir}/#{stager}")
-      candidates += stage_paths if stager_paths.any? { |path| File.file?(path) }
-    end
-
-    candidates
+    install_root = payload_root.sub(%r{modules/payloads/\z}, '')
+    candidates << "#{install_root}#{metadata_path.delete_prefix('/')}"
   end
 
   def module_source_paths(path)
