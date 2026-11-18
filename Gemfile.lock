@@ -35,7 +35,7 @@ PATH
       bson
       chunky_png
       csv
-      date (= 3.4.1)
+      date (>= 3.4.1)
       dnsruby
       drb
       ed25519
@@ -247,7 +247,7 @@ GEM
     crass (1.0.8)
     csv (3.3.7)
     daemons (1.4.1)
-    date (3.4.1)
+    date (3.5.1)
     debug (1.11.1)
       irb (~> 1.10)
       reline (>= 0.3.8)

@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
-# Jekyll requires csv, which is no longer a default gem on Ruby 3.4+.
+# Jekyll, safe_yaml and Liquid require these bundled gems on Ruby 3.4+.
+gem 'base64'
+gem 'bigdecimal'
 gem 'csv'
 gem 'jekyll', '~> 4.3.0'
 gem 'just-the-docs', github: 'rapid7/just-the-docs', branch: 'r7_ver_custom'
