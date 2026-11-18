@@ -13,6 +13,21 @@ reviews:
   # Keep generated prose in the bot's comment so the contributor's description stays clear.
   high_level_summary_in_walkthrough: true
   poem: false
+  path_instructions:
+    - path: "modules/**/*.rb"
+      instructions: >-
+        Apply AGENTS.md's Reuse Before Implementing guidance on separating
+        module workflow from supporting capabilities. Base extraction
+        suggestions on clear responsibilities and opportunities for reuse.
+        A library may initially have one caller.
+    - path: "spec/**/*.rb"
+      instructions: >-
+        For new or updated RSpec tests, follow https://www.betterspecs.org/
+        and AGENTS.md's Testing guidance, including human-readable descriptions
+        for every it block. Apply this to library, module, and acceptance specs.
+        Keep examples focused and deterministic and cover relevant valid,
+        invalid, and boundary cases. Follow the existing test requirements;
+        do not require module or application tests unless requested.
   auto_review:
     enabled: true
     auto_incremental_review: true

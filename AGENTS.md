@@ -37,6 +37,8 @@ Metasploit Framework is an open-source penetration testing and exploitation fram
 
 ## Reuse Before Implementing
 
+Keep modules focused on the exploit or task workflow, including metadata, options, reporting, and decisions specific to that workflow. Implement supporting capabilities such as protocol clients, parsers, and authentication helpers in libraries or mixins under `lib/`. Reuse or extend an existing library first; create a new library for a distinct supporting capability when none fits. Choose boundaries by responsibility and opportunities for reuse. A library may initially have one caller.
+
 Search before implementing; stop at the first fit:
 
 1. Reuse Framework libraries and mixins in `lib/msf/`, `lib/rex/`, and `lib/metasploit/`.
@@ -235,12 +237,12 @@ When writing or modifying code in `lib/`:
 
 ### Quality
 - Write focused RSpec tests for library behavior changes (see the Testing section)
-- Follow [Better Specs](https://www.betterspecs.org/) conventions
 - Keep PRs focused — small fixes are easier to review
 - Any new hash cracking implementations require adding a test hash to `tools/dev/hash_cracker_validator.rb` and ensuring that passes without error
 
 ## Testing
 
+- Follow [Better Specs](https://www.betterspecs.org/) when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every `it` block must have a human-readable description.
 - Tests live in `spec/` mirroring the `lib/` structure
 - Run a single spec file: `bundle exec rspec spec/path/to/spec.rb`
 - Run a single example by line: `bundle exec rspec spec/path/to/spec.rb:42`

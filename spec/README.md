@@ -1,1 +1,17 @@
-All RSpec related unit test files reside under this directory.
+# RSpec Tests
+
+RSpec tests live under this directory. Follow [Better Specs](https://www.betterspecs.org/)
+when creating or updating tests throughout Framework, including library, module, and
+acceptance specs. Every `it` block must have a human-readable description.
+
+Keep examples focused and deterministic. Use `described_class`, `let`/`let!` for
+setup, and `before` for side effects where appropriate. Prefer one expectation
+per example when practical, and cover relevant valid, invalid, and boundary cases.
+
+For library behavior changes, add or update focused specs under `spec/lib/`,
+mirroring the library path. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the
+project's test requirements.
+
+Run a relevant spec file with `bundle exec rspec spec/path/to/spec.rb`, or a
+single example with `bundle exec rspec spec/path/to/spec.rb:42`. See the
+[acceptance test README](acceptance/README.md) for acceptance suite setup.

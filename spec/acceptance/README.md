@@ -4,6 +4,9 @@ A slower test suite that ensures high level functionality works as expected,
 such as verifying msfconsole opens successfully, and can generate Meterpreter payloads,
 create handlers, etc.
 
+When creating or updating acceptance specs, follow [Better Specs](https://www.betterspecs.org/)
+and the [RSpec guidance](../README.md), including a human-readable description for every `it` block.
+
 The test suite runs on the current host, so the Meterpreter runtimes should be available.
 There is no remote host support currently.
 
