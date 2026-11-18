@@ -43378,6 +43378,59 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/plex_media_server_file_read": {
+    "name": "Plex Media Server Metadata File Request Arbitrary File Read",
+    "fullname": "auxiliary/scanner/http/plex_media_server_file_read",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-01",
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "Plex Media Server versions up to and including 1.43.3.10861 expose\n          GET /library/metadata/<ratingKey>/file?url=<media-reference>. The handler\n          resolves the caller-supplied media reference without validating its scheme or\n          confining the resolved path to the item's metadata bundle directory. Supplying\n          a file:// URL with an absolute path makes the server stream back any file\n          readable by the PMS service account (often root on NAS/Docker installs).\n\n          Fixed in 1.43.3.10896, which rejects references that are unsupported or that\n          \"escape the bundle directory\".\n\n          No authentication is required when the source IP is treated as an allowed\n          network (default on unclaimed servers and common LAN configurations); an\n          X-Plex-Token belonging to any user with library visibility works otherwise.",
+    "references": [
+      "URL-https://forums.plex.tv/t/important-security-update-for-plex-media-server-v1-43-2-and-earlier/942319"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 32400,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-15 06:42:48 +0000",
+    "path": "/modules/auxiliary/scanner/http/plex_media_server_file_read.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/plex_media_server_file_read",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/pocketpad_login": {
     "name": "PocketPAD Login Bruteforce Force Utility",
     "fullname": "auxiliary/scanner/http/pocketpad_login",
