@@ -30098,6 +30098,63 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/wp_welcart_fileread_cve_2022_4140": {
+    "name": "WordPress Welcart e-Commerce Arbitrary File Read (CVE-2022-4140)",
+    "fullname": "auxiliary/gather/wp_welcart_fileread_cve_2022_4140",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2022-12-05",
+    "type": "auxiliary",
+    "author": [
+      "Takeshi Suzuki",
+      "sinn3r <sinn3r@metasploit.com>",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits an arbitrary file read vulnerability in Wordpress's Welcart e-Commerce plugin versions prior to 2.8.5.\n          The plugin's content-log.php file does not validate user input before using it to output the content of logfiles.\n          This allows unauthenticated attackers to access the vulnerable endpoint directly and read arbitrary files on the server.",
+    "references": [
+      "CVE-2022-4140"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-14 13:43:47 +0000",
+    "path": "/modules/auxiliary/gather/wp_welcart_fileread_cve_2022_4140.rb",
+    "is_install_path": true,
+    "ref_name": "gather/wp_welcart_fileread_cve_2022_4140",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/x11_keyboard_spy": {
     "name": "X11 Keylogger",
     "fullname": "auxiliary/gather/x11_keyboard_spy",
@@ -94020,6 +94077,66 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/zimbra_admin_deployzimlet_rce": {
+    "name": "Zimbra Administrator DeployZimlet Remote Code Execution",
+    "fullname": "exploit/linux/http/zimbra_admin_deployzimlet_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-10-22",
+    "type": "exploit",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "This module uses the Zimbra administrator DeployZimlet SOAP operation\n          to install a server-extension package containing a Framework-generated\n          JSP payload. If server-side Zimlet JSP execution is enabled, requesting\n          that JSP provides a session as the zimbra service account.\n\n          Zimbra documents this feature and disables it by default. Valid\n          global-administrator credentials and access to the Zimbra administrator\n          service are required. Installations that disable Zimlet JSP execution or\n          serve deployed JSP files as static content are not exploitable through\n          this path.\n\n          The module uses random package and resource names. The JSP requires\n          a random access token and runs only once. Cleanup undeploys the\n          package and verifies that its registration and test resource are gone.",
+    "references": [
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/ZIMBRA-ADMINRCE.md",
+      "URL-https://wiki.zimbra.com/wiki/Working_with_Zimlets",
+      "URL-https://wiki.zimbra.com/wiki/Zimlet_JSP"
+    ],
+    "platform": "Linux",
+    "arch": "java",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java JSP"
+    ],
+    "mod_time": "2026-11-17 10:12:31 +0000",
+    "path": "/modules/exploits/linux/http/zimbra_admin_deployzimlet_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/zimbra_admin_deployzimlet_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "config-changes"
       ]
     },
     "session_types": false,
