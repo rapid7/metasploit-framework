@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+# Jekyll requires csv, which is no longer a default gem on Ruby 3.4+.
+gem 'csv'
 gem 'jekyll', '~> 4.3.0'
 gem 'just-the-docs', github: 'rapid7/just-the-docs', branch: 'r7_ver_custom'
 # Useful when testing local just-the-docs changes:

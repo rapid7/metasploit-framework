@@ -123,7 +123,7 @@ PATH
       sinatra (~> 4.1)
       sqlite3 (~> 2.1)
       sshkey
-      stringio (= 3.1.1)
+      stringio (>= 3.1.7)
       swagger-blocks
       syslog
       thin (~> 2.0)
@@ -658,7 +658,7 @@ GEM
     sqlite3 (2.10.2)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
-    stringio (3.1.1)
+    stringio (3.2.0)
     strptime (0.2.5)
     swagger-blocks (3.0.0)
     syslog (0.4.0)
