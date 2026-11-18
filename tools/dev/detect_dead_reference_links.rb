@@ -165,7 +165,7 @@ class UrlChecker
       begin
         # Net::HTTP may apply open_timeout once for TCP and again for TLS.
         # Bound the entire opening phase, while leaving response reads alone.
-        Timeout.timeout(open_timeout) { http.start }
+        Timeout.timeout(open_timeout, Net::OpenTimeout) { http.start }
       rescue SystemCallError, Timeout::Error => e
         last_error = e
         next

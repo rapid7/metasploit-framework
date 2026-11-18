@@ -177,12 +177,21 @@ RSpec.describe UrlChecker do
 
     it 'bounds a stalled connection opening across TCP and TLS' do
       stub_const('UrlChecker::ADDRESS_OPEN_TIMEOUT', 0.02)
+      closed = false
       allow(initial_http).to receive(:start) do
-        sleep 0.1 if pinned.last == unreachable_ipv6
+        if pinned.last == unreachable_ipv6
+          begin
+            sleep 0.1
+          rescue StandardError
+            closed = true
+            raise
+          end
+        end
       end
 
       expect(checker.send(:check_url, entry)[:status]).to eq('Alive')
       expect(pinned).to eq([unreachable_ipv6, reachable_ipv4])
+      expect(closed).to be(true)
     end
 
     it 'stops after the cumulative connection-opening budget is spent' do
