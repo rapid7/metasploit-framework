@@ -157,6 +157,24 @@ RSpec.describe Rex::Proto::Nuuo::Client do
 
       expect(client.read_response).to be_a_kind_of(Rex::Proto::Nuuo::Response)
     end
+
+    it 'marks the response as truncated when the connection closes during the body' do
+      tcp_connection = double('tcp_connection')
+      allow(tcp_connection).to receive('closed?').and_return(false)
+      reads = 0
+      allow(tcp_connection).to receive('get_once') do
+        reads += 1
+        raise EOFError if reads > 1
+
+        "NUCM/1.0 200\r\nContent-Length:50\r\n\r\n"
+      end
+      client.connection = tcp_connection
+
+      response = client.read_response
+
+      expect(response).to be_a_kind_of(Rex::Proto::Nuuo::Response)
+      expect(response.error).to eq(:truncated)
+    end
   end
 
   describe '#request_ping' do
