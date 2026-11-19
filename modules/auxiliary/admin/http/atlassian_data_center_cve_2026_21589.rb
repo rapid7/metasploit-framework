@@ -224,7 +224,7 @@ class MetasploitModule < Msf::Auxiliary
   def product_fingerprint_for_check(product)
     fingerprint_atlassian_product(product[:name])
   rescue Msf::Exploit::Remote::HTTP::Atlassian::ProductFingerprint::InvalidVersionError => e
-    elog("Atlassian #{product[:name]} advertised an invalid version", error: e)
+    vprint_status("Atlassian #{product[:name]} advertised invalid version #{e.version.inspect}; continuing without version evidence")
     {
       detected: true,
       product: product[:name].downcase.to_sym,
@@ -593,7 +593,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, partial_membership_failure("Crowd returned HTTP 201, but created user '#{username}' could not be verified"))
     end
 
-    print_good("Created Crowd user '#{username}'; its password is stored in PASSWORD")
+    print_good("Created Crowd user '#{username}' for signing in to Atlassian #{@product[:name]}; its password is stored in PASSWORD")
     username
   end
 
