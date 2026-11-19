@@ -362,7 +362,11 @@ autoload :Metasm, 'metasm'
 autoload :Recog, 'recog'
 autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
-autoload :PacketFu, 'packetfu'
+if defined?(PacketFu)
+  require 'msf/core/packet_fu_compat'
+else
+  autoload :PacketFu, 'msf/core/packet_fu_compat'
+end
 autoload :Zip, 'zip'
 autoload :DidYouMean, 'did_you_mean'
 
