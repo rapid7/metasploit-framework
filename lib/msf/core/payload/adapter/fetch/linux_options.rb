@@ -2,9 +2,12 @@
 module Msf::Payload::Adapter::Fetch::LinuxOptions
   def initialize(info = {})
     super
+    # Only the FTP, TNFTP and GET clients have an FTP code path, so FTP adapters must not
+    # default to (or accept) CURL, WGET or TFTP.
+    fetch_command_options = fetch_protocol == 'FTP' ? %w[FTP TNFTP GET] : %w[CURL FTP GET TFTP TNFTP WGET]
     register_options(
       [
-        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CURL', %w[CURL FTP GET TFTP TNFTP WGET]]),
+        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', fetch_command_options.first, fetch_command_options]),
         Msf::OptEnum.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk by using anonymous handles, requires Linux ≥3.17 (for Python variant also Python ≥3.8, tested shells are sh, bash, zsh)', 'none', ['none', 'python3.8+', 'shell-search', 'shell']]),
         Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: %r{^[^\s/\\]*$}, conditions: ['FETCH_FILELESS', '==', 'none']),
         Msf::OptBool.new('FETCH_PIPE', [true, 'Host both the binary payload and the command so it can be piped directly to the shell.', false], conditions: ['FETCH_COMMAND', 'in', %w[CURL GET WGET]]),
