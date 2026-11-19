@@ -18,4 +18,8 @@ module Msf
   end
 end
 
-StructFu.prepend(Msf::PacketFuCompat)
+# A direct PacketFu require can enter this file through its pending autoload.
+# Reopen the namespace so that original require can resume defining PacketFu.
+module PacketFu
+  ::StructFu.prepend(::Msf::PacketFuCompat)
+end

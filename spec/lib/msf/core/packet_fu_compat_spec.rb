@@ -1,7 +1,56 @@
 require 'spec_helper'
 require 'msf/core/packet_fu_compat'
+require 'open3'
+require 'rbconfig'
 
 RSpec.describe Msf::PacketFuCompat do
+  describe 'loading PacketFu' do
+    def run_in_new_process(script)
+      Open3.capture3(RbConfig.ruby, '-Ilib', '-e', script, chdir: Msf::Config.install_root)
+    end
+
+    it 'patches the Framework PacketFu autoload without loading either mixin' do
+      stdout, stderr, status = run_in_new_process(<<~'RUBY')
+        require 'msfenv'
+
+        packet = PacketFu::TCPPacket.new
+        packet.tcp_seq = 0xffff_ffff
+        packet.recalc
+        parsed = PacketFu::Packet.parse(packet.to_s)
+        raise 'TCP sequence changed' unless parsed.tcp_seq == 0xffff_ffff
+        raise 'A packet mixin unexpectedly loaded' if $LOADED_FEATURES.any? { |path| path.end_with?('/exploit/capture.rb', '/exploit/remote/ipv6.rb') }
+      RUBY
+
+      expect(status.success?).to be(true), "#{stdout}\n#{stderr}"
+    end
+
+    it 'supports requiring PacketFu directly after Framework boots' do
+      stdout, stderr, status = run_in_new_process(<<~'RUBY')
+        require 'msfenv'
+        require 'packetfu'
+
+        packet = PacketFu::UDPPacket.new
+        packet.udp_dst = 67
+        raise 'UDP port changed' unless packet.udp_dst == 67
+      RUBY
+
+      expect(status.success?).to be(true), "#{stdout}\n#{stderr}"
+    end
+
+    it 'patches PacketFu when it was required before Framework boots' do
+      stdout, stderr, status = run_in_new_process(<<~'RUBY')
+        require 'packetfu'
+        require 'msfenv'
+
+        packet = PacketFu::UDPPacket.new
+        packet.udp_src = 68
+        raise 'UDP port changed' unless packet.udp_src == 68
+      RUBY
+
+      expect(status.success?).to be(true), "#{stdout}\n#{stderr}"
+    end
+  end
+
   it 'converts packed Ethernet protocol bytes to the field value' do
     header = PacketFu::EthHeader.new
 
