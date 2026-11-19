@@ -367,7 +367,7 @@ module Msf
           return nil if contents.nil?
 
           if location == vcd_properties_file && is_root? == false
-            print_good('Exploited CVE-2022-22948 to read #{vcd_properties_file}')
+            print_good("Exploited CVE-2022-22948 to read #{vcd_properties_file}")
           end
           output = {}
           contents.each_line(chomp: true) do |line|
