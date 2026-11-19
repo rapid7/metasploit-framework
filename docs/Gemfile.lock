@@ -14,11 +14,14 @@ GEM
   specs:
     addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
+    base64 (0.3.0)
+    bigdecimal (4.1.3)
     byebug (13.0.0)
       reline (>= 0.6.0)
     coderay (1.1.3)
     colorator (1.1.0)
     concurrent-ruby (1.3.8)
+    csv (3.3.7)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0)
@@ -97,6 +100,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  base64
+  bigdecimal
+  csv
   jekyll (~> 4.3.0)
   jekyll-sass-converter (~> 2.2.0)
   jekyll-sitemap
