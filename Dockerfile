@@ -1,4 +1,4 @@
-FROM ruby:3.3.13-alpine3.24 AS builder
+FROM ruby:3.3.14-alpine3.24 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set force_ruby_platform 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -35,6 +35,10 @@ RUN apk add --no-cache \
       go \
     && echo "gem: --no-document" > /etc/gemrc \
     && gem update --system \
+    # Keep Bundler's temporary Git cache stable during local clones.
+    && git config --global maintenance.auto false \
+    && git config --global gc.auto 0 \
+    && git config --global fetch.writeCommitGraph false \
     && bundle config $BUNDLER_CONFIG_ARGS \
     && bundle install --jobs=8 \
     && if [ "${BUNDLER_FORCE_CLEAN}" == "true" ]; then \
@@ -54,7 +58,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.3.13-alpine3.24
+FROM ruby:3.3.14-alpine3.24
 LABEL maintainer="Rapid7"
 ARG TARGETARCH
 

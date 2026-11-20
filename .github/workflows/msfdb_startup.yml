@@ -104,7 +104,7 @@ jobs:
           Expand-Archive -Path $archive -DestinationPath 'C:\' -Force
 
       - name: Set up checkout Ruby and dependencies
-        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1
         with:
           bundler-cache: true
 
