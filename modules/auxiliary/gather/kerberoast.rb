@@ -121,11 +121,13 @@ class MetasploitModule < Msf::Auxiliary
       realm = adds_get_domain_info(ldap)[:dns_name]
 
       run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST', ldap: ldap) do |result|
-        spn = result.serviceprincipalname[0]
+        spns = Array(result.serviceprincipalname)
         username = result.samaccountname[0]
 
-        unless spn.split('/').length == 2
-          print_warning("Ignoring invalid SPN for #{username}: #{spn.inspect}")
+        # servicePrincipalName is multivalued with no guaranteed order, so use the first well-formed value
+        spn = spns.find { |candidate| valid_spn?(candidate) }
+        if spn.nil?
+          print_warning("Ignoring invalid SPN for #{username}: #{spns.map(&:inspect).join(', ')}")
           next
         end
         begin
@@ -153,6 +155,10 @@ class MetasploitModule < Msf::Auxiliary
         print_status("creds -t #{format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
       end
     end
+  end
+
+  def valid_spn?(spn)
+    spn.split('/').length == 2
   end
 
   def roast(roasted, spn, realm:)
