@@ -512,7 +512,7 @@ GEM
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
       tsort
-    recog (3.1.37)
+    recog (3.1.38)
       nokogiri
     redcarpet (3.6.1)
     regexp_parser (2.13.1)
