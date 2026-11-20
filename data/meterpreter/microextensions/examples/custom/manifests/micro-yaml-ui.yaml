@@ -1,0 +1,25 @@
+schema: meterpreter-micro/v1
+profile: micro-yaml-ui
+platform: windows
+architecture: [x64, x86]
+metapi_source_commit: 0aa09117dcee240eb92b3d559a01593dccd44c14
+objects:
+  - name: micro-yaml-echo
+    file:
+      x64: ../../build/echo.x64.o
+      x86: ../../build/echo.x86.o
+    commands:
+      - { id: 18001, name: micro_echo }
+    ui:
+      commands:
+        - name: echo
+          description: Echo a string through the resident microextension
+          request:
+            command: 18001
+            arguments:
+              - { name: text, type: string, tlv: 10 }
+          response:
+            fields:
+              - { name: text, type: string, tlv: 10 }
+          output:
+            format: "Target echoed: %{text}"
