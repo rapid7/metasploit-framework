@@ -4,6 +4,15 @@ module Msf::DBManager::User
 
   MIN_TOKEN_LENGTH = 20
 
+  # Attributes of an Mdm::User that callers such as the web service may set. Any other key is ignored.
+  # persistence_token, which is the API token, must only be minted server-side by #create_new_user_token,
+  # and crypted_password is derived from :password by #report_user rather than accepted directly.
+  USER_ATTRIBUTES = %w[username fullname email phone company prefs admin].freeze
+
+  # Attributes that may additionally be set when restoring a user from trusted data (see
+  # #msf_import_user), so that API tokens and SSO settings survive an import.
+  TRUSTED_USER_ATTRIBUTES = (USER_ATTRIBUTES + %w[sso_enabled persistence_token password_salt]).freeze
+
   # Returns a list of all users in the database
   def users(opts)
     ::ApplicationRecord.connection_pool.with_connection {
@@ -35,8 +44,15 @@ module Msf::DBManager::User
   # +:prefs+::    -- [Hash] the users's preferences
   # +:admin+::    -- [Boolean] True if the user is an admin; otherwise, false.
   #
+  # Only the attributes in USER_ATTRIBUTES are used; any other key is ignored. Callers restoring a user
+  # from trusted data can pass +true+ as the second argument to also set the attributes in
+  # TRUSTED_USER_ATTRIBUTES. Never do that for data that comes from a web service request.
+  #
+  # @param opts [Hash] The user's attributes. Bare keywords are accepted, e.g. +report_user(username: 'u', password: 'p')+.
+  # @param trusted [Boolean] True to also accept the attributes in TRUSTED_USER_ATTRIBUTES. This is a separate
+  #   argument rather than a key of +opts+ so that it can never be switched on by request data.
   # @return [Mdm::User] The reported Mdm::User object.
-  def report_user(opts)
+  def report_user(opts, trusted = false)
     return unless active
     raise ArgumentError.new("Missing required option :username") if opts[:username].nil?
     raise ArgumentError.new("Missing required option :password") if opts[:password].nil?
@@ -46,11 +62,12 @@ module Msf::DBManager::User
       conditions = {username: opts[:username]}
       user = Mdm::User.where(conditions).first_or_initialize
 
+      allowed_attributes = trusted ? TRUSTED_USER_ATTRIBUTES : USER_ATTRIBUTES
       opts.each do |k,v|
-        if user.attribute_names.include?(k.to_s)
+        if allowed_attributes.include?(k.to_s)
           user[k] = v
         elsif !v.blank?
-          dlog("Unknown attribute for ::Mdm::User: #{k}")
+          dlog("Ignoring attribute that cannot be set for ::Mdm::User: #{k}")
         end
       end
 
@@ -68,7 +85,8 @@ module Msf::DBManager::User
   end
 
   # Update the attributes of a user entry with the values in opts.
-  # The values in opts should match the attributes to update.
+  # The values in opts should match the attributes to update. Only the attributes in USER_ATTRIBUTES
+  # are updated; any other key is ignored.
   #
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::User] The updated Mdm::User object.
@@ -77,7 +95,10 @@ module Msf::DBManager::User
       opts = opts.clone() # protect the original caller's opts
       id = opts.delete(:id)
       user = Mdm::User.find(id)
-      user.update!(opts)
+
+      attributes, ignored = opts.partition { |k, _v| USER_ATTRIBUTES.include?(k.to_s) }.map(&:to_h)
+      ignored.each_key { |k| dlog("Ignoring attribute that cannot be updated for ::Mdm::User: #{k}") }
+      user.update!(attributes)
       return user
     }
   end
