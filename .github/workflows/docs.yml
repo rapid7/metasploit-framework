@@ -23,7 +23,8 @@ on:
       - metakitty
       - weekly-dependency-updates
     paths:
-      - docs
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
   pull_request:
     branches-ignore:
       - weekly-dependency-updates
@@ -35,14 +36,22 @@ env:
 jobs:
   # Ensures that the docs site builds successfully. Note that this workflow does not deploy the docs site.
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ruby:
           - '3.3'
+          - '3.4'
+          - '4.0'
+          - '3.5.0-preview1'
+        include:
+          - { ruby: '3.5.0-preview1', os: ubuntu-24.04 }
+
+    env:
+      BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
 
     name: Ruby ${{ matrix.ruby }}
     steps:
@@ -55,7 +64,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true

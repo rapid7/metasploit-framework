@@ -150,7 +150,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb', '~> 3.3.19'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
-  spec.add_runtime_dependency 'date', '3.4.1' # Temporarily pinned until 3.5 can be tested
+  # Permit the default Date version activated by newer Rubies before Bundler.
+  spec.add_runtime_dependency 'date', '>= 3.4.1'
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'net-sftp'
@@ -260,9 +261,8 @@ Gem::Specification.new do |spec|
   # Needed for generic in-memory cachine
   spec.add_runtime_dependency 'lru_redux'
 
-  # Pinned on 3.1.1 as it is the version supported by our Ruby 3.3.8 dependency to avoid this issue https://github.com/rubygems/rubygems/issues/7657#issuecomment-2521083323
-  # When Ruby ships with `gem --version` 3.6.0 or higher by default this can be removed
-  spec.add_runtime_dependency 'stringio', '3.1.1'
+  # Support the I/O mode API used by newer Rubies: https://github.com/ruby/stringio/pull/129
+  spec.add_runtime_dependency 'stringio', '>= 3.1.7'
 
   # Needed for caching validation
   spec.add_runtime_dependency 'parallel'
@@ -280,6 +280,7 @@ Gem::Specification.new do |spec|
     abbrev
     base64
     benchmark
+    cgi
     csv
     drb
     fiddle
