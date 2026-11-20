@@ -567,6 +567,24 @@ RSpec.describe "Metasploit's json-rpc" do
 
   describe 'analyze' do
     let(:host_ip) { Faker::Internet.private_ip_v4_address }
+
+    before(:each) do
+      framework.modules.add_module_path('./modules')
+      # Ensure the default workspace exists in the database
+      framework.db.workspace = framework.db.add_workspace('default')
+    end
+
+    after(:each) do
+      # report_host and report_vuln go through the Rack app and therefore a
+      # separate DB connection that is NOT wrapped by the transactional fixture.
+      # We must manually clean up to avoid leaking data into subsequent specs.
+      ::ApplicationRecord.connection_pool.with_connection do
+        host_ids = Mdm::Host.where(address: host_ip).pluck(:id)
+        vuln_ids = Mdm::Vuln.where(host_id: host_ids).pluck(:id)
+        Mdm::Vuln.where(id: vuln_ids).delete_all if vuln_ids.any?
+        Mdm::Host.where(id: host_ids).delete_all if host_ids.any?
+      end
+    end
     let(:host) do
       {
         workspace: 'default',
@@ -663,7 +681,7 @@ RSpec.describe "Metasploit's json-rpc" do
           expect(last_json_response).to include(expected_response)
         end
       end
-
+      
       context 'when payloads requirements are specified' do
         it 'returns the list of known modules associated with a reported host' do
           report_host(host)
@@ -672,8 +690,6 @@ RSpec.describe "Metasploit's json-rpc" do
           report_vuln(vuln)
           expect(last_response).to be_ok
 
-          # Note: Currently the API doesn't return any differentiating output that a particular module is suitable
-          # with the requested payload
           expected_response = {
             jsonrpc: '2.0',
             result: {
@@ -685,7 +701,7 @@ RSpec.describe "Metasploit's json-rpc" do
                     mtype: "exploit",
                     options: {
                       invalid: [],
-                      missing: [ "payload_match" ],
+                      missing: ["payload_match"]
                     },
                     state: "MISSING_PAYLOAD",
                     description: "none of the requested payloads match"
@@ -695,7 +711,7 @@ RSpec.describe "Metasploit's json-rpc" do
                     mtype: "exploit",
                     options: {
                       invalid: [],
-                      missing: [ "credential", "payload_match" ],
+                      missing: ["credential", "payload_match"]
                     },
                     state: "REQUIRES_CRED",
                     description: "credentials are required, none of the requested payloads match"
@@ -705,7 +721,7 @@ RSpec.describe "Metasploit's json-rpc" do
                     mtype: "exploit",
                     options: {
                       invalid: [],
-                      missing: ["payload_match"],
+                      missing: ["payload_match"]
                     },
                     state: "MISSING_PAYLOAD",
                     description: "none of the requested payloads match"
@@ -722,11 +738,12 @@ RSpec.describe "Metasploit's json-rpc" do
               host: host_ip,
               analyze_options: {
                 payloads: [
-                  'linux/x86/meterpreter_reverse_http'
+                  'windows/meterpreter_reverse_http'
                 ]
               }
             }
           )
+
           expect(last_json_response).to include(expected_response)
         end
       end
