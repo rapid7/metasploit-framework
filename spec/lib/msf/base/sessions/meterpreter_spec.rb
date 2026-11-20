@@ -165,4 +165,25 @@ RSpec.describe Msf::Sessions::Meterpreter do
     end
   end
 
+  describe '#auto_load_extensions' do
+    before { allow(subject).to receive(:platform).and_return('windows') }
+
+    it 'parses a comma-separated string and trims blanks' do
+      datastore = { 'AutoLoadExtensions' => 'stdapi, priv ,,' }
+      expect(subject.auto_load_extensions(datastore)).to eq(%w[stdapi priv])
+    end
+
+    it 'de-duplicates case-variant spellings of the same extension' do
+      datastore = { 'AutoLoadExtensions' => 'Stdapi,stdapi,priv' }
+      expect(subject.auto_load_extensions(datastore)).to eq(%w[Stdapi priv])
+    end
+
+    it 'does not load an auto-added extension twice when supplied in a different case' do
+      datastore = { 'AutoLoadExtensions' => 'Stdapi', 'AutoLoadStdapi' => true }
+      # AutoLoadStdapi pushes 'stdapi' (and 'priv' on Windows); the supplied
+      # 'Stdapi' must collapse with the pushed 'stdapi' so stdapi loads once.
+      expect(subject.auto_load_extensions(datastore)).to eq(%w[Stdapi priv])
+    end
+  end
+
 end
