@@ -9,6 +9,12 @@ RSpec.describe Metasploit::Framework::LoginScanner::Smh do
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
+  describe '#service_opts' do
+    it 'reports the service as hp-smh' do
+      expect(smh_cli.service_opts).to include(name: 'hp-smh')
+    end
+  end
+
   context "#attempt_login" do
 
     let(:username) { 'admin' }

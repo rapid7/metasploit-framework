@@ -69,10 +69,6 @@ module Metasploit
           end
           Result.new(result_opts)
         end
-
-        def service_opts
-          build_service_opts('mybook_live')
-        end
       end
     end
   end
