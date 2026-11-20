@@ -70,11 +70,6 @@ module Metasploit
 
           Result.new(result_opts)
         end
-
-        def service_opts
-          build_service_opts('smh')
-        end
-
       end
     end
   end
