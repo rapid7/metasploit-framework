@@ -83,9 +83,11 @@ RSpec.describe MsfdbHelpers::DbInterface do
 
   describe '#migrate_database' do
     around do |example|
+      key = ENV.delete('SECRET_KEY_BASE')
       schema = ENV.delete('SCHEMA')
       example.run
     ensure
+      ENV['SECRET_KEY_BASE'] = key
       ENV['SCHEMA'] = schema
     end
 
@@ -95,6 +97,7 @@ RSpec.describe MsfdbHelpers::DbInterface do
         ['bundle', 'exec', 'rake', 'db:migrate'],
         env: {
           'MSF_DATABASE_CONFIG' => '/example/database.yml',
+          'SECRET_KEY_BASE' => a_string_matching(/\A[0-9a-f]{128}\z/),
           'SCHEMA' => '/example/schema.rb',
           'RAILS_ENV' => 'development',
           'DATABASE_URL' => nil,
@@ -108,6 +111,7 @@ RSpec.describe MsfdbHelpers::DbInterface do
       ).and_return(0)
 
       expect(driver.migrate_database('/example/database.yml')).to eq(0)
+      expect(ENV['SECRET_KEY_BASE']).to be_nil
     end
 
     it 'prints the migration error when the command fails' do
@@ -129,8 +133,8 @@ RSpec.describe MsfdbHelpers::DbInterface do
       ENV['PATH'] = original_path
     end
 
-    it 'isolates connection settings while preserving an explicit schema destination' do
-      keys = %w[PATH SCHEMA MSF_DATABASE_CONFIG RAILS_ENV DATABASE_URL PRIMARY_DATABASE_URL PGHOSTADDR PGSERVICE PGSERVICEFILE PGOPTIONS]
+    it 'isolates connection settings while preserving an explicit schema destination and Rails key' do
+      keys = %w[PATH SECRET_KEY_BASE SCHEMA MSF_DATABASE_CONFIG RAILS_ENV DATABASE_URL PRIMARY_DATABASE_URL PGHOSTADDR PGSERVICE PGSERVICEFILE PGOPTIONS]
       original = keys.to_h { |key| [key, ENV[key]] }
       skip 'A Unix shell is required for the test command' if Gem.win_platform?
 
@@ -141,6 +145,7 @@ RSpec.describe MsfdbHelpers::DbInterface do
           [ "$MSF_DATABASE_CONFIG" = '/example/database.yml' ] || exit 1
           [ "$RAILS_ENV" = 'development' ] || exit 2
           [ "$SCHEMA" = 'unrelated' ] || exit 4
+          [ "$SECRET_KEY_BASE" = 'unrelated' ] || exit 5
           [ -z "${DATABASE_URL+x}${PRIMARY_DATABASE_URL+x}${PGHOSTADDR+x}${PGSERVICE+x}${PGSERVICEFILE+x}${PGOPTIONS+x}" ] || exit 3
         SH
         File.write(executable, script)
