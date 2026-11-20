@@ -9,9 +9,11 @@ along with info about which vulnerable certificate templates the certificate ser
 allows enrollment in and which SIDs are authorized to use that certificate server to
 perform this enrollment operation.
 
-Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC13,
-and ESC15. The module is limited to checking for these techniques due to them being identifiable remotely from
-a normal user account by analyzing the objects in LDAP.
+The module can identify ESC1, ESC2, ESC3, ESC4, ESC13, and ESC15 by analyzing Active Directory objects
+over LDAP. It can also check for ESC9, ESC10, and ESC16 when an administrative WinRM session is available to
+inspect the relevant registry settings.
+
+For a broader explanation of the certificate-template and Certificate Authority weaknesses detected by this module, see [HackITA's AD CS privilege escalation guide](https://en.hackita.it/articoli/adcs-esc1-esc16/), which covers ESC1–ESC16 and their prerequisites.
 
 ### Installing AD CS
 1. Install AD CS on either a new or existing domain controller
@@ -246,8 +248,9 @@ certutil -getreg policy\EditFlags
 
 1. Do: Start msfconsole
 1. Do: `use auxiliary/gather/ldap_esc_vulnerable_cert_finder`
-1. Do: `set BIND_DN <DOMAIN>\\<USERNAME to log in as>`
-1. Do: `set BIND_PW <PASSWORD FOR USER>`
+1. Do: `set DOMAIN <DOMAIN>`
+1. Do: `set USERNAME <USERNAME>`
+1. Do: `set PASSWORD <PASSWORD FOR USER>`
 1. Do: `set RHOSTS <target IP(s)>`
 1. Optional: `set RPORT <target port>` if target port is non-default.
 1. Optional: `set SSL true` if the target port is SSL enabled.

