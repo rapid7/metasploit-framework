@@ -22,36 +22,65 @@ class Job
     self.start_time = nil
     self.cleanup_mutex = Mutex.new
     self.cleaned_up = false
+    self.stop_requested = false
+    self.cleanup_thread = nil
   end
 
+  # Runs cleanup at most once. Callers do not wait for an existing owner.
+  # @return [Object, nil] the callback result, or nil if cleanup was claimed
   def synchronized_cleanup
-    # Avoid start and stop both calling cleanup
-    self.cleanup_mutex.synchronize do
-      unless cleaned_up
-        self.cleaned_up = true
-        self.clean_proc.call(ctx) if self.clean_proc
+    cleanup_mutex.synchronize do
+      return if cleaned_up
+
+      self.cleaned_up = true
+      self.cleanup_thread = ::Thread.current
+    end
+
+    # Callbacks may stop other jobs, so never run one under the state lock.
+    begin
+      clean_proc.call(ctx) if clean_proc
+    ensure
+      cleanup_mutex.synchronize do
+        self.cleanup_thread = nil
+        # A run procedure may call cleanup itself. Defer its cancellation until
+        # the callback finishes; workers already unwinding have cleared this slot.
+        if stop_requested && job_thread == ::Thread.current
+          self.job_thread = nil
+          ::Thread.current.kill
+        end
       end
     end
   end
 
   #
-  # Runs the job in the context of its own thread if the async flag is false.
-  # Otherwise, the job is run inline.
+  # Runs the job in its own thread if async is true, or inline otherwise.
+  # @param async [Boolean] whether to spawn a worker
+  # @return [Thread, Object] the worker, or the inline run procedure's result
   #
   def start(async = false)
     self.start_time = ::Time.now
     if (async)
-      self.job_thread = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
+      worker = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
         # Deschedule our thread momentarily
         ::IO.select(nil, nil, nil, 0.01)
 
         begin
-          run_proc.call(ctx)
+          should_run = cleanup_mutex.synchronize do
+            unless cleaned_up || stop_requested
+              # The worker can run before spawn returns to its caller.
+              self.job_thread = ::Thread.current
+              true
+            end
+          end
+          run_proc.call(ctx) if should_run
         ensure
+          # This worker is unwinding, so stop must not interrupt its cleanup.
+          cleanup_mutex.synchronize { self.job_thread = nil if job_thread == ::Thread.current }
           synchronized_cleanup
           container.remove_job(self)
         end
       }
+      worker
     else
       begin
         run_proc.call(ctx)
@@ -64,11 +93,19 @@ class Job
 
   #
   # Stops the job if it's currently running and calls its cleanup procedure
+  # unless another thread has already claimed cleanup. Existing cleanup is
+  # allowed to finish without waiting for it here.
+  # @return [Object, nil] the cleanup result if claimed here, or nil otherwise
   #
   def stop
-    if (self.job_thread)
-      self.job_thread.kill
-      self.job_thread = nil
+    # Prevent worker admission even if the factory has not published a thread.
+    # Serialize cancellation with claiming cleanup, not with the callback.
+    cleanup_mutex.synchronize do
+      self.stop_requested = true
+      if job_thread && job_thread != cleanup_thread
+        job_thread.kill
+        self.job_thread = nil
+      end
     end
 
     synchronized_cleanup
@@ -106,6 +143,8 @@ protected
   attr_writer   :start_time #:nodoc:
   attr_accessor :cleanup_mutex #:nodoc:
   attr_accessor :cleaned_up #:nodoc:
+  attr_accessor :stop_requested # :nodoc:
+  attr_accessor :cleanup_thread # :nodoc:
 
 end
 
