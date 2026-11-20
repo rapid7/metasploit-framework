@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://rapid7.github.io/metasploit-framework/sitemap.xml
