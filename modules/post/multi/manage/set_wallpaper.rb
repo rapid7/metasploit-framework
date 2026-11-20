@@ -45,10 +45,10 @@ class MetasploitModule < Msf::Post
 
   def upload_wallpaper(tempdir, file)
     remote_file = "#{tempdir}#{File.basename(file)}"
-    print_status("#{peer} - Uploading to #{remote_file}")
+    print_status("Uploading to #{remote_file}")
 
     write_file(remote_file, File.binread(file))
-    print_status("#{peer} - Uploaded to #{remote_file}")
+    print_status("Uploaded to #{remote_file}")
     remote_file
   end
 
@@ -96,9 +96,9 @@ class MetasploitModule < Msf::Post
   def run
     file = datastore['WALLPAPER_FILE']
     if os_set_wallpaper(file)
-      print_good("#{peer} - The wallpaper has been set")
+      print_good("The wallpaper has been set")
     else
-      print_error("#{peer} - Unable to set the wallpaper")
+      print_error("Unable to set the wallpaper")
     end
   end
 end

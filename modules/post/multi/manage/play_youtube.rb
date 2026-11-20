@@ -159,11 +159,11 @@ class MetasploitModule < Msf::Post
   def run
     id = datastore['VID']
 
-    print_status("#{peer} - Spawning video...")
+    print_status("Spawning video...")
     if start_video(id)
-      print_good("#{peer} - The video has started")
+      print_good("The video has started")
     else
-      print_error("#{peer} - Unable to start the video")
+      print_error("Unable to start the video")
       return
     end
   end
