@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{target_url} - Searching Joomla Login Response...")
     res = login_response
 
-    unless res && res.code = 200 && !res.get_cookies.blank?
+    unless res && res.code == 200 && !res.get_cookies.blank?
       vprint_error("#{target_url} - Failed to find Joomla Login Response")
       return nil
     end
