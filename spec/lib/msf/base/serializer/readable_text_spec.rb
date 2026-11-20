@@ -364,6 +364,49 @@ RSpec.describe Msf::Serializer::ReadableText do
     end
   end
 
+  describe '.dump_sessions_verbose' do
+    subject(:output) { described_class.dump_sessions_verbose(framework) }
+
+    let(:framework) { double('Framework', sessions: { 1 => session }) }
+    let(:session) do
+      double(
+        'Session',
+        sid: 1,
+        sname: '',
+        type: 'meterpreter',
+        platform: 'windows',
+        info: '',
+        tunnel_to_s: '192.0.2.1:4444 -> 192.0.2.2:12345',
+        session_host: '192.0.2.2',
+        via_exploit: '',
+        payload_uuid: nil,
+        exploit_datastore: {}
+      )
+    end
+
+    context 'when async mode is enabled' do
+      before { allow(session).to receive(:async_mode_enabled?).and_return(true) }
+
+      it 'appends the async indicator to the session type' do
+        expect(output).to include("        Type: meterpreter windows (async)\n")
+      end
+    end
+
+    context 'when async mode is disabled' do
+      before { allow(session).to receive(:async_mode_enabled?).and_return(false) }
+
+      it 'displays the session type without an async indicator' do
+        expect(output).to include("        Type: meterpreter windows\n")
+      end
+    end
+
+    context 'when the session does not support async mode' do
+      it 'displays the session type without an async indicator' do
+        expect(output).to include("        Type: meterpreter windows\n")
+      end
+    end
+  end
+
   describe '.dump_description' do
     context 'when the module description is nil' do
       it 'dumps the module description' do
