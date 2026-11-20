@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'ipaddr'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Exploit::Retry
@@ -98,9 +96,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options(
-      'COMMUNITY', 'VERSION'
-    )
     register_options(
       [
         OptString.new('COMMUNITY', [false, 'SNMPv1/v2c read-write community string', 'private']),
@@ -181,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown('LHOST must be IPv4 for writable SMTP-row validation') unless callback_host.ipv4?
 
     @callback_host = callback_host.to_s
-    @smtp_address = "msf-check-#{Rex::Text.rand_text_alphanumeric(8).downcase}@example.invalid"
+    @smtp_address = "#{Rex::Text.rand_text_alphanumeric(8).downcase}@example.invalid"
     begin
       start_smtp_receiver
       smtp_result = reversible_smtp_row_writable?(*smtp_row_oids(@callback_host))
@@ -398,7 +393,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def receive_smtp_message(client, deadline)
-    client.put("220 Metasploit Call Home SMTP receiver ready\r\n")
+    smtp_hostname = "mail-#{Rex::Text.rand_text_alphanumeric(8).downcase}.example.invalid"
+    client.put("220 #{smtp_hostname} ESMTP ready\r\n")
     buffer = ''.b
     message = ''.b
     completed_message = nil
@@ -431,7 +427,7 @@ class MetasploitModule < Msf::Auxiliary
         command = line.split(' ', 2).first.to_s.upcase
         case command
         when 'EHLO', 'HELO'
-          client.put("250 Metasploit\r\n")
+          client.put("250 #{smtp_hostname}\r\n")
         when 'MAIL', 'RCPT', 'RSET', 'NOOP'
           client.put("250 OK\r\n")
         when 'DATA'
