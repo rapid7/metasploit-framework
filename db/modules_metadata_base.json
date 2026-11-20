@@ -331387,7 +331387,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-30 11:23:07 +0000",
+    "mod_time": "2026-11-19 10:43:04 +0000",
     "path": "/modules/post/windows/gather/enum_applications.rb",
     "is_install_path": true,
     "ref_name": "windows/gather/enum_applications",
