@@ -22,7 +22,7 @@ module Msf::MCP
         end
 
         unless config.is_a?(Hash)
-          raise ConfigurationError, "Configuration file must contain a YAML hash/dictionary"
+          raise ConfigurationError, 'Configuration file must contain a YAML hash/dictionary'
         end
 
         apply_defaults(config)
@@ -40,9 +40,6 @@ module Msf::MCP
         apply_env_overrides(config)
         config
       end
-
-
-      private
 
       # Apply default values to configuration
       #
@@ -76,6 +73,7 @@ module Msf::MCP
           config[:mcp][:min_threads] ||= Msf::MCP::Server::PUMA_MIN_THREADS
           config[:mcp][:max_threads] ||= Msf::MCP::Server::PUMA_MAX_THREADS
           config[:mcp][:workers] ||= Msf::MCP::Server::PUMA_WORKERS
+          config[:mcp][:ssl] = config[:mcp].fetch(:ssl) { !LOCALHOST_HOSTS.include?(config[:mcp][:host].to_s.downcase) }
         end
 
         # auth_token: only normalize if the key was explicitly provided.
@@ -122,6 +120,11 @@ module Msf::MCP
         # MCP server network overrides
         config[:mcp][:host] = ENV['MSF_MCP_HOST'] if ENV['MSF_MCP_HOST']
         config[:mcp][:port] = ENV['MSF_MCP_PORT'].to_i if ENV['MSF_MCP_PORT']
+
+        # MCP TLS overrides (HTTP transport only)
+        config[:mcp][:ssl] = parse_boolean(ENV['MSF_MCP_SSL']) if ENV['MSF_MCP_SSL'] && !ENV['MSF_MCP_SSL'].empty?
+        config[:mcp][:ssl_cert] = ENV['MSF_MCP_SSL_CERT'] if ENV['MSF_MCP_SSL_CERT']
+        config[:mcp][:ssl_key] = ENV['MSF_MCP_SSL_KEY'] if ENV['MSF_MCP_SSL_KEY']
 
         # MCP authentication -- env var overrides config/default
         #   unset            -- leave whatever apply_defaults established

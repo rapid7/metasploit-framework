@@ -249,6 +249,30 @@ RSpec.describe Msf::Plugin::MCP do
       end
     end
 
+    context 'SSL case-insensitive parsing (end-to-end)' do
+      it 'accepts SSL=TRUE and resolves ssl to true' do
+        plugin.start_server('SSL' => 'TRUE')
+        expect(plugin.server_config[:mcp][:ssl]).to eq(true)
+      end
+
+      it 'accepts SSL=False and resolves ssl to false' do
+        plugin.start_server('SSL' => 'False')
+        expect(plugin.server_config[:mcp][:ssl]).to eq(false)
+      end
+    end
+
+    context 'SSL default behavior' do
+      it 'defaults ssl to false for localhost ServerHost' do
+        plugin.start_server('ServerHost' => 'localhost')
+        expect(plugin.server_config[:mcp][:ssl]).to eq(false)
+      end
+
+      it 'defaults ssl to true for a non-localhost ServerHost' do
+        plugin.start_server('ServerHost' => '0.0.0.0')
+        expect(plugin.server_config[:mcp][:ssl]).to eq(true)
+      end
+    end
+
     context 'with stdio transport' do
       it 'rejects stdio as an unknown option since Transport is no longer accepted' do
         dispatcher = Msf::Plugin::MCP::McpCommandDispatcher.new(driver)
@@ -927,6 +951,34 @@ RSpec.describe Msf::Plugin::MCP do
       end
     end
 
+    context 'with invalid SSL' do
+      it 'prints an error' do
+        plugin.start_server('SSL' => 'maybe')
+        expect(@error.join("\n")).to include('Invalid value for SSL')
+      end
+    end
+
+    context 'with SSLCert/SSLKey pairing' do
+      it 'prints an error when SSLCert is given without SSLKey' do
+        cert_file = Tempfile.new(['server', '.crt'])
+        plugin.start_server('SSLCert' => cert_file.path)
+        expect(@error.join("\n")).to include('SSLKey')
+        cert_file.close!
+      end
+
+      it 'prints an error when SSLKey is given without SSLCert' do
+        key_file = Tempfile.new(['server', '.key'])
+        plugin.start_server('SSLKey' => key_file.path)
+        expect(@error.join("\n")).to include('SSLCert')
+        key_file.close!
+      end
+
+      it 'prints an error when SSLCert points to a non-existent file' do
+        plugin.start_server('SSLCert' => '/nonexistent/server.crt', 'SSLKey' => '/nonexistent/server.key')
+        expect(@error.join("\n")).to include('SSLCert')
+      end
+    end
+
     context 'with invalid RateLimit' do
       it 'prints an error' do
         plugin.start_server('RateLimit' => '0')
@@ -1040,6 +1092,12 @@ RSpec.describe Msf::Plugin::MCP do
         # User typed: "mcp start Rpc<tab>" → words = ['mcp', 'start'], str = 'Rpc'
         result = dispatcher.cmd_mcp_tabs('Rpc', ['mcp', 'start'])
         expect(result).to contain_exactly('RpcHost=', 'RpcPort=', 'RpcUser=', 'RpcPass=', 'RpcSSL=')
+      end
+
+      it 'filters options by partial input for SSL options' do
+        # User typed: "mcp start SSL<tab>" → words = ['mcp', 'start'], str = 'SSL'
+        result = dispatcher.cmd_mcp_tabs('SSL', ['mcp', 'start'])
+        expect(result).to contain_exactly('SSL=', 'SSLCert=', 'SSLKey=')
       end
 
       it 'filters options case-insensitively' do
