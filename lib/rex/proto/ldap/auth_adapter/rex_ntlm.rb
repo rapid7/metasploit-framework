@@ -5,33 +5,51 @@ require 'net/ldap/auth_adapter/sasl'
 require 'rubyntlm'
 
 module Rex::Proto::LDAP::AuthAdapter
+  # NTLM authentication adapter with optional LDAP SASL signing and sealing.
   class RexNTLM < Net::LDAP::AuthAdapter
-    def bind(auth)
+    # Build the NTLM client used for a signed LDAP SASL context.
+    #
+    # @param auth [Hash] NTLM authentication options
+    # @option auth [Boolean] :anonymous_sasl serialize the empty anonymous NTLM identity required by an anonymous SASL bind
+    # @return [Net::NTLM::Client] the configured NTLM client
+    def self.create_ntlm_client(auth)
+      username = auth[:username] || ''
+      password = auth[:password] || ''
+      anonymous_sasl = auth.fetch(:anonymous_sasl, false)
+      domain = auth[:domain].presence || '.'
       flags = 0 |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:UNICODE] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:REQUEST_TARGET] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:NTLM] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:ALWAYS_SIGN] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:EXTENDED_SECURITY] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY_EXCHANGE] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:TARGET_INFO] |
-          RubySMB::NTLM::NEGOTIATE_FLAGS[:VERSION_INFO]
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:UNICODE] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:REQUEST_TARGET] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:NTLM] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:ALWAYS_SIGN] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:EXTENDED_SECURITY] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY_EXCHANGE] |
+              RubySMB::NTLM::NEGOTIATE_FLAGS[:TARGET_INFO]
+      flags |= RubySMB::NTLM::NEGOTIATE_FLAGS[:VERSION_INFO] unless anonymous_sasl
 
       if auth[:sign_and_seal]
         flags = flags |
-            RubySMB::NTLM::NEGOTIATE_FLAGS[:SIGN] |
-            RubySMB::NTLM::NEGOTIATE_FLAGS[:SEAL] |
-            RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY128] |
-            RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY56]
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:SIGN] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:SEAL] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY128] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY56]
       end
 
-      ntlm_client = RubySMB::NTLM::Client.new(
-        (auth[:username].nil? ? '' : auth[:username]),
-        (auth[:password].nil? ? '' : auth[:password]),
-        workstation: 'WORKSTATION',
-        domain: auth[:domain].blank? ? '.' : auth[:domain],
+      RubySMB::NTLM::Client.new(
+        username,
+        password,
+        workstation: anonymous_sasl ? '' : 'WORKSTATION',
+        domain: anonymous_sasl ? '' : domain,
         flags: flags
       )
+    end
+
+    # Perform an NTLM SASL bind.
+    #
+    # @param auth [Hash] NTLM authentication options
+    # @return [Net::LDAP::PDU] the bind result
+    def bind(auth)
+      ntlm_client = auth[:ntlm_client] || self.class.create_ntlm_client(auth)
 
       challenge_response = proc do |challenge|
         challenge.force_encoding(Encoding::BINARY)

