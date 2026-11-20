@@ -40756,7 +40756,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-11-20 05:31:23 +0000",
     "path": "/modules/auxiliary/scanner/http/joomla_bruteforce_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/joomla_bruteforce_login",
