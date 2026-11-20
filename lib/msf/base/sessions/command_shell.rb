@@ -814,6 +814,8 @@ protected
 
     run_single('')
 
+    return interact_readline(rstream) if interact_with_readline?
+
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
       next unless sd
@@ -826,6 +828,14 @@ protected
       end
       Thread.pass
     end
+  end
+
+  def _readline_read_remote(_stream)
+    shell_read(-1, 0.01)
+  end
+
+  def _readline_write_remote(_stream, line)
+    run_single(line)
   end
 
   # Functionality used as part of builtin commands/metashell support that isn't meant to be exposed
