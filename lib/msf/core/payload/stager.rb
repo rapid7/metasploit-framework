@@ -197,7 +197,7 @@ module Msf::Payload::Stager
         warning_msg << " (#{conn.peerhost})"  if conn.respond_to? :peerhost
         warning_msg << ": #{e}"
         print_warning warning_msg
-        if conn.respond_to? :close && !conn.closed?
+        if conn.respond_to?(:close) && !conn.closed?
           conn.close
         end
         return
