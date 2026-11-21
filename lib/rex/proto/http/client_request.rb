@@ -246,7 +246,7 @@ class ClientRequest
     req << set_extra_headers
 
     req << set_content_type_header(ctype)
-    req << set_content_len_header(pstr.length)
+    req << set_content_len_header(pstr.bytesize)
     req << set_chunked_header
     req << opts['raw_headers']
     req << set_body(pstr) unless headers_only

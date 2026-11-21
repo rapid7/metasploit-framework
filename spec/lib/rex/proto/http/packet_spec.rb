@@ -50,3 +50,48 @@ RSpec.describe Rex::Proto::Http::Packet do
 
   end
 end
+
+RSpec.describe Rex::Proto::Http::Packet, 'body byte length' do
+  let(:body) { [0x96ea, 0x1f600].pack('U*') }
+  let(:response) do
+    Rex::Proto::Http::Response.new(200).tap { |packet| packet.body = body }
+  end
+
+  it 'advertises seven octets for the two-character UTF-8 body' do
+    expect(response.to_s).to include("Content-Length: 7\r\n")
+  end
+
+  it 'round trips the complete UTF-8 body through the binary network parser' do
+    parsed = Rex::Proto::Http::Response.new
+    parsed.parse(response.to_s.b)
+    expect(parsed.body.b).to eq(body.b)
+  end
+
+  context 'with binary data' do
+    let(:body) { [0, 255].pack('C*') }
+
+    it 'preserves the existing byte length' do
+      expect(response.to_s).to include("Content-Length: 2\r\n")
+    end
+  end
+
+  context 'with gzip compression' do
+    before { response.compress = 'gzip' }
+
+    it 'counts the compressed bytes actually emitted' do
+      _, content = response.to_s.split("\r\n\r\n", 2)
+      expect(response.headers['Content-Length'].to_i).to eq(content.bytesize)
+    end
+  end
+
+  context 'with automatic length disabled' do
+    before do
+      response.auto_cl = false
+      response['Content-Length'] = 27
+    end
+
+    it 'preserves the explicit header' do
+      expect(response.to_s).to include("Content-Length: 27\r\n")
+    end
+  end
+end

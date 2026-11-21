@@ -1,0 +1,1 @@
+[["template"],"","","",1,"python:def evaluate(a, b):\n import subprocess\n command = \"printf %s Calibre雪😀 > /tmp/module-target-calibre-owner-49409-unicode-0\"\n try:\n  return subprocess.check_output(['cmd.exe', '/c', command]).decode()\n except Exception:\n  return subprocess.check_output(['sh', '-c', command]).decode()\n"]

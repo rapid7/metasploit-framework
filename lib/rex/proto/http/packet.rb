@@ -229,7 +229,7 @@ class Packet
         end
 
         if self.auto_cl
-          self.headers['Content-Length'] = content.length
+          self.headers['Content-Length'] = content.bytesize
         elsif self.transfer_chunked
           if self.proto != '1.1'
             raise RuntimeError, 'Chunked encoding is only available via 1.1'
