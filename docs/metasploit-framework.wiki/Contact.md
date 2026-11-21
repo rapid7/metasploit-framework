@@ -15,7 +15,7 @@ Submit bug reports and feature requests through [GitHub Issues](https://github.c
 
 The mailing list provides access to discussions between Metasploit users and developers. To subscribe, send a blank email to [framework-subscribe@mail.metasploit.com](mailto:framework-subscribe@mail.metasploit.com).
 
-Historical discussions from the previous Metasploit Hackers list are available in the [SecLists archive](https://seclists.org/metasploit/).
+The older Metasploit Hackers mailing-list discussions (through 2015) are available in the [SecLists archive](https://seclists.org/metasploit/).
 
 ## Social Media
 
@@ -26,5 +26,4 @@ Historical discussions from the previous Metasploit Hackers list are available i
 
 # Abuse
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to smcintyre@metasploit.com or jacquelyn_harris@rapid7.com.
-
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to smcintyre@rapid7.com or jacquelyn_harris@rapid7.com.
