@@ -4,6 +4,7 @@ RSpec.describe Msf::Payload::Stager do
   subject do
     obj = Object.new
     obj.extend(described_class)
+    def obj.print_warning(_msg); end
     obj
   end
 
