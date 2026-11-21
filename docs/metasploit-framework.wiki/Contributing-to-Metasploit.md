@@ -50,7 +50,7 @@ Ditto with YouTube screencasts of particular common tasks. Narration while you d
 
 For developer types: we are slowly but surely converting all of Metasploit to use standardized commenting using [YARD](https://yardoc.org), so we could always use more accurate and more comprehensive YARD documentation for pretty much anything found in `lib`. We will happily take pull requests that contain nothing but comment docs!
 
-Again, there's always room on #metasploit on Freenode. Be helpful with the questions there, and people are more likely to help you in the future. Same goes for the [Metasploit Slack team](https://metasploit.com/slack), where all sorts of new and proficient users and devs are looking for help and camaraderie.
+Again, there's always room to help fellow contributors on [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions) and in the [Metasploit Slack team](https://metasploit.com/slack).
 
 # The Usual Warnings
 
@@ -58,7 +58,7 @@ You probably shouldn't run proof of concept exploit code you find on the Interne
 
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them.
 
-If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a [registered nick](https://freenode.net/view/Nick_Registration)). Someone should be able to lend a hand. Apparently, some of those people never sleep.
+If you get stuck, describe your specific problem in [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions) or the [Metasploit Slack](https://metasploit.com/slack). For bugs or feature requests, open an issue in the [framework tracker](https://github.com/rapid7/metasploit-framework/issues).
 
 # Thank you
 
