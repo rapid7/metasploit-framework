@@ -97,9 +97,11 @@ class Ini < Hash
   def to_file(tpath = nil)
     tpath = path if (!tpath)
 
-    f = File.new(tpath, "w")
-    f.write(to_s)
-    f.close
+    file = File.new(tpath, 'w')
+    file.write(to_s)
+    nil
+  ensure
+    file&.close
   end
 
   #
