@@ -38,14 +38,17 @@ class Ini < Hash
   # Initializes an ini instance and tries to read in the groups from the
   # file if it exists.
   #
-  def initialize(path = nil)
+  # With strict loading, a missing file is still allowed but other read errors propagate.
+  def initialize(path = nil, strict: false)
     self.path = path
 
     # Try to synchronize ourself with the file if we
     # have one
     begin
       self.from_file if (self.path)
-    rescue
+    rescue Errno::ENOENT
+    rescue StandardError
+      raise if strict
     end
   end
 

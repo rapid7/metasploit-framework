@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
+require 'tmpdir'
 
 RSpec.shared_examples "datastore" do
   it "should have options" do
@@ -32,6 +33,23 @@ RSpec.shared_examples "datastore" do
 end
 
 RSpec.describe Msf::DataStore do
+
+  describe '#to_file' do
+    it 'does not replace another group when the configuration cannot be read' do
+      Dir.mktmpdir do |directory|
+        path = File.join(directory, 'config')
+        original = "[existing]\nsetting=keep\n"
+        File.write(path, original)
+        allow(IO).to receive(:readlines).and_call_original
+        allow(IO).to receive(:readlines).with(path).and_raise(Errno::EIO, path)
+
+        aggregate_failures do
+          expect { described_class.new.to_file(path) }.to raise_error(Errno::EIO)
+          expect(File.binread(path)).to eq(original)
+        end
+      end
+    end
+  end
 
   describe ".GLOBAL_OPTION_DEFINITIONS" do
     it "contains only OptBase subclass instances" do

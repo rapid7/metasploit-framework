@@ -1351,8 +1351,9 @@ class Core
 
       begin
         FeatureManager.instance.save_config
-      rescue StandardException => e
-        elog(e)
+      rescue StandardError => e
+        log_error("Save failed: #{e}")
+        return false
       end
 
       # Save the framework's datastore
@@ -1379,13 +1380,14 @@ class Core
         # Delete all saved options for modules from the config file.
         # No framework options will be deleted.
         begin
-          ini = Rex::Parser::Ini.new(::Msf::Config.config_file)
+          ini = Rex::Parser::Ini.new(::Msf::Config.config_file, strict: true)
 
           ini.delete_if { |k, _v| !k.start_with?('framework') }
 
           ini.to_file(::Msf::Config.config_file)
         rescue StandardError
           print_error("Failed to delete console config: #{$!}")
+          return false
         end
 
         if active_module

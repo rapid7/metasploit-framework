@@ -533,7 +533,7 @@ class Config < Hash
   #           'Foo' => 'Cat'
   #        })
   def save(opts)
-    ini = Rex::Parser::Ini.new(opts['ConfigFile'] || config_file)
+    ini = Rex::Parser::Ini.new(opts['ConfigFile'] || config_file, strict: true)
 
     ini.update(opts)
 
@@ -545,7 +545,7 @@ class Config < Hash
   # @param group [String] The name of the group to remove
   # @return [void]
   def delete_group(group)
-    ini = Rex::Parser::Ini.new(config_file)
+    ini = Rex::Parser::Ini.new(config_file, strict: true)
 
     ini.delete(group)
 
