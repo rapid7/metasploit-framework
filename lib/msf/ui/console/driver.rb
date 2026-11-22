@@ -317,11 +317,7 @@ class Driver < Msf::Ui::Driver
   # Saves configuration for the console.
   #
   def save_config
-    begin
-      Msf::Config.save(ConfigGroup => get_config)
-    rescue ::Exception
-      print_error("Failed to save console config: #{$!}")
-    end
+    Msf::Config.save(ConfigGroup => get_config)
   end
 
   #

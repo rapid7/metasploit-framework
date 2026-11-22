@@ -1345,19 +1345,9 @@ class Core
     end
 
     if args.empty?
-      # Save config for current module
-      # Save the console config
-      driver.save_config
-
       begin
+        driver.save_config
         FeatureManager.instance.save_config
-      rescue StandardError => e
-        log_error("Save failed: #{e}")
-        return false
-      end
-
-      # Save the framework's datastore
-      begin
         framework.save_config
         if driver.framework.dns_resolver
           driver.framework.dns_resolver.save_config
@@ -1366,8 +1356,8 @@ class Core
         if active_module
           active_module.save_config
         end
-      rescue
-        log_error("Save failed: #{$!}")
+      rescue StandardError => e
+        log_error("Save failed: #{e}")
         return false
       end
 
