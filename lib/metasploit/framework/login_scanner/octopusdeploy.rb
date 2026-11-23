@@ -31,10 +31,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('octopusdeploy')
-        end
-
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           uri = '/api/users/login' if uri.nil?

@@ -30,10 +30,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('hp-smh')
-        end
-
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {
@@ -70,6 +66,11 @@ module Metasploit
 
           Result.new(result_opts)
         end
+
+        def service_opts
+          build_service_opts('smh')
+        end
+
       end
     end
   end

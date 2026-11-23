@@ -35,10 +35,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('gitlab')
-        end
-
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/users/sign_in' if uri.nil?

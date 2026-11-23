@@ -8,8 +8,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::MyBookLive do
     it_behaves_like 'Metasploit::Framework::LoginScanner::HTTP'
 
     describe '#service_opts' do
-      it 'reports the service as mybook-live' do
-        expect(subject.service_opts).to include(name: 'mybook-live')
+      it 'reports the service as mybook_live' do
+        expect(subject.service_opts).to include(name: 'mybook_live')
       end
     end
 

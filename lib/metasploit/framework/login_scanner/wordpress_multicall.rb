@@ -55,10 +55,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('wordpress')
-        end
-
         # Returns the XML data that is used for the login.
         #
         # @param user [String] username

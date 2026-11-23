@@ -33,10 +33,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('ipboard')
-        end
-
         # (see Base#attempt_login)
         def attempt_login(credential)
           result_opts = {

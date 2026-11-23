@@ -10,8 +10,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::Smh do
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
   describe '#service_opts' do
-    it 'reports the service as hp-smh' do
-      expect(smh_cli.service_opts).to include(name: 'hp-smh')
+    it 'reports the service as smh' do
+      expect(smh_cli.service_opts).to include(name: 'smh')
     end
   end
 

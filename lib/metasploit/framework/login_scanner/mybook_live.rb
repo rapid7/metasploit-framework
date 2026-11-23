@@ -30,10 +30,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('mybook-live')
-        end
-
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/UI/login' if self.uri.nil?
@@ -68,6 +64,10 @@ module Metasploit
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end
           Result.new(result_opts)
+        end
+
+        def service_opts
+          build_service_opts('mybook_live')
         end
       end
     end

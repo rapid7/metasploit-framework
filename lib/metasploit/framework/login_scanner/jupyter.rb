@@ -30,10 +30,6 @@ module Metasploit
           false
         end
 
-        def service_opts
-          build_service_opts('jupyter')
-        end
-
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/login' if self.uri.nil?
