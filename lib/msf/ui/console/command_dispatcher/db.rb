@@ -30,8 +30,8 @@ class Db
   SERVICE_TREE_INFO_MAX_CHARS = 40
 
   # The connector sets `services --tree-style` accepts. Keep this sourced from
-  # HierarchyTable so new rex-text styles are available without Framework changes.
-  SERVICE_TREE_STYLES = Rex::Text::HierarchyTable.hierarchy_styles.map(&:to_s).freeze
+  # TreeTable so new rex-text styles are available without Framework changes.
+  SERVICE_TREE_STYLES = Rex::Text::TreeTable.hierarchy_styles.map(&:to_s).freeze
 
   # Source columns that `services --tree-group` promotes to hierarchy levels.
   SERVICE_TREE_GROUP_COLUMNS = %w[host port proto].freeze
@@ -738,7 +738,7 @@ class Db
     [ '-t', '--tree' ] => [ false, 'Nest each service underneath the service it runs on top of.' ],
     [ '--tree-style' ] => [
       true,
-      "Connectors --tree draws the hierarchy with. Defaults to #{Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE}.",
+      "Connectors --tree draws the hierarchy with. Defaults to #{Rex::Text::TreeTable::DEFAULT_HIERARCHY_STYLE}.",
       "<#{SERVICE_TREE_STYLES.join('|')}>"
     ],
     [ '--tree-group' ] => [ false, 'Nest --tree output underneath host, port, and protocol rows instead of repeating them as columns.' ],
@@ -872,8 +872,8 @@ class Db
     # But we need to let users override it for e.g. unicode output.
     hierarchy_default = framework.features.enabled?(Msf::FeatureManager::SERVICES_HIERARCHY_OUTPUT)
     tree_requested = false
-    tree_mode = hierarchy_default ? Rex::Text::HierarchyTable::MODE_TREE : nil
-    tree_style = hierarchy_default ? :ascii : Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
+    tree_mode = hierarchy_default ? Rex::Text::TreeTable::MODE_TREE : nil
+    tree_style = hierarchy_default ? :ascii : Rex::Text::TreeTable::DEFAULT_HIERARCHY_STYLE
     col_search = ['port', 'proto', 'name', 'state', 'info']
     extra_columns = ['resource', 'parents']
 
@@ -947,7 +947,7 @@ class Db
         opts[:search_term] = search_term
       when '-t', '--tree'
         tree_requested = true
-        tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
+        tree_mode ||= Rex::Text::TreeTable::MODE_TREE
       when '--tree-style'
         style = val.to_s.strip.downcase
         unless SERVICE_TREE_STYLES.include?(style)
@@ -957,11 +957,11 @@ class Db
         # A connector style only applies to hierarchy output, so it enables the
         # default tree mode when no mode has been selected yet.
         tree_requested = true
-        tree_mode ||= Rex::Text::HierarchyTable::MODE_TREE
+        tree_mode ||= Rex::Text::TreeTable::MODE_TREE
         tree_style = style.to_sym
       when '--tree-group'
         tree_requested = true
-        tree_mode = Rex::Text::HierarchyTable::MODE_GROUPED
+        tree_mode = Rex::Text::TreeTable::MODE_GROUPED
       when '-h', '--help'
         cmd_services_help
         return
@@ -1026,9 +1026,9 @@ class Db
     # restate the row above it.
     display_columns = tree_mode ? extra_columns - ['parents'] : extra_columns
 
-    # Grouped output still stores complete service rows. HierarchyTable promotes
+    # Grouped output still stores complete service rows. TreeTable promotes
     # these source columns to presentation-only levels when it renders the tree.
-    row_columns = if tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED
+    row_columns = if tree_mode == Rex::Text::TreeTable::MODE_GROUPED
                     (SERVICE_TREE_GROUP_COLUMNS.drop(1) + ['name'] + col_names).uniq
                   else
                     col_names
@@ -1037,10 +1037,10 @@ class Db
 
     # The name is the natural label to nest, but it is not always one of the
     # selected columns, so fall back to whichever service column comes first.
-    if tree_mode == Rex::Text::HierarchyTable::MODE_TREE && !col_names.include?('name')
+    if tree_mode == Rex::Text::TreeTable::MODE_TREE && !col_names.include?('name')
       print_warning('The name column is hidden, so the hierarchy is drawn on the first visible service column.')
     end
-    tree_column = if tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED || col_names.include?('name')
+    tree_column = if tree_mode == Rex::Text::TreeTable::MODE_GROUPED || col_names.include?('name')
                     'name'
                   else
                     col_names.first || 'host'
@@ -1051,13 +1051,13 @@ class Db
     end
 
     tbl = if tree_mode
-            Rex::Text::HierarchyTable.new(
+            Rex::Text::TreeTable.new(
               header: 'Services',
               columns: all_columns,
               hierarchy_column: tree_column,
               hierarchy_style: tree_style,
               max_chars: all_columns.include?('info') ? { 'info' => SERVICE_TREE_INFO_MAX_CHARS } : {},
-              group_columns: tree_mode == Rex::Text::HierarchyTable::MODE_GROUPED ? SERVICE_TREE_GROUP_COLUMNS : []
+              group_columns: tree_mode == Rex::Text::TreeTable::MODE_GROUPED ? SERVICE_TREE_GROUP_COLUMNS : []
             )
           else
             Rex::Text::Table.new(

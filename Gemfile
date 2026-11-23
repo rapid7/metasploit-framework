@@ -57,4 +57,4 @@ group :test do
   gem 'webmock', '~> 3.18'
 end
 
-gem 'rex-text', '0.2.65', git: 'https://github.com/sjanusz-r7/rex-text.git', branch: 'add-hierarchy-table'
+gem 'rex-text', '0.2.65', git: 'https://github.com/sjanusz-r7/rex-text.git', branch: 'add-hierarchy-table', ref: 'b789e645e1ccbe9c60d3c4c6992907bb9aeaed8f'

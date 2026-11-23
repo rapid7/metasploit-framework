@@ -14,7 +14,8 @@ GIT
 
 GIT
   remote: https://github.com/sjanusz-r7/rex-text.git
-  revision: 0b25056c56d0bea64207d7781364ef08db22313c
+  revision: b789e645e1ccbe9c60d3c4c6992907bb9aeaed8f
+  ref: b789e645e1ccbe9c60d3c4c6992907bb9aeaed8f
   branch: add-hierarchy-table
   specs:
     rex-text (0.2.65)
