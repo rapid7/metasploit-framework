@@ -153,6 +153,9 @@ module Msf
       def cmd_save_session_notifier_settings(*_args)
         save_settings_to_config
         print_status('Session Notifier settings saved in config file.')
+      rescue SystemCallError, IOError => e
+        print_error("Failed to save Session Notifier settings: #{e}")
+        false
       end
 
       def cmd_start_session_notifier(*_args)
@@ -209,7 +212,7 @@ module Msf
 
       def save_settings_to_config
         config_file = Msf::Config.config_file
-        ini = Rex::Parser::Ini.new(config_file)
+        ini = Rex::Parser::Ini.new(config_file, strict: true)
         ini.add_group(name) unless ini[name]
         ini[name]['smtp_address'] = smtp_address
         ini[name]['smtp_port'] = smtp_port
