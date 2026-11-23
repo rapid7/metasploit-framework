@@ -1,4 +1,5 @@
 require 'open3'
+require 'securerandom'
 require 'tmpdir'
 
 module MsfdbHelpers
@@ -95,6 +96,10 @@ module MsfdbHelpers
         'MSF_DATABASE_CONFIG' => config_path,
         'SCHEMA' => ENV.fetch('SCHEMA') { File.join(File.dirname(config_path), 'schema.rb') },
         'RAILS_ENV' => 'development',
+        # Prevent Rails from writing tmp/local_secret.txt in a read-only install.
+        'SECRET_KEY_BASE' => ENV.fetch('SECRET_KEY_BASE') { SecureRandom.hex(64) },
+        # Rails checks this flag before SECRET_KEY_BASE and would write the file anyway.
+        'SECRET_KEY_BASE_DUMMY' => nil,
         'DATABASE_URL' => nil,
         'PRIMARY_DATABASE_URL' => nil,
         'PGHOSTADDR' => nil,
