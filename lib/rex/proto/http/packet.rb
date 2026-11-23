@@ -93,8 +93,8 @@ class Packet
   # @option [Boolean] orig_method The HTTP method used in an associated request, if applicable
   def parse(buf, opts={})
 
-    # Append the incoming buffer to the buffer queue.
-    self.bufq += buf.to_s
+    # HTTP framing counts bytes, regardless of the caller's string encoding.
+    self.bufq += buf.to_s.b
 
     begin
 
@@ -229,7 +229,7 @@ class Packet
         end
 
         if self.auto_cl
-          self.headers['Content-Length'] = content.length
+          self.headers['Content-Length'] = content.bytesize
         elsif self.transfer_chunked
           if self.proto != '1.1'
             raise RuntimeError, 'Chunked encoding is only available via 1.1'
