@@ -298,63 +298,62 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
     it_behaves_like "with no evasions"
   end
 
-end
+  context 'body byte length' do
+    let(:body) { 'café' }
+    let(:options) { { 'method' => 'POST', 'uri' => '/', 'vhost' => '192.0.2.1', 'ctype' => 'text/plain', 'data' => body, 'cgi' => true } }
+    let(:request) { described_class.new(options) }
 
-RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
-  let(:body) { 'café' }
-  let(:options) { { 'method' => 'POST', 'uri' => '/', 'vhost' => '192.0.2.1', 'ctype' => 'text/plain', 'data' => body, 'cgi' => true } }
-  let(:request) { described_class.new(options) }
-
-  it 'advertises five bytes for four characters with a two-byte accented letter' do
-    expect(request.to_s).to include("Content-Length: 5\r\n")
-  end
-
-  it 'keeps the byte length when serializing headers only' do
-    expect(request.to_s(headers_only: true)).to include("Content-Length: 5\r\n")
-  end
-
-  it 'preserves the complete body and the caller encoding' do
-    serialized = request.to_s.split("\r\n\r\n", 2).last
-    expect([serialized.b, body.encoding]).to eq([body.b, ::Encoding::UTF_8])
-  end
-
-  context 'with a three-byte CJK character' do
-    let(:body) { '雪' }
-
-    it 'advertises three bytes for one character' do
-      expect(request.to_s).to include("Content-Length: 3\r\n")
-    end
-  end
-
-  context 'with a four-byte emoji' do
-    let(:body) { '😀' }
-
-    it 'advertises four bytes for one character' do
-      expect(request.to_s).to include("Content-Length: 4\r\n")
-    end
-  end
-
-  context 'with mixed UTF-8 character widths' do
-    let(:body) { 'café 雪 😀' }
-
-    it 'advertises fourteen bytes for eight characters' do
-      expect(request.to_s).to include("Content-Length: 14\r\n")
-    end
-  end
-
-  context 'with a binary body' do
-    let(:body) { super().b }
-
-    it 'preserves its existing byte count' do
+    it 'advertises five bytes for four characters with a two-byte accented letter' do
       expect(request.to_s).to include("Content-Length: 5\r\n")
     end
-  end
 
-  context 'with an explicit Content-Length override' do
-    let(:options) { super().merge('headers' => { 'Content-Length' => 1337 }) }
+    it 'keeps the byte length when serializing headers only' do
+      expect(request.to_s(headers_only: true)).to include("Content-Length: 5\r\n")
+    end
 
-    it 'preserves the operator-supplied header' do
-      expect(request.to_s.scan(/^Content-Length: (.*)\r$/)).to eq([['1337']])
+    it 'preserves the complete body and the caller encoding' do
+      serialized = request.to_s.split("\r\n\r\n", 2).last
+      expect([serialized.b, body.encoding]).to eq([body.b, ::Encoding::UTF_8])
+    end
+
+    context 'with a three-byte CJK character' do
+      let(:body) { '雪' }
+
+      it 'advertises three bytes for one character' do
+        expect(request.to_s).to include("Content-Length: 3\r\n")
+      end
+    end
+
+    context 'with a four-byte emoji' do
+      let(:body) { '😀' }
+
+      it 'advertises four bytes for one character' do
+        expect(request.to_s).to include("Content-Length: 4\r\n")
+      end
+    end
+
+    context 'with mixed UTF-8 character widths' do
+      let(:body) { 'café 雪 😀' }
+
+      it 'advertises fourteen bytes for eight characters' do
+        expect(request.to_s).to include("Content-Length: 14\r\n")
+      end
+    end
+
+    context 'with a binary body' do
+      let(:body) { super().b }
+
+      it 'preserves its existing byte count' do
+        expect(request.to_s).to include("Content-Length: 5\r\n")
+      end
+    end
+
+    context 'with an explicit Content-Length override' do
+      let(:options) { super().merge('headers' => { 'Content-Length' => 1337 }) }
+
+      it 'preserves the operator-supplied header' do
+        expect(request.to_s.scan(/^Content-Length: (.*)\r$/)).to eq([['1337']])
+      end
     end
   end
 end
