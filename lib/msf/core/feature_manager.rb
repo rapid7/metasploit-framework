@@ -215,8 +215,7 @@ module Msf
         config.merge!(feature[:name] => feature[:user_preference].to_s)
       end
 
-      config[CONFIG_KEY] = new_config
-      config.to_file
+      Msf::Config.save(CONFIG_KEY => new_config)
     end
   end
 end

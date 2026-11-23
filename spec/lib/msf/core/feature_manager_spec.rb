@@ -179,6 +179,36 @@ RSpec.describe Msf::FeatureManager do
     end
   end
 
+  describe '#save_config after another configuration write' do
+    it 'preserves unrelated changes made after the feature settings were read' do
+      Dir.mktmpdir do |directory|
+        config = Msf::Config.new
+        config['ConfigDirectory'] = directory
+        path = config.config_file
+        File.write(path, "[framework/features]\nmissing_feature=true\n\n[unrelated]\nsetting=old\n")
+        allow(Msf::Config).to receive(:new).and_return(config)
+
+        first_read = true
+        allow(IO).to receive(:readlines).and_call_original
+        allow(IO).to receive(:readlines).with(path).and_wrap_original do |read, *args|
+          lines = read.call(*args)
+          if first_read
+            first_read = false
+            Msf::Config.save('unrelated' => { 'setting' => 'new' })
+          end
+          lines
+        end
+
+        subject.save_config
+
+        expect(config.load).to include(
+          'unrelated' => { 'setting' => 'new' },
+          'framework/features' => { 'missing_feature' => 'true' }
+        )
+      end
+    end
+  end
+
   describe '#save_config' do
     around do |example|
       Dir.mktmpdir do |directory|
