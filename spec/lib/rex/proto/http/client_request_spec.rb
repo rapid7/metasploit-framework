@@ -304,7 +304,7 @@ end
 RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
   let(:body) do
     # Captured valid Calibre RPC: 332 octets, 327 Unicode characters.
-    File.read(File.expand_path('../../../../file_fixtures/rex/proto/http/calibre_utf8_request.json', __dir__)).force_encoding(::Encoding::UTF_8)
+    File.binread(File.expand_path('../../../../file_fixtures/rex/proto/http/calibre_utf8_request.json', __dir__)).force_encoding(::Encoding::UTF_8)
   end
   let(:options) { { 'method' => 'POST', 'uri' => '/cdb/cmd/list', 'vhost' => '192.0.2.1', 'ctype' => 'application/json', 'data' => body, 'cgi' => true } }
   let(:request) { described_class.new(options) }
