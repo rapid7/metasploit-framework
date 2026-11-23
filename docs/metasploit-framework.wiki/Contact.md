@@ -11,17 +11,11 @@ Submit bug reports and feature requests through [GitHub Issues](https://github.c
 
 # Additional Communication Channels
 
-## Chat
-
-Some community discussion still happens on IRC in #metasploit on Freenode.
-Please be patient and hang around for a while -- not everyone is awake
-at the same time as you. =)
-
 ## Mailing list
 
-The Metasploit development mailing list used to be hosted on SourceForge, but is now on Google Groups. Metasploit Hackers is dead, long live [Metasploit Hackers][list]. (Or [mailto:Metasploit Hackers][mailto]).
+The mailing list provides access to discussions between Metasploit users and developers. To subscribe, send a blank email to [framework-subscribe@mail.metasploit.com](mailto:framework-subscribe@mail.metasploit.com).
 
-The old list [is archived on seclists.org][archive].
+The older Metasploit Hackers mailing-list discussions (through 2015) are available in the [SecLists archive](https://seclists.org/metasploit/).
 
 ## Social Media
 
@@ -32,9 +26,4 @@ The old list [is archived on seclists.org][archive].
 
 # Abuse
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to smcintyre@metasploit.com or jacquelyn_harris@rapid7.com.
-
-
-[archive]: http://seclists.org/metasploit/ "Metasploit mailing list archive"
-[list]: https://groups.google.com/forum/#!forum/metasploit-hackers "Metasploit Hackers development mailing list"
-[mailto]: mailto:metasploit-hackers@googlegroups.com
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to smcintyre@rapid7.com or jacquelyn_harris@rapid7.com.
