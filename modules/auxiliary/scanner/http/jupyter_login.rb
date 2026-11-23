@@ -45,10 +45,12 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'tree')
     })
 
-    return false if res&.code == 200
+    fail_with(Failure::Unreachable, 'Failed to fetch the Jupyter tree page') if res.nil?
+    return false if res.code == 200
 
-    destination = res.headers['Location'].split('?', 2)[0]
-    return true if destination.end_with?(normalize_uri(target_uri.path, 'login'))
+    location = res.headers['Location']
+    destination = location&.split('?', 2)&.first
+    return true if destination&.end_with?(normalize_uri(target_uri.path, 'login'))
 
     fail_with(Failure::UnexpectedReply, 'The server responded with a redirect that did not match a known fingerprint')
   end
