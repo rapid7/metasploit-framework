@@ -868,12 +868,12 @@ class Db
     output_file = nil
     set_rhosts = false
 
-    # If the services feature is enabled, we print out a unicode tree (-t --tree-style unicode) by default.
-    # But we need to let users override it for e.g. ascii output.
+    # If the services feature is enabled, we print out an ASCII tree (-t --tree-style ascii) by default.
+    # But we need to let users override it for e.g. unicode output.
     hierarchy_default = framework.features.enabled?(Msf::FeatureManager::SERVICES_HIERARCHY_OUTPUT)
     tree_requested = false
     tree_mode = hierarchy_default ? Rex::Text::HierarchyTable::MODE_TREE : nil
-    tree_style = hierarchy_default ? :unicode : Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
+    tree_style = hierarchy_default ? :ascii : Rex::Text::HierarchyTable::DEFAULT_HIERARCHY_STYLE
     col_search = ['port', 'proto', 'name', 'state', 'info']
     extra_columns = ['resource', 'parents']
 

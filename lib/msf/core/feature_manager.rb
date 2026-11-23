@@ -136,7 +136,7 @@ module Msf
       }.freeze,
       {
         name: SERVICES_HIERARCHY_OUTPUT,
-        description: "When enabled the services command defaults to a unicode hierarchy (equivalent to 'services -t --tree-style unicode'), nesting each service beneath the one it runs on top of",
+        description: "When enabled the services command defaults to an ASCII hierarchy (equivalent to 'services -t --tree-style ascii'), nesting each service beneath the one it runs on top of",
         requires_restart: false,
         default_value: false,
         developer_notes: 'Off by default while the hierarchy output is evaluated; explicit services flags still override the default'
