@@ -63,6 +63,8 @@ module Metasploit
 
       config.load_defaults 8.1
 
+      config.cache_store = [:file_store, File.join(Msf::Config.config_directory, 'rails', 'cache')]
+
       config.eager_load = false
     end
   end
