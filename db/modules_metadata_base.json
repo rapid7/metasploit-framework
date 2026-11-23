@@ -41039,7 +41039,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2024-05-03 10:45:37 +0000",
+    "mod_time": "2026-11-23 22:09:26 +0000",
     "path": "/modules/auxiliary/scanner/http/jupyter_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/jupyter_login",
