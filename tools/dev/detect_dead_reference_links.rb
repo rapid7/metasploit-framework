@@ -273,7 +273,9 @@ class UrlChecker
       handle_wayback_response(response, url_result)
     rescue StandardError => e
       retries += 1
-      if retries <= MAX_RETRIES
+      if connection_budget[:remaining] <= 0
+        url_result[:archived_snapshot] = "Error fetching Wayback snapshot: connection timeout budget exceeded (#{e.message})"
+      elsif retries <= MAX_RETRIES
         @logger.warn("Error fetching Wayback snapshot for #{url_result[:url]}: #{e.message}. Retrying in #{RETRY_DELAY} seconds... (Attempt #{retries} of #{MAX_RETRIES})")
         sleep(RETRY_DELAY)
         retry

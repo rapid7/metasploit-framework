@@ -274,4 +274,18 @@ RSpec.describe UrlChecker do
     expect(attempts).to eq(2)
     expect(result[:archived_snapshot]).to eq('recovered')
   end
+
+  it 'does not sleep or retry after the Wayback connection budget is spent' do
+    result = { url: 'URL-https://docs.example.test/page' }
+    allow(checker).to receive(:fetch_wayback_snapshot).and_call_original
+    expect(checker).to receive(:get_response).once do |_, connection_budget:|
+      connection_budget[:remaining] = 0
+      raise Net::OpenTimeout, 'execution expired'
+    end
+    expect(checker).not_to receive(:sleep)
+
+    checker.send(:fetch_wayback_snapshot, result)
+
+    expect(result[:archived_snapshot]).to include('connection timeout budget exceeded')
+  end
 end
