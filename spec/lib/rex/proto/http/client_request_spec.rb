@@ -1,4 +1,3 @@
-# -*- coding:binary -*-
 require 'spec_helper'
 
 
@@ -302,7 +301,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
 end
 
 RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
-  let(:body) { 'café'.force_encoding(::Encoding::UTF_8) }
+  let(:body) { 'café' }
   let(:options) { { 'method' => 'POST', 'uri' => '/', 'vhost' => '192.0.2.1', 'ctype' => 'text/plain', 'data' => body, 'cgi' => true } }
   let(:request) { described_class.new(options) }
 
@@ -320,7 +319,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
   end
 
   context 'with a three-byte CJK character' do
-    let(:body) { '雪'.force_encoding(::Encoding::UTF_8) }
+    let(:body) { '雪' }
 
     it 'advertises three bytes for one character' do
       expect(request.to_s).to include("Content-Length: 3\r\n")
@@ -328,7 +327,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
   end
 
   context 'with a four-byte emoji' do
-    let(:body) { '😀'.force_encoding(::Encoding::UTF_8) }
+    let(:body) { '😀' }
 
     it 'advertises four bytes for one character' do
       expect(request.to_s).to include("Content-Length: 4\r\n")
@@ -336,7 +335,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
   end
 
   context 'with mixed UTF-8 character widths' do
-    let(:body) { 'café 雪 😀'.force_encoding(::Encoding::UTF_8) }
+    let(:body) { 'café 雪 😀' }
 
     it 'advertises fourteen bytes for eight characters' do
       expect(request.to_s).to include("Content-Length: 14\r\n")
