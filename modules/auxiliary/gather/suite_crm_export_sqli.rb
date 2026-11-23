@@ -67,10 +67,12 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    return Exploit::CheckCode::Safe('Trying to query the SuiteCRM version information failed') unless res&.body
+    return Exploit::CheckCode::Unknown('Could not connect to the SuiteCRM version page') unless res&.body
 
-    version = Rex::Version.new(res.body.match(/Version\s+((?:\d+\.)+\d+).*/)[1])
-    return Exploit::CheckCode::Safe('Could not find retrieve the version of SuiteCRM from the version page') unless version
+    version_string = res.body[/Version\s+((?:\d+\.)+\d+)/, 1]
+    return Exploit::CheckCode::Unknown('Could not retrieve the SuiteCRM version from the version page') unless version_string
+
+    version = Rex::Version.new(version_string)
 
     print_status "Version detected: #{version}"
 
