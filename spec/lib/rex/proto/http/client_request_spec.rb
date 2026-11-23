@@ -302,19 +302,16 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
 end
 
 RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
-  let(:body) do
-    # Captured valid Calibre RPC: 332 octets, 327 Unicode characters.
-    File.binread(File.expand_path('../../../../file_fixtures/rex/proto/http/calibre_utf8_request.json', __dir__)).force_encoding(::Encoding::UTF_8)
-  end
-  let(:options) { { 'method' => 'POST', 'uri' => '/cdb/cmd/list', 'vhost' => '192.0.2.1', 'ctype' => 'application/json', 'data' => body, 'cgi' => true } }
+  let(:body) { 'café'.force_encoding(::Encoding::UTF_8) }
+  let(:options) { { 'method' => 'POST', 'uri' => '/', 'vhost' => '192.0.2.1', 'ctype' => 'text/plain', 'data' => body, 'cgi' => true } }
   let(:request) { described_class.new(options) }
 
-  it 'advertises all bytes of a UTF-8 JSON body' do
-    expect(request.to_s).to include("Content-Length: 332\r\n")
+  it 'advertises five bytes for four characters with a two-byte accented letter' do
+    expect(request.to_s).to include("Content-Length: 5\r\n")
   end
 
   it 'keeps the byte length when serializing headers only' do
-    expect(request.to_s(headers_only: true)).to include("Content-Length: 332\r\n")
+    expect(request.to_s(headers_only: true)).to include("Content-Length: 5\r\n")
   end
 
   it 'preserves the complete body and the caller encoding' do
@@ -322,11 +319,35 @@ RSpec.describe Rex::Proto::Http::ClientRequest, 'body byte length' do
     expect([serialized.b, body.encoding]).to eq([body.b, ::Encoding::UTF_8])
   end
 
+  context 'with a three-byte CJK character' do
+    let(:body) { '雪'.force_encoding(::Encoding::UTF_8) }
+
+    it 'advertises three bytes for one character' do
+      expect(request.to_s).to include("Content-Length: 3\r\n")
+    end
+  end
+
+  context 'with a four-byte emoji' do
+    let(:body) { '😀'.force_encoding(::Encoding::UTF_8) }
+
+    it 'advertises four bytes for one character' do
+      expect(request.to_s).to include("Content-Length: 4\r\n")
+    end
+  end
+
+  context 'with mixed UTF-8 character widths' do
+    let(:body) { 'café 雪 😀'.force_encoding(::Encoding::UTF_8) }
+
+    it 'advertises fourteen bytes for eight characters' do
+      expect(request.to_s).to include("Content-Length: 14\r\n")
+    end
+  end
+
   context 'with a binary body' do
     let(:body) { super().b }
 
     it 'preserves its existing byte count' do
-      expect(request.to_s).to include("Content-Length: 332\r\n")
+      expect(request.to_s).to include("Content-Length: 5\r\n")
     end
   end
 

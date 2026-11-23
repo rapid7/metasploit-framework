@@ -52,7 +52,7 @@ RSpec.describe Rex::Proto::Http::Packet do
 end
 
 RSpec.describe Rex::Proto::Http::Packet, 'body byte length' do
-  let(:body) { [0x96ea, 0x1f600].pack('U*') }
+  let(:body) { '雪😀' }
   let(:response) do
     Rex::Proto::Http::Response.new(200).tap { |packet| packet.body = body }
   end
@@ -65,6 +65,30 @@ RSpec.describe Rex::Proto::Http::Packet, 'body byte length' do
     parsed = Rex::Proto::Http::Response.new
     parsed.parse(response.to_s.b)
     expect(parsed.body.b).to eq(body.b)
+  end
+
+  context 'with a two-byte accented letter' do
+    let(:body) { 'café' }
+
+    it 'advertises five bytes for four characters' do
+      expect(response.to_s).to include("Content-Length: 5\r\n")
+    end
+  end
+
+  context 'with a three-byte CJK character' do
+    let(:body) { '雪' }
+
+    it 'advertises three bytes for one character' do
+      expect(response.to_s).to include("Content-Length: 3\r\n")
+    end
+  end
+
+  context 'with a four-byte emoji' do
+    let(:body) { '😀' }
+
+    it 'advertises four bytes for one character' do
+      expect(response.to_s).to include("Content-Length: 4\r\n")
+    end
   end
 
   context 'with binary data' do
