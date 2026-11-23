@@ -76,8 +76,11 @@ class Job
         ensure
           # This worker is unwinding, so stop must not interrupt its cleanup.
           cleanup_mutex.synchronize { self.job_thread = nil if job_thread == ::Thread.current }
-          synchronized_cleanup
-          container.remove_job(self)
+          begin
+            synchronized_cleanup
+          ensure
+            container.remove_job(self)
+          end
         end
       }
       worker

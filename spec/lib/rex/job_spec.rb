@@ -104,6 +104,7 @@ RSpec.describe Rex::Job do
         expect { join_thread(worker) }.to raise_error(ArgumentError, 'Cleanup failed')
         expect(job.synchronized_cleanup).to be_nil
         expect(completed.size).to eq(1)
+        expect(container).to be_empty
       end
     end
 
@@ -232,7 +233,7 @@ RSpec.describe Rex::Job do
   describe '#stop' do
     it 'cleans up an inline job once across repeated stops' do
       job.start(false)
-      container.stop_job(job.jid)
+      expect(container.stop_job(job.jid)).to equal(job)
       job.stop
 
       expect(completed.size).to eq(1)
@@ -245,6 +246,17 @@ RSpec.describe Rex::Job do
       it 'cleans up before propagating the error' do
         expect { job.start(false) }.to raise_error(ArgumentError, 'Inline run failed')
         expect(completed.size).to eq(1)
+        expect(container).to be_empty
+      end
+    end
+
+    context 'when stopping a job whose cleanup raises' do
+      let(:clean_proc) { proc { raise ArgumentError, 'Cleanup failed' } }
+
+      it 'removes the stopped job and propagates the cleanup error' do
+        jid = job.jid
+
+        expect { container.stop_job(jid) }.to raise_error(ArgumentError, 'Cleanup failed')
         expect(container).to be_empty
       end
     end

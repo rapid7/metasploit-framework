@@ -70,9 +70,12 @@ class JobContainer < Hash
   #
   def stop_job(jid)
     if (j = self[jid.to_s])
-      j.stop
-
-      remove_job(j)
+      begin
+        j.stop
+      ensure
+        removed_job = remove_job(j)
+      end
+      removed_job
     end
   end
 
