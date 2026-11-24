@@ -60,14 +60,14 @@ class MetasploitModule < Msf::Auxiliary
     # Identify the server from the banner BEFORE reporting anything, so a
     # non-Apache or banner-suppressed host is never recorded as an Apache service.
     server = res.headers['Server'].to_s
-    matched_apache_version = server.match(%r{Apache/(\d+\.\d+\.\d+)}i)
+    matched_apache_version = server.match(%r{(?:\A|\s)Apache/(\d+\.\d+\.\d+)}i)
     unless matched_apache_version
       vprint_status("not identified as Apache httpd (HTTP #{res.code}, Server: #{server.empty? ? '(none)' : server}); skipping")
       return
     end
     ver = matched_apache_version[1]
 
-    report_service(
+    reported_service = report_service(
       host: ip,
       port: rport,
       proto: 'tcp',
@@ -111,6 +111,7 @@ class MetasploitModule < Msf::Auxiliary
       host: ip,
       port: rport,
       proto: 'tcp',
+      service: reported_service,
       name: name,
       info: "#{server} - #{detail}",
       refs: references
