@@ -70,7 +70,7 @@ msf6 auxiliary(scanner/http/apache_mod_http2_cve_2026_119618) > set VERBOSE true
 VERBOSE => true
 msf6 auxiliary(scanner/http/apache_mod_http2_cve_2026_119618) > run
 
-[+] Apache/2.4.70 in CVE-2026-119618 range (2.4.55-2.4.70); HTTP/2 advertised. NOTE: distro backports may patch without changing the version string - verify.
+[+] Apache/2.4.70 in CVE-2026-119618 range (2.4.55-2.4.70); HTTP/2 advertised. NOTE: distro backports may patch without changing the version string.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 

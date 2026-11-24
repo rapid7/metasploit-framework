@@ -57,20 +57,36 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    server = res.headers['Server']
-    report_service(host: ip, port: rport, proto: 'tcp', name: (datastore['SSL'] ? 'https' : 'http'), info: server)
-
-    if server.nil? || server.empty?
-      vprint_status('no Server header (banner suppressed); cannot assess by version')
+    # Identify the server from the banner BEFORE reporting anything, so a
+    # non-Apache or banner-suppressed host is never recorded as an Apache service.
+    server = res.headers['Server'].to_s
+    matched_apache_version = server.match(%r{Apache/(\d+\.\d+\.\d+)}i)
+    unless matched_apache_version
+      vprint_status("not identified as Apache httpd (HTTP #{res.code}, Server: #{server.empty? ? '(none)' : server}); skipping")
       return
     end
+    ver = matched_apache_version[1]
 
-    m = server.match(%r{Apache/(\d+\.\d+\.\d+)}i)
-    unless m
-      vprint_status("Server header exposes no Apache version: #{server}")
-      return
-    end
-    ver = m[1]
+    report_service(
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'Apache HTTP Server',
+      info: server,
+      parents: {
+        name: ssl ? 'https' : 'http',
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        parents: {
+          name: 'tcp',
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          parents: nil
+        }
+      }
+    )
 
     # HTTP/2 advertisement is a confidence signal only. Parse Upgrade and Alt-Svc
     # separately and match only complete h2/h2c protocol identifiers - not a substring
@@ -87,8 +103,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     detail = "Apache/#{ver} in CVE-2026-119618 range (2.4.55-2.4.70)"
-    detail += h2 ? '; HTTP/2 advertised' : '; HTTP/2 not advertised in headers (confirm via TLS ALPN)'
-    detail += '. NOTE: distro backports may patch without changing the version string - verify.'
+    detail += h2 ? '; HTTP/2 advertised' : '; HTTP/2 not advertised in headers'
+    detail += '. NOTE: distro backports may patch without changing the version string.'
 
     print_good(detail)
     report_vuln(
