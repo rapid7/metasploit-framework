@@ -23,18 +23,14 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'VMware vCenter Server SRP Authentication Bypass',
         'Description' => %q{
-          This module exploits unauthenticated SRP session-key disclosure in
-          vCenter's vmdir RPC service. Predictable UUIDv1 context handles allow
-          recovery of a pending login's key, authenticating as an existing SSO
-          administrator without its password. An encrypted GetState operation
-          verifies the bypass. The original PoC was verified against vCenter
-          8.0.2.00400; VMware fixes the 8.0 branch in 8.0 U3m.
-          The SHELL action downloads the directory database, recovers its STS
-          signer, and uses a forged SAML API session to create a local
-          administrator and enable SSH/Bash. With CreateSession enabled, the
-          resulting root shell retains cleanup of that account and the original
-          access settings until exit. Otherwise, it prints and retains the
-          credentials for manual login without connecting to SSH.
+          This module exploits unauthenticated SRP session-key disclosure in vCenter's vmdir RPC service. Predictable
+          UUIDv1 context handles allow recovery of a pending login's key, authenticating as an existing SSO
+          administrator without its password. An encrypted GetState operation verifies the bypass. This module was
+          verified against vCenter 8.0.2.00400; VMware fixes the 8.0 branch in 8.0 U3m.
+          The SHELL action downloads the directory database, recovers its STS signer, and uses a forged SAML API session
+          to create a local administrator and enable SSH/Bash. With CreateSession enabled, the resulting root shell
+          retains cleanup of that account and the original access settings until exit. Otherwise, it prints and retains
+          the credentials for manual login without connecting to SSH.
         },
         'Author' => [
           'Mandiant', # Vulnerability discovery and disclosure
