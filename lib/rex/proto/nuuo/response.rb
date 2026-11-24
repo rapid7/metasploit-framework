@@ -24,6 +24,7 @@ class Response
   attr_accessor :message
   attr_accessor :bufq
   attr_accessor :state
+  attr_accessor :error
 
   def initialize(buf=nil)
     self.state = ParseState::ProcessingHeader
@@ -33,6 +34,7 @@ class Response
     self.status_code = nil
     self.message = nil
     self.bufq = ''
+    self.error = nil
     parse(buf) if buf
   end
 

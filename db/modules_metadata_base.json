@@ -1680,6 +1680,79 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_admin/http/atlassian_data_center_cve_2026_21589": {
+    "name": "Atlassian Data Center CVE-2026-21589 Arbitrary File Read and Crowd Privilege Escalation",
+    "fullname": "auxiliary/admin/http/atlassian_data_center_cve_2026_21589",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-10-05",
+    "type": "auxiliary",
+    "author": [
+      "Piotr Bazydlo ( <Piotr Bazydlo (@chudyPB)>",
+      "Sonny",
+      "Yordan Ganchev",
+      "Christophe De La Fuente"
+    ],
+    "description": "This module exploits an unauthenticated path traversal in the web resource\n          component used by Jira, Confluence, and Bitbucket Data Center. The check\n          safely reads a protected application file to confirm CVE-2026-21589.\n\n          Jira Software fixes are 9.12.40, 10.3.26, and 11.3.12. Jira Service\n          Management fixes are 5.12.40, 10.3.26, and 11.3.12. Confluence fixes\n          are 9.2.26 and 10.2.19. Bitbucket fixes are 9.4.26, 10.2.8, and 10.5.1.\n\n          The default action reads an operator-selected file within the application\n          root. Jira and Confluence can also use disclosed Crowd settings to create\n          or select a user and add target access and administrator memberships.\n          Crowd must be reachable from Metasploit. The Crowd application must allow\n          user creation, membership changes, and optional group creation.",
+    "references": [
+      "CVE-2026-21589",
+      "URL-https://confluence.atlassian.com/security/cve-2026-21589-arbitrary-file-access-vulnerability-impacts-multiple-products-1870495748.html",
+      "URL-https://labs.watchtowr.com/you-wont-hear-about-these-even-in-myths-atlassian-jira-confluence-and-more-pre-auth-arbitrary-file-read-cve-2026-21589/",
+      "URL-https://github.com/watchtowrlabs/watchTowr-vs-Atlassian-CVE-2026-21589"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-19 15:14:47 +0000",
+    "path": "/modules/auxiliary/admin/http/atlassian_data_center_cve_2026_21589.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/atlassian_data_center_cve_2026_21589",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "CREATE_USER",
+        "description": "Create a new Crowd user and grant target administrator membership"
+      },
+      {
+        "name": "MODIFY_PRIVILEGES",
+        "description": "Grant an existing Crowd user target administrator membership"
+      },
+      {
+        "name": "READ_FILE",
+        "description": "Read a file from the Atlassian application root"
+      }
+    ]
+  },
   "auxiliary_admin/http/axigen_file_access": {
     "name": "Axigen Arbitrary File Read and Delete",
     "fullname": "auxiliary/admin/http/axigen_file_access",
@@ -6795,6 +6868,65 @@
         "config-changes"
       ],
       "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_admin/http/zimbra_email_impersonation": {
+    "name": "Zimbra SaveDraftRequest Email Impersonation",
+    "fullname": "auxiliary/admin/http/zimbra_email_impersonation",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-08-13",
+    "type": "auxiliary",
+    "author": [
+      "Ayoub Nabil Boubagrat",
+      "Crypto-Cat"
+    ],
+    "description": "CVE-2026-73571 is an authorization failure in Zimbra Collaboration's\n          delegated SaveDraftRequest path. An ordinary authenticated user can\n          select another mailbox on the same mailbox server in the From element and cause Zimbra to\n          send the message under that account's owner context. The legitimate\n          MTA path also saves the message in the selected account's Sent folder.\n\n          The vulnerability requires no delegation grant or privileged account.\n          It is known to affect Zimbra 10.1.16, was absent in the original\n          10.1.0 release, and is fixed in 10.1.17. The exact introduced release\n          is unknown.\n\n          When the recipient is the authenticated attacker, or recipient\n          credentials are supplied, the module independently polls that Inbox\n          and verifies the resulting From address. Without that verification,\n          an accepted SOAP response remains unverified on every version.",
+    "references": [
+      "CVE-2026-73571",
+      "URL-https://wiki.zimbra.com/wiki/Zimbra_Security_Advisories",
+      "URL-https://www.rapid7.com/blog/post/ve-breaking-zimbra-identity-boundaries-part-1/",
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/CVE-2026-73571.md"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-11 12:24:10 +0000",
+    "path": "/modules/auxiliary/admin/http/zimbra_email_impersonation.rb",
+    "is_install_path": true,
+    "ref_name": "admin/http/zimbra_email_impersonation",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "account-lockouts"
+      ]
     },
     "session_types": false,
     "needs_cleanup": false,
@@ -28869,7 +29001,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-15 11:57:01 +0000",
+    "mod_time": "2026-11-12 10:32:07 +0000",
     "path": "/modules/auxiliary/gather/solarwinds_webhelpdesk_backdoor.rb",
     "is_install_path": true,
     "ref_name": "gather/solarwinds_webhelpdesk_backdoor",
@@ -30039,6 +30171,63 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_gather/wp_welcart_fileread_cve_2022_4140": {
+    "name": "WordPress Welcart e-Commerce Arbitrary File Read (CVE-2022-4140)",
+    "fullname": "auxiliary/gather/wp_welcart_fileread_cve_2022_4140",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2022-12-05",
+    "type": "auxiliary",
+    "author": [
+      "Takeshi Suzuki",
+      "sinn3r <sinn3r@metasploit.com>",
+      "Balachandar Gowrisankar"
+    ],
+    "description": "This module exploits an arbitrary file read vulnerability in Wordpress's Welcart e-Commerce plugin versions prior to 2.8.5.\n          The plugin's content-log.php file does not validate user input before using it to output the content of logfiles.\n          This allows unauthenticated attackers to access the vulnerable endpoint directly and read arbitrary files on the server.",
+    "references": [
+      "CVE-2022-4140"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-14 13:43:47 +0000",
+    "path": "/modules/auxiliary/gather/wp_welcart_fileread_cve_2022_4140.rb",
+    "is_install_path": true,
+    "ref_name": "gather/wp_welcart_fileread_cve_2022_4140",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_gather/x11_keyboard_spy": {
     "name": "X11 Keylogger",
     "fullname": "auxiliary/gather/x11_keyboard_spy",
@@ -30334,6 +30523,69 @@
     "session_types": false,
     "needs_cleanup": false,
     "actions": []
+  },
+  "auxiliary_gather/zimbra_ews_mailbox_access": {
+    "name": "Zimbra EWS Cross-Mailbox FindItem Authorization Bypass",
+    "fullname": "auxiliary/gather/zimbra_ews_mailbox_access",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "Zimbra Collaboration Network Edition's Exchange Web Services extension accepts\n          composite folder identifiers containing an account UUID. In affected versions,\n          FindItem constructs its authorization context from the mailbox selected by that\n          UUID instead of the account that authenticated. This permits an EWS-enabled user\n          to read another account's messages, MIME content, and attachments without a share\n          or delegation grant.\n\n          This module resolves the victim UUID through authenticated Zimbra SOAP, verifies\n          that EWS works for the attacker's own mailbox, and then exercises the vulnerable\n          FindItem path. LIST stores selected folder metadata as CSV loot. READ finds a\n          selected item within that folder and stores its complete MIME message as loot.\n\n          Zimbra 10.1.0 through 10.1.19 are affected. Zimbra 10.1.20 fixes the issue.",
+    "references": [
+      "CVE-2026-10631",
+      "URL-https://wiki.zimbra.com/wiki/Zimbra_Security_Advisories"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-11 14:12:29 +0000",
+    "path": "/modules/auxiliary/gather/zimbra_ews_mailbox_access.rb",
+    "is_install_path": true,
+    "ref_name": "gather/zimbra_ews_mailbox_access",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": [
+      {
+        "name": "LIST",
+        "description": "List items in a victim mailbox folder"
+      },
+      {
+        "name": "READ",
+        "description": "Save a victim message and its attachments as complete MIME"
+      }
+    ]
   },
   "auxiliary_gather/zookeeper_info_disclosure": {
     "name": "Apache ZooKeeper Information Disclosure",
@@ -35441,7 +35693,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2025-06-20 13:20:44 +0000",
+    "mod_time": "2026-10-29 12:06:55 +0000",
     "path": "/modules/auxiliary/scanner/http/coldfusion_locale_traversal.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/coldfusion_locale_traversal",
@@ -40504,7 +40756,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-02 17:30:43 +0000",
+    "mod_time": "2026-11-20 05:31:23 +0000",
     "path": "/modules/auxiliary/scanner/http/joomla_bruteforce_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/joomla_bruteforce_login",
@@ -40787,7 +41039,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2024-05-03 10:45:37 +0000",
+    "mod_time": "2026-11-23 22:09:26 +0000",
     "path": "/modules/auxiliary/scanner/http/jupyter_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/jupyter_login",
@@ -41060,7 +41312,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-06-19 07:54:56 +0000",
+    "mod_time": "2026-11-17 11:13:52 +0000",
     "path": "/modules/auxiliary/scanner/http/litellm_proxy_sqli.rb",
     "is_install_path": true,
     "ref_name": "scanner/http/litellm_proxy_sqli",
@@ -43314,6 +43566,59 @@
       "SideEffects": [
         "unknown-side-effects"
       ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
+  "auxiliary_scanner/http/plex_media_server_file_read": {
+    "name": "Plex Media Server Metadata File Request Arbitrary File Read",
+    "fullname": "auxiliary/scanner/http/plex_media_server_file_read",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-09-01",
+    "type": "auxiliary",
+    "author": [
+      "h00die"
+    ],
+    "description": "Plex Media Server versions up to and including 1.43.3.10861 expose\n          GET /library/metadata/<ratingKey>/file?url=<media-reference>. The handler\n          resolves the caller-supplied media reference without validating its scheme or\n          confining the resolved path to the item's metadata bundle directory. Supplying\n          a file:// URL with an absolute path makes the server stream back any file\n          readable by the PMS service account (often root on NAS/Docker installs).\n\n          Fixed in 1.43.3.10896, which rejects references that are unsupported or that\n          \"escape the bundle directory\".\n\n          No authentication is required when the source IP is treated as an allowed\n          network (default on unclaimed servers and common LAN configurations); an\n          X-Plex-Token belonging to any user with library visibility works otherwise.",
+    "references": [
+      "URL-https://forums.plex.tv/t/important-security-update-for-plex-media-server-v1-43-2-and-earlier/942319"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 32400,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-10-15 06:42:48 +0000",
+    "path": "/modules/auxiliary/scanner/http/plex_media_server_file_read.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/plex_media_server_file_read",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
     },
     "session_types": false,
     "needs_cleanup": false,
@@ -50104,6 +50409,62 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/zimbra_graphql_brute": {
+    "name": "Zimbra GraphQL Authentication Rate Limit Bypass",
+    "fullname": "auxiliary/scanner/http/zimbra_graphql_brute",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": null,
+    "type": "auxiliary",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "Zimbra Collaboration Network Edition exposes an unauthenticated GraphQL\n          authenticate mutation. Failed GraphQL authentication does not update the\n          source-IP failure counter enforced for SOAP authentication. GraphQL aliases\n          also permit many password candidates to be submitted in one HTTP request.\n\n          This module uses the standard Metasploit credential options and sends the\n          resulting username and password pairs through batches of aliased authenticate\n          mutations. A successful password is stored as a credential, but the returned\n          authentication token is not displayed or stored. An enabled per-account\n          lockout policy can still lock local target accounts.\n\n          Zimbra 10.1.0 through 10.1.21 are known to be affected. No fixed release has\n          been published.",
+    "references": [
+      "CVE-2026-93637",
+      "URL-https://www.rapid7.com/blog/post/ve-breaking-zimbra-identity-boundaries-part-1/",
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/CVE-2026-93637.md"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-13 11:27:13 +0000",
+    "path": "/modules/auxiliary/scanner/http/zimbra_graphql_brute.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/zimbra_graphql_brute",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "service-resource-loss"
+      ],
+      "Reliability": [],
+      "SideEffects": [
+        "account-lockouts",
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/ike/cisco_ike_benigncertain": {
     "name": "Cisco IKE Information Disclosure",
     "fullname": "auxiliary/scanner/ike/cisco_ike_benigncertain",
@@ -51421,7 +51782,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2025-06-23 12:43:46 +0000",
+    "mod_time": "2026-11-07 10:02:56 +0000",
     "path": "/modules/auxiliary/scanner/misc/oki_scanner.rb",
     "is_install_path": true,
     "ref_name": "scanner/misc/oki_scanner",
@@ -73711,6 +74072,66 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/http/beyondtrust_rs_mrs_file_upload": {
+    "name": "BeyondTrust Remote Support MRS Origin Validation File Upload",
+    "fullname": "exploit/linux/http/beyondtrust_rs_mrs_file_upload",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-10-15",
+    "type": "exploit",
+    "author": [
+      "jheysel"
+    ],
+    "description": "An anonymous attacker can forge the MRS local router alias and invoke the\n          appliance-side thin worker's native file-transfer service. This module\n          uploads a PHP payload into the site's public directory and requests its\n          extensionless URL. PHP and Unix command payloads execute as the site user.\n          Tested on Remote Support 24.1.2; other affected releases and fixed builds\n          have not been established. Public issue-menu sessions and thin chat are required.",
+    "references": [
+      "URL-https://docs.beyondtrust.com/rs/docs/va-install",
+      "URL-https://www.rapid7.com/blog/post/ra-rapid7-analysis-unauthenticated-file-upload-to-rce-in-beyondtrust-remote-support-cve-2026-102764/",
+      "CVE-2026-102764"
+    ],
+    "platform": "PHP,Unix",
+    "arch": "php, cmd",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "PHP",
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-17 09:40:11 +0000",
+    "path": "/modules/exploits/linux/http/beyondtrust_rs_mrs_file_upload.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/beyondtrust_rs_mrs_file_upload",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "artifacts-on-disk",
+        "ioc-in-logs"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": true
+  },
   "exploit_linux/http/bitbucket_git_cmd_injection": {
     "name": "Bitbucket Git Command Injection",
     "fullname": "exploit/linux/http/bitbucket_git_cmd_injection",
@@ -74365,6 +74786,67 @@
     },
     "session_types": false,
     "needs_cleanup": true
+  },
+  "exploit_linux/http/changedetection_rce_cve_2024_32651": {
+    "name": "changedetection.io Notification Jinja2 SSTI RCE",
+    "fullname": "exploit/linux/http/changedetection_rce_cve_2024_32651",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2024-05-08",
+    "type": "exploit",
+    "author": [
+      "Taylor \"Goblin\" Cox",
+      "Edoardo Ottavianelli",
+      "Zach Crosman"
+    ],
+    "description": "This module exploits Remote Code Execution (RCE) vulnerability (CVE-2024-32651) in changedetection.io which is a service for detecting and monitoring changes in web pages. Versions prior to 0.45.21 are vulnerable.\n\n          The vulnerability occurs when the application renders user-controlled notification fields (title and body) using a non-sandboxed Jinja2 environment. The default configuration does not require login credentials, so an unauthenticated attacker is able to create a watch and send a test notification containing a command-injected template. This allows the attacker to execute a payload as the user running the service.",
+    "references": [
+      "CVE-2024-32651",
+      "GHSA-4r7v-whpg-8rx3",
+      "URL-https://github.com/zcrosman/cve-2024-32651"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 5000,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-10-13 17:41:55 +0000",
+    "path": "/modules/exploits/linux/http/changedetection_rce_cve_2024_32651.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/changedetection_rce_cve_2024_32651",
+    "check": true,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "config-changes"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
   },
   "exploit_linux/http/chaos_rat_xss_to_rce": {
     "name": "Chaos RAT XSS to RCE",
@@ -93668,6 +94150,66 @@
       ],
       "SideEffects": [
         "unknown-side-effects"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
+  "exploit_linux/http/zimbra_admin_deployzimlet_rce": {
+    "name": "Zimbra Administrator DeployZimlet Remote Code Execution",
+    "fullname": "exploit/linux/http/zimbra_admin_deployzimlet_rce",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-10-22",
+    "type": "exploit",
+    "author": [
+      "Crypto-Cat"
+    ],
+    "description": "This module uses the Zimbra administrator DeployZimlet SOAP operation\n          to install a server-extension package containing a Framework-generated\n          JSP payload. If server-side Zimlet JSP execution is enabled, requesting\n          that JSP provides a session as the zimbra service account.\n\n          Zimbra documents this feature and disables it by default. Valid\n          global-administrator credentials and access to the Zimbra administrator\n          service are required. Installations that disable Zimlet JSP execution or\n          serve deployed JSP files as static content are not exploitable through\n          this path.\n\n          The module uses random package and resource names. The JSP requires\n          a random access token and runs only once. Cleanup undeploys the\n          package and verifies that its registration and test resource are gone.",
+    "references": [
+      "URL-https://github.com/jburgess-r7/zimbra-vulnerability-tracker/blob/main/vulnerabilities/ZIMBRA-ADMINRCE.md",
+      "URL-https://wiki.zimbra.com/wiki/Working_with_Zimlets",
+      "URL-https://wiki.zimbra.com/wiki/Zimlet_JSP"
+    ],
+    "platform": "Linux",
+    "arch": "java",
+    "rport": 443,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": [
+      "Java JSP"
+    ],
+    "mod_time": "2026-11-17 10:12:31 +0000",
+    "path": "/modules/exploits/linux/http/zimbra_admin_deployzimlet_rce.rb",
+    "is_install_path": true,
+    "ref_name": "linux/http/zimbra_admin_deployzimlet_rce",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs",
+        "artifacts-on-disk",
+        "config-changes"
       ]
     },
     "session_types": false,
@@ -297638,7 +298180,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_http",
@@ -297671,7 +298213,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_https",
@@ -297704,7 +298246,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/aarch64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/aarch64/meterpreter_reverse_tcp",
@@ -297797,7 +298339,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_http",
@@ -297830,7 +298372,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_https",
@@ -297863,7 +298405,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armbe/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/armbe/meterpreter_reverse_tcp",
@@ -298095,7 +298637,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_http",
@@ -298128,7 +298670,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_https",
@@ -298161,7 +298703,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/armle/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/armle/meterpreter_reverse_tcp",
@@ -298596,7 +299138,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_http",
@@ -298629,7 +299171,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_https",
@@ -298662,7 +299204,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mips64/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mips64/meterpreter_reverse_tcp",
@@ -298765,7 +299307,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_http",
@@ -298798,7 +299340,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_https",
@@ -298831,7 +299373,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsbe/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsbe/meterpreter_reverse_tcp",
@@ -299072,7 +299614,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_http.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_http",
@@ -299105,7 +299647,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_https.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_https",
@@ -299138,7 +299680,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2026-07-30 10:26:56 +0000",
+    "mod_time": "2026-11-18 17:53:18 +0000",
     "path": "/modules/payloads/singles/linux/mipsle/meterpreter_reverse_tcp.rb",
     "is_install_path": true,
     "ref_name": "linux/mipsle/meterpreter_reverse_tcp",
@@ -321773,7 +322315,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-30 20:15:08 +0000",
+    "mod_time": "2026-11-13 23:48:15 +0000",
     "path": "/modules/post/multi/gather/dns_srv_lookup.rb",
     "is_install_path": true,
     "ref_name": "multi/gather/dns_srv_lookup",
@@ -330845,7 +331387,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-04-30 11:23:07 +0000",
+    "mod_time": "2026-11-19 10:43:04 +0000",
     "path": "/modules/post/windows/gather/enum_applications.rb",
     "is_install_path": true,
     "ref_name": "windows/gather/enum_applications",
@@ -333919,7 +334461,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2025-05-09 10:51:17 +0000",
+    "mod_time": "2026-11-07 18:13:07 +0000",
     "path": "/modules/post/windows/manage/enable_rdp.rb",
     "is_install_path": true,
     "ref_name": "windows/manage/enable_rdp",

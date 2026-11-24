@@ -48,9 +48,9 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** keep each PR focused on a single module, bug fix, or cohesive logical change.
 * **Do** add reviewer notes when useful: where to start, key changes, and work intentionally deferred or out of scope.
 * **Do** include [console output], especially for effects that can be witnessed in the  `msfconsole`.
-* **Do** test your code and submit the test output in your PR with any sensitive information removed. Console output, screenshots, and links to screen recordings are all useful evidence.
+* **Do** test your code and submit the test output in your PR with any sensitive information removed. Console output, screenshots, and links to screen recordings are all useful evidence. Record your results separately from the reviewer verification checklist.
 * **Do** state the operating system and relevant target software or hardware versions used for testing. Include Docker/Vagrant image names or setup instructions when applicable.
-* **Do** list [verification steps] so committers can test your code.
+* **Do** list [verification steps] as unchecked Markdown checkboxes (`- [ ]`) in your PR description. Leave them unchecked even if you have already performed the steps; reviewers perform and check off each step during review.
 * **Do** [reference associated issues] in your pull request description.
 * **Do** check the GitHub Actions results after submitting your PR, inspect failed jobs, and resolve failures relevant to your change.
 * **Don't** leave your pull request description blank.
@@ -73,6 +73,7 @@ If approximately two weeks pass after a review request without a comment or code
 * **Do** prefer `# frozen_string_literal: true` as the first line of new module files (the generator includes it automatically). Use `String.new` or `.dup` for strings that need to change. If freezing causes compatibility problems, omit the comment and briefly explain why in the PR. Broad refactoring is not required.
 * **Do** set up `msftidy` as a [pre-commit hook] and ensure it passes with no errors or warnings before submitting — PRs that fail msftidy will not be accepted.
 * **Do** use the many module mixin [API]s.
+* **Do** keep modules focused on the exploit or task workflow, including metadata, options, reporting, and decisions specific to that workflow. Implement supporting capabilities such as protocol clients, parsers, and authentication helpers in libraries or mixins under `lib/`. Reuse or extend an existing library first; create a new library for a distinct supporting capability when none fits. Choose boundaries by responsibility and opportunities for reuse. A library may initially have one caller.
 * **Do** include instructions on how to setup the vulnerable environment or software.
 * **Do** include [Module Documentation] showing sample run-throughs.
 * **Do** include output from the module's `check` method, when supported, and successful exploitation or execution against a controlled lab/test environment target.
@@ -129,13 +130,16 @@ Keep modernization PRs focused: one pattern fix per PR, or one subsystem at a ti
 
 #### <u>Library Code</u>
 * **Do** add or update focused [RSpec] coverage for library behavior changes. For comments, documentation, CI/build configuration, and other changes, use proportionate syntax, lint, configuration, output, or behavior checks; automated tests are not mandatory unless requested.
-* **Do** follow [Better Specs] - it's like the style guide for specs.
 * **Do** write [YARD] documentation - this makes it easier for people to use your code.
 * **Do** use specific error classes (`Rex::RuntimeError`, `ArgumentError`, etc.) — never `raise "bare string"`.
 * **Do** use `rescue StandardError => e` or a narrower expected exception class so the handled error and its context are explicit. Avoid bare `rescue` for clarity and never `rescue Exception`, which also catches signals and exits.
 * **Do** add `# frozen_string_literal: true` as the first line of new library files.
 * **Don't** use `get_`/`set_` prefixes for accessor-style methods in new code.
 * **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.
+
+#### <u>RSpec Tests</u>
+* **Do** follow [Better Specs] when creating or updating RSpec tests throughout Framework, including library, module, and acceptance specs. Every example must produce a meaningful, human-readable description. RSpec-generated descriptions are acceptable when they clearly describe the expected behavior; otherwise, provide an explicit description.
+* **Do** keep examples focused and deterministic, and cover relevant valid, invalid, and boundary cases. See the [RSpec README](spec/README.md) for more guidance.
 
 #### <u>Bug Fixes</u>
 * **Do** include reproduction steps in the form of verification steps.
@@ -178,7 +182,7 @@ curve, so keep it up!
 [module documentation]:https://docs.metasploit.com/docs/using-metasploit/basics/module-documentation.html
 [scripts]:https://github.com/rapid7/metasploit-framework/tree/master/scripts
 [RSpec]:http://rspec.info
-[Better Specs]:http://www.betterspecs.org/
+[Better Specs]:https://www.betterspecs.org/
 [YARD]:http://yardoc.org
 [Issues]:https://github.com/rapid7/metasploit-framework/issues
 [Metasploit Slack]:https://www.metasploit.com/slack

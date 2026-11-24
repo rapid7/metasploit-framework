@@ -10,7 +10,7 @@
 
 ## Verification
 
-<!-- Replace the placeholders with steps a reviewer can follow. Add or remove steps as needed, and check off only those you completed. Keep this proportional to the change; for documentation changes, describe how you checked them. -->
+<!-- Replace the placeholders with steps a reviewer can follow. Add or remove steps as needed. Leave all verification checkboxes unchecked, even if you have already performed the steps; reviewers check them off as they complete them. Report your own checks under Results and evidence below. Keep the steps proportional to the change; for documentation changes, describe what to inspect or preview. -->
 
 - [ ] Run `<command or action>` and confirm `<expected observable result>`.
 - [ ] Exercise `<relevant failure or regression case, if applicable>` and confirm `<expected result>`.

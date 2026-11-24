@@ -13,6 +13,23 @@ reviews:
   # Keep generated prose in the bot's comment so the contributor's description stays clear.
   high_level_summary_in_walkthrough: true
   poem: false
+  path_instructions:
+    - path: "modules/**/*.rb"
+      instructions: >-
+        Apply AGENTS.md's Reuse Before Implementing guidance on separating
+        module workflow from supporting capabilities. Base extraction
+        suggestions on clear responsibilities and opportunities for reuse.
+        A library may initially have one caller.
+    - path: "spec/**/*.rb"
+      instructions: >-
+        For new or updated RSpec tests, follow https://www.betterspecs.org/
+        and AGENTS.md's Testing guidance. Every example must produce a meaningful,
+        human-readable description. RSpec-generated descriptions are acceptable
+        when they clearly describe the expected behavior; otherwise, provide an
+        explicit description. Apply this to library, module, and acceptance specs.
+        Keep examples focused and deterministic and cover relevant valid,
+        invalid, and boundary cases. Follow the existing test requirements;
+        do not require module or application tests unless requested.
   auto_review:
     enabled: true
     auto_incremental_review: true
@@ -44,6 +61,8 @@ reviews:
           run/exploit output. For typo/comment/docs-only changes, inspection/preview and its
           result suffice; require no runtime lab or automated tests. Fail only for
           missing applicable information and state exactly what to add. Accept
-          any headings or checkbox state. If required linked evidence is
-          inaccessible, return Inconclusive and name it. Assess supplied evidence;
-          do not execute code or invent results.
+          any headings or checkbox state. Unchecked verification steps are
+          expected: reviewers perform and check them off during review. Assess
+          author testing from separately supplied results/evidence. If required
+          linked evidence is inaccessible, return Inconclusive and name it.
+          Assess supplied evidence; do not execute code or invent results.

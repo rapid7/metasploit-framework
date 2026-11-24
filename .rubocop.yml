@@ -240,11 +240,15 @@ Lint/DeprecatedGemVersion:
     - 'metasploit-framework.gemspec'
 
 Metrics/ModuleLength:
-  Description: 'Most Metasploit modules are quite large. This is ok.'
+  Description: >-
+    Appropriate length depends on a Ruby module definition's responsibilities.
+    Review separation of concerns using AGENTS.md and CONTRIBUTING.md.
   Enabled: false
 
 Metrics/ClassLength:
-  Description: 'Most Metasploit classes are quite large. This is ok.'
+  Description: >-
+    Appropriate length depends on a Ruby class's responsibilities.
+    Review separation of concerns using AGENTS.md and CONTRIBUTING.md.
   Enabled: false
 
 Style/ClassAndModuleChildren:

@@ -63,13 +63,13 @@ class MetasploitModule < Msf::Post
 
     case session.platform
     when 'windows'
-      ns_opt = ' -query=srv '
+      ns_opt = ['-query=srv']
       cmd = 'nslookup'
     when 'solaris'
-      ns_opt = ' -t srv '
+      ns_opt = ['-t', 'srv']
       cmd = '/usr/sbin/host'
     else
-      ns_opt = ' -t srv '
+      ns_opt = ['-t', 'srv']
       cmd = '/usr/bin/host'
     end
 
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
         a << framework.threads.spawn("Module(#{refname})", false, srvrcd.shift) do |srv|
           next if srv.nil?
 
-          r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
+          r = create_process(cmd, args: ns_opt + ["#{srv}#{domain}"])
 
           case session.platform
           when 'windows'
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Post
   # Get I{ for a given host using host, returns array
   def get_ip(host)
     ip_add = []
-    cmd_exec('host', " #{host}").each_line do |l|
+    create_process('host', args: [host]).each_line do |l|
       ip = l.scan(/has address (\S*)$/).join
       ip_add << ip if ip != ''
     end
@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Post
   # Get IP for given host with nslookup, return array
   def w_get_ip(host)
     ips = []
-    data = cmd_exec("nslookup #{host}")
+    data = create_process('nslookup', args: [host])
     if data =~ /Name/
       # Remove unnecessary data and get the section with the addresses
       returned_data = data.split(/Name:/)[1]

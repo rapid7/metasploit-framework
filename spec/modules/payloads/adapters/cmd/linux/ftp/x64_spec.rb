@@ -86,7 +86,7 @@ RSpec.describe 'cmd/linux/ftp/x64' do
   # ---------------------------------------------------------------------------
 
   describe 'FETCH_COMMAND option' do
-    it 'defaults to CURL' do
+    it 'defaults to FTP' do
       fresh = load_and_create_module(
         module_type: 'payload',
         reference_name: 'cmd/linux/ftp/x64/meterpreter_reverse_tcp',
@@ -95,14 +95,21 @@ RSpec.describe 'cmd/linux/ftp/x64' do
           'singles/linux/x64/meterpreter_reverse_tcp'
         ]
       )
-      expect(fresh.datastore['FETCH_COMMAND']).to eq('CURL')
+      expect(fresh.datastore['FETCH_COMMAND']).to eq('FTP')
     end
 
-    # All LinuxOptions commands are syntactically valid; FTP/TNFTP are the only
-    # ones that actually work with an FTP server at runtime.
-    %w[CURL WGET TNFTP FTP GET TFTP].each do |cmd|
+    # Only FTP, TNFTP and GET have an FTP protocol code path; CURL, WGET and
+    # TFTP are valid LinuxOptions values but rejected here since FTP adapters
+    # narrow the enum (see linux_options_spec.rb for the non-FTP case).
+    %w[FTP TNFTP GET].each do |cmd|
       it "accepts #{cmd} as a valid enum value" do
         expect(subject.options['FETCH_COMMAND'].valid?(cmd)).to be(true)
+      end
+    end
+
+    %w[CURL WGET TFTP].each do |cmd|
+      it "rejects #{cmd} as an invalid value" do
+        expect(subject.options['FETCH_COMMAND'].valid?(cmd)).to be(false)
       end
     end
 

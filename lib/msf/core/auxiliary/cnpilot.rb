@@ -150,7 +150,7 @@ module Auxiliary::CNPILOT
             report_cred(
               ip: rhost,
               port: rport,
-              service_name: 'Cambium cnPilot #{cnpilot_version}',
+              service_name: "Cambium cnPilot #{cnpilot_version}",
               user: user,
               password: pass
             )

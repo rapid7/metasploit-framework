@@ -147,6 +147,11 @@ RSpec.describe Msf::OptArray do
       expect(accepted_opt.normalize('StdApi,PRIV,incognito')).to eq(%w[stdapi priv incognito])
     end
 
+    it 'de-duplicates case-variant spellings that fold to the same accepted value' do
+      expect(accepted_opt.normalize('STDAPI,stdapi')).to eq(%w[stdapi])
+      expect(accepted_opt.normalize('stdapi,STDAPI,priv')).to eq(%w[stdapi priv])
+    end
+
     it 'returns nil for invalid values' do
       expect(accepted_opt.normalize('stdapi,invalid')).to eq(nil)
     end

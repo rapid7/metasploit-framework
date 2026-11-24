@@ -166,9 +166,11 @@ class MetasploitModule < Msf::Post
         print_status 'You can now login with the created user'
       else
         print_error('Account could not be created')
-        print_error('Error:')
-        addusr_out.each_line do |l|
-          print_error("\t#{l.chomp}")
+        # Use the 'result' variable from the 'add_user' call for error details
+        if result && result['return'] != 0
+          print_error("Error details: #{result.inspect}")
+        else
+          print_error('No additional error details were returned.')
         end
       end
     rescue StandardError => e

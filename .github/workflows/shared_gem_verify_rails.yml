@@ -12,6 +12,11 @@ on:
         required: false
         default: "[]"
         type: string
+      rails_versions:
+        description: 'Base Rails version requirements as a JSON array'
+        required: false
+        default: '["~> 7.0.0","~> 7.1.0","~> 7.2.0","~> 8.1.4.1"]'
+        type: string
       additional_rails_versions:
         description: 'Additional Rails version requirements as a JSON array (for example: ["~> 8.1.0"])'
         required: false
@@ -33,13 +38,13 @@ jobs:
     steps:
       - name: Build Rails version matrix
         id: merge_rails_versions
+        env:
+          DEFAULT_RAILS_VERSIONS: ${{ inputs.rails_versions }}
+          ADDITIONAL_RAILS_VERSIONS: ${{ inputs.additional_rails_versions }}
         run: |
-          default_rails_versions='["~> 7.0.0","~> 7.1.0","~> 7.2.0"]'
-          additional_rails_versions='${{ inputs.additional_rails_versions }}'
-
           rails_versions=$(jq -cn \
-            --argjson defaults "$default_rails_versions" \
-            --argjson extras "$additional_rails_versions" \
+            --argjson defaults "$DEFAULT_RAILS_VERSIONS" \
+            --argjson extras "$ADDITIONAL_RAILS_VERSIONS" \
             '$defaults + $extras | unique')
 
           echo "rails_versions=$rails_versions" >> "$GITHUB_OUTPUT"
@@ -92,6 +97,26 @@ jobs:
       - name: Wait for PostgreSQL to be healthy
         run: |
           docker exec postgres sh -c 'until pg_isready -U postgres; do echo waiting for postgres; sleep 2; done; echo postgres is ready'
+
+      - name: Install matching PostgreSQL client
+        env:
+          POSTGRES_VERSION: ${{ matrix.postgres }}
+        run: |
+          postgres_major="${POSTGRES_VERSION%%.*}"
+          # Newer pg_dump versions can emit SQL unsupported by the test server.
+          # https://www.postgresql.org/download/linux/ubuntu/
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y --no-install-recommends "postgresql-client-${postgres_major}"
+          echo "/usr/lib/postgresql/${postgres_major}/bin" >> "$GITHUB_PATH"
+        shell: bash
+
+      - name: Log PostgreSQL versions
+        run: |
+          pg_dump --version
+          psql --version
+          docker exec postgres psql -U postgres -c 'SHOW server_version;'
 
       - name: Checkout code
         uses: actions/checkout@v4

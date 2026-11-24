@@ -54,7 +54,7 @@ module Build
 
       each do |page|
         page_keys = page.keys
-        allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents]
+        allowed_keys = %i[old_wiki_path path new_base_name nav_order title new_path folder children has_children parents href external]
         invalid_keys = page_keys - allowed_keys
 
         suggestion = DidYouMean::SpellChecker.new(dictionary: allowed_keys).correct(invalid_keys[0]).first
@@ -78,6 +78,11 @@ module Build
       page_paths = to_enum.reject { |page| page[:path] }.map { |page| page[:title] }
       duplicate_page_paths = page_paths.tally.select { |_name, count| count > 1 }
       raise ConfigValidationError, "Duplicate paths, will cause issues: #{duplicate_page_paths}" if duplicate_page_paths.any?
+
+      # Ensure no two entries generate the same output file, which would otherwise silently overwrite each other
+      generated_paths = to_enum.map { |page| page[:new_path] }
+      duplicate_generated_paths = generated_paths.tally.select { |_name, count| count > 1 }
+      raise ConfigValidationError, "Duplicate generated paths, will cause issues: #{duplicate_generated_paths}" if duplicate_generated_paths.any?
 
       # Ensure new file paths are only alphanumeric and hyphenated
       new_paths = to_enum.map { |page| page[:new_path] }
@@ -126,7 +131,7 @@ module Build
       if child[:folder]
         parent_folders = parents.map { |page| page[:folder] }
         child[:new_path] = File.join(*parent_folders, child[:folder], 'index.md')
-      else
+      elsif child[:path]
         path = child[:path]
         base_name = child[:new_base_name] || File.basename(path)
 
@@ -138,6 +143,13 @@ module Build
           child[:title] ||= computed_title
         end
 
+        parent_folders = parents.map { |page| page[:folder] }
+        child[:new_path] = File.join(*parent_folders, base_name.downcase)
+      else
+        # A leaf entry with no backing wiki page, e.g. a nav item that only links elsewhere via :href
+        raise ConfigValidationError, "#{child} needs a :title when no :path is given" unless child[:title]
+
+        base_name = child[:new_base_name] || "#{child[:title].downcase.gsub(/[^a-z0-9]+/, '-')}.md"
         parent_folders = parents.map { |page| page[:folder] }
         child[:new_path] = File.join(*parent_folders, base_name.downcase)
       end
@@ -275,7 +287,7 @@ module Build
       old_path = old_path.gsub(' ', '-').gsub("##{old_path_anchor}", '')
 
       matched_pages = pages.select do |page|
-        !page[:folder] &&
+        !page[:folder] && page[:path] &&
           (File.basename(page[:path]).downcase == "#{File.basename(old_path)}.md".downcase ||
             File.basename(page[:path]).downcase == "#{File.basename(old_path)}".downcase)
       end
@@ -285,7 +297,7 @@ module Build
       # Additional filter for absolute paths if there's potential ambiguity
       if matched_pages.count > 1
         refined_pages = matched_pages.select do |page|
-          !page[:folder] &&
+          !page[:folder] && page[:path] &&
             (page[:path].downcase == "#{old_path}.md".downcase ||
               page[:path].downcase == old_path.downcase)
         end
@@ -409,17 +421,21 @@ module Build
       config.each do |page|
         page_config = {
           layout: 'default',
-          **page.slice(:title, :has_children, :nav_order),
+          **page.slice(:title, :has_children, :nav_order, :href, :external),
           parent: (page[:parents][-1] || {})[:title],
           warning: "Do not modify this file directly. Please modify metasploit-framework/docs/metasploit-framework.wiki instead",
-          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - folder automatically generated",
-          has_content: !page[:path].nil?
+          old_path: page[:path] ? File.join(WIKI_PATH, page[:path]) : "none - automatically generated",
+          has_content: !page[:path].nil?,
+          # Pathless, folderless entries are link-only placeholders (e.g. "GitHub Stats") with no real content,
+          # so keep them out of on-site search results. Folder landing pages are pathless too, but have real
+          # child-listing content and should remain searchable by title.
+          search_exclude: (page[:path].nil? && !page[:folder]) ? true : nil
         }.compact
 
         page_config[:has_children] = true if page[:has_children]
         preamble = <<~PREAMBLE
           ---
-          #{page_config.map { |key, value| "#{key}: #{value.to_s.strip.inspect}" }.join("\n")}
+          #{page_config.map { |key, value| "#{key}: #{key == :search_exclude ? value : value.to_s.strip.inspect}" }.join("\n")}
           ---
 
         PREAMBLE
@@ -427,7 +443,7 @@ module Build
         new_path = File.join(result_folder, page[:new_path])
         FileUtils.mkdir_p(File.dirname(new_path))
 
-        if page[:folder] && page[:path].nil?
+        if page[:path].nil?
           new_docs_content = preamble.rstrip + "\n"
         else
           old_path = File.join(WIKI_PATH, page[:path])

@@ -290,6 +290,11 @@ class Console::CommandDispatcher::Core
       return true
     end
     res = client.get_custom_methods
+    if !res.is_a?(Hash) || (res.key?('Methods') && !res['Methods'].is_a?(Array))
+      print_error('Failed to load custom methods: invalid or missing response')
+      return
+    end
+
     if res.has_key? 'Methods'
       cmd_load("custom_methods")
       self.shell.dispatcher_stack.each do |dispatcher|

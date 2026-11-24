@@ -49,4 +49,111 @@ RSpec.describe Rex::Proto::Http::Packet do
     end
 
   end
+
+  context 'body byte length' do
+    let(:body) { '雪😀' }
+    let(:response) do
+      Rex::Proto::Http::Response.new(200).tap { |packet| packet.body = body }
+    end
+
+    it 'advertises seven octets for the two-character UTF-8 body' do
+      expect(response.to_s).to include("Content-Length: 7\r\n")
+    end
+
+    it 'round trips the complete UTF-8 body through the binary network parser' do
+      parsed = Rex::Proto::Http::Response.new
+      parsed.parse(response.to_s.b)
+      expect(parsed.body.b).to eq(body.b)
+    end
+
+    it 'completes a UTF-8 round trip without a caller-side binary conversion' do
+      parsed = Rex::Proto::Http::Response.new
+
+      expect(parsed.from_s(response.to_s)).to eq(described_class::ParseCode::Completed)
+    end
+
+    it 'parses frozen UTF-8 input without changing the caller encoding' do
+      serialized = response.to_s.freeze
+      parsed = Rex::Proto::Http::Response.new
+      parsed.parse(serialized)
+
+      expect([parsed.body.b, serialized.encoding]).to eq([body.b, ::Encoding::UTF_8])
+    end
+
+    it 'parses fragments split within a multibyte character' do
+      serialized = response.to_s
+      # Split after the first byte of the three-byte CJK character.
+      split_at = serialized.index("\r\n\r\n") + "\r\n\r\n".bytesize + 1
+      parsed = Rex::Proto::Http::Response.new
+
+      first = parsed.parse(serialized.byteslice(0, split_at))
+      second = parsed.parse(serialized.byteslice(split_at..))
+
+      expect([first, second, parsed.body.b]).to eq([
+        described_class::ParseCode::Partial,
+        described_class::ParseCode::Completed,
+        body.b
+      ])
+    end
+
+    it 'keeps bytes after a UTF-8 body queued for the next response' do
+      following = Rex::Proto::Http::Response.new(200).tap { |packet| packet.body = 'next' }.to_s
+      parsed = Rex::Proto::Http::Response.new
+      parsed.parse(response.to_s + following)
+
+      expect([parsed.body.b, parsed.bufq.b]).to eq([body.b, following.b])
+    end
+
+    context 'with a two-byte accented letter' do
+      let(:body) { 'café' }
+
+      it 'advertises five bytes for four characters' do
+        expect(response.to_s).to include("Content-Length: 5\r\n")
+      end
+    end
+
+    context 'with a three-byte CJK character' do
+      let(:body) { '雪' }
+
+      it 'advertises three bytes for one character' do
+        expect(response.to_s).to include("Content-Length: 3\r\n")
+      end
+    end
+
+    context 'with a four-byte emoji' do
+      let(:body) { '😀' }
+
+      it 'advertises four bytes for one character' do
+        expect(response.to_s).to include("Content-Length: 4\r\n")
+      end
+    end
+
+    context 'with binary data' do
+      let(:body) { [0, 255].pack('C*') }
+
+      it 'preserves the existing byte length' do
+        expect(response.to_s).to include("Content-Length: 2\r\n")
+      end
+    end
+
+    context 'with gzip compression' do
+      before { response.compress = 'gzip' }
+
+      it 'counts the compressed bytes actually emitted' do
+        _, content = response.to_s.split("\r\n\r\n", 2)
+        expect(response.headers['Content-Length'].to_i).to eq(content.bytesize)
+      end
+    end
+
+    context 'with automatic length disabled' do
+      before do
+        response.auto_cl = false
+        response['Content-Length'] = 27
+      end
+
+      it 'preserves the explicit header' do
+        expect(response.to_s).to include("Content-Length: 27\r\n")
+      end
+    end
+  end
 end

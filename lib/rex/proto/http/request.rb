@@ -107,12 +107,61 @@ class Request < Packet
     self.relative_resource = resource
   end
 
-  # normalize out multiple slashes, directory traversal, and self referrential directories
+  NORMALIZE_PATTERN = %r{(?:/\./|/\w+/\.\./|//)}
+  private_constant :NORMALIZE_PATTERN
+
+  SPECIAL_SEGMENT_PATTERN = %r{(?=(/(?:\.{1,2})?/))}
+  private_constant :SPECIAL_SEGMENT_PATTERN
+
+  # Normalize repeated slashes, /./, and /word/../ in place.
+  #
+  # @param str [String] the request target to normalize
+  # @return [Integer] 0 if the string was unchanged, 1 if it was modified
   def normalize!(str)
-    i = 0
-    while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); i += 1; end
-    i
+    return 0 unless str.gsub!(NORMALIZE_PATTERN, '/')
+    return 1 unless str.match?(NORMALIZE_PATTERN)
+
+    result = str.byteslice(0, 0).b
+    # UTF-8 and binary strings cannot contain a slash byte inside a character.
+    # Track character boundaries for other non-ASCII multibyte encodings.
+    separators = [] unless str.ascii_only? || str.encoding == ::Encoding::UTF_8 || str.encoding == ::Encoding::BINARY
+    cursor = 0
+
+    str.scan(SPECIAL_SEGMENT_PATTERN) do
+      match = Regexp.last_match
+      start, finish = match.byteoffset(1)
+      segment = match[1]
+      append_normalized_chunk(result, str.byteslice(cursor, start - cursor), separators)
+
+      if segment == '/../'
+        slash = separators ? separators.last : result.rindex('/')
+        if slash && result.byteslice(slash + 1, result.bytesize - slash - 1).match?(/\A\w+\z/)
+          result.slice!(slash..)
+          separators.pop if separators
+        else
+          separators << result.bytesize if separators
+          result << '/..'
+        end
+      end
+
+      # The lookahead allows the trailing slash to begin another match.
+      cursor = finish - 1
+    end
+
+    result << str.byteslice(cursor, str.bytesize - cursor).b
+    str.replace(result.force_encoding(str.encoding))
+    1
   end
+
+  # Append a chunk while tracking slash character boundaries when needed.
+  def append_normalized_chunk(result, chunk, separators)
+    if separators
+      offset = result.bytesize
+      chunk.scan(%r{/}) { separators << offset + Regexp.last_match.byteoffset(0).first }
+    end
+    result << chunk.b
+  end
+  private :append_normalized_chunk
 
   # Puts a URI back together based on the URI parts
   def uri

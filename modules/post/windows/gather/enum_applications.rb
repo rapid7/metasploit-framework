@@ -51,6 +51,8 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    rows = []
+    rows_mutex = Mutex.new
     t = []
     until apps.empty?
 
@@ -58,7 +60,7 @@ class MetasploitModule < Msf::Post
         t << framework.threads.spawn("Module(#{refname})", false, apps.shift) do |k|
           dispnm = registry_getvaldata(k.to_s, 'DisplayName')
           dispversion = registry_getvaldata(k.to_s, 'DisplayVersion')
-          tbl << [dispnm, dispversion] if dispnm && dispversion
+          rows_mutex.synchronize { rows << [dispnm, dispversion] } if dispnm && dispversion
         rescue StandardError => e
           vprint_error(e.message)
         end
@@ -66,6 +68,7 @@ class MetasploitModule < Msf::Post
       t.map(&:join)
     end
 
+    rows.uniq.each { |row| tbl << row }
     results = tbl.to_s
 
     print_line("\n" + results + "\n")
