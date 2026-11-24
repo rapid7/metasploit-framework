@@ -60,7 +60,9 @@ class MetasploitModule < Msf::Auxiliary
     # Identify the server from the banner BEFORE reporting anything, so a
     # non-Apache or banner-suppressed host is never recorded as an Apache service.
     server = res.headers['Server'].to_s
-    matched_apache_version = server.match(%r{(?:\A|\s)Apache/(\d+\.\d+\.\d+)}i)
+    # Match the Apache product token outside any RFC 7230 Server comment (in
+    # parentheses), so "nginx/1.26.0 (via Apache/2.4.70)" is not taken as Apache.
+    matched_apache_version = server.gsub(/\([^)]*\)/, ' ').match(%r{(?:\A|\s)Apache/(\d+\.\d+\.\d+)}i)
     unless matched_apache_version
       vprint_status("not identified as Apache httpd (HTTP #{res.code}, Server: #{server.empty? ? '(none)' : server}); skipping")
       return
