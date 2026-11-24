@@ -12,7 +12,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.9.2)
+    addressable (2.10.0)
       public_suffix (>= 2.0.2, < 8.0)
     byebug (13.0.0)
       reline (>= 0.6.0)
@@ -109,4 +109,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.5.10
+   2.5.22
