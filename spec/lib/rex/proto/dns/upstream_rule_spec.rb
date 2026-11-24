@@ -59,6 +59,17 @@ RSpec.describe Rex::Proto::DNS::UpstreamRule do
     end
   end
 
+  describe '#initialize' do
+    it 'raises an ArgumentError for an invalid wildcard' do
+      expect(described_class.valid_wildcard?('not a valid wildcard')).to be_falsey
+      expect { described_class.new(wildcard: 'not a valid wildcard') }.to raise_error(::ArgumentError)
+    end
+
+    it 'does not raise for a valid wildcard' do
+      expect { described_class.new(wildcard: '*.metasploit.com') }.not_to raise_error
+    end
+  end
+
   context 'when using a wildcard condition' do
     let(:subject) { described_class.new(wildcard: '*.metasploit.com') }
 
