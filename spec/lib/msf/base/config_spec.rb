@@ -34,6 +34,20 @@ RSpec.describe Msf::Config do
     end
   end
 
+  it 'saves to an explicit configuration file without serializing the path option' do
+    alternate = "#{path}.alternate"
+    File.write(alternate, original)
+    options = { 'ConfigFile' => alternate, 'new' => { 'setting' => 'added' } }
+
+    expect(config.save(options)).to be_nil
+    expect(config.load(alternate)).to eq(
+      'existing' => { 'setting' => 'keep' },
+      'new' => { 'setting' => 'added' }
+    )
+    expect(File).not_to exist(path)
+    expect(options['ConfigFile']).to eq(alternate)
+  end
+
   it 'creates the configuration when it is missing' do
     expect(config.save('new' => { 'setting' => 'added' })).to be_nil
     expect(File.binread(path)).to eq("[new]\nsetting=added\n\n")
