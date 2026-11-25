@@ -33198,6 +33198,62 @@
     "needs_cleanup": false,
     "actions": []
   },
+  "auxiliary_scanner/http/apache_mod_http2_cve_2026_119618": {
+    "name": "Apache HTTP Server mod_http2 CVE-2026-119618 Version Scanner",
+    "fullname": "auxiliary/scanner/http/apache_mod_http2_cve_2026_119618",
+    "aliases": [],
+    "rank": 300,
+    "disclosure_date": "2026-11-11",
+    "type": "auxiliary",
+    "author": [
+      "Mayur Agnihotri (StraightArc)"
+    ],
+    "description": "Detection-only scanner for CVE-2026-119618, a race condition in Apache\n          httpd mod_http2 (versions 2.4.55 through 2.4.70) that leads to\n          unauthenticated remote code execution on servers with HTTP/2 enabled\n          (fixed in 2.4.71). This module reads the Server banner, checks whether the\n          reported Apache version falls in the affected range, and reports whether\n          HTTP/2 is advertised. It performs NO exploitation and sends only a benign\n          GET request.\n\n          Caveat: Linux distributions backport the fix WITHOUT changing the version\n          string, so a banner in range is a LEAD TO VERIFY, not proof of exposure.\n          mod_http2 can also be enabled without advertising h2 on a plaintext\n          response; confirm HTTP/2 on TLS via ALPN.",
+    "references": [
+      "CVE-2026-119618",
+      "URL-https://httpd.apache.org/security/vulnerabilities_24.html",
+      "URL-https://access.redhat.com/security/vulnerabilities/RHSB-2026-017",
+      "URL-https://nvd.nist.gov/vuln/detail/CVE-2026-119618"
+    ],
+    "platform": "",
+    "arch": "",
+    "rport": 80,
+    "autofilter_ports": [
+      80,
+      8080,
+      443,
+      8000,
+      8888,
+      8880,
+      8008,
+      3000,
+      8443
+    ],
+    "autofilter_services": [
+      "http",
+      "https"
+    ],
+    "targets": null,
+    "mod_time": "2026-11-24 18:15:17 +0000",
+    "path": "/modules/auxiliary/scanner/http/apache_mod_http2_cve_2026_119618.rb",
+    "is_install_path": true,
+    "ref_name": "scanner/http/apache_mod_http2_cve_2026_119618",
+    "check": false,
+    "post_auth": false,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ],
+      "Reliability": []
+    },
+    "session_types": false,
+    "needs_cleanup": false,
+    "actions": []
+  },
   "auxiliary_scanner/http/apache_nifi_login": {
     "name": "Apache NiFi Login Scanner",
     "fullname": "auxiliary/scanner/http/apache_nifi_login",
