@@ -61,10 +61,10 @@ class Job
     self.start_time = ::Time.now
     if (async)
       worker = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
-        # Deschedule our thread momentarily
-        ::IO.select(nil, nil, nil, 0.01)
-
         begin
+          # Deschedule our thread momentarily
+          ::IO.select(nil, nil, nil, 0.01)
+
           should_run = cleanup_mutex.synchronize do
             unless cleaned_up || stop_requested
               # The worker can run before spawn returns to its caller.

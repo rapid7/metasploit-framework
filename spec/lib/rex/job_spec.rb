@@ -124,6 +124,25 @@ RSpec.describe Rex::Job do
       end
     end
 
+    context 'when interrupted before worker admission' do
+      it 'cleans up and removes the interrupted worker without running the job' do
+        allow(IO).to receive(:select).and_call_original
+        allow(IO).to receive(:select).with(nil, nil, nil, 0.01) do
+          entered << true
+          release.pop
+        end
+
+        worker = job.start(true)
+        await(entered)
+        worker.kill
+        join_thread(worker)
+
+        expect(run_calls).to be_empty
+        expect(completed.size).to eq(1)
+        expect(container).to be_empty
+      end
+    end
+
     context 'when stopped before the factory starts the worker' do
       let(:factory_entered) { Queue.new }
       let(:factory_release) { Queue.new }
