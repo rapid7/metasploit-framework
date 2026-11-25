@@ -29156,7 +29156,7 @@
       "https"
     ],
     "targets": null,
-    "mod_time": "2026-04-22 11:52:36 +0000",
+    "mod_time": "2026-11-23 22:54:41 +0000",
     "path": "/modules/auxiliary/gather/suite_crm_export_sqli.rb",
     "is_install_path": true,
     "ref_name": "gather/suite_crm_export_sqli",
@@ -55912,7 +55912,7 @@
     "autofilter_ports": [],
     "autofilter_services": [],
     "targets": null,
-    "mod_time": "2026-10-29 10:06:54 +0000",
+    "mod_time": "2026-11-20 18:10:05 +0000",
     "path": "/modules/auxiliary/scanner/rservices/rsh_login.rb",
     "is_install_path": true,
     "ref_name": "scanner/rservices/rsh_login",
