@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         @@credentials_skipped[fq_user] = fu
 
       when :connection_error # Report an error, skip this cred, but don't abort.
-        vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}' from '#{fu}'"
+        vprint_error "Connection error, skipping '#{u}' from '#{fu}'"
       end
       @@credentials_tried[fq_user] = fu
     end
