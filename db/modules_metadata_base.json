@@ -334443,7 +334443,7 @@
     "autofilter_ports": null,
     "autofilter_services": null,
     "targets": null,
-    "mod_time": "2023-05-25 12:45:30 +0000",
+    "mod_time": "2026-11-26 18:10:57 +0000",
     "path": "/modules/post/windows/manage/dell_memory_protect.rb",
     "is_install_path": true,
     "ref_name": "windows/manage/dell_memory_protect",
