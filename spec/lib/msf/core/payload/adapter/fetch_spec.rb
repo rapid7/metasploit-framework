@@ -274,4 +274,47 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
       expect(cmd).not_to include('-sko')
     end
   end
+
+  # Regression coverage for the FETCH_PIPE curl path (Msf::Payload::Adapter::
+  # Fetch::Pipe#_generate_curl_pipe), which used to hardcode `curl -sk`
+  # (-k disables certificate verification) and so ignored FETCH_CHECK_CERT even
+  # though the non-pipe curl path honored it.
+  describe '#_generate_curl_pipe HTTPS certificate verification' do
+    let(:harness_class) do
+      Class.new do
+        include Msf::Payload::Adapter::Fetch::Pipe
+
+        def initialize
+          @datastore = { 'FETCH_CHECK_CERT' => false }
+        end
+        attr_accessor :datastore
+
+        def fetch_protocol
+          'HTTPS'
+        end
+
+        def windows?
+          false
+        end
+
+        def srvnetloc
+          'attacker.example:8080'
+        end
+      end
+    end
+
+    subject(:harness) { harness_class.new }
+
+    it 'keeps -k (insecure) when FETCH_CHECK_CERT is false' do
+      cmd = harness.send(:_generate_curl_pipe, 'pipe_uri')
+      expect(cmd).to include('curl -sk https://')
+    end
+
+    it 'drops -k when FETCH_CHECK_CERT is true' do
+      harness.datastore['FETCH_CHECK_CERT'] = true
+      cmd = harness.send(:_generate_curl_pipe, 'pipe_uri')
+      expect(cmd).to include('curl -s https://')
+      expect(cmd).not_to include('-sk')
+    end
+  end
 end
