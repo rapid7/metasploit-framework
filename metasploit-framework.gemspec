@@ -5,12 +5,12 @@
 if ENV['MSF_ROOT']
   lib = File.realpath(File.expand_path('lib', ENV['MSF_ROOT']))
   $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-  require 'metasploit/framework/version'
+  require 'metasploit/framework/gem_version'
   require 'metasploit/framework/rails_version_constraint'
   require 'msf/util/helper'
 else
   # XXX: Use explicit calls to require_relative to ensure that static analysis tools such as dependabot work
-  require_relative 'lib/metasploit/framework/version'
+  require_relative 'lib/metasploit/framework/gem_version'
   require_relative 'lib/metasploit/framework/rails_version_constraint'
   require_relative 'lib/msf/util/helper'
 end
@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 3.2'
+  spec.required_ruby_version = '>= 3.3'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -150,7 +150,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb', '~> 3.3.19'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
-  spec.add_runtime_dependency 'date', '3.4.1' # Temporarily pinned until 3.5 can be tested
+  # Support the Date versions bundled with newer Rubies.
+  spec.add_runtime_dependency 'date', '>= 3.4.1'
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'net-sftp'
@@ -260,9 +261,9 @@ Gem::Specification.new do |spec|
   # Needed for generic in-memory cachine
   spec.add_runtime_dependency 'lru_redux'
 
-  # Pinned on 3.1.1 as it is the version supported by our Ruby 3.3.8 dependency to avoid this issue https://github.com/rubygems/rubygems/issues/7657#issuecomment-2521083323
-  # When Ruby ships with `gem --version` 3.6.0 or higher by default this can be removed
-  spec.add_runtime_dependency 'stringio', '3.1.1'
+  # Previously pinned to 3.1.1 for RubyGems/Psych activation: https://github.com/ruby/rubygems/issues/7657#issuecomment-2521083323
+  # Ruby 4/preview require the I/O mode API fix: https://github.com/ruby/stringio/pull/129
+  spec.add_runtime_dependency 'stringio', '>= 3.1.7'
 
   # Needed for caching validation
   spec.add_runtime_dependency 'parallel'
@@ -280,6 +281,7 @@ Gem::Specification.new do |spec|
     abbrev
     base64
     benchmark
+    cgi
     csv
     drb
     fiddle

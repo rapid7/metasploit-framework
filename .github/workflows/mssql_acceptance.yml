@@ -69,7 +69,7 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - '3.2'
+          - '3.3'
         os:
           - ubuntu-latest
         docker_image:

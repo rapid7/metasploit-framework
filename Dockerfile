@@ -9,7 +9,7 @@ ENV BUNDLE_IGNORE_MESSAGES="true"
 WORKDIR $APP_HOME
 
 COPY Gemfile* metasploit-framework.gemspec Rakefile $APP_HOME/
-COPY lib/metasploit/framework/version.rb $APP_HOME/lib/metasploit/framework/version.rb
+COPY lib/metasploit/framework/gem_version.rb $APP_HOME/lib/metasploit/framework/gem_version.rb
 COPY lib/metasploit/framework/rails_version_constraint.rb $APP_HOME/lib/metasploit/framework/rails_version_constraint.rb
 COPY lib/msf/util/helper.rb $APP_HOME/lib/msf/util/helper.rb
 

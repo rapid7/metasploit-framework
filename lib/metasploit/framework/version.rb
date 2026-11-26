@@ -1,3 +1,4 @@
+require_relative 'gem_version'
 require 'rbconfig'
 require 'yaml'
 require 'open3'
@@ -32,13 +33,12 @@ module Metasploit
         end
       end
 
-      VERSION = "6.5.13"
+      VERSION = GEM_VERSION
       MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
       PRERELEASE = 'dev'
       HASH = get_hash
     end
 
     VERSION = "#{Version::VERSION}-#{Version::PRERELEASE}#{Version::HASH}"
-    GEM_VERSION = "#{Version::VERSION}"
   end
 end
