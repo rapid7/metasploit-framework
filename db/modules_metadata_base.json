@@ -104577,6 +104577,52 @@
     "session_types": false,
     "needs_cleanup": null
   },
+  "exploit_linux/ssh/openssh_musl_crypt_bypass": {
+    "name": "OpenSSH musl-libc crypt() Authentication Bypass",
+    "fullname": "exploit/linux/ssh/openssh_musl_crypt_bypass",
+    "aliases": [],
+    "rank": 600,
+    "disclosure_date": "2026-11-05",
+    "type": "exploit",
+    "author": [
+      "Özgün Kültekin",
+      "Emanuele Cervelli"
+    ],
+    "description": "On musl-libc based systems (Alpine Linux, OpenWrt, Buildroot, etc.),\n          OpenSSH password authentication can be bypassed for accounts whose\n          /etc/shadow password field is \"*\" (locked).\n\n          musl's crypt() implementation returns \"*\" when given a password longer\n          than 256 bytes. sshd compares this return value directly against the\n          shadow field, which is also \"*\", so authentication succeeds.\n\n          The exploit requires two password attempts on the same SSH connection:\n          the first (any short password) primes sshd's internal fake-salt cache\n          with a real $5$/$6$ hash from another account on the system, and the\n          second (>256 byte) password triggers the musl crypt() bypass.\n\n          All five conditions must be true:\n          1. OpenSSH built against musl (not glibc)\n          2. sshd built without PAM, or UsePAM no (Alpine default)\n          3. PasswordAuthentication yes (OpenSSH default)\n          4. Target account has \"*\" in /etc/shadow password field\n          5. At least one other account has a real $5$ or $6$ hash\n\n          musl has returned \"*\" on overlength passwords since 2012. sshd started\n          borrowing other accounts' salts in 2016. The bug is exploitable on\n          OpenSSH as far back as 7.5p1 (musl 1.1.16, 2017).\n\n          Fixed in OpenSSH 10.6p2 (2026-11-05).",
+    "references": [
+      "CVE-2026-123158",
+      "URL-https://github.com/oz9un/sshole",
+      "URL-https://sshhole.com"
+    ],
+    "platform": "Unix",
+    "arch": "cmd",
+    "rport": 22,
+    "autofilter_ports": [],
+    "autofilter_services": [],
+    "targets": [
+      "Unix Command"
+    ],
+    "mod_time": "2026-11-23 20:10:40 +0000",
+    "path": "/modules/exploits/linux/ssh/openssh_musl_crypt_bypass.rb",
+    "is_install_path": true,
+    "ref_name": "linux/ssh/openssh_musl_crypt_bypass",
+    "check": true,
+    "post_auth": true,
+    "default_credential": false,
+    "notes": {
+      "Stability": [
+        "crash-safe"
+      ],
+      "Reliability": [
+        "repeatable-session"
+      ],
+      "SideEffects": [
+        "ioc-in-logs"
+      ]
+    },
+    "session_types": false,
+    "needs_cleanup": null
+  },
   "exploit_linux/ssh/quantum_dxi_known_privkey": {
     "name": "Quantum DXi V1000 SSH Private Key Exposure",
     "fullname": "exploit/linux/ssh/quantum_dxi_known_privkey",
