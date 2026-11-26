@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptString.new('DRIVER_PATH', [true, 'The path containing the driver inf, cat, and sys (and coinstaller)', '']),
       OptInt.new('PID', [true, 'The targetted process. If set to 0 the module will automatically target lsass.exe', '0']),
-      OptBool.new('ENABLE_MEM_PROTECT', [true, 'Enable or disable memory protection', 'false'])
+      OptBool.new('ENABLE_MEM_PROTECT', [true, 'Enable or disable memory protection', false])
     ])
   end
 
