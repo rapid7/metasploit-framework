@@ -42,6 +42,8 @@ RSpec.describe 'MySQL Login Scanner' do
       message = 'Unsupported target version of MySQL detected. Skipping.'
       output = double('output', prompting?: false)
       allow(mod).to receive(:user_output).and_return(output)
+      # Isolate prefix formatting from shared brute-force progress counters.
+      allow(mod).to receive(:tried_over_total).and_return(nil)
 
       expect(output).to receive(:print_error)
         .with("#{host}:#{port}        - #{message}")
