@@ -236,7 +236,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       begin
         console.run_single("load #{extension}")
         # console.run_single('unhook_pe') if extension == 'unhook'
-        session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
+        # Compare case-insensitively: auto_load_extensions keeps the operator's
+        # spelling (e.g. "Stdapi"), and the load command lowercases it anyway,
+        # so a case-sensitive check here would skip AutoSystemInfo collection.
+        session.load_session_info if extension.casecmp?('stdapi') && datastore['AutoSystemInfo']
       rescue => e
         print_warning("Failed loading extension #{extension}")
       end

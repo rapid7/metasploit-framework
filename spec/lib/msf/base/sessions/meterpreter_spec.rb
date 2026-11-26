@@ -186,4 +186,41 @@ RSpec.describe Msf::Sessions::Meterpreter do
     end
   end
 
+  describe '#bootstrap AutoSystemInfo collection' do
+    let(:console) { double('console') }
+    let(:core) { double('core') }
+
+    before do
+      allow(subject).to receive(:platform).and_return('windows')
+      allow(subject).to receive(:init_ui)
+      allow(subject).to receive(:user_input)
+      allow(subject).to receive(:user_output)
+      allow(subject).to receive(:comm_timeout).and_return(0)
+      allow(subject).to receive(:session_guid).and_return('A' * 16)
+      allow(subject).to receive(:commands).and_return([])
+      allow(subject).to receive(:load_embedded_extensions)
+      allow(subject).to receive(:console).and_return(console)
+      allow(console).to receive(:disable_output).and_return(false)
+      allow(console).to receive(:disable_output=)
+      allow(console).to receive(:run_single)
+      allow(core).to receive(:negotiate_tlv_encryption).and_return({ weak_key?: false })
+      allow(core).to receive(:get_loaded_extension_commands).and_return([])
+      allow(subject).to receive(:core).and_return(core)
+    end
+
+    # Regression: the dedup in #auto_load_extensions keeps the operator's
+    # spelling ("Stdapi"), so the stdapi load-site check must be
+    # case-insensitive or AutoSystemInfo silently stops collecting system info.
+    it 'collects session info even when the surviving stdapi name is cased differently' do
+      datastore = {
+        'AutoLoadExtensions' => 'Stdapi',
+        'AutoLoadStdapi' => true,
+        'AutoSystemInfo' => true
+      }
+
+      expect(subject).to receive(:load_session_info).once
+      subject.bootstrap(datastore)
+    end
+  end
+
 end
