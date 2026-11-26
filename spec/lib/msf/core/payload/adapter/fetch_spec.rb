@@ -204,9 +204,9 @@ RSpec.describe Msf::Payload::Adapter::Fetch do
     context 'when FETCH_CHECK_CERT is not set' do
       subject(:harness) { harness_class.new(check_cert: false) }
 
-      it 'fails and tells the operator to enable FETCH_CHECK_CERT' do
+      it 'fails and points the operator at a resolution (enable cert check, or use HTTP/CURL)' do
         expect { harness.send(:_generate_certutil_command, 'payload_uri') }
-          .to raise_error(Msf::Exploit::Failed, /FETCH_CHECK_CERT must be true/)
+          .to raise_error(Msf::Exploit::Failed, /FETCH_CHECK_CERT must be true.*(?:HTTP|CURL)/m)
       end
     end
 

