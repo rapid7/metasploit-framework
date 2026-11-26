@@ -26,9 +26,9 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-          - '3.2'
           - '3.3'
           - '3.4'
+          - '4.0'
         os:
           - ubuntu-22.04
           - ubuntu-24.04
@@ -36,9 +36,13 @@ jobs:
           - windows-2022
           - windows-2025
           - macos-15-intel
+        include:
+          # The 3.5 preview has no prebuilt Ruby for newer runners.
+          - { os: ubuntu-24.04, ruby: '3.5.0-preview1' }
 
     env:
       RAILS_ENV: test
+      BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
 
     name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
     steps:
@@ -64,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
