@@ -13,27 +13,137 @@ reviews:
   # Keep generated prose in the bot's comment so the contributor's description stays clear.
   high_level_summary_in_walkthrough: true
   poem: false
-  path_instructions:
-    - path: "modules/**/*.rb"
-      instructions: >-
-        Apply AGENTS.md's Reuse Before Implementing guidance on separating
-        module workflow from supporting capabilities. Base extraction
-        suggestions on clear responsibilities and opportunities for reuse.
-        A library may initially have one caller.
-    - path: "spec/**/*.rb"
-      instructions: >-
-        For new or updated RSpec tests, follow https://www.betterspecs.org/
-        and AGENTS.md's Testing guidance. Every example must produce a meaningful,
-        human-readable description. RSpec-generated descriptions are acceptable
-        when they clearly describe the expected behavior; otherwise, provide an
-        explicit description. Apply this to library, module, and acceptance specs.
-        Keep examples focused and deterministic and cover relevant valid,
-        invalid, and boundary cases. Follow the existing test requirements;
-        do not require module or application tests unless requested.
+  auto_title_instructions: "Describe the actual change and affected component; no fixed length or prefix is required."
+  review_details: true
   auto_review:
     enabled: true
     auto_incremental_review: true
     drafts: false
+  # This affects the security architecture risk rating, not individual finding severity.
+  security_risk_instructions: >-
+    Metasploit is an offensive-security framework. Exploit and payload modules intentionally
+    attack targets selected by the operator; this behavior alone should not raise the risk
+    rating. Consider unintended effects on the operator, target, or third parties, including
+    callbacks to unauthorized hosts, credential exfiltration, supply-chain changes, and
+    persistence outside the module's stated workflow.
+
+    Treat data returned by a target as untrusted. Raise the rating for unsafe deserialization
+    or execution of responses, downloaded files, or session replies on the operator's machine,
+    and for local file writes using unsanitized target-supplied paths. Examples include
+    Marshal.load or unsafe YAML.load on response data, and eval or shell commands built from
+    target-returned content. If an effect's relationship to the declared workflow is unclear,
+    flag it for review.
+  merge_risk_instructions: >-
+    Weight risk by blast radius. Higher risk: changes to lib/msf/core or lib/rex shared by
+    many modules, mixin include/prepend ordering changes, Gemfile/*.gemspec dependency
+    changes, and .github/workflows/** changes. Lower risk: a single module confined to its
+    own file plus its matching spec and documentation/modules/ entry. Documentation-only
+    changes are generally low risk. Assess data/ wordlists and templates by their consumers
+    and impact; shared executable or payload templates can affect many modules.
+  slop_detection:
+    enabled: true
+    label: "flagged-by-coderabbit"
+  # Apply AGENTS.md alongside these path-specific review instructions.
+  path_instructions:
+    - path: "modules/**/*.rb"
+      instructions: >-
+        Prioritize check methods: ensure CheckCode values match the evidence, include reasons,
+        and do not identify unrelated products as vulnerable. Also review metadata, reuse,
+        error handling, output, options, and mixin ordering. Check Notes, exploit Rank and
+        DisclosureDate, applicable references, and author role comments. Look for existing
+        helpers before suggesting new implementations. Flag swallowed exceptions and
+        inappropriate Failure values. Check print capitalization, verbosity, and duplicate
+        host:port prefixes supplied by Tcp/scanner mixins. Check option types and avoid
+        re-registering a mixin's option solely to change its default. When AutoCheck is used,
+        it must be prepended after the includes.
+
+        Apply AGENTS.md's Reuse Before Implementing guidance on separating module workflow from
+        supporting capabilities. Base extraction suggestions on clear responsibilities and
+        opportunities for reuse. A library may initially have one caller.
+
+        When reviewing generated code, distinguish intentional exploitation of the target from
+        unintended injection. Flag a concrete case where interpolated input changes execution
+        beyond the intended workflow; ask for clarification when the impact depends on an
+        unverified assumption.
+
+        Treat module option names as a public compatibility surface. When an option is renamed,
+        check whether existing configurations and automation can still use the old name; prefer a
+        compatible alias or migration path when they cannot.
+
+        When a module writes payload files, check that it registers created files with
+        FileDropper for cleanup. Consider the target's available execution and file-write
+        capabilities when reviewing payload delivery.
+
+        Review newly introduced `::Timeout.timeout` or `Timeout.timeout` calls for asynchronous
+        interruption of a C extension, a held Mutex, or a multi-step file or socket write. When
+        interruption could leave state inconsistent, suggest a suitable narrower primitive such
+        as a socket read timeout, `Queue#deq(timeout:)`, or `IO.select`. Do not flag unchanged
+        Timeout calls solely for using Timeout. See
+        https://adamhooper.medium.com/in-ruby-dont-use-timeout-77d9d4e5a001.
+
+        A socket opened directly (`Rex::Socket::Tcp.create`, `Rex::Socket::Udp.create`,
+        `::TCPSocket.new`/`.open`, a raw `Socket.new`) must be closed on success, error, and
+        early-return paths. Where the module provides socket tracking, register it with
+        `add_socket` and remove it with `remove_socket` when closed. Prefer
+        `connect`/`disconnect` or `connect_udp`/`disconnect_udp` when the relevant mixin is
+        available; those methods handle registration. Post modules do not generally provide
+        `add_socket`, so use explicit cleanup for their sockets. Scanner `run_host` replicants
+        call cleanup after each host, so a registered socket need not be closed in `run_host`
+        solely to prevent accumulation across hosts. If the module overrides `cleanup`, confirm
+        it calls `super` so parent and mixin cleanup still runs.
+
+        For sleep-and-recheck loops waiting for an eventual condition, suggest
+        `Msf::Exploit::Retry#retry_until_truthy` (exponential backoff) or `#poll_until_truthy`
+        (fixed interval) as a reuse opportunity. Examples include waiting for a session, file,
+        response, or service. Do not apply this suggestion to bounded retries on exceptions for
+        a single protocol operation.
+
+        Check that platform- and session-specific APIs work for every declared Platform, Arch,
+        and SessionTypes value. Flag a concrete incompatibility; ask for clarification when
+        compatibility cannot be established from the available code or evidence.
+    - path: "lib/**/*.rb"
+      instructions: >-
+        New library files need `# frozen_string_literal: true`. Use specific exception classes
+        (Rex::RuntimeError, Rex::ConnectionError, ArgumentError, etc.) instead of a bare string
+        raise, and avoid bare `rescue` or `rescue Exception`. Public methods need YARD @param/@return
+        tags. Binary/protocol parsers should link the spec or RFC they implement. Flag reuse
+        opportunities the same as modules/ — check lib/msf, lib/rex, and lib/metasploit for an
+        existing helper before accepting a new one that duplicates it.
+
+        Review newly introduced `::Timeout.timeout` calls for asynchronous interruption of a
+        held Mutex or a non-atomic multi-step operation. Suggest a suitable narrower primitive
+        when interruption could leave state inconsistent. Do not flag unchanged calls solely for
+        using Timeout. See https://adamhooper.medium.com/in-ruby-dont-use-timeout-77d9d4e5a001.
+
+        Code that opens a socket or file directly should close it on every exit path (success,
+        error, `ensure`) rather than relying on the caller to know internal state, and should
+        expose a `close`/`disconnect` method mirroring whatever it opened. When operating inside
+        an exploit module context, register the socket with `add_socket` and remove it with
+        `remove_socket` the way the Tcp/Udp mixins do, instead of leaving it for the module to
+        track separately.
+
+        The same applies to a hand-rolled sleep-and-recheck loop waiting on an eventually-
+        consistent condition — flag it as a missed opportunity to use
+        `Msf::Exploit::Retry#retry_until_truthy`/`#poll_until_truthy` (or extend them) rather than
+        duplicating timeout/backoff logic locally.
+    - path: "documentation/modules/**/*.md"
+      instructions: >-
+        Must include Vulnerable Application (affected/fixed versions and setup), Verification
+        Steps (numbered, with expected outcomes), and Scenarios (real console output, not invented
+        — this cannot be assessed from the diff alone, so only flag a Scenario if it's obviously
+        templated/placeholder text or claims a result the module's own check/exploit logic
+        couldn't produce). Document-only specialist options under "###"; "No specific options" when
+        none apply.
+    - path: "spec/**/*.rb"
+      instructions: >-
+        For new or updated RSpec tests, apply https://www.betterspecs.org/ and AGENTS.md's
+        Testing guidance to library, module, and acceptance specs. Each example needs a meaningful
+        description; an RSpec-generated description is acceptable when it clearly states the
+        expected behavior. Keep examples deterministic and use TEST-NET-1 (192.0.2.0/24) for
+        example addresses. Prefer one expectation per example, cover relevant valid, invalid, and
+        boundary cases, and use described_class/let/let!/before consistently with nearby specs.
+        Follow the existing test requirements; do not require module or application tests unless
+        requested.
   pre_merge_checks:
     docstrings:
       mode: "off"
@@ -66,3 +176,91 @@ reviews:
           author testing from separately supplied results/evidence. If required
           linked evidence is inaccessible, return Inconclusive and name it.
           Assess supplied evidence; do not execute code or invent results.
+      - name: "check() evidence matches CheckCode"
+        mode: warning
+        instructions: >-
+          For a new or modified `check` method in modules/: CheckCode::Vulnerable requires hard
+          evidence from actually using the bug (command output, a timed sleep, reading a file) —
+          not passive detection, and never denial of service. CheckCode::Appears is for passive
+          version/banner/resource detection. Every returned CheckCode needs a human-readable
+          reason, not a bare constant or empty call. Flag a mismatch between the evidence in the
+          method and its helpers and the CheckCode returned. Return Inconclusive if the diff does
+          not add or change a check method.
+      - name: "Module metadata completeness"
+        mode: warning
+        instructions: >-
+          Pass when a new or modified exploit, auxiliary, or post module includes a
+          complete Notes hash (Stability, SideEffects, Reliability values from
+          lib/msf/core/constants.rb), an exploit-only Rank on exploits (never on
+          auxiliary/post/login-scanner modules), DisclosureDate on exploits, and
+          authoritative advisory/CVE references when applicable to the module's
+          vulnerability. Modules that do not address a vulnerability do not need a
+          CVE or advisory. Authors must carry inline role
+          comments distinguishing discovery, research, PoC, and module
+          implementation. Fail and name the missing field when a required item is
+          absent, a placeholder/stub value remains, or exploit-only fields appear on
+          a non-exploit module. Return Inconclusive when the PR does not add or
+          modify module metadata.
+      - name: "Module documentation present"
+        mode: warning
+        instructions: >-
+          Pass when a PR adding a new file under modules/ also adds a matching
+          Markdown file under documentation/modules/ following
+          module_doc_template.md, with Vulnerable Application (affected/fixed
+          versions and setup), Verification Steps (numbered, with expected
+          outcomes), and Scenarios (human-written console output, not invented)
+          sections populated. Fail and name the missing file or section when a new
+          module lacks its doc or a required section is empty/templated. Return
+          Inconclusive for PRs that only modify existing modules without adding a
+          new one.
+      - name: "Mixin ordering and AutoCheck placement"
+        mode: warning
+        instructions: >-
+          Pass when a module's includes/prepends follow protocol mixins, then
+          utility/feature mixins, then reporting mixins, then post mixins. When
+          AutoCheck is used, it must be prepended last and never included. Fail
+          and cite the offending line when AutoCheck is included
+          rather than prepended, prepended before other mixins, or when check logic
+          is invoked manually in exploit/run instead of relying on AutoCheck. Return
+          Inconclusive when the PR changes neither mixin includes/prepends nor a
+          module's exploit/run method.
+      - name: "Single cohesive change per PR"
+        mode: warning
+        instructions: >-
+          Pass when the PR's file changes represent one module, one bug fix, or one
+          cohesive library change. Fail and list the unrelated items when the diff
+          bundles more than one unrelated module, or mixes an unrelated style sweep,
+          dependency bump, or unrelated refactor into a bug-fix PR. Accept multiple
+          files that are all required by a single module/fix (module + its spec +
+          its documentation) as one cohesive change.
+      # Apply this check to all changed files, including exploit and payload modules.
+      - name: "No unintended security or supply-chain risks"
+        mode: warning
+        instructions: >-
+          Scan every changed file, including modules/, lib/, plugins/, tools/,
+          scripts/, Rakefile, Gemfile/*.gemspec, and .github/** — not only
+          library code. Flag unintended effects on the reviewer/operator, the
+          target, or third parties. Specifically: network calls to a
+          hardcoded host/IP/domain not derived from a datastore option (RHOST,
+          SRVHOST, LHOST, etc.); code that reads, copies, or transmits local
+          credentials, SSH keys, cloud tokens, shell history, or other
+          operator-machine files; target credentials sent to a destination outside
+          the declared workflow; new Gemfile/gemspec dependencies pointing at an
+          unofficial source, a fork, or an unpinned git ref; CI/workflow changes
+          that exfiltrate secrets or execute untrusted input; obfuscated/encoded
+          code (eval, base64, Marshal.load, send with a non-literal method name)
+          whose purpose isn't tied to building a payload for the declared target;
+          and persistence/backdoor mechanisms unrelated to the module's stated
+          exploit workflow. Separately, and regardless of exploit-workflow intent:
+          flag unsafe handling of data received from the target (an HTTP
+          response, a downloaded file, session/loot data) — Marshal.load or
+          YAML.load (non-safe_load) on response content, eval or a local shell
+          command (system/backticks/Open3) built from target-returned data, or
+          writing a file locally using a target-supplied name/path without
+          sanitizing it. Treat data from the target as untrusted even when the
+          surrounding code is part of the intended exploit workflow.
+          Exploit/payload code that intentionally acts against the module's
+          declared target (RHOST/session) is expected and not itself a finding.
+          Assess whether effects in either direction of data flow are consistent
+          with that workflow. Fail and quote the exact code when unintended
+          security-impacting or supply-chain-risk behavior is found.
