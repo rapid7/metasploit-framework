@@ -40,8 +40,31 @@ def merge_error_message
   puts "-" * 72
 end
 
+def docs_merge_error_message
+  msg = []
+  msg << "[*] This merge contains documentation failing msftidy_docs.rb"
+  msg << "[*] Please fix this if you intend to publish these"
+  msg << "[*] docs to a popular metasploit-framework repo"
+  puts "-" * 72
+  puts msg.join("\n")
+  puts "-" * 72
+end
+
 valid = true # Presume validity
 files_to_check = []
+doc_files_to_check = []
+
+# MSFTIDY_TARGET lets CI run the module and documentation checks as
+# separate jobs. Unset (the default, e.g. local hooks) checks both.
+#   MSFTIDY_TARGET=modules  only run msftidy.rb
+#   MSFTIDY_TARGET=docs     only run msftidy_docs.rb
+target = ENV.fetch('MSFTIDY_TARGET', 'all')
+unless %w[all modules docs].include?(target)
+  puts "[!] Invalid MSFTIDY_TARGET '#{target}', expected one of: all, modules, docs"
+  exit(0x01)
+end
+check_modules = %w[all modules].include?(target)
+check_docs = %w[all docs].include?(target)
 
 # Who called us? If it's a post-merge check things operate a little
 # differently.
@@ -58,8 +81,12 @@ end
 
 if base_caller == :post_merge
   changed_files = run('git diff --name-only HEAD^ HEAD')
+  # Docs are only checked when newly added, existing docs still have a lot
+  # of pre-existing msftidy_docs.rb violations that are being cleaned up separately
+  added_files = run('git diff --name-only --diff-filter=A HEAD^ HEAD')
 else
   changed_files = run('git diff --cached --name-only')
+  added_files = run('git diff --cached --name-only --diff-filter=A')
 end
 
 changed_files.each_line do |fname|
@@ -70,7 +97,17 @@ changed_files.each_line do |fname|
   files_to_check << fname
 end
 
-if files_to_check.empty?
+added_files.each_line do |fname|
+  fname.strip!
+  next unless File.exist?(fname)
+  next unless File.file?(fname)
+  next unless fname =~ /^documentation\/.+\.md/
+  doc_files_to_check << fname
+end
+
+if !check_modules
+  puts "--- Skipping Metasploit modules (MSFTIDY_TARGET=#{target}) ---"
+elsif files_to_check.empty?
   puts "--- No Metasploit modules to check ---"
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
@@ -86,12 +123,34 @@ else
   puts "-" * 72
 end
 
-unless valid
+docs_valid = true # Presume validity
+
+if !check_docs
+  puts "--- Skipping documentation (MSFTIDY_TARGET=#{target}) ---"
+elsif doc_files_to_check.empty?
+  puts "--- No new documentation to check ---"
+else
+  puts "--- Checking new documentation with tools/dev/msftidy_docs.rb ---"
+
+  command = %w[bundle exec ruby ./tools/dev/msftidy_docs.rb] + doc_files_to_check
+  msftidy_docs_output, status = ::Open3.capture2(*command)
+  docs_valid = false unless status.success?
+  puts "msftidy_docs check passed" if msftidy_docs_output.empty?
+  msftidy_docs_output.each_line do |line|
+    puts line
+  end
+
+  puts "-" * 72
+end
+
+unless valid && docs_valid
   if base_caller == :post_merge
-    puts merge_error_message
+    puts merge_error_message unless valid
+    puts docs_merge_error_message unless docs_valid
     exit(0x10)
   else
-    puts "[!] msftidy.rb objected, aborting commit"
+    puts "[!] msftidy.rb objected, aborting commit" unless valid
+    puts "[!] msftidy_docs.rb objected, aborting commit" unless docs_valid
     puts "[!] To bypass this check use: git commit --no-verify"
     puts "-" * 72
     exit(0x01)
