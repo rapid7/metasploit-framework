@@ -91,8 +91,8 @@ RSpec.describe 'cmd/windows/https/x64' do
       expect(subject.options['FETCH_COMMAND'].valid?('TFTP')).to be(false)
     end
 
-    it 'rejects CERTUTIL as an invalid value' do
-      expect(subject.options['FETCH_COMMAND'].valid?('CERTUTIL')).to be(false)
+    it 'accepts CERTUTIL as a valid value' do
+      expect(subject.options['FETCH_COMMAND'].valid?('CERTUTIL')).to be(true)
     end
 
     it 'rejects WGET as an invalid value' do
@@ -136,7 +136,6 @@ RSpec.describe 'cmd/windows/https/x64' do
         expect(cmd).to include(' del ')
       end
     end
-
   end
 
   describe '#fetch_protocol' do

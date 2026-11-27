@@ -24,8 +24,7 @@ module MetasploitModule
     deregister_options('FETCH_COMMAND')
     register_options(
       [
-        # Certutil does not support insecure mode
-        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CURL', %w[CURL]])
+        Msf::OptEnum.new('FETCH_COMMAND', [true, 'Command to fetch payload', 'CURL', %w[CURL CERTUTIL]])
       ]
     )
   end
