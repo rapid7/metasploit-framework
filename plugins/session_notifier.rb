@@ -153,6 +153,9 @@ module Msf
       def cmd_save_session_notifier_settings(*_args)
         save_settings_to_config
         print_status('Session Notifier settings saved in config file.')
+      rescue SystemCallError, IOError => e
+        print_error("Failed to save Session Notifier settings: #{e}")
+        false
       end
 
       def cmd_start_session_notifier(*_args)
@@ -209,15 +212,15 @@ module Msf
 
       def save_settings_to_config
         config_file = Msf::Config.config_file
-        ini = Rex::Parser::Ini.new(config_file)
+        ini = Rex::Parser::Ini.new(config_file, strict: true)
         ini.add_group(name) unless ini[name]
-        ini[name]['smtp_address'] = smtp_address
-        ini[name]['smtp_port'] = smtp_port
-        ini[name]['smtp_username'] = smtp_username
-        ini[name]['smtp_password'] = smtp_password
-        ini[name]['smtp_from'] = smtp_from
-        ini[name]['sms_number'] = sms_number
-        ini[name]['sms_carrier'] = sms_carrier
+        ini[name]['smtp_address'] = smtp_address if instance_variable_defined?(:@smtp_address)
+        ini[name]['smtp_port'] = smtp_port if instance_variable_defined?(:@smtp_port)
+        ini[name]['smtp_username'] = smtp_username if instance_variable_defined?(:@smtp_username)
+        ini[name]['smtp_password'] = smtp_password if instance_variable_defined?(:@smtp_password)
+        ini[name]['smtp_from'] = smtp_from if instance_variable_defined?(:@smtp_from)
+        ini[name]['sms_number'] = sms_number if instance_variable_defined?(:@sms_number)
+        ini[name]['sms_carrier'] = sms_carrier if instance_variable_defined?(:@sms_carrier)
         ini[name]['minimum_ip'] = minimum_ip.to_s unless minimum_ip.blank?
         ini[name]['maximum_ip'] = maximum_ip.to_s unless maximum_ip.blank?
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?

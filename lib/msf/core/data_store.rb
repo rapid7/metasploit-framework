@@ -302,7 +302,7 @@ class DataStore
   # Persists the contents of the data store to a file
   #
   def to_file(path, name = 'global')
-    ini = Rex::Parser::Ini.new(path)
+    ini = Rex::Parser::Ini.new(path, strict: true)
 
     ini.add_group(name)
 

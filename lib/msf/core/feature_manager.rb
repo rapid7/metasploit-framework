@@ -207,7 +207,7 @@ module Msf
 
     def save_config
       # Note, we intentionally omit features that have not explicitly been set by the user.
-      config = Msf::Config.load
+      config = Rex::Parser::Ini.new(Msf::Config.config_file, strict: true)
       old_config = config.fetch(CONFIG_KEY, {})
       new_config = @flag_lookup.values.each_with_object(old_config) do |feature, config|
         next unless feature.key?(:user_preference)

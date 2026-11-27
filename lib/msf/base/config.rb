@@ -281,7 +281,7 @@ class Config < Hash
   # references that have named value pairs.
   #
   # @param opts [Hash] Hash containing configuration options.
-  # @option opts 'ConfigFile' [Hash] configuration file these options apply
+  # @option opts 'ConfigFile' [String] path to the configuration file
   #   to.
   # @return [void]
   # @example Save 'Cat' => 'Foo' in group 'ExampleGroup'
@@ -523,7 +523,7 @@ class Config < Hash
   # references that have named value pairs.
   #
   # @param opts [Hash] Hash containing configuration options.
-  # @option opts 'ConfigFile' [Hash] configuration file these options apply
+  # @option opts 'ConfigFile' [String] path to the configuration file
   #   to.
   # @return [void]
   # @example Save 'Cat' => 'Foo' in group 'ExampleGroup'
@@ -533,9 +533,9 @@ class Config < Hash
   #           'Foo' => 'Cat'
   #        })
   def save(opts)
-    ini = Rex::Parser::Ini.new(opts['ConfigFile'] || config_file)
+    ini = Rex::Parser::Ini.new(opts['ConfigFile'] || config_file, strict: true)
 
-    ini.update(opts)
+    ini.update(opts.except('ConfigFile'))
 
     ini.to_file
   end
@@ -545,7 +545,7 @@ class Config < Hash
   # @param group [String] The name of the group to remove
   # @return [void]
   def delete_group(group)
-    ini = Rex::Parser::Ini.new(config_file)
+    ini = Rex::Parser::Ini.new(config_file, strict: true)
 
     ini.delete(group)
 
