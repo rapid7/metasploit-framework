@@ -22,16 +22,17 @@ RSpec.describe 'post/windows/escalate/golden_ticket' do
       domain_sid = 'S-1-5-21-111111111-222222222-333333333'
 
       allow(mod).to receive(:load_kiwi).and_return(true)
-      allow(mod).to receive(:client).and_return(double(kiwi: double))
+      kiwi = double
+      allow(mod).to receive(:client).and_return(double(kiwi: kiwi))
       allow(Metasploit::Framework::Hashes).to receive(:identify_hash).and_return('nt')
 
       mod.datastore['USER'] = 'Administrator'
       mod.datastore['DOMAIN'] = 'example.test'
-      mod.datastore['KRBTGT_HASH'] = 'aad3b435b51404eeaad3b435b51404ee'
+      mod.datastore['KRBTGT_HASH'] = 'krbtgt:0123456789abcdef0123456789abcdef'
       mod.datastore['SID'] = domain_sid
 
       expect(mod).not_to receive(:lookup_domain_sid)
-      expect(mod.client.kiwi).to receive(:golden_ticket_create)
+      expect(kiwi).to receive(:golden_ticket_create)
         .with(hash_including(domain_sid: domain_sid))
         .and_return(nil)
       expect(mod).to receive(:fail_with).with(Failure::Unknown, 'Unable to create ticket')
