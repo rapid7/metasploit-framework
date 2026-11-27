@@ -6,6 +6,14 @@ require 'rex/post/file_stat'
 module Msf::Post::File
   include Msf::Post::Common
 
+  # Allow additional time for Unix shell reads of larger files over slower connections.
+  UNIX_FILE_READ_TIMEOUT = 60
+
+  # Absolute ceiling for a single Unix shell file read. The timeout above is an
+  # inactivity timeout, so a transfer that is still making progress is not
+  # abandoned; this bounds reads that never end (for example /dev/zero).
+  UNIX_FILE_READ_MAX_TIMEOUT = 600
+
   def initialize(info = {})
     super(
       update_info(
@@ -494,11 +502,11 @@ module Msf::Post::File
     return nil unless readable?(file_name)
 
     if command_exists?('cat')
-      return session.shell_command_token("cat \"#{file_name}\"")
+      return _shell_read_command("cat \"#{file_name}\"")
     end
 
     # Result on systems without cat command
-    session.shell_command_token("while read line; do echo $line; done <#{file_name}")
+    _shell_read_command("while read line; do echo $line; done <#{file_name}")
   end
 
   # Platform-agnostic file write. Writes given object content to a remote file.
@@ -874,6 +882,21 @@ module Msf::Post::File
     result = cmd_exec(pwsh_code)
 
     return result.include?(length.to_s) && !result.include?(token) && result.include?('Done')
+  end
+
+  # Run a Unix shell command whose output is the contents of a remote file.
+  #
+  # The read timeout is an inactivity timeout (reset whenever data arrives) so
+  # large files over slow links are not abandoned part-way through, with an
+  # absolute ceiling so reads that never end cannot hang the caller.
+  def _shell_read_command(cmd)
+    unless session.respond_to?(:with_idle_read_timeout)
+      return session.shell_command_token(cmd, UNIX_FILE_READ_TIMEOUT)
+    end
+
+    session.with_idle_read_timeout(UNIX_FILE_READ_MAX_TIMEOUT) do
+      session.shell_command_token(cmd, UNIX_FILE_READ_TIMEOUT)
+    end
   end
 
   def _read_file_powershell(filename)
