@@ -35,7 +35,7 @@ RSpec.describe 'post/windows/escalate/golden_ticket' do
       expect(kiwi).to receive(:golden_ticket_create)
         .with(hash_including(domain_sid: domain_sid))
         .and_return(nil)
-      expect(mod).to receive(:fail_with).with(Failure::Unknown, 'Unable to create ticket')
+      expect(mod).to receive(:fail_with).with(Msf::Module::Failure::Unknown, 'Unable to create ticket')
 
       mod.run
     end
