@@ -95676,7 +95676,7 @@
       "x86",
       "aarch64"
     ],
-    "mod_time": "2026-04-22 11:57:34 +0000",
+    "mod_time": "2026-11-10 12:48:41 +0000",
     "path": "/modules/exploits/linux/local/cve_2021_4034_pwnkit_lpe_pkexec.rb",
     "is_install_path": true,
     "ref_name": "linux/local/cve_2021_4034_pwnkit_lpe_pkexec",
