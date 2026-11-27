@@ -32,6 +32,9 @@
 #   MSF_MCP_TRANSPORT           MCP server transport type ('stdio' or 'http')
 #   MSF_MCP_HOST                MCP server host
 #   MSF_MCP_PORT                MCP server port
+#   MSF_MCP_SSL                 Serve the HTTP transport over HTTPS ('true' or 'false')
+#   MSF_MCP_SSL_CERT            Path to the TLS certificate (PEM)
+#   MSF_MCP_SSL_KEY             Path to the TLS private key (PEM)
 #
 # Examples:
 #   # Start with default configuration (default: MessagePack connection type, so credentials must be provided)

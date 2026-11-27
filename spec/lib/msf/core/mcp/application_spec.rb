@@ -468,7 +468,8 @@ RSpec.describe Msf::MCP::Application do
       expect(mock_mcp_server).to receive(:start).with(
         transport: :http, host: '0.0.0.0', port: 3000,
         auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
-        min_threads: 0, max_threads: 5, workers: 0
+        min_threads: 0, max_threads: 5, workers: 0,
+        ssl_cert: nil, ssl_key: nil
       )
 
       app.send(:start_mcp_server)
@@ -490,10 +491,85 @@ RSpec.describe Msf::MCP::Application do
         auth_token: a_string_matching(/\A[0-9a-f]{64}\z/),
         min_threads: Msf::MCP::Server::PUMA_MIN_THREADS,
         max_threads: Msf::MCP::Server::PUMA_MAX_THREADS,
-        workers: Msf::MCP::Server::PUMA_WORKERS
+        workers: Msf::MCP::Server::PUMA_WORKERS,
+        ssl_cert: nil, ssl_key: nil
       )
 
       app.send(:start_mcp_server)
+    end
+
+    context 'with TLS configured explicitly' do
+      it 'passes the configured cert/key through and does not auto-generate' do
+        http_config = valid_config.dup
+        http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: true, ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key' }
+
+        app = described_class.new([], output: output)
+        app.instance_variable_set(:@config, http_config)
+        app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+        expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+        expect(mock_mcp_server).to receive(:start).with(
+          hash_including(transport: :http, ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key')
+        )
+
+        app.send(:start_mcp_server)
+
+        expect(output.string).to include('MCP server listening on https://0.0.0.0:3000')
+        expect(output.string).to include('TLS: enabled (certificate: /tmp/server.crt)')
+        expect(output.string).not_to include('auto-generated self-signed certificate')
+      end
+    end
+
+    context 'with TLS enabled and no cert/key configured' do
+      it 'auto-generates a self-signed certificate and warns about it' do
+        http_config = valid_config.dup
+        http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: true }
+
+        app = described_class.new([], output: output)
+        app.instance_variable_set(:@config, http_config)
+        app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+        expect(Msf::MCP::Config::TlsCertGenerator).to receive(:ensure_self_signed_certificate)
+          .with(host: '0.0.0.0').and_return(['/tmp/generated.crt', '/tmp/generated.key'])
+        expect(mock_mcp_server).to receive(:start).with(
+          hash_including(transport: :http, ssl_cert: '/tmp/generated.crt', ssl_key: '/tmp/generated.key')
+        )
+
+        app.send(:start_mcp_server)
+
+        expect(output.string).to include('auto-generated self-signed certificate')
+      end
+    end
+
+    it 'does not generate a certificate when ssl is disabled' do
+      http_config = valid_config.dup
+      http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000 }
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@config, http_config)
+      app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+      expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(ssl_cert: nil, ssl_key: nil))
+
+      app.send(:start_mcp_server)
+    end
+
+    it 'warns when ssl_cert/ssl_key are configured but ssl is not true' do
+      http_config = valid_config.dup
+      http_config[:mcp] = { transport: 'http', host: '0.0.0.0', port: 3000, ssl: false,
+                             ssl_cert: '/tmp/server.crt', ssl_key: '/tmp/server.key' }
+
+      app = described_class.new([], output: output)
+      app.instance_variable_set(:@config, http_config)
+      app.instance_variable_set(:@mcp_server, mock_mcp_server)
+
+      expect(Msf::MCP::Config::TlsCertGenerator).not_to receive(:ensure_self_signed_certificate)
+      expect(mock_mcp_server).to receive(:start).with(hash_including(ssl_cert: nil, ssl_key: nil))
+
+      app.send(:start_mcp_server)
+
+      expect(output.string).to include('mcp.ssl_cert/mcp.ssl_key are configured but mcp.ssl is not true')
     end
   end
 
@@ -586,7 +662,11 @@ RSpec.describe Msf::MCP::Application do
         app.instance_variable_set(:@config, valid_config.dup)
 
         # Simulate load_configuration CLI override
-        app.send(:load_configuration) rescue nil
+        begin
+          app.send(:load_configuration)
+        rescue StandardError
+          nil
+        end
         # Directly verify the config was updated by setting it up properly
         app = described_class.new(['--no-auto-start-rpc'], output: output)
         app.send(:parse_arguments)
@@ -935,11 +1015,14 @@ RSpec.describe Msf::MCP::Application do
       # Track the order of operations
       order = []
       allow(mock_rpc_manager).to receive(:ensure_rpc_available) { order << :ensure_rpc }
-      allow(Msf::MCP::Metasploit::Client).to receive(:new) { order << :init_client; mock_client }
+      allow(Msf::MCP::Metasploit::Client).to receive(:new) {
+        order << :init_client
+        mock_client
+      }
 
       app.run
 
-      expect(order).to eq([:ensure_rpc, :init_client])
+      expect(order).to eq(%i[ensure_rpc init_client])
     end
   end
 end

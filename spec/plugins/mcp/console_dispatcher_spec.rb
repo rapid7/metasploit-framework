@@ -183,7 +183,7 @@ RSpec.describe Msf::Plugin::MCP::McpCommandDispatcher do
 
     context 'when server is running with custom host and port' do
       before do
-        mcp_plugin.start_server('ServerHost' => '0.0.0.0', 'ServerPort' => '8080')
+        mcp_plugin.start_server('ServerHost' => '0.0.0.0', 'ServerPort' => '8080', 'SSL' => 'false')
         reset_logging!
         allow(Time).to receive(:now).and_return(Time.at(1000))
         mcp_plugin.instance_variable_set(:@started_at, Time.at(1000))
