@@ -108,8 +108,9 @@ class MetasploitModule < Msf::Post
             username: user,
             workspace_id: myworkspace_id
           }
-
           create_credential(credential_data)
+        rescue ActiveRecord::RecordInvalid => e
+          print_warning("Could not save credential to database: #{e.message}")
         rescue OpenSSL::OpenSSLError => e
           print_error("Could not load SSH Key: #{e.message}")
         end
