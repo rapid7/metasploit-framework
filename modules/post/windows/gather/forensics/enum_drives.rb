@@ -64,6 +64,7 @@ class MetasploitModule < Msf::Post
 
     return if handle == invalid_handle_value
 
+    # An empty Railgun buffer is non-null; Windows can write beyond it as an OVERLAPPED structure.
     ioctl = client.railgun.kernel32.DeviceIoControl(
       handle,
       ioctl_disk_get_drive_geometry_ex,
@@ -72,7 +73,7 @@ class MetasploitModule < Msf::Post
       200,
       200,
       4,
-      ''
+      nil
     )
 
     if ioctl['GetLastError'] == 6
@@ -84,7 +85,7 @@ class MetasploitModule < Msf::Post
         200,
         200,
         4,
-        ''
+        nil
       )
     end
 

@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_kernel32'
 
 RSpec.describe 'post/windows/gather/forensics/enum_drives' do
   include_context 'Msf::Simple::Framework#modules loading'
@@ -40,6 +42,46 @@ RSpec.describe 'post/windows/gather/forensics/enum_drives' do
 
         mod.print_device('\\\\.\\PhysicalDrive0')
       end
+    end
+  end
+
+  context 'when serializing geometry queries' do
+    let(:railgun_library) do
+      railgun = Rex::Post::Meterpreter::Extensions::Stdapi::Railgun
+      railgun::Def::Def_windows_kernel32.create_library(railgun::ConstManager.new)
+    end
+
+    shared_examples 'a synchronous query with a null OVERLAPPED pointer' do |errors|
+      it 'sends a literal null pointer rather than a zero-length native buffer' do
+        calls = 0
+        allow(mod).to receive(:print_line)
+        allow(kernel32).to receive(:DeviceIoControl) do |*arguments|
+          packet, layouts = railgun_library.build_packet_and_layouts(
+            Rex::Post::Meterpreter::Packet.new,
+            railgun_library.get_function('DeviceIoControl'),
+            arguments,
+            Rex::Arch::ARCH_X64
+          )
+
+          expect(layouts[:inout]).to be_empty
+          stack = packet.get_tlv_value(Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_STACKBLOB)
+          expect(stack.unpack('Q<*').last(2)).to eq([0, 0])
+
+          response = { 'GetLastError' => errors.fetch(calls), 'lpOutBuffer' => geometry }
+          calls += 1
+          response
+        end
+
+        mod.print_device('\\\\.\\PhysicalDrive0')
+
+        expect(calls).to eq(errors.length)
+      end
+    end
+
+    include_examples 'a synchronous query with a null OVERLAPPED pointer', [0]
+
+    context 'when Windows reports an invalid handle and the query is retried' do
+      include_examples 'a synchronous query with a null OVERLAPPED pointer', [6, 0]
     end
   end
 end
