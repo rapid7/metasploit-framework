@@ -168,9 +168,14 @@ begin
         end
 
         if add_history && line && !line.start_with?(' ')
+          history_line = line.strip
+          if history_line.encoding == ::Encoding::BINARY && ::Encoding.find('locale') == ::Encoding::UTF_8
+            history_line.force_encoding(::Encoding::UTF_8).scrub!('')
+          end
+
           # Don't add duplicate lines to history
-          if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
-            RbReadline.add_history(line.strip)
+          if ::Readline::HISTORY.empty? || history_line != ::Readline::HISTORY[-1]
+            RbReadline.add_history(history_line)
           end
         end
 

@@ -151,7 +151,11 @@ class HistoryManager
     begin
       File.open(history_file, 'rb') do |f|
         clear_library(context[:input_library])
+        # rb-readline stores UTF-8 history and replays it as terminal input.
+        utf8_readline = context[:input_library] == :readline && defined?(::RbReadline) &&
+                        ::Encoding.find('locale') == ::Encoding::UTF_8
         f.each_line(chomp: true) do |line|
+          line.force_encoding(::Encoding::UTF_8) if utf8_readline
           if context[:input_library] == :reline && history.last&.end_with?("\\")
             history.last.delete_suffix!("\\")
             history.last << "\n" << line
