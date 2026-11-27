@@ -229,6 +229,367 @@ protected
     end
   end
 
+  #
+  # Raised in the interacting thread to abort a pending readline call, either
+  # because the user pressed Ctrl+Z or because interaction was stopped from
+  # another thread. Like Interrupt, these are not StandardErrors so they are
+  # not swallowed by a generic rescue before reaching the interaction loop.
+  #
+  # rubocop:disable Lint/InheritException
+  class ReadlineSuspend < ::Exception; end
+  class ReadlineDetach < ::Exception; end
+  # rubocop:enable Lint/InheritException
+
+  # Terminal escape sequences: CSI (colours, cursor movement, ...), OSC
+  # (window title, ...) and two character escapes
+  READLINE_ESCAPE_SEQUENCE = %r{\e\[[0-9;?<=>!]*[ -/]*[@-~]|\e\][^\a\e]*(?:\a|\e\\)?|\e[@-Z\\-_]}
+  # CSI sequences other than colours (SGR), such as clearing the screen
+  READLINE_CONTROL_SEQUENCE = %r{\e\[[0-9;?<=>!]*[ -/]*[@-ln-~]}
+  # Longest incomplete line used as the prompt. Anything longer is output
+  # without a newline (or a progress bar) and is printed as it arrives.
+  READLINE_PROMPT_MAX = 1024
+  # Reads shorter than this mean the remote side has stopped sending for now
+  READLINE_SHORT_READ = 4096
+  # Most output queued while a line is being typed. Reading waits while more
+  # is queued, e.g. during a history search, which does not print it.
+  READLINE_QUEUE_MAX = 1024 * 1024
+
+  #
+  # Whether the local input is a readline input that can be used for line
+  # editing while interacting with a line-oriented remote stream. Output that
+  # arrives while a line is being edited is printed above it and the line is
+  # redrawn, which needs rb-readline on a terminal. On Windows rb-readline
+  # does not wait for input between calls to its event hook, so it is not
+  # used there.
+  #
+  def interact_with_readline?
+    defined?(Rex::Ui::Text::Input::Readline) && user_input.is_a?(Rex::Ui::Text::Input::Readline) &&
+      defined?(::RbReadline) && user_input.fd.tty? && !Rex::Compat.is_windows
+  end
+
+  #
+  # Interacts with a line-oriented stream through the local readline input so
+  # that line editing and history work. Remote output is read on a separate
+  # thread and printed as soon as it arrives; the trailing incomplete line of
+  # output (usually the remote shell prompt) is used as the readline prompt.
+  #
+  # Output that arrives while a line is being typed is printed from
+  # rb-readline's event hook, which runs in the thread reading the line
+  # between key presses, so the line can be redrawn without racing readline.
+  # Nothing is read while an entered line is handled, which may read the
+  # responses to commands it sends itself, e.g. a built-in command of a
+  # command shell such as upload.
+  #
+  # Classes using this must implement _readline_read_remote(stream) and
+  # _readline_write_remote(stream, line).
+  #
+  def interact_readline(stream)
+    input = user_input
+    output = user_output
+    old_prompt = input.prompt
+    lock = ::Mutex.new
+    interacting_thread = ::Thread.current
+    finished = false
+
+    @readline_pending = ''
+    @readline_long_line = false
+    @readline_waiting = false
+    @readline_queue = []
+    @readline_dequeued = ::ConditionVariable.new
+    @readline_handling = false
+    @readline_reading = false
+    @readline_turn = ::ConditionVariable.new
+    input.prompt = ''
+    previous_tab = readline_bind_tab(:rl_tab_insert)
+    previous_event_hook = ::RbReadline.rl_event_hook
+    readline_event_hook(proc { lock.synchronize { readline_print_queued(input, output) } })
+
+    begin
+      # Only while reading a line, so Ctrl+Z at the question asked by _suspend
+      # is ignored. The lock can't be taken in a trap handler.
+      previous_tstp = ::Signal.trap('TSTP') { interacting_thread.raise(ReadlineSuspend) if @readline_waiting }
+    rescue ::ArgumentError
+      # No SIGTSTP on this platform
+      previous_tstp = nil
+    end
+
+    reader = Rex::ThreadFactory.spawn('InteractReadlineReader', false) do
+      readline_read_loop(stream, input, output, lock)
+    rescue ::StandardError => e
+      # The remote side went away; abort the readline call in progress so that
+      # the session is closed, as it would be by the non-readline loop.
+      lock.synchronize { interacting_thread.raise(::EOFError, e.message) unless finished }
+    else
+      # Interaction was stopped from elsewhere while waiting for a line
+      lock.synchronize { interacting_thread.raise(ReadlineDetach) if @readline_waiting && !finished }
+    end
+
+    while interacting
+      begin
+        lock.synchronize { @readline_waiting = true }
+        line = input.pgets
+        lock.synchronize do
+          # The prompt stays on screen with the entered line. Output that
+          # arrived just before Enter is printed below them.
+          @readline_pending = ''
+          @readline_long_line = false
+          input.prompt = ''
+          readline_stop_waiting(input, output)
+        end
+        # Ctrl+D sends an empty line, like the non-readline loop does
+        readline_handle_line(lock) { _readline_write_remote(stream, line.to_s.chomp) }
+      rescue ReadlineSuspend
+        lock.synchronize do
+          readline_stop_interrupted(input, output)
+          _suspend
+        end
+      rescue ReadlineDetach
+        break
+      end
+    end
+  ensure
+    # Anything the reader raises from here on is delivered after cleanup
+    ::Thread.handle_interrupt(::Object => :never) do
+      lock&.synchronize { finished = true }
+      reader&.kill
+      @readline_waiting = false
+      readline_event_hook(nil, previous_event_hook)
+      readline_bind_tab(previous_tab) if previous_tab
+      ::Signal.trap('TSTP', previous_tstp) if previous_tstp
+      # Output can still be queued if reading the line was interrupted, e.g.
+      # by Ctrl+C
+      lock&.synchronize { readline_stop_interrupted(input, output) }
+      input.prompt = old_prompt if input
+    end
+  end
+
+  #
+  # Reads remote output until interaction stops. While a line is being typed
+  # the output is queued for readline's event hook, otherwise it is printed
+  # straight away. Nothing is read while an entered line is handled.
+  #
+  # A short read may be the last output before the remote side closes, and
+  # the read that finds it closed also closes the session (see shell_read).
+  # So after a short read the hook prints the queued output before reading
+  # goes on, or it would be printed after the session was reported closed.
+  # After a longer read more output is likely on its way, so reading only
+  # waits while a lot of output is queued.
+  #
+  def readline_read_loop(stream, input, output, lock)
+    while interacting
+      fd = _remote_fd(stream)
+      raise ::EOFError, 'The remote stream was closed' unless fd
+
+      next unless Rex::ThreadSafe.select([fd], nil, nil, 0.25)
+      next unless readline_start_reading(lock)
+
+      begin
+        data = _readline_read_remote(stream)
+      ensure
+        readline_stop_reading(lock)
+      end
+      next if data.nil? || data.empty?
+
+      lock.synchronize do
+        if @readline_waiting
+          @readline_queue << data
+          @readline_dequeued.wait(lock, 0.25) while interacting && readline_hold_reading?(data)
+        else
+          readline_print_remote(data, input, output, false)
+        end
+      end
+    end
+  end
+
+  #
+  # Whether the reader waits for the event hook to print the queued output
+  # before it reads on, see readline_read_loop
+  #
+  def readline_hold_reading?(data)
+    return false if @readline_queue.empty?
+
+    data.bytesize < READLINE_SHORT_READ || @readline_queue.sum(&:bytesize) > READLINE_QUEUE_MAX
+  end
+
+  #
+  # Handles an entered line while the reader is not reading, so that the
+  # session gets the responses to any commands it sends for the line itself.
+  #
+  def readline_handle_line(lock)
+    lock.synchronize do
+      @readline_handling = true
+      @readline_turn.wait(lock, 0.25) while @readline_reading
+    end
+    yield
+  ensure
+    lock.synchronize do
+      @readline_handling = false
+      @readline_turn.broadcast
+    end
+  end
+
+  #
+  # Waits until no entered line is being handled and returns whether the
+  # reader can read, which it can't once interaction has stopped
+  #
+  def readline_start_reading(lock)
+    lock.synchronize do
+      @readline_turn.wait(lock, 0.25) while @readline_handling && interacting
+      @readline_reading = interacting
+    end
+  end
+
+  def readline_stop_reading(lock)
+    lock.synchronize do
+      @readline_reading = false
+      @readline_turn.broadcast
+    end
+  end
+
+  #
+  # Called from readline's event hook: prints queued output and redraws the
+  # line being edited. Waits while readline is in the middle of something
+  # else, e.g. a history search, which has its own prompt.
+  #
+  def readline_print_queued(input, output)
+    return if @readline_queue.empty? || !::RbReadline.rl_isstate(::RbReadline::RL_STATE_READCMD)
+
+    readline_print_remote(readline_dequeue, input, output, true)
+  end
+
+  #
+  # Prints anything still queued once readline has stopped reading a line.
+  #
+  def readline_stop_waiting(input, output)
+    @readline_waiting = false
+    data = readline_dequeue
+    readline_print_remote(data, input, output, false) unless data.empty?
+  end
+
+  #
+  # Prints anything still queued when reading a line was interrupted, e.g. by
+  # Ctrl+Z or Ctrl+C, in place of the prompt and the line being edited.
+  #
+  def readline_stop_interrupted(input, output)
+    readline_clear_display(output) unless @readline_queue.empty? || @readline_long_line
+    readline_stop_waiting(input, output)
+  end
+
+  #
+  # Takes the output queued while a line was being edited and lets the reader
+  # read more.
+  #
+  def readline_dequeue
+    data = @readline_queue.join
+    @readline_queue.clear
+    @readline_dequeued.broadcast
+    data
+  end
+
+  #
+  # Prints complete lines of remote output and turns the trailing partial
+  # line into the readline prompt. With redraw, the prompt and line being
+  # edited are on screen and are drawn again below the output.
+  #
+  def readline_print_remote(data, input, output, redraw)
+    lines = (@readline_pending + data).split("\n", -1)
+    @readline_pending = lines.pop.to_s
+
+    # Terminal control sequences other than colours (clearing the screen,
+    # moving the cursor) are printed now instead of becoming part of the
+    # prompt, where they would be replayed every time the line is redrawn.
+    control_end = 0
+    @readline_pending.scan(READLINE_CONTROL_SEQUENCE) { control_end = ::Regexp.last_match.end(0) }
+    control = @readline_pending[0, control_end]
+    @readline_pending = @readline_pending[control_end..]
+
+    # While a long line is being printed the cursor is at the end of it and
+    # the line being edited is not on screen, so there is nothing to wipe
+    readline_clear_display(output) if redraw && !@readline_long_line
+
+    unless lines.empty?
+      output.print(lines.join("\n") + "\n")
+      @readline_long_line = false
+    end
+    output.print(control) unless control.empty?
+
+    if @readline_long_line || @readline_pending.bytesize > READLINE_PROMPT_MAX
+      # Too long to be a prompt. Print it as it arrives, without adding a line
+      # break, and draw the line being edited again once the line ends.
+      output.print(@readline_pending)
+      @readline_pending = ''
+      input.prompt = ''
+      if redraw && !@readline_long_line
+        # Until then, anything typed is echoed after the output like in a
+        # terminal. This also brings readline's idea of the screen up to date.
+        ::RbReadline.rl_set_prompt('')
+        ::RbReadline.rl_forced_update_display
+      end
+      @readline_long_line = true
+      return
+    end
+
+    input.prompt = readline_prompt(@readline_pending)
+
+    if redraw
+      ::RbReadline.rl_set_prompt(input.prompt)
+      ::RbReadline.rl_forced_update_display
+    end
+  end
+
+  # Name of the RbReadline method that is set as rl_event_hook, which
+  # rb-readline calls by name while waiting for a key
+  READLINE_EVENT_HOOK = :rex_ui_interactive_event_hook
+
+  #
+  # Sets the callback run by rb-readline while waiting for a key, or removes
+  # it and restores the previous hook.
+  #
+  def readline_event_hook(callback, previous = nil)
+    unless ::RbReadline.respond_to?(READLINE_EVENT_HOOK)
+      ::RbReadline.define_singleton_method(READLINE_EVENT_HOOK) do
+        ::Thread.current[READLINE_EVENT_HOOK]&.call
+      end
+    end
+
+    ::Thread.current[READLINE_EVENT_HOOK] = callback
+    ::RbReadline.rl_event_hook = callback ? READLINE_EVENT_HOOK : previous
+  end
+
+  READLINE_TAB = "\t"
+
+  #
+  # Binds Tab to an rb-readline function and returns the previous one. While
+  # interacting, Tab inserts a tab that is sent to the remote side, the same
+  # as without readline, instead of completing console commands.
+  #
+  def readline_bind_tab(function)
+    return unless defined?(::RbReadline)
+
+    previous = ::RbReadline.rl_function_of_keyseq(READLINE_TAB, nil, nil)
+    ::RbReadline.rl_bind_key(READLINE_TAB, function)
+    previous
+  end
+
+  #
+  # Wipes the prompt and the line being edited, including the rows above the
+  # cursor when they are wider than the terminal.
+  #
+  def readline_clear_display(output)
+    ::RbReadline._rl_move_vert(0)
+    output.print("\r\e[J")
+  end
+
+  #
+  # Turns remote text into a prompt readline can display. Terminal escape
+  # sequences (colours, window titles) are marked as non-printing, otherwise
+  # readline counts them as visible characters and wraps the line wrongly.
+  #
+  def readline_prompt(text)
+    text = text.split("\r").last.to_s
+    text.gsub(READLINE_ESCAPE_SEQUENCE) { |seq| "\x01#{seq}\x02" }
+  end
+
 
   #
   # Installs a signal handler to monitor suspend signal notifications.
