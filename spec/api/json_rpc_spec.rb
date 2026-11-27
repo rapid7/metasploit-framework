@@ -580,9 +580,16 @@ RSpec.describe "Metasploit's json-rpc" do
       # We must manually clean up to avoid leaking data into subsequent specs.
       ::ApplicationRecord.connection_pool.with_connection do
         host_ids = Mdm::Host.where(address: host_ip).pluck(:id)
-        vuln_ids = Mdm::Vuln.where(host_id: host_ids).pluck(:id)
-        Mdm::Vuln.where(id: vuln_ids).delete_all if vuln_ids.any?
-        Mdm::Host.where(id: host_ids).delete_all if host_ids.any?
+        if host_ids.any?
+          vuln_ids = Mdm::Vuln.where(host_id: host_ids).pluck(:id)
+          if vuln_ids.any?
+            ApplicationRecord.connection.execute("DELETE FROM vulns_refs WHERE vuln_id IN (#{vuln_ids.join(',')})") rescue nil
+            Mdm::VulnAttempt.where(vuln_id: vuln_ids).delete_all rescue nil
+            Mdm::VulnDetail.where(vuln_id: vuln_ids).delete_all rescue nil
+            Mdm::Vuln.where(id: vuln_ids).delete_all
+          end
+          Mdm::Host.where(id: host_ids).delete_all
+        end
       end
     end
     let(:host) do

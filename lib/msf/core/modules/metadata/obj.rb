@@ -262,10 +262,11 @@ class Obj
         'payload_type'       => @payload_type,
         'adapter_refname'    => @adapter_refname,
         'adapted_refname'    => @adapted_refname,
+        'adapted'            => @adapted,
         'staged'             => @staged,
         'stage_refname'      => @stage_refname,
         'stager_refname'     => @stager_refname,
-        'payload_cached_size'=> @payload_cached_size,
+        'payload_cached_size'=> @payload_cached_size
       }.compact
       data.merge!(payload_data)
     end
