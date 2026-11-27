@@ -10,6 +10,7 @@
 
 require 'fileutils'
 require 'find'
+require 'json'
 require 'time'
 
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
@@ -101,18 +102,98 @@ class MsftidyDoc
   #
   ##
 
+  #
+  # Documentation lives under documentation/modules/<type>/ using the singular
+  # module type (the same form as Msf::Module#fullname, which `info -d` uses to
+  # find docs), while the module itself lives under modules/<plural type>/.
+  #
+  DOC_TYPE_TO_MODULE_DIR = {
+    'auxiliary' => 'auxiliary',
+    'encoder' => 'encoders',
+    'evasion' => 'evasion',
+    'exploit' => 'exploits',
+    'nop' => 'nops',
+    'payload' => 'payloads',
+    'post' => 'post'
+  }.freeze
+
+  MODULE_METADATA_PATH = File.expand_path('../../db/modules_metadata_base.json', __dir__).freeze
+  PAYLOAD_SOURCE_DIRS = %w[adapters singles stagers stages].freeze
+
+  #
+  # Maps each payload's registered fullname to its source path, as recorded in the
+  # module metadata. Loaded once, since the metadata file is large.
+  #
+  def self.payload_paths_by_fullname
+    @payload_paths_by_fullname ||= begin
+      JSON.parse(File.read(MODULE_METADATA_PATH)).each_value.each_with_object({}) do |entry, paths|
+        paths[entry['fullname']] = entry['path'] if entry['type'] == 'payload'
+      end
+    rescue Errno::ENOENT, JSON::ParserError
+      {}
+    end
+  end
+
+  def payload_paths_by_fullname
+    self.class.payload_paths_by_fullname
+  end
+
   def has_module
-    module_filepath = @full_filepath.sub('documentation/','').sub('/exploit/', '/exploits/')
-    found = false
-    ['.rb', '.py', '.go'].each do |ext|
-      if File.file? module_filepath.sub(/.md$/, ext)
-        found = true
-        break
+    doc_type = @full_filepath[%r{documentation/modules/([^/]+)/}, 1]
+
+    if doc_type && !DOC_TYPE_TO_MODULE_DIR.key?(doc_type) && DOC_TYPE_TO_MODULE_DIR.value?(doc_type)
+      singular = DOC_TYPE_TO_MODULE_DIR.key(doc_type)
+      error("Doc is in documentation/modules/#{doc_type}/. Use the singular module type: documentation/modules/#{singular}/. Doc: #{@full_filepath}")
+      return
+    end
+
+    if doc_type == 'payload'
+      payload_source_dir = @full_filepath[%r{documentation/modules/payload/([^/]+)/}, 1]
+      if PAYLOAD_SOURCE_DIRS.include?(payload_source_dir)
+        error("Payload docs must use the registered fullname without the #{payload_source_dir}/ source directory. Doc: #{@full_filepath}")
+        return
       end
     end
+
+    found = module_candidates(doc_type).any? { |path| File.file?(path) }
     unless found
       error("Doc missing module.  Check file name and path(s) are correct. Doc: #{@full_filepath}")
     end
+  end
+
+  #
+  # Returns the module paths a doc could be documenting.
+  #
+  def module_candidates(doc_type)
+    return [module_source_path(@full_filepath.sub('documentation/', ''))] unless doc_type
+
+    module_dir = DOC_TYPE_TO_MODULE_DIR.fetch(doc_type, doc_type)
+    base = @full_filepath.sub(%r{documentation/modules/#{Regexp.escape(doc_type)}/}, "modules/#{module_dir}/")
+    return module_source_paths(base) unless doc_type == 'payload'
+
+    # Payload docs are named after the payload's registered fullname, which does not
+    # map one-to-one onto files: staged payloads are a stager plus a stage, adapted
+    # payloads come from an adapter, and some stagers are named differently from the
+    # payload (find_tag is findtag_ord.rb). The module metadata records the source
+    # path for each fullname, so use that, and only guess a singles path for a
+    # payload that is not in the metadata yet.
+    payload_root = base[%r{\A(.*?modules/payloads/)}, 1]
+    rest = base.sub(payload_root, '')
+    candidates = module_source_paths("#{payload_root}singles/#{rest}")
+    metadata_path = payload_paths_by_fullname["payload/#{rest.sub(/\.md$/, '')}"]
+    return candidates unless metadata_path
+
+    install_root = payload_root.sub(%r{modules/payloads/\z}, '')
+    candidates << "#{install_root}#{metadata_path.delete_prefix('/')}"
+  end
+
+  def module_source_paths(path)
+    path = path.sub(/\.md$/, '')
+    ['.rb', '.py', '.go'].map { |ext| "#{path}#{ext}" }
+  end
+
+  def module_source_path(path)
+    module_source_paths(path).find { |p| File.file?(p) } || module_source_paths(path).first
   end
 
   def check_start_with_vuln_app
