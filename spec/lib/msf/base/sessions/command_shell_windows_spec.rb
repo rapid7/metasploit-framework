@@ -55,6 +55,13 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
       expect(described_class.to_cmd(['test.exe'] + [''])).to eq('test.exe ""')
       expect(described_class.to_cmd(['test.exe'] + ['', ''])).to eq('test.exe "" ""')
     end
+
+    it 'should reject arguments containing line breaks' do
+      # cmd.exe ends a command at a line break even inside quotes, so quoting
+      # cannot neutralise it; such arguments must be rejected
+      expect { described_class.to_cmd(['test.exe'] + ["a\nb"]) }.to raise_error(ArgumentError)
+      expect { described_class.to_cmd(['test.exe'] + ["a\rb"]) }.to raise_error(ArgumentError)
+    end
   end
 
   describe 'argv_to_commandline processing' do
