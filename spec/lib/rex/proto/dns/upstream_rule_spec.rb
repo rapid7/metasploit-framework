@@ -59,6 +59,37 @@ RSpec.describe Rex::Proto::DNS::UpstreamRule do
     end
   end
 
+  describe '.valid_wildcard?' do
+    it 'returns true for the match-all wildcard' do
+      expect(described_class.valid_wildcard?('*')).to be(true)
+    end
+
+    it 'returns true for a lowercase domain and wildcard' do
+      expect(described_class.valid_wildcard?('example.com')).to be(true)
+      expect(described_class.valid_wildcard?('*.metasploit.com')).to be(true)
+    end
+
+    it 'returns true for an uppercase domain (DNS names are case-insensitive)' do
+      expect(described_class.valid_wildcard?('EXAMPLE.COM')).to be(true)
+    end
+
+    it 'returns true for a single-character label' do
+      expect(described_class.valid_wildcard?('*.a.com')).to be(true)
+    end
+
+    it 'returns false for text that is not a wildcard' do
+      expect(described_class.valid_wildcard?('not a valid wildcard')).to be(false)
+    end
+
+    it 'returns false for a malformed wildcard' do
+      expect(described_class.valid_wildcard?('*foo.com')).to be(false)
+    end
+
+    it 'returns false when a newline precedes a valid name' do
+      expect(described_class.valid_wildcard?("evil\nexample.com")).to be(false)
+    end
+  end
+
   describe '#initialize' do
     it 'raises an ArgumentError for an invalid wildcard' do
       expect(described_class.valid_wildcard?('not a valid wildcard')).to be_falsey

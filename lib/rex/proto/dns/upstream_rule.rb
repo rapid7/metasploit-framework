@@ -84,7 +84,14 @@ module DNS
     # @param [String] wildcard The wildcard text to check.
     # @return [Boolean]
     def self.valid_wildcard?(wildcard)
-      wildcard == '*' || wildcard =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
+      return true if wildcard == '*'
+
+      # DNS names are case-insensitive (RFC 4343) and a label may be a single
+      # character, so accept any-case labels of 1-63 chars that start and end
+      # alphanumeric. Anchored with \A...\z (not ^...$) so a newline cannot
+      # smuggle an invalid line past the check. This mirrors the
+      # case-insensitive matching already done in #matches_name?.
+      !!(wildcard =~ /\A(?:\*\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]+\z/i)
     end
 
     # Check whether or not the currently configured wildcard pattern will match all names.
