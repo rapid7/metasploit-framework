@@ -587,6 +587,35 @@ protected
     end
   end
 
+  def log_input(buffer)
+    return super unless log_source == 'console'
+
+    with_console_log_io { super }
+  end
+
+  def log_output(buffer)
+    return super unless log_source == 'console'
+
+    with_console_log_io { super }
+  end
+
+  def with_console_log_io
+    result = yield
+    @console_log_error_reported = false
+    result
+  rescue IOError, SystemCallError => e
+    return if @console_log_error_reported
+
+    @console_log_error_reported = true
+    # Report through the output without sending the warning back to the log.
+    message = "Could not write the console log: #{e.message}"
+    if output
+      output.print_warning(message)
+    else
+      $stderr.write("#{message}\n")
+    end
+  end
+
   #
   # ConsoleLogging.
   #
@@ -597,13 +626,14 @@ protected
 
       set_log_source('console')
 
-      rlog("\n[*] Console logging started: #{Time.now}\n\n", 'console')
+      with_console_log_io { rlog("\n[*] Console logging started: #{Time.now}\n\n", 'console') }
     else
-      rlog("\n[*] Console logging stopped: #{Time.now}\n\n", 'console')
+      with_console_log_io { rlog("\n[*] Console logging stopped: #{Time.now}\n\n", 'console') }
 
       unset_log_source
 
-      Msf::Logging.disable_log_source('console')
+      with_console_log_io { Msf::Logging.disable_log_source('console') }
+      @console_log_error_reported = false
       print_line("Console logging is now disabled.")
     end
   end
