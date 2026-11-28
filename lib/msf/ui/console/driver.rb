@@ -608,7 +608,12 @@ protected
 
     @console_log_error_reported = true
     # Report through the output without sending the warning back to the log.
-    output.print_warning("Could not write the console log: #{e.message}")
+    message = "Could not write the console log: #{e.message}"
+    if output
+      output.print_warning(message)
+    else
+      $stderr.write("#{message}\n")
+    end
   end
 
   #

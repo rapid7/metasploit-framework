@@ -42,6 +42,18 @@ RSpec.describe Msf::Ui::Console::Driver do
     expect(output).to have_received(:print_warning).twice
   end
 
+  it 'reports a failed startup log write before the UI is initialized' do
+    driver.unset_log_source
+    driver.disable_output = true
+    allow(driver).to receive(:output).and_return(nil)
+    allow(driver).to receive(:rlog).and_raise(Errno::ENOSPC)
+    allow(Msf::Logging).to receive(:enable_log_source).with('console')
+    allow($stderr).to receive(:write)
+
+    expect { driver.send(:handle_console_logging, 'true') }.not_to raise_error
+    expect($stderr).to have_received(:write).with(/Could not write the console log:/).once
+  end
+
   it 'retains error propagation for other log sources' do
     driver.set_log_source('other')
     allow(driver).to receive(:rlog).with('message', 'other').and_raise(Errno::ENOSPC)
