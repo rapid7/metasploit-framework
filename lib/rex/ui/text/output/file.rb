@@ -14,6 +14,7 @@ class Output::File < Rex::Ui::Text::Output
   attr_accessor :fd
 
   def initialize(path, mode='wb')
+    super()
     self.fd = ::File.open(path, mode)
   end
 
