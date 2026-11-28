@@ -71,7 +71,7 @@ module DNS
     # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
     # @return [Array<IPAddr>] Returns an array of IP addresses.
     def get(hostname, type = TYPE_A)
-      hostname = hostname.downcase
+      hostname = normalize_hostname(hostname)
       @hostnames.fetch(hostname, {}).fetch(type, []).dup
     end
 
@@ -89,7 +89,7 @@ module DNS
 
       ip_address = IPAddr.new(ip_address) if ip_address.is_a?(String) && Rex::Socket.is_ip_addr?(ip_address)
 
-      hostname = hostname.downcase.delete_suffix('.')
+      hostname = normalize_hostname(hostname)
       this_host = @hostnames.fetch(hostname, {})
       if ip_address.family == ::Socket::AF_INET
         type = TYPE_A
@@ -116,7 +116,7 @@ module DNS
         type = TYPE_AAAA
       end
 
-      hostname = hostname.downcase
+      hostname = normalize_hostname(hostname)
       this_host = @hostnames.fetch(hostname, {})
       this_type = this_host.fetch(type, [])
       this_type.delete(ip_address)
@@ -147,6 +147,19 @@ module DNS
       return true if (name =~ /^([a-z0-9][a-z0-9\-]{0,61})?[a-z0-9]$/i) && (name =~ /\s/).nil?
 
       false
+    end
+
+    private
+
+    # Normalize a hostname to the key form used by the store: lowercased with a
+    # trailing dot (the DNS root label) removed. +add+, +get+, and +delete+ must
+    # use the same normalization or an entry stored in one form becomes
+    # unreachable when looked up or removed in the other.
+    #
+    # @param [String] hostname The hostname to normalize.
+    # @return [String] The normalized hostname key.
+    def normalize_hostname(hostname)
+      hostname.downcase.delete_suffix('.')
     end
   end
 end

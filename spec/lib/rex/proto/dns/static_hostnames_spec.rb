@@ -87,4 +87,26 @@ RSpec.describe Rex::Proto::DNS::StaticHostnames do
       end
     end
   end
+
+  # Regression: #add normalizes the key by stripping a trailing dot, so #get and
+  # #delete must strip it too or an entry added as an FQDN (with the trailing
+  # root-label dot) is unreachable when looked up or removed.
+  context 'when a hostname is added with a trailing dot' do
+    let(:subject) { described_class.new }
+
+    before { subject.add('example.com.', '192.0.2.1') }
+
+    it 'is retrievable using the trailing-dot form' do
+      expect(subject.get('example.com.')).to eq ['192.0.2.1']
+    end
+
+    it 'is retrievable using the bare form' do
+      expect(subject.get('example.com')).to eq ['192.0.2.1']
+    end
+
+    it 'can be deleted using the trailing-dot form' do
+      subject.delete('example.com.', '192.0.2.1')
+      expect(subject.get('example.com')).to eq []
+    end
+  end
 end
