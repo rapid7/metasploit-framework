@@ -145,7 +145,14 @@ class Msf::Analyze::Result
     # Must come after the target so we know we match the target we want.
     # TODO: feed available payloads into target selection
     if @wanted_payloads
-      if p = @wanted_payloads.find { |p| @mod.is_payload_compatible?(p) }
+      # Use compatible_payloads to check arch/platform, compatibility, and payload space
+      # for the requested candidate payloads without enumerating every unrelated payload in the framework.
+      compatible_payload_names = if @mod.respond_to?(:compatible_payloads)
+                                   @mod.compatible_payloads(candidate_names: @wanted_payloads).map(&:first)
+                                 else
+                                   @wanted_payloads.select { |p| @mod.is_payload_compatible?(p) }
+                                 end
+      if p = @wanted_payloads.find { |wanted| compatible_payload_names.include?(wanted) }
         @datastore['payload'] = p
       else
         @missing << :payload_match
